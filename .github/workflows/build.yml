@@ -1,0 +1,18 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Compile Definitions
+        run: docker run --rm -v "$PWD":/work -w /work zeek/zeek:latest bash -c 'set -e; echo "Compiling definitions"; find . -name "*.spicy" | while read module; do echo "  $module"; spicyc -j "$module" -o /tmp/module.hlto; done'
+
+

@@ -1,0 +1,43 @@
+module NasdaqNsmequitiesAggregatedItchV20;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesAggregatedV20 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    MarketParticipantPositionMessage = 0x50,
+    MwcbDeclineLevelMessage = 0x56,
+    MwcbStatusMessage = 0x57,
+    IpoQuotingPeriodUpdateMessage = 0x4b,
+    LuldAuctionCollarMessage = 0x4a,
+    OperationalHaltMessage = 0x68,
+    PriceLevelUpdateMessage = 0x55,
+    NetOrderImbalanceIndicatorMessage = 0x49,
+    RetailPriceImprovementIndicatorMessage = 0x4e,
+    DirectListingWithCapitalRaisePriceDiscoveryMessage = 0x4f,
+};
+

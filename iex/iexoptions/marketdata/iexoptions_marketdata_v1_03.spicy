@@ -1,0 +1,401 @@
+module IexIexoptionsMarketdataSbeV103;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type IexoptionsMarketdataV103 = unit {
+    sbe_message: SbeMessage[] &eod;
+};
+
+type SbeMessage = unit {
+    packet_length: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::UnderlyingRefDataMessage -> underlying_ref_data_message: UnderlyingRefDataMessage;
+        TemplateId::SymbolMappingMessage -> symbol_mapping_message: SymbolMappingMessage;
+        TemplateId::InstrumentClearMessage -> instrument_clear_message: InstrumentClearMessage;
+        TemplateId::TradingStatusMessage -> trading_status_message: TradingStatusMessage;
+        TemplateId::OptionsAuctionSummaryMessage -> options_auction_summary_message: OptionsAuctionSummaryMessage;
+        TemplateId::OptionsAuctionWidthUpdateMessage -> options_auction_width_update_message: OptionsAuctionWidthUpdateMessage;
+        TemplateId::LiquidityEventNotificationMessage -> liquidity_event_notification_message: LiquidityEventNotificationMessage;
+        TemplateId::LiquidityEventExecutionMessage -> liquidity_event_execution_message: LiquidityEventExecutionMessage;
+        TemplateId::LiquidityEventCancelMessage -> liquidity_event_cancel_message: LiquidityEventCancelMessage;
+        TemplateId::AddOrderNonCustomerMessage -> add_order_non_customer_message: AddOrderNonCustomerMessage;
+        TemplateId::AddOrderCustomerMessage -> add_order_customer_message: AddOrderCustomerMessage;
+        TemplateId::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        TemplateId::DeleteOrderMessage -> delete_order_message: DeleteOrderMessage;
+        TemplateId::OrderExecutionMessage -> order_execution_message: OrderExecutionMessage;
+        TemplateId::DeepTradeBreakMessage -> deep_trade_break_message: DeepTradeBreakMessage;
+        TemplateId::QuoteUpdateNoCustomerInterestMessage -> quote_update_no_customer_interest_message: QuoteUpdateNoCustomerInterestMessage;
+        TemplateId::QuoteUpdateCustomerInterestMessage -> quote_update_customer_interest_message: QuoteUpdateCustomerInterestMessage;
+        TemplateId::TradeMessage -> trade_message: TradeMessage;
+        TemplateId::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        TemplateId::TopsTradeBreakMessage -> tops_trade_break_message: TopsTradeBreakMessage;
+        TemplateId::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        TemplateId::SequencedPacketMessage -> sequenced_packet_message: SequencedPacketMessage;
+        TemplateId::SessionShutdownMessage -> session_shutdown_message: SessionShutdownMessage;
+        TemplateId::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        TemplateId::RetransmissionResponseMessage -> retransmission_response_message: RetransmissionResponseMessage;
+        TemplateId::SnapshotHeaderMessage -> snapshot_header_message: SnapshotHeaderMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type UnderlyingRefDataMessage = unit {
+    time_field: uint64;
+    underlying_id: uint32;
+    underlying_symbol: bytes &size=16;
+    exchange_code: bytes &size=1;
+    mpv_group: int8 &convert=MpvGroup($$);
+    close_indicator: int8 &convert=CloseIndicator($$);
+};
+
+type SymbolMappingMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    osi_symbol: bytes &size=32;
+    trading_ring: int8;
+    closing_only_series: uint8 &convert=ClosingOnlySeries($$);
+    underlying_id: uint32;
+    maturity_date: bytes &size=8;
+    option_type: int8 &convert=OptionType($$);
+    strike_price: int64;
+    orp_enablement: int8 &convert=OrpEnablement($$);
+};
+
+type InstrumentClearMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+};
+
+type TradingStatusMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    trading_status: int8 &convert=TradingStatus($$);
+};
+
+type OptionsAuctionSummaryMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    auction_summary_type: int8 &convert=AuctionSummaryType($$);
+    price: int64;
+    contracts: uint32;
+};
+
+type OptionsAuctionWidthUpdateMessage = unit {
+    time_field: uint64;
+    underlying_id: uint32;
+    quote_relief_multiplier: uint8;
+};
+
+type LiquidityEventNotificationMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    event_id: uint32;
+    liquidity_event_type: int8 &convert=LiquidityEventType($$);
+    side: int8 &convert=Side($$);
+    price: int64;
+    contracts: uint32;
+    capacity: int8 &convert=Capacity($$);
+    participant_id: bytes &size=4;
+    event_end_offset: uint32;
+};
+
+type LiquidityEventExecutionMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    event_id: uint32;
+    trade_id: uint64;
+    price: int64;
+    contracts: uint32;
+};
+
+type LiquidityEventCancelMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    event_id: uint32;
+};
+
+type AddOrderNonCustomerMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    order_id: uint64;
+    side: int8 &convert=Side($$);
+    price: int64;
+    contracts: uint32;
+};
+
+type AddOrderCustomerMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    order_id: uint64;
+    side: int8 &convert=Side($$);
+    price: int64;
+    contracts: uint32;
+    customer_indicator: int8 &convert=CustomerIndicator($$);
+};
+
+type ModifyOrderMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    order_id: uint64;
+    price: int64;
+    contracts: uint32;
+    mod_flag: int8 &convert=ModFlag($$);
+};
+
+type DeleteOrderMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    order_id: uint64;
+};
+
+type OrderExecutionMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    order_id: uint64;
+    trade_id: uint64;
+    price: int64;
+    executed_contracts: uint32;
+    remaining_contracts: uint32;
+    trade_condition: bytes &size=1;
+};
+
+type DeepTradeBreakMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    trade_id: uint64;
+};
+
+type QuoteUpdateNoCustomerInterestMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    bid_size: uint32;
+    bid_price: int64;
+    ask_size: uint32;
+    ask_price: int64;
+    status_status_type: int8 &convert=StatusStatusType($$);
+};
+
+type QuoteUpdateCustomerInterestMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    bid_size: uint32;
+    bid_customer_size: uint32;
+    bid_price: int64;
+    ask_size: uint32;
+    ask_customer_size: uint32;
+    ask_price: int64;
+    status_status_type: int8 &convert=StatusStatusType($$);
+};
+
+type TradeMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    trade_id: uint64;
+    price: int64;
+    contracts: uint32;
+    trade_condition: bytes &size=1;
+};
+
+type TradeCorrectionMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    original_trade_id: uint64;
+    trade_id: uint64;
+    price: int64;
+    contracts: uint32;
+    trade_condition: bytes &size=1;
+};
+
+type TopsTradeBreakMessage = unit {
+    time_field: uint64;
+    instrument_id: uint32;
+    trade_id: uint64;
+    trade_condition: bytes &size=1;
+};
+
+type HeartbeatMessage = unit {
+    channel_id: uint32;
+    sequence_number: uint64;
+};
+
+type SequencedPacketMessage = unit {
+    channel_id: uint32;
+    sequence_number: uint64;
+    sequenced_packet_message_messages_groups: SequencedPacketMessageMessagesGroups;
+};
+
+type SequencedPacketMessageMessagesGroups = unit {
+    message_list_group_encoding: MessageListGroupEncoding;
+};
+
+type MessageListGroupEncoding = unit {
+    block_length_uint_8: uint8;
+    num_in_group: uint8;
+};
+
+type SessionShutdownMessage = unit {
+    channel_id: uint32;
+    sequence_number: uint64;
+};
+
+type RetransmissionRequestMessage = unit {
+    begin_sequence: uint64;
+    end_sequence: uint64;
+    logon_id: bytes &size=16;
+    request_id: uint32;
+    channel_id: uint32;
+    feed: int8 &convert=Feed($$);
+};
+
+type RetransmissionResponseMessage = unit {
+    logon_id: bytes &size=16;
+    request_id: uint32;
+    channel_id: uint32;
+    feed: int8 &convert=Feed($$);
+    status_retransmission_status_type: uint8 &convert=StatusRetransmissionStatusType($$);
+};
+
+type SnapshotHeaderMessage = unit {
+    snapshot_id: uint32;
+    current_packet_number: uint32;
+    total_packet_count: uint32;
+    as_of_sequence_number: uint64;
+};
+
+type TemplateId = enum {
+    UnderlyingRefDataMessage = 1,
+    SymbolMappingMessage = 2,
+    InstrumentClearMessage = 3,
+    TradingStatusMessage = 4,
+    OptionsAuctionSummaryMessage = 5,
+    OptionsAuctionWidthUpdateMessage = 6,
+    LiquidityEventNotificationMessage = 7,
+    LiquidityEventExecutionMessage = 8,
+    LiquidityEventCancelMessage = 9,
+    AddOrderNonCustomerMessage = 100,
+    AddOrderCustomerMessage = 101,
+    ModifyOrderMessage = 102,
+    DeleteOrderMessage = 103,
+    OrderExecutionMessage = 104,
+    DeepTradeBreakMessage = 105,
+    QuoteUpdateNoCustomerInterestMessage = 200,
+    QuoteUpdateCustomerInterestMessage = 201,
+    TradeMessage = 202,
+    TradeCorrectionMessage = 203,
+    TopsTradeBreakMessage = 204,
+    HeartbeatMessage = 300,
+    SequencedPacketMessage = 301,
+    SessionShutdownMessage = 302,
+    ServerHeartbeatMessage = 400,
+    ClientHeartbeatMessage = 401,
+    RetransmissionRequestMessage = 402,
+    RetransmissionResponseMessage = 403,
+    SnapshotHeaderMessage = 601,
+};
+
+type MpvGroup = enum {
+    AllPenny = 0,
+    PennyNickel = 1,
+    NickelDime = 2,
+};
+
+type CloseIndicator = enum {
+    Default = 0,
+    UnderlyingClosed = 1,
+};
+
+type ClosingOnlySeries = enum {
+    False = 0,
+    True = 1,
+};
+
+type OptionType = enum {
+    Put = 0,
+    Call = 1,
+};
+
+type OrpEnablement = enum {
+    OrpProtectionEnabled = 0,
+    OrpProtectionDisabled = 1,
+};
+
+type TradingStatus = enum {
+    Halted = 0,
+    PreOpening = 1,
+    OpeningProcess = 2,
+    ContinuousTrading = 3,
+    ReOpeningProcess = 4,
+    Suspended = 5,
+    Queueing = 6,
+};
+
+type AuctionSummaryType = enum {
+    Opening = 0,
+    HaltReOpening = 1,
+};
+
+type LiquidityEventType = enum {
+    Sum = 0,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type Capacity = enum {
+    Customer = 0,
+    Firm = 1,
+    BrokerDealer = 2,
+    MarketMaker = 3,
+    AwayMarketMaker = 4,
+    ProfCustomer = 5,
+    NotDisclosed = 6,
+};
+
+type CustomerIndicator = enum {
+    Customer = 0,
+    NonCustomer = 1,
+};
+
+type ModFlag = enum {
+    ResetPriority = 0,
+    MaintainPriority = 1,
+};
+
+type StatusStatusType = enum {
+    RegularTrading = 0,
+    TradingHalted = 1,
+};
+
+type Feed = enum {
+    Deep = 0,
+    Tops = 1,
+};
+
+type StatusRetransmissionStatusType = enum {
+    Success = 0,
+    InvalidChannelId = 1,
+    InvalidFeed = 2,
+    InvalidLogonId = 3,
+    InvalidRequestId = 4,
+    InvalidPacketLength = 5,
+    InvalidMessage = 6,
+    InvalidSeqNumRange = 7,
+    DenialOfService = 8,
+    MaxDailyRequestsExceeded = 9,
+    MaxSeqNumRangeExceeded = 10,
+    SeqNumTtlExpired = 11,
+    InternalError = 12,
+};
+

@@ -1,0 +1,250 @@
+module IexIexequitiesDeepplusIextpV104;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type IexequitiesDeepplusV104 = unit {
+    iextp_header: IextpHeader;
+    messages: Message[self.iextp_header.message_count];
+};
+
+type IextpHeader = unit {
+    version: uint8;
+    : skip bytes &size=1;   # padding
+    message_protocol_id: uint16;
+    channel_id: uint32;
+    session_id: uint32;
+    payload_length: uint16;
+    message_count: uint16;
+    stream_offset: uint64;
+    first_message_sequence_number: uint64;
+    send_time: uint64;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::SecurityDirectoryMessage -> security_directory_message: SecurityDirectoryMessage;
+        MessageType::TradingStatusMessage -> trading_status_message: TradingStatusMessage;
+        MessageType::RetailLiquidityIndicatorMessage -> retail_liquidity_indicator_message: RetailLiquidityIndicatorMessage;
+        MessageType::OperationalHaltStatusMessage -> operational_halt_status_message: OperationalHaltStatusMessage;
+        MessageType::ShortSalePriceTestStatusMessage -> short_sale_price_test_status_message: ShortSalePriceTestStatusMessage;
+        MessageType::SecurityEventMessage -> security_event_message: SecurityEventMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::OrderModifyMessage -> order_modify_message: OrderModifyMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::TradeBreakMessage -> trade_break_message: TradeBreakMessage;
+        MessageType::ClearBookMessage -> clear_book_message: ClearBookMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    system_event: uint8 &convert=SystemEvent($$);
+    timestamp: int64;
+};
+
+type SecurityDirectoryMessage = unit {
+    security_directory_flags: SecurityDirectoryFlags;
+    timestamp: int64;
+    symbol: bytes &size=8;
+    round_lot_size: uint32;
+    adjusted_poc_price: int64;
+    luld_tier: uint8 &convert=LuldTier($$);
+};
+
+type SecurityDirectoryFlags = unit {
+    : skip bytes &size=1;   # padding
+    etp: bytes &size=1;
+    when_issued: bytes &size=1;
+    test_security: bytes &size=1;
+};
+
+type TradingStatusMessage = unit {
+    trading_status: uint8 &convert=TradingStatus($$);
+    timestamp: int64;
+    symbol: bytes &size=8;
+    reason: bytes &size=4;
+};
+
+type RetailLiquidityIndicatorMessage = unit {
+    retail_liquidity_indicator: uint8 &convert=RetailLiquidityIndicator($$);
+    timestamp: int64;
+    symbol: bytes &size=8;
+};
+
+type OperationalHaltStatusMessage = unit {
+    operational_halt_status: uint8 &convert=OperationalHaltStatus($$);
+    timestamp: int64;
+    symbol: bytes &size=8;
+};
+
+type ShortSalePriceTestStatusMessage = unit {
+    short_sale_price_test_status: uint8 &convert=ShortSalePriceTestStatus($$);
+    timestamp: int64;
+    symbol: bytes &size=8;
+    detail: uint8 &convert=Detail($$);
+};
+
+type SecurityEventMessage = unit {
+    security_event: uint8 &convert=SecurityEvent($$);
+    timestamp: int64;
+    symbol: bytes &size=8;
+};
+
+type AddOrderMessage = unit {
+    side: uint8 &convert=Side($$);
+    timestamp: int64;
+    symbol: bytes &size=8;
+    order_id: uint64;
+    size: uint32;
+    price: int64;
+};
+
+type OrderModifyMessage = unit {
+    modify_flags: ModifyFlags;
+    timestamp: int64;
+    symbol: bytes &size=8;
+    order_id_reference: uint64;
+    size: uint32;
+    price: int64;
+};
+
+type ModifyFlags = unit {
+    : skip bytes &size=1;   # padding
+    priority: bytes &size=1;
+};
+
+type OrderDeleteMessage = unit {
+    reserved_1: bytes &size=1;
+    timestamp: int64;
+    symbol: bytes &size=8;
+    order_id_reference: uint64;
+};
+
+type OrderExecutedMessage = unit {
+    sale_condition_flags: SaleConditionFlags;
+    timestamp: int64;
+    symbol: bytes &size=8;
+    order_id_reference: uint64;
+    size: uint32;
+    price: int64;
+    trade_id: uint64;
+};
+
+type SaleConditionFlags = unit {
+    : skip bytes &size=1;   # padding
+    singleprice_cross_trade: bytes &size=1;
+    trade_through_exempt: bytes &size=1;
+    odd_lot: bytes &size=1;
+    extended_hours: bytes &size=1;
+    intermarket_sweep: bytes &size=1;
+};
+
+type TradeMessage = unit {
+    sale_condition_flags: SaleConditionFlags;
+    timestamp: int64;
+    symbol: bytes &size=8;
+    size: uint32;
+    price: int64;
+    trade_id: uint64;
+};
+
+type TradeBreakMessage = unit {
+    sale_condition_flags: SaleConditionFlags;
+    timestamp: int64;
+    symbol: bytes &size=8;
+    size: uint32;
+    price: int64;
+    trade_id: uint64;
+};
+
+type ClearBookMessage = unit {
+    reserved_1: bytes &size=1;
+    timestamp: int64;
+    symbol: bytes &size=8;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    SecurityDirectoryMessage = 0x44,
+    TradingStatusMessage = 0x48,
+    RetailLiquidityIndicatorMessage = 0x49,
+    OperationalHaltStatusMessage = 0x4f,
+    ShortSalePriceTestStatusMessage = 0x50,
+    SecurityEventMessage = 0x45,
+    AddOrderMessage = 0x61,
+    OrderModifyMessage = 0x4d,
+    OrderDeleteMessage = 0x52,
+    OrderExecutedMessage = 0x4c,
+    TradeMessage = 0x54,
+    TradeBreakMessage = 0x42,
+    ClearBookMessage = 0x43,
+};
+
+type SystemEvent = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfRegularMarketHours = 0x52,
+    EndOfRegularMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type LuldTier = enum {
+    NotApplicable = 0,
+    Tier1NmsStock = 1,
+    Tier2NmsStock = 2,
+};
+
+type TradingStatus = enum {
+    TradingHaltedAcrossAllUsEquityMarkets = 0x48,
+    TradingHaltReleasedIntoAnOrderAcceptancePeriodOnIex = 0x4f,
+    TradingPausedAndOrderAcceptancePeriodOnIex = 0x50,
+    TradingOnIex = 0x54,
+};
+
+type RetailLiquidityIndicator = enum {
+    NotApplicable = 0x20,
+    BuyInterest = 0x41,
+    SellInterest = 0x42,
+    BuyAndSellInterest = 0x43,
+};
+
+type OperationalHaltStatus = enum {
+    IexSpecificOperationalTradingHalt = 0x4f,
+    NotOperationallyHaltedOnIex = 0x4e,
+};
+
+type ShortSalePriceTestStatus = enum {
+    NotInEffect = 0,
+    InEffect = 1,
+};
+
+type Detail = enum {
+    NoPriceTestInPlace = 0x20,
+    ShortSalePriceTestRestrictionInEffectDueToAnIntradayPriceDropInTheSecurity = 0x41,
+    ShortSalePriceTestRestrictionRemainsInEffectFromPriorDay = 0x43,
+    ShortSalePriceTestRestrictionDeactivated = 0x44,
+    NotAvailable = 0x4e,
+};
+
+type SecurityEvent = enum {
+    OpeningProcessComplete = 0x4f,
+    ClosingProcessComplete = 0x43,
+};
+
+type Side = enum {
+    Buy = 0x38,
+    Sell = 0x35,
+};
+

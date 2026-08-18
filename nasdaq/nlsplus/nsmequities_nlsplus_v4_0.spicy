@@ -1,0 +1,43 @@
+module NasdaqNsmequitiesNlsplusItchV40;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesNlsplusV40 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    TradeReportMessage = 0x65,
+    TradeCancelErrorMessage = 0x6f,
+    TradeCorrectionMessage = 0x62,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    StockDirectoryMessage = 0x52,
+    AdjustedClosingPriceMessage = 0x67,
+    EndOfDayTradeSummaryMessage = 0x70,
+    IpoInformationMessage = 0x69,
+    MwcbDeclineLevelMessage = 0x56,
+    MwcbStatusMessage = 0x57,
+    IpoQuotingPeriodUpdateMessage = 0x6b,
+    OperationalHaltMessage = 0x68,
+};
+

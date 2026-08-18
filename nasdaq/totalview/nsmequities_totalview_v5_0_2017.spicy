@@ -1,0 +1,50 @@
+module NasdaqNsmequitiesTotalviewItchV502017;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesTotalviewV502017 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    MarketParticipantPositionMessage = 0x4c,
+    MwcbDeclineLevelMessage = 0x56,
+    MwcbStatusLevelMessage = 0x57,
+    IpoQuotingPeriodUpdate = 0x4b,
+    AddOrderNoMpidAttributionMessage = 0x41,
+    LuldAuctionCollarMessage = 0x4a,
+    AddOrderWithMpidAttributionMessage = 0x46,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderCancelMessage = 0x58,
+    OrderDeleteMessage = 0x44,
+    OrderReplaceMessage = 0x55,
+    NonCrossTradeMessage = 0x50,
+    CrossTradeMessage = 0x51,
+    BrokenTradeMessage = 0x42,
+    NetOrderImbalanceIndicatorMessage = 0x49,
+    RetailInterestMessage = 0x4e,
+};
+

@@ -1,0 +1,1093 @@
+module IexIexoptionsBinaryorderentrySbeV102;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type IexoptionsBinaryorderentryV102 = unit {
+    sbe_message: SbeMessage[] &eod;
+};
+
+type SbeMessage = unit {
+    packet_length: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::NewOrderSingleMessage -> new_order_single_message: NewOrderSingleMessage;
+        TemplateId::OrderCancelReplaceRequestMessage -> order_cancel_replace_request_message: OrderCancelReplaceRequestMessage;
+        TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
+        TemplateId::NewBulkQuoteMessage -> new_bulk_quote_message: NewBulkQuoteMessage;
+        TemplateId::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
+        TemplateId::PurgeRequestMessage -> purge_request_message: PurgeRequestMessage;
+        TemplateId::OrderAckMessage -> order_ack_message: OrderAckMessage;
+        TemplateId::UnsolicitedModifyAckMessage -> unsolicited_modify_ack_message: UnsolicitedModifyAckMessage;
+        TemplateId::OrderCancelAckMessage -> order_cancel_ack_message: OrderCancelAckMessage;
+        TemplateId::MassCancelAckMessage -> mass_cancel_ack_message: MassCancelAckMessage;
+        TemplateId::BulkQuoteAckMessage -> bulk_quote_ack_message: BulkQuoteAckMessage;
+        TemplateId::NewIocQuoteAckMessage -> new_ioc_quote_ack_message: NewIocQuoteAckMessage;
+        TemplateId::QuoteRestatedMessage -> quote_restated_message: QuoteRestatedMessage;
+        TemplateId::QuoteCanceledMessage -> quote_canceled_message: QuoteCanceledMessage;
+        TemplateId::PurgeAckMessage -> purge_ack_message: PurgeAckMessage;
+        TemplateId::ExecutionReportMessage -> execution_report_message: ExecutionReportMessage;
+        TemplateId::TradeBustCorrectMessage -> trade_bust_correct_message: TradeBustCorrectMessage;
+        TemplateId::ApplicationLayerRejectMessage -> application_layer_reject_message: ApplicationLayerRejectMessage;
+        TemplateId::RiskLimitUpdateRequestMessage -> risk_limit_update_request_message: RiskLimitUpdateRequestMessage;
+        TemplateId::RiskActionRequestMessage -> risk_action_request_message: RiskActionRequestMessage;
+        TemplateId::UnderlyingRefDataMessage -> underlying_ref_data_message: UnderlyingRefDataMessage;
+        TemplateId::InstrumentRefDataMessage -> instrument_ref_data_message: InstrumentRefDataMessage;
+        TemplateId::MpidConfigurationAcknowledgementMessage -> mpid_configuration_acknowledgement_message: MpidConfigurationAcknowledgementMessage;
+        TemplateId::MarketMakerSymbolAppointmentMessage -> market_maker_symbol_appointment_message: MarketMakerSymbolAppointmentMessage;
+        TemplateId::SessionConfigurationAcknowledgementMessage -> session_configuration_acknowledgement_message: SessionConfigurationAcknowledgementMessage;
+        TemplateId::RiskControlAcknowledgmentMessage -> risk_control_acknowledgment_message: RiskControlAcknowledgmentMessage;
+        TemplateId::RiskControlAlertMessage -> risk_control_alert_message: RiskControlAlertMessage;
+        TemplateId::SequencedMessageHeaderMessage -> sequenced_message_header_message: SequencedMessageHeaderMessage;
+        TemplateId::SubsessionJoinMessage -> subsession_join_message: SubsessionJoinMessage;
+        TemplateId::SubsessionJoinResponseMessage -> subsession_join_response_message: SubsessionJoinResponseMessage;
+        TemplateId::SubsessionLeaveMessage -> subsession_leave_message: SubsessionLeaveMessage;
+        TemplateId::SubsessionLeaveResponseMessage -> subsession_leave_response_message: SubsessionLeaveResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type NewOrderSingleMessage = unit {
+    account_account: bytes &size=16;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    clearing_account: bytes &size=4;
+    customer_or_firm: int8 &convert=CustomerOrFirm($$);
+    open_close: int8 &convert=OpenClose($$);
+    attributed_quote: int8 &convert=AttributedQuote($$);
+    time_in_force: int8 &convert=TimeInForce($$);
+    cancel_instead_of_slide_cancel_instead_of_slide: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlide($$);
+    display_inst: int8 &convert=DisplayInst($$);
+    exec_inst: int8 &convert=ExecInst($$);
+    ord_type: int8 &convert=OrdType($$);
+    target_party_id: bytes &size=4;
+    auction_id: uint32;
+    clearing_firm: uint32;
+    optional_data: bytes &size=16;
+    routing_firm_id: bytes &size=4;
+    aiq: bytes &size=3;
+    side: int8 &convert=Side($$);
+    price_price_8: int64;
+    order_qty_quantity_non_zero: uint32;
+};
+
+type OrderCancelReplaceRequestMessage = unit {
+    account_account: bytes &size=16;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    clearing_account: bytes &size=4;
+    orig_cl_ord_id: uint64;
+    customer_or_firm: int8 &convert=CustomerOrFirm($$);
+    open_close: int8 &convert=OpenClose($$);
+    attributed_quote: int8 &convert=AttributedQuote($$);
+    time_in_force: int8 &convert=TimeInForce($$);
+    cancel_instead_of_slide_cancel_instead_of_slide_optional: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlideOptional($$);
+    display_inst: int8 &convert=DisplayInst($$);
+    exec_inst: int8 &convert=ExecInst($$);
+    ord_type: int8 &convert=OrdType($$);
+    target_party_id: bytes &size=4;
+    auction_id: uint32;
+    clearing_firm: uint32;
+    optional_data: bytes &size=16;
+    routing_firm_id: bytes &size=4;
+    aiq: bytes &size=3;
+    side: int8 &convert=Side($$);
+    price_price_8: int64;
+    order_qty_quantity_non_zero: uint32;
+};
+
+type OrderCancelRequestMessage = unit {
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+};
+
+type NewBulkQuoteMessage = unit {
+    market_participant_id: bytes &size=4;
+    custom_group_id_uint_16: uint16;
+    cl_ord_id: uint64;
+    clearing_account: bytes &size=4;
+    cancel_instead_of_slide_cancel_instead_of_slide_optional: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlideOptional($$);
+    send_time: uint64;
+    aiq: bytes &size=3;
+    time_in_force: int8 &convert=TimeInForce($$);
+    new_bulk_quote_message_quote_updates_groups: NewBulkQuoteMessageQuoteUpdatesGroups;
+};
+
+type NewBulkQuoteMessageQuoteUpdatesGroups = unit {
+    quote_updates_group_encoding: QuoteUpdatesGroupEncoding;
+    new_bulk_quote_message_quote_updates_group: NewBulkQuoteMessageQuoteUpdatesGroup[self.quote_updates_group_encoding.num_in_group];
+};
+
+type QuoteUpdatesGroupEncoding = unit {
+    block_length_uint_8: uint8;
+    num_in_group: uint8;
+};
+
+type NewBulkQuoteMessageQuoteUpdatesGroup = unit {
+    instrument_id_instrument_id: uint32;
+    side: int8 &convert=Side($$);
+    price_price_4_optional: int32;
+    order_qty_quantity_zero_optional: uint32;
+    quote_type: int8 &convert=QuoteType($$);
+    reserved: int8;
+};
+
+type MassCancelRequestMessage = unit {
+    underlying_id_instrument_id_optional: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    send_time: uint64;
+    ack_style_mass_cancel_ack_style: uint8 &convert=AckStyleMassCancelAckStyle($$);
+    mpid_filter: uint8 &convert=MpidFilter($$);
+    bulk_action: uint8 &convert=BulkAction($$);
+};
+
+type PurgeRequestMessage = unit {
+    underlying_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    send_time: uint64;
+    ack_style_purge_request_ack_style: uint8 &convert=AckStylePurgeRequestAckStyle($$);
+    bulk_action: uint8 &convert=BulkAction($$);
+    purge_request_message_custom_group_ids_groups: PurgeRequestMessageCustomGroupIdsGroups;
+};
+
+type PurgeRequestMessageCustomGroupIdsGroups = unit {
+    custom_group_ids_group_encoding: CustomGroupIdsGroupEncoding;
+    purge_request_message_custom_group_ids_group: PurgeRequestMessageCustomGroupIdsGroup[self.custom_group_ids_group_encoding.num_in_group];
+};
+
+type CustomGroupIdsGroupEncoding = unit {
+    block_length_uint_8: uint8;
+    num_in_group: uint8;
+};
+
+type PurgeRequestMessageCustomGroupIdsGroup = unit {
+    custom_group_id_uint_16: uint16;
+};
+
+type OrderAckMessage = unit {
+    account_account: bytes &size=16;
+    transact_time: uint64;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    clearing_account: bytes &size=4;
+    orig_cl_ord_id: uint64;
+    order_id: uint64;
+    customer_or_firm: int8 &convert=CustomerOrFirm($$);
+    open_close: int8 &convert=OpenClose($$);
+    attributed_quote: int8 &convert=AttributedQuote($$);
+    time_in_force: int8 &convert=TimeInForce($$);
+    cancel_instead_of_slide_cancel_instead_of_slide: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlide($$);
+    display_inst: int8 &convert=DisplayInst($$);
+    exec_inst: int8 &convert=ExecInst($$);
+    ord_type: int8 &convert=OrdType($$);
+    target_party_id: bytes &size=4;
+    auction_id: uint32;
+    clearing_firm: uint32;
+    optional_data: bytes &size=16;
+    routing_firm_id: bytes &size=4;
+    aiq: bytes &size=3;
+    side: int8 &convert=Side($$);
+    price_price_8: int64;
+    order_qty_quantity_non_zero: uint32;
+    leaves_qty: uint32;
+    effective_limit_price: int64;
+    display_price: int64;
+    reason_code: uint8 &convert=ReasonCode($$);
+    ack_type: int8 &convert=AckType($$);
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+};
+
+type UnsolicitedModifyAckMessage = unit {
+    transact_time: uint64;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    orig_cl_ord_id: uint64;
+    order_id: uint64;
+    price_price_8: int64;
+    order_qty_quantity_non_zero: uint32;
+    leaves_qty: uint32;
+    effective_limit_price: int64;
+    display_price: int64;
+    restatement_reason: int8 &convert=RestatementReason($$);
+    reason_code: uint8 &convert=ReasonCode($$);
+    ack_type: int8 &convert=AckType($$);
+};
+
+type OrderCancelAckMessage = unit {
+    transact_time: uint64;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    order_id: uint64;
+    price_price_8: int64;
+    leaves_qty: uint32;
+    reason_code: uint8 &convert=ReasonCode($$);
+    ack_type: int8 &convert=AckType($$);
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+};
+
+type MassCancelAckMessage = unit {
+    transact_time: uint64;
+    underlying_id_instrument_id_optional: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    reason_code: uint8 &convert=ReasonCode($$);
+    ack_style_mass_cancel_ack_style: uint8 &convert=AckStyleMassCancelAckStyle($$);
+    mpid_filter: uint8 &convert=MpidFilter($$);
+    bulk_action: uint8 &convert=BulkAction($$);
+    cancel_count: uint32;
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+};
+
+type BulkQuoteAckMessage = unit {
+    transact_time: uint64;
+    market_participant_id: bytes &size=4;
+    custom_group_id_uint_16: uint16;
+    cl_ord_id: uint64;
+    clearing_account: bytes &size=4;
+    aiq: bytes &size=3;
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+    bulk_quote_ack_message_quote_acks_groups: BulkQuoteAckMessageQuoteAcksGroups;
+};
+
+type BulkQuoteAckMessageQuoteAcksGroups = unit {
+    quote_acks_group_encoding: QuoteAcksGroupEncoding;
+    bulk_quote_ack_message_quote_acks_group: BulkQuoteAckMessageQuoteAcksGroup[self.quote_acks_group_encoding.num_in_group];
+};
+
+type QuoteAcksGroupEncoding = unit {
+    block_length_uint_8: uint8;
+    num_in_group: uint8;
+};
+
+type BulkQuoteAckMessageQuoteAcksGroup = unit {
+    instrument_id_instrument_id: uint32;
+    side: int8 &convert=Side($$);
+    order_id: uint64;
+    ack_type: int8 &convert=AckType($$);
+    price_price_4_optional: int32;
+    order_qty_quantity_zero_optional: uint32;
+    reason_code: uint8 &convert=ReasonCode($$);
+};
+
+type NewIocQuoteAckMessage = unit {
+    transact_time: uint64;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    clearing_account: bytes &size=4;
+    aiq: bytes &size=3;
+    instrument_id_instrument_id: uint32;
+    side: int8 &convert=Side($$);
+    order_id: uint64;
+    ack_type: int8 &convert=AckType($$);
+    price_price_4: int32;
+    order_qty_quantity_non_zero: uint32;
+    reason_code: uint8 &convert=ReasonCode($$);
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+};
+
+type QuoteRestatedMessage = unit {
+    transact_time: uint64;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    order_id: uint64;
+    side: int8 &convert=Side($$);
+    price_price_8: int64;
+    reason_code: uint8 &convert=ReasonCode($$);
+    ack_type: int8 &convert=AckType($$);
+    delta: bytes &size=4;
+};
+
+type QuoteCanceledMessage = unit {
+    transact_time: uint64;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    order_id: uint64;
+    side: int8 &convert=Side($$);
+    reason_code: uint8 &convert=ReasonCode($$);
+    ack_type: int8 &convert=AckType($$);
+    delta: bytes &size=4;
+};
+
+type PurgeAckMessage = unit {
+    transact_time: uint64;
+    underlying_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    ack_style_purge_request_ack_style: uint8 &convert=AckStylePurgeRequestAckStyle($$);
+    bulk_action: uint8 &convert=BulkAction($$);
+    cancel_count: uint32;
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+    purge_ack_message_custom_group_ids_groups: PurgeAckMessageCustomGroupIdsGroups;
+};
+
+type PurgeAckMessageCustomGroupIdsGroups = unit {
+    custom_group_ids_group_encoding: CustomGroupIdsGroupEncoding;
+    purge_ack_message_custom_group_ids_group: PurgeAckMessageCustomGroupIdsGroup[self.custom_group_ids_group_encoding.num_in_group];
+};
+
+type PurgeAckMessageCustomGroupIdsGroup = unit {
+    custom_group_id_uint_16: uint16;
+};
+
+type ExecutionReportMessage = unit {
+    account_account: bytes &size=16;
+    transact_time: uint64;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    clearing_account: bytes &size=4;
+    customer_or_firm: int8 &convert=CustomerOrFirm($$);
+    order_id: uint64;
+    exec_id: uint64;
+    trade_id: uint64;
+    last_px: int64;
+    open_close: int8 &convert=OpenClose($$);
+    side: int8 &convert=Side($$);
+    target_party_id: bytes &size=4;
+    auction_id: uint32;
+    clearing_firm: uint32;
+    optional_data: bytes &size=16;
+    routing_firm_id: bytes &size=4;
+    aiq: bytes &size=3;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    last_qty: uint32;
+    trade_liquidity_indicator: int8 &convert=TradeLiquidityIndicator($$);
+    fee_code: bytes &size=2;
+    reason_code: uint8 &convert=ReasonCode($$);
+    occ_id: bytes &size=5;
+    contra_clearing_account: bytes &size=4;
+    contra_clearing_firm: uint32;
+    contra_mpid: bytes &size=4;
+    contra_open_close: int8 &convert=ContraOpenClose($$);
+    contra_customer_or_firm: int8 &convert=ContraCustomerOrFirm($$);
+    contra_occ_id: bytes &size=5;
+};
+
+type TradeBustCorrectMessage = unit {
+    transact_time: uint64;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    order_id: uint64;
+    exec_id: uint64;
+    trade_id: uint64;
+    trade_ref_id: uint64;
+    last_px: int64;
+    account_account: bytes &size=16;
+    last_qty: uint32;
+    reason_code: uint8 &convert=ReasonCode($$);
+    bust_or_correction: int8 &convert=BustOrCorrection($$);
+};
+
+type ApplicationLayerRejectMessage = unit {
+    transact_time: uint64;
+    underlying_id_instrument_id: uint32;
+    instrument_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    account_string_16: bytes &size=16;
+    reason_code: uint8 &convert=ReasonCode($$);
+    reject_type: int8 &convert=RejectType($$);
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+};
+
+type RiskLimitUpdateRequestMessage = unit {
+    underlying_id_instrument_id_optional: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    risk_control_risk_control_optional: int8 &convert=RiskControlRiskControlOptional($$);
+    risk_control_status_risk_control_status_optional: int8 &convert=RiskControlStatusRiskControlStatusOptional($$);
+    time_limit: uint64;
+    percentage_limit: uint32;
+    count_limit: uint32;
+    ioc_attribution: int8 &convert=IocAttribution($$);
+    cust_capacity_weight_uint_8_optional: uint8;
+};
+
+type RiskActionRequestMessage = unit {
+    underlying_id_instrument_id_optional: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    risk_control_risk_control: int8 &convert=RiskControlRiskControl($$);
+    risk_action: int8 &convert=RiskAction($$);
+    custom_group_id_uint_16_optional: uint16;
+};
+
+type UnderlyingRefDataMessage = unit {
+    transact_time: uint64;
+    underlying_id_uint_32: uint32;
+    underlying_symbol: bytes &size=8;
+    mic: bytes &size=4;
+    mpv_group: int8 &convert=MpvGroup($$);
+};
+
+type InstrumentRefDataMessage = unit {
+    transact_time: uint64;
+    instrument_id_uint_32: uint32;
+    underlying_id_uint_32: uint32;
+    osi_symbol: bytes &size=21;
+    maturity_date: bytes &size=8;
+    option_type: int8 &convert=OptionType($$);
+    strike_price: int64;
+    closing_only: uint8 &convert=ClosingOnly($$);
+    orp_enabled: uint8 &convert=OrpEnabled($$);
+    trading_ring: int8;
+    matching_unit: int16;
+};
+
+type MpidConfigurationAcknowledgementMessage = unit {
+    transact_time: uint64;
+    market_participant_id: bytes &size=4;
+    mpid_status: int8 &convert=MpidStatus($$);
+    member: bytes &size=8;
+    max_qty: uint32;
+    max_notional: int64;
+    default_account: bytes &size=16;
+    default_optional_data: bytes &size=16;
+    default_clearing_account: bytes &size=4;
+    allow_market_orders: uint8 &convert=AllowMarketOrders($$);
+    allow_isoioc: uint8 &convert=AllowIsoioc($$);
+    allow_iso_day: uint8 &convert=AllowIsoDay($$);
+    max_duplicative: uint32;
+};
+
+type MarketMakerSymbolAppointmentMessage = unit {
+    transact_time: uint64;
+    underlying_id_instrument_id: uint32;
+    market_participant_id: bytes &size=4;
+    appointment_type: int8 &convert=AppointmentType($$);
+    appointment_status: int8 &convert=AppointmentStatus($$);
+    max_allowable_width: uint32;
+    quote_relief_mult: uint32;
+};
+
+type SessionConfigurationAcknowledgementMessage = unit {
+    transact_time: uint64;
+    user_session_type: int8 &convert=UserSessionType($$);
+    user_session_status: int8 &convert=UserSessionStatus($$);
+    member: bytes &size=8;
+    default_mpid: bytes &size=4;
+    mic: bytes &size=4;
+    cancel_on_disconnect: int8 &convert=CancelOnDisconnect($$);
+    aiq_default: bytes &size=3;
+    order_unsolicited_ack_subscription: uint8 &convert=OrderUnsolicitedAckSubscription($$);
+    quote_unsolicited_ack_subscription: uint8 &convert=QuoteUnsolicitedAckSubscription($$);
+    default_attributed_quote: int8 &convert=DefaultAttributedQuote($$);
+    default_cancel_instead_of_slide: uint8 &convert=DefaultCancelInsteadOfSlide($$);
+    trading_ring: int8;
+};
+
+type RiskControlAcknowledgmentMessage = unit {
+    transact_time: uint64;
+    underlying_id_instrument_id_optional: uint32;
+    market_participant_id: bytes &size=4;
+    cl_ord_id: uint64;
+    custom_group_id_uint_16_optional: uint16;
+    risk_ack_type: int8 &convert=RiskAckType($$);
+    risk_control_status_risk_control_status: int8 &convert=RiskControlStatusRiskControlStatus($$);
+    risk_control_risk_control: int8 &convert=RiskControlRiskControl($$);
+    risk_action: int8 &convert=RiskAction($$);
+    time_limit: uint64;
+    percentage_limit: uint32;
+    count_limit: uint32;
+    ioc_attribution: int8 &convert=IocAttribution($$);
+    blocked_by_breach_indicator: int8 &convert=BlockedByBreachIndicator($$);
+    cust_capacity_weight_uint_8: uint8;
+    throttle_indicator: int8 &convert=ThrottleIndicator($$);
+};
+
+type RiskControlAlertMessage = unit {
+    transact_time: uint64;
+    underlying_id_instrument_id_optional: uint32;
+    market_participant_id: bytes &size=4;
+    risk_control_risk_control: int8 &convert=RiskControlRiskControl($$);
+    time_limit: uint64;
+    percentage_limit: uint32;
+    count_limit: uint32;
+    notification_reason: int8 &convert=NotificationReason($$);
+};
+
+type LoginRequestMessage = unit {
+    logon_id: bytes &size=16;
+    token: bytes &size=32;
+};
+
+type LoginResponseMessage = unit {
+    logon_id: bytes &size=16;
+    status: uint8 &convert=Status($$);
+};
+
+type GatewayHeartbeatMessage = unit {
+    keep_alive: uint8 &convert=KeepAlive($$);
+    gateway_heartbeat_message_sub_sessions_groups: GatewayHeartbeatMessageSubSessionsGroups;
+};
+
+type GatewayHeartbeatMessageSubSessionsGroups = unit {
+    session_info_group_encoding: SessionInfoGroupEncoding;
+    gateway_heartbeat_message_sub_sessions_group: GatewayHeartbeatMessageSubSessionsGroup[self.session_info_group_encoding.num_in_group];
+};
+
+type SessionInfoGroupEncoding = unit {
+    block_length_uint_8: uint8;
+    num_in_group: uint8;
+};
+
+type GatewayHeartbeatMessageSubSessionsGroup = unit {
+    subsession_type: int8 &convert=SubsessionType($$);
+    subsession_id: uint64;
+    joined: uint8 &convert=Joined($$);
+    next_seq_no: uint32;
+};
+
+type TerminateMessage = unit {
+    reason: uint8 &convert=Reason($$);
+};
+
+type SequencedMessageHeaderMessage = unit {
+    subsession_id: uint64;
+    sequence: uint32;
+    timestamp: uint64;
+};
+
+type SubsessionJoinMessage = unit {
+    subsession_id: uint64;
+    start_sequence: uint32;
+    end_sequence: uint32;
+};
+
+type SubsessionJoinResponseMessage = unit {
+    subsession_id: uint64;
+    status: uint8 &convert=Status($$);
+};
+
+type SubsessionLeaveMessage = unit {
+    subsession_id: uint64;
+};
+
+type SubsessionLeaveResponseMessage = unit {
+    subsession_id: uint64;
+    reason: uint8 &convert=Reason($$);
+};
+
+type TemplateId = enum {
+    NewOrderSingleMessage = 1,
+    OrderCancelReplaceRequestMessage = 2,
+    OrderCancelRequestMessage = 3,
+    NewBulkQuoteMessage = 4,
+    MassCancelRequestMessage = 5,
+    PurgeRequestMessage = 6,
+    OrderAckMessage = 101,
+    UnsolicitedModifyAckMessage = 102,
+    OrderCancelAckMessage = 103,
+    MassCancelAckMessage = 104,
+    BulkQuoteAckMessage = 105,
+    NewIocQuoteAckMessage = 106,
+    QuoteRestatedMessage = 107,
+    QuoteCanceledMessage = 108,
+    PurgeAckMessage = 109,
+    ExecutionReportMessage = 110,
+    TradeBustCorrectMessage = 111,
+    ApplicationLayerRejectMessage = 112,
+    RiskLimitUpdateRequestMessage = 51,
+    RiskActionRequestMessage = 52,
+    UnderlyingRefDataMessage = 151,
+    InstrumentRefDataMessage = 152,
+    MpidConfigurationAcknowledgementMessage = 153,
+    MarketMakerSymbolAppointmentMessage = 154,
+    SessionConfigurationAcknowledgementMessage = 155,
+    RiskControlAcknowledgmentMessage = 156,
+    RiskControlAlertMessage = 157,
+    SequencedMessageHeaderMessage = 7,
+    SubsessionJoinMessage = 8,
+    SubsessionJoinResponseMessage = 9,
+    SubsessionLeaveMessage = 10,
+    SubsessionLeaveResponseMessage = 11,
+};
+
+type CustomerOrFirm = enum {
+    Customer = 0,
+    Firm = 1,
+    BrokerDealer = 2,
+    MarketMaker = 3,
+    AwayMarketMaker = 4,
+    ProfCustomer = 5,
+};
+
+type OpenClose = enum {
+    Open = 0,
+    Close = 1,
+    NotApplicable = 2,
+};
+
+type AttributedQuote = enum {
+    Sum = 1,
+    OrderInfoCapacity = 2,
+    OrderInfoMpid = 3,
+    OrderInfoCapacityMpid = 4,
+    DoNotUseSum = 5,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    Ioc = 1,
+};
+
+type CancelInsteadOfSlideCancelInsteadOfSlide = enum {
+    Slide = 0,
+    Cancel = 1,
+};
+
+type DisplayInst = enum {
+    PostOnly = 1,
+};
+
+type ExecInst = enum {
+    Iso = 1,
+    DoNotRoute = 2,
+};
+
+type OrdType = enum {
+    Market = 1,
+    Limit = 2,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type CancelInsteadOfSlideCancelInsteadOfSlideOptional = enum {
+    Slide = 0,
+    Cancel = 1,
+};
+
+type QuoteType = enum {
+    Standard = 0,
+    Reprice = 1,
+    Cancel = 2,
+};
+
+type AckStyleMassCancelAckStyle = enum {
+    SingleAck = 0,
+    PerOrderAckAndSingleAck = 1,
+};
+
+type MpidFilter = enum {
+    ExplicitMpid = 0,
+    AcrossMpiDs = 1,
+};
+
+type BulkAction = enum {
+    Cancel = 0,
+    CancelAndBlock = 1,
+    Unblock = 2,
+};
+
+type AckStylePurgeRequestAckStyle = enum {
+    SingleAck = 0,
+    SingleAckWithMmqs = 1,
+};
+
+type ReasonCode = enum {
+    UnknownInstrumentIdentifier = 1,
+    InvalidOrdType = 2,
+    InvalidSide = 3,
+    InvalidTimeInForce = 4,
+    InvalidOpenClose = 5,
+    InvalidCustomerOrFirm = 6,
+    InvalidDisplayInst = 7,
+    InvalidAttributedQuote = 8,
+    InvalidExecInst = 9,
+    InvalidCancelInsteadOfSlide = 10,
+    InvalidOrderQty = 11,
+    ClosingOnly = 12,
+    NotAppointed = 13,
+    InvalidPrice = 14,
+    InvalidTagCombinationForMarketOrder = 15,
+    InvalidTagCombinationForIoc = 16,
+    InvalidAiq = 17,
+    AiqCancelNewest = 18,
+    AiqCancelOldest = 19,
+    AiqCancelSmallest = 20,
+    AiqCancelBoth = 21,
+    NoOrderFound = 22,
+    OrderInPendingState = 23,
+    OrderTerminal = 24,
+    NoBid = 25,
+    NoOffer = 26,
+    OrderNotMarketable = 27,
+    OrderWouldLockCross = 28,
+    InvalidQuoteCount = 29,
+    InconsistentUnderlying = 30,
+    DuplicateQuote = 31,
+    InvalidQuoteType = 32,
+    InvalidBulkAction = 33,
+    InvalidBulkActionParameters = 34,
+    InvalidCustomGroupId = 35,
+    BlockedUnderlyingId = 36,
+    OrderWillBeCanceled = 37,
+    InvalidAckStyle = 38,
+    InvalidMpidFilter = 39,
+    InvalidBlock = 40,
+    InvalidRiskControl = 41,
+    InvalidRiskActionType = 42,
+    InvalidUnblockParameters = 43,
+    InvalidClOrdId = 44,
+    InvalidMarketParticipantId = 45,
+    InvalidNbboWidth = 46,
+    MissingClearingAccount = 47,
+    InvalidClearingAccount = 48,
+    InvalidAccount = 49,
+    PriceSlideCancel = 50,
+    ConstrainedByDrillThroughProtection = 51,
+    InvalidOptionalData = 52,
+    DrillThroughProtectionCancel = 53,
+    RiskBreach = 54,
+    InternalError = 55,
+    BlockedCustomGroupId = 56,
+    OrpReject = 57,
+    QuoteNotFound = 58,
+    TooLateToCancel = 59,
+    InvalidOrpRepriceCheck = 60,
+    ContraMmInterest = 61,
+    MarketClosed = 62,
+    MarketSuspended = 63,
+    InvalidIocForNonContinuous = 64,
+    LimitUpLimitDown = 65,
+    InvalidRiskControlStatus = 66,
+    InvalidTimeLimit = 67,
+    InvalidPercentageLimit = 68,
+    InvalidCountLimit = 69,
+    InvalidIocAttribution = 70,
+    CancelRemainingIoc = 71,
+    NoMarketForMarketOrder = 72,
+    GrmpBlock = 73,
+    FullyFilled = 74,
+    InvalidAuctionId = 75,
+    InvalidResponseOrderQty = 76,
+    SumComplete = 77,
+    LimitOrderPriceProtectionBreach = 78,
+    IntrinsicValueBreach = 79,
+    InvalidUnderlyingId = 80,
+    MarketHalt = 81,
+    MarketOrderMaxNotionalBreach = 82,
+    InvalidTargetPartyId = 83,
+    InvalidRoutingFirmId = 84,
+    OpeningProcessCancel = 85,
+    QuoteWouldLockCross = 86,
+    InvalidClearingFirm = 87,
+    DuplicateClOrdId = 88,
+    InvalidOrigClOrdId = 89,
+    UnknownOrigClOrdId = 90,
+    InvalidOnBehalfOfCompId = 91,
+    DisallowedMarketOrders = 92,
+    DisallowedIsoIocOrders = 93,
+    DisallowedIsoDayOrders = 94,
+    RestrictedSymbol = 95,
+    CancelOnDisconnect = 96,
+    InvalidSendTime = 97,
+    InvalidCustCapacityWeight = 98,
+    MaxDuplicative = 99,
+    MpidBlocked = 100,
+    QuoteCanceled = 101,
+    InvalidCustomGroupIdCount = 102,
+    GrmpTrip = 103,
+    MaxQtyExceeded = 104,
+    MaxNotionalExceeded = 105,
+    OccIdentifierNotConfigured = 106,
+    ArbitrageBreach = 107,
+    AbrcBreach = 108,
+    AdminCancel = 109,
+};
+
+type AckType = enum {
+    NewInterest = 1,
+    PendingCancel = 2,
+    Canceled = 3,
+    PendingReplace = 4,
+    Replaced = 5,
+    IndividualMarketMakerQuoteReject = 6,
+    UnsolicitedRepricePriceAdjust = 7,
+    UnsolicitedRepriceOrp = 8,
+    UnsolicitedCancelOrp = 9,
+    MarketMakerQuoteNotModified = 10,
+};
+
+type ThrottleIndicator = enum {
+    NotThrottled = 0,
+    Throttled = 1,
+};
+
+type RestatementReason = enum {
+    PriceAdjustRepricing = 1,
+    DrillThroughProtectionRepricing = 2,
+    TradingHalt = 3,
+    SumConclusion = 4,
+    BookResubmission = 5,
+};
+
+type TradeLiquidityIndicator = enum {
+    AddedLiquidity = 1,
+    RemovedLiquidity = 2,
+    Routed = 3,
+    OpeningProcess = 4,
+    ReOpeningProcess = 5,
+    SumInitiating = 6,
+    SumResponse = 7,
+    SumUnrelated = 8,
+};
+
+type ContraOpenClose = enum {
+    Open = 0,
+    Close = 1,
+    NotApplicable = 2,
+};
+
+type ContraCustomerOrFirm = enum {
+    Customer = 0,
+    Firm = 1,
+    BrokerDealer = 2,
+    MarketMaker = 3,
+    AwayMarketMaker = 4,
+    ProfCustomer = 5,
+};
+
+type BustOrCorrection = enum {
+    TradeBust = 0,
+    TradeCorrection = 1,
+};
+
+type RejectType = enum {
+    NewOrderReject = 0,
+    CancelReplaceRequestReject = 1,
+    CancelRequestReject = 2,
+    MassCancelRequestReject = 3,
+    NewBulkQuoteReject = 4,
+    RiskLimitUpdateRequestReject = 5,
+    RiskActionRequestReject = 6,
+    PurgeRequestReject = 7,
+    NewIocQuoteReject = 8,
+};
+
+type RiskControlRiskControlOptional = enum {
+    TransactionBased = 1,
+    VolumeBased = 2,
+    PercentageBased = 3,
+    Grmp = 4,
+    PurgeLockoutReset = 5,
+    IntrinsicValueAndArbitrage = 6,
+};
+
+type RiskControlStatusRiskControlStatusOptional = enum {
+    Disabled = 0,
+    Enabled = 1,
+};
+
+type IocAttribution = enum {
+    IncludeIoc = 1,
+    ExcludeIoc = 2,
+};
+
+type RiskControlRiskControl = enum {
+    TransactionBased = 1,
+    VolumeBased = 2,
+    PercentageBased = 3,
+    Grmp = 4,
+    PurgeLockoutReset = 5,
+    IntrinsicValueAndArbitrage = 6,
+};
+
+type RiskAction = enum {
+    QueryRiskControl = 1,
+    Unblock = 2,
+};
+
+type MpvGroup = enum {
+    AllPenny = 0,
+    PennyNickel = 1,
+    NickelDime = 2,
+};
+
+type OptionType = enum {
+    Put = 0,
+    Call = 1,
+};
+
+type ClosingOnly = enum {
+    False = 0,
+    True = 1,
+};
+
+type OrpEnabled = enum {
+    False = 0,
+    True = 1,
+};
+
+type MpidStatus = enum {
+    Active = 1,
+    Inactive = 2,
+};
+
+type AllowMarketOrders = enum {
+    False = 0,
+    True = 1,
+};
+
+type AllowIsoioc = enum {
+    False = 0,
+    True = 1,
+};
+
+type AllowIsoDay = enum {
+    False = 0,
+    True = 1,
+};
+
+type AppointmentType = enum {
+    RegisteredMarketMaker = 1,
+    DirectedMarketMaker = 2,
+    Specialist = 3,
+};
+
+type AppointmentStatus = enum {
+    NotAppointed = 0,
+    Appointed = 1,
+};
+
+type UserSessionType = enum {
+    BinaryOrderEntry = 1,
+    MmQuoting = 2,
+    Purge = 3,
+};
+
+type UserSessionStatus = enum {
+    Active = 1,
+    Inactive = 2,
+};
+
+type CancelOnDisconnect = enum {
+    Off = 0,
+    On = 1,
+};
+
+type OrderUnsolicitedAckSubscription = enum {
+    False = 0,
+    True = 1,
+};
+
+type QuoteUnsolicitedAckSubscription = enum {
+    False = 0,
+    True = 1,
+};
+
+type DefaultAttributedQuote = enum {
+    Sum = 1,
+    OrderInfoCapacity = 2,
+    OrderInfoMpid = 3,
+    OrderInfoCapacityMpid = 4,
+    DoNotUseSum = 5,
+};
+
+type DefaultCancelInsteadOfSlide = enum {
+    False = 0,
+    True = 1,
+};
+
+type RiskAckType = enum {
+    Solicited = 0,
+    Unsolicited = 1,
+};
+
+type RiskControlStatusRiskControlStatus = enum {
+    Disabled = 0,
+    Enabled = 1,
+};
+
+type BlockedByBreachIndicator = enum {
+    NotBlocked = 0,
+    Blocked = 1,
+};
+
+type NotificationReason = enum {
+    ThresholdExceeded = 0,
+    CheckFailure = 1,
+};
+
+type Status = enum {
+    Success = 0,
+    SessionLevelReject = 1,
+    LogoutRequested = 2,
+    Unknown = 3,
+    InvalidLogonId = 4,
+    InvalidToken = 5,
+    AlreadyLoggedIn = 6,
+    LoginTimeout = 7,
+    InvalidPacketLength = 8,
+    InvalidMessage = 9,
+    JoinRevoked = 10,
+    HeartbeatTimeout = 11,
+    MessageOutOfSequence = 12,
+    InvalidSubsessionId = 13,
+    SubsessionNotJoined = 14,
+    DenialOfService = 15,
+    InvalidArgument = 16,
+    AlreadyJoined = 17,
+};
+
+type KeepAlive = enum {
+    False = 0,
+    True = 1,
+};
+
+type SubsessionType = enum {
+    ClientToGateway = 0,
+    GatewayToClient = 1,
+    ReferenceData = 2,
+};
+
+type Joined = enum {
+    False = 0,
+    True = 1,
+};
+
+type Reason = enum {
+    Success = 0,
+    SessionLevelReject = 1,
+    LogoutRequested = 2,
+    Unknown = 3,
+    InvalidLogonId = 4,
+    InvalidToken = 5,
+    AlreadyLoggedIn = 6,
+    LoginTimeout = 7,
+    InvalidPacketLength = 8,
+    InvalidMessage = 9,
+    JoinRevoked = 10,
+    HeartbeatTimeout = 11,
+    MessageOutOfSequence = 12,
+    InvalidSubsessionId = 13,
+    SubsessionNotJoined = 14,
+    DenialOfService = 15,
+    InvalidArgument = 16,
+    AlreadyJoined = 17,
+};
+

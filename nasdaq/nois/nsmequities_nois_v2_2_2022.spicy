@@ -1,0 +1,160 @@
+module NasdaqNsmequitiesNoisItchV222022;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesNoisV222022 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint32;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectory -> stock_directory: StockDirectory;
+        MessageType::StockTradingAction -> stock_trading_action: StockTradingAction;
+        MessageType::NoisMessage -> nois_message: NoisMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    timestamp: uint64;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectory = unit {
+    symbol: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    rfu: bytes &size=1;
+    round_lot_size: bytes &size=6;
+    round_lots_only: uint8 &convert=RoundLotsOnly($$);
+    issue_classification: uint8 &convert=IssueClassification($$);
+    issue_sub_type: bytes &size=2;
+};
+
+type StockTradingAction = unit {
+    symbol: bytes &size=8;
+    trading_state: uint8 &convert=TradingState($$);
+    reason: bytes &size=1;
+};
+
+type NoisMessage = unit {
+    imbalance_shares: bytes &size=9;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    symbol: bytes &size=8;
+    near_price: bytes &size=10;
+    current_reference_price: bytes &size=10;
+    cross_type: uint8 &convert=CrossType($$);
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectory = 0x52,
+    StockTradingAction = 0x48,
+    NoisMessage = 0x49,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type MarketCategory = enum {
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+    NewYorkStockExchange = 0x4e,
+    NyseAmex = 0x41,
+    NyseArca = 0x50,
+    BatsZExchange = 0x5a,
+};
+
+type RoundLotsOnly = enum {
+    RoundLotsOnly = 0x59,
+    NoRestrictions = 0x4e,
+};
+
+type IssueClassification = enum {
+    AmericanDepositaryShare = 0x41,
+    Bond = 0x42,
+    CommonStock = 0x43,
+    DepositoryReceipt = 0x46,
+    T144A = 0x49,
+    LimitedPartnership = 0x4c,
+    Notes = 0x4e,
+    OrdinaryShare = 0x4f,
+    PreferredStock = 0x50,
+    OtherSecurities = 0x51,
+    Right = 0x52,
+    SharesOfBeneficialInterest = 0x53,
+    ConvertibleDebenture = 0x54,
+    Unit = 0x55,
+    UnitsBenifInt = 0x56,
+    Warrant = 0x57,
+};
+
+type IssueSubType = enum {
+    PreferredTrustSecurities = 0x41,
+    IndexBasedDerivative = 0x42,
+    CommonShares = 0x43,
+    GlobalDepositaryShares = 0x44,
+    EtfPortfolioDepositaryReceipt = 0x45,
+    Holdrs = 0x46,
+    GlobalShares = 0x47,
+    EtfIndexFundShares = 0x49,
+    CorporateBackedTrustSecurity = 0x4a,
+    ContingentLitigationRight = 0x4c,
+    EquityBasedDerivative = 0x4d,
+    NyRegistryShares = 0x4e,
+    OpenEndedMutualFund = 0x4f,
+    PrivatelyHeldSecurity = 0x50,
+    ClosedEndFunds = 0x51,
+    RegS = 0x52,
+    Seed = 0x53,
+    TrackingStock = 0x54,
+    Portal = 0x55,
+    ContingentValueRight = 0x56,
+    TrustIssuedReceipts = 0x57,
+    Trust = 0x58,
+    Other = 0x59,
+    NotApplicable = 0x5a,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    QuotationOnly = 0x51,
+    Trading = 0x54,
+};
+
+type ImbalanceDirection = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NoImbalance = 0x4e,
+    Insufficient = 0x4f,
+};
+
+type CrossType = enum {
+    OpenCross = 0x4f,
+    CloseCross = 0x43,
+    IpoHaltCross = 0x48,
+};
+
