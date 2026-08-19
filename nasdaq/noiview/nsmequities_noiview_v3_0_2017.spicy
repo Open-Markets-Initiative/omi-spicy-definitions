@@ -17,11 +17,94 @@ type PacketHeader = unit {
 
 type Message = unit {
     message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoRestrictionMessage -> reg_sho_restriction_message: RegShoRestrictionMessage;
+        MessageType::NoiiMessage -> noii_message: NoiiMessage;
+        MessageType::CrossTradeMessage -> cross_trade_message: CrossTradeMessage;
+        MessageType::IpoQuotingPeriodUpdateMessage -> ipo_quoting_period_update_message: IpoQuotingPeriodUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type MessageHeader = unit {
     message_length: uint16;
     message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    round_lot_size: uint32;
+    round_lots_only: uint8 &convert=RoundLotsOnly($$);
+    issue_classification: bytes &size=1;
+    issue_sub_type: bytes &size=2;
+    authenticity: uint8 &convert=Authenticity($$);
+    short_sale_threshold_indicator: uint8 &convert=ShortSaleThresholdIndicator($$);
+    ipo_flag: uint8 &convert=IpoFlag($$);
+    luld_reference_price_tier: uint8 &convert=LuldReferencePriceTier($$);
+    etp_flag: uint8 &convert=EtpFlag($$);
+    etp_leverage_factor: uint32;
+    inverse_indicator: uint8 &convert=InverseIndicator($$);
+};
+
+type StockTradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+    reason: bytes &size=4;
+};
+
+type RegShoRestrictionMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type NoiiMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    paired_shares: uint64;
+    imbalance_shares: uint64;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    stock: bytes &size=8;
+    far_price: uint32;
+    near_price: uint32;
+    current_reference_price: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    price_variation_indicator: uint8 &convert=PriceVariationIndicator($$);
+};
+
+type CrossTradeMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    shares: uint64;
+    stock: bytes &size=8;
+    cross_price: uint32;
+    match_number: uint64;
+    cross_type: uint8 &convert=CrossType($$);
+};
+
+type IpoQuotingPeriodUpdateMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    ipo_quotation_release_time: uint32;
+    ipo_quotation_release_qualifier: uint8 &convert=IpoQuotationReleaseQualifier($$);
+    ipo_price: uint32;
 };
 
 type MessageType = enum {
@@ -32,5 +115,126 @@ type MessageType = enum {
     NoiiMessage = 0x49,
     CrossTradeMessage = 0x51,
     IpoQuotingPeriodUpdateMessage = 0x4b,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    ClearNoiiOpeningCrossData = 0x58,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type MarketCategory = enum {
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+    Nyse = 0x4e,
+    NyseMkt = 0x41,
+    NyseArca = 0x50,
+    BatsZ = 0x5a,
+    InvestorsExchange = 0x56,
+    Na = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    Suspended = 0x53,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+    CreationsAndRedemptionsSuspended = 0x43,
+    Normal = 0x4e,
+    Na = 0x20,
+};
+
+type RoundLotsOnly = enum {
+    RoundLotsOnly = 0x59,
+    NoRestrictions = 0x4e,
+};
+
+type Authenticity = enum {
+    LiveProduction = 0x50,
+    Test = 0x54,
+};
+
+type ShortSaleThresholdIndicator = enum {
+    Restricted = 0x59,
+    NotRestricted = 0x4e,
+    Na = 0x20,
+};
+
+type IpoFlag = enum {
+    SetUpForIpoRelease = 0x59,
+    NotSetUpForIpoRelease = 0x4e,
+    NotAvailable = 0x20,
+};
+
+type LuldReferencePriceTier = enum {
+    Tier1 = 0x31,
+    Tier2 = 0x32,
+    NotApplicable = 0x20,
+};
+
+type EtpFlag = enum {
+    Etp = 0x59,
+    NotEtp = 0x4e,
+    NotAvailable = 0x20,
+};
+
+type InverseIndicator = enum {
+    InverseEtp = 0x59,
+    NotInverseEtp = 0x4e,
+};
+
+type CurrentTradingState = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    Trading = 0x54,
+};
+
+type RegShoAction = enum {
+    NoPriceTest = 0x30,
+    RegShoShortSalePriceTestRestriction = 0x31,
+    TestRestrictionRemains = 0x32,
+};
+
+type ImbalanceDirection = enum {
+    BuyImbalance = 0x42,
+    SellImbalance = 0x53,
+    NoImbalance = 0x4e,
+    InsufficientOrders = 0x4f,
+};
+
+type CrossType = enum {
+    OpeningCross = 0x4f,
+    ClosingCross = 0x43,
+    CrossHaltedOrPaused = 0x48,
+};
+
+type PriceVariationIndicator = enum {
+    Less = 0x4c,
+    T1To199 = 0x31,
+    T2To299 = 0x32,
+    T3To399 = 0x33,
+    T4To499 = 0x34,
+    T5To599 = 0x35,
+    T6To699 = 0x36,
+    T7To799 = 0x37,
+    T8To899 = 0x38,
+    T9To999 = 0x39,
+    T10To1999 = 0x41,
+    T20To2999 = 0x42,
+    T30OrGreater = 0x43,
+};
+
+type IpoQuotationReleaseQualifier = enum {
+    AnticipatedQuotationReleaseTime = 0x41,
+    IpoReleaseCanceledOrPostponed = 0x43,
 };
 

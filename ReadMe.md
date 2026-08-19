@@ -3,6 +3,8 @@
 Omi [Spicy](https://docs.zeek.org/projects/spicy/ "A parser generator for network protocols and file formats") definitions describe common binary exchange protocols as declarative Spicy grammars, so the wire format parses with the Spicy toolchain and the Zeek network security monitor.
 
 
+[![Spicy](https://github.com/Open-Markets-Initiative/Directory/blob/main/About/Images/Spicy.png)](https://docs.zeek.org/projects/spicy/)
+
 These definitions are built and tested with the Spicy toolchain: [spicyc](https://docs.zeek.org/projects/spicy/en/latest/toolchain.html "The Spicy parser compiler")
 ## Usage
 
@@ -20,7 +22,7 @@ Updates are greatly appreciated; however, this entire repository is source gener
 
 | Protocol Count | Generated Lines |
 | --- | --- |
-| 23 | 4916 |
+| 23 | 7597 |
 
 ## Testing
 
