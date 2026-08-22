@@ -11,13 +11,105 @@ public type IexoptionsBinaryorderentryV102 = unit {
 type SbeMessage = unit {
     packet_length: uint16;
     message_header: MessageHeader;
-    switch ( self.message_header.template_id ) {
-        TemplateId::NewOrderSingleMessage -> new_order_single_message: NewOrderSingleMessage;
-        TemplateId::OrderCancelReplaceRequestMessage -> order_cancel_replace_request_message: OrderCancelReplaceRequestMessage;
-        TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
-        TemplateId::NewBulkQuoteMessage -> new_bulk_quote_message: NewBulkQuoteMessage;
-        TemplateId::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
-        TemplateId::PurgeRequestMessage -> purge_request_message: PurgeRequestMessage;
+    switch ( self.message_header.schema_id ) {
+        SchemaId::Session -> session_message: SessionMessage;
+        SchemaId::Business -> business_message: BusinessMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16 &convert=SchemaId($$);
+    version: uint16;
+};
+
+type SessionMessage = unit {
+    switch ( self.packet.sbe_message.message_header.template_id ) {
+        TemplateId::LoginRequestMessage -> login_request_message: LoginRequestMessage;
+        TemplateId::LoginResponseMessage -> login_response_message: LoginResponseMessage;
+        TemplateId::GatewayHeartbeatMessage -> gateway_heartbeat_message: GatewayHeartbeatMessage;
+        TemplateId::TerminateMessage -> terminate_message: TerminateMessage;
+        TemplateId::SequencedMessageHeaderMessage -> sequenced_message_header_message: SequencedMessageHeaderMessage;
+        TemplateId::SubsessionJoinMessage -> subsession_join_message: SubsessionJoinMessage;
+        TemplateId::SubsessionJoinResponseMessage -> subsession_join_response_message: SubsessionJoinResponseMessage;
+        TemplateId::SubsessionLeaveMessage -> subsession_leave_message: SubsessionLeaveMessage;
+        TemplateId::SubsessionLeaveResponseMessage -> subsession_leave_response_message: SubsessionLeaveResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type LoginRequestMessage = unit {
+    logon_id: bytes &size=16;
+    token: bytes &size=32;
+};
+
+type LoginResponseMessage = unit {
+    logon_id: bytes &size=16;
+    status: uint8 &convert=Status($$);
+};
+
+type GatewayHeartbeatMessage = unit {
+    keep_alive: uint8 &convert=KeepAlive($$);
+    gateway_heartbeat_message_sub_sessions_groups: GatewayHeartbeatMessageSubSessionsGroups;
+};
+
+type GatewayHeartbeatMessageSubSessionsGroups = unit {
+    session_info_group_encoding: SessionInfoGroupEncoding;
+    gateway_heartbeat_message_sub_sessions_group: GatewayHeartbeatMessageSubSessionsGroup[self.session_info_group_encoding.num_in_group];
+};
+
+type SessionInfoGroupEncoding = unit {
+    block_length_uint_8: uint8;
+    num_in_group: uint8;
+};
+
+type GatewayHeartbeatMessageSubSessionsGroup = unit {
+    subsession_type: int8 &convert=SubsessionType($$);
+    subsession_id: uint64;
+    joined: uint8 &convert=Joined($$);
+    next_seq_no: uint32;
+};
+
+type TerminateMessage = unit {
+    reason: uint8 &convert=Reason($$);
+};
+
+type SequencedMessageHeaderMessage = unit {
+    subsession_id: uint64;
+    sequence: uint32;
+    timestamp: uint64;
+};
+
+type SubsessionJoinMessage = unit {
+    subsession_id: uint64;
+    start_sequence: uint32;
+    end_sequence: uint32;
+};
+
+type SubsessionJoinResponseMessage = unit {
+    subsession_id: uint64;
+    status: uint8 &convert=Status($$);
+};
+
+type SubsessionLeaveMessage = unit {
+    subsession_id: uint64;
+};
+
+type SubsessionLeaveResponseMessage = unit {
+    subsession_id: uint64;
+    reason: uint8 &convert=Reason($$);
+};
+
+type BusinessMessage = unit {
+    switch ( self.packet.sbe_message.message_header.template_id ) {
+        TemplateId::LoginRequestMessage -> new_order_single_message: NewOrderSingleMessage;
+        TemplateId::LoginResponseMessage -> order_cancel_replace_request_message: OrderCancelReplaceRequestMessage;
+        TemplateId::GatewayHeartbeatMessage -> order_cancel_request_message: OrderCancelRequestMessage;
+        TemplateId::ClientHeartbeatMessage -> new_bulk_quote_message: NewBulkQuoteMessage;
+        TemplateId::LogoutRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
+        TemplateId::TerminateMessage -> purge_request_message: PurgeRequestMessage;
         TemplateId::OrderAckMessage -> order_ack_message: OrderAckMessage;
         TemplateId::UnsolicitedModifyAckMessage -> unsolicited_modify_ack_message: UnsolicitedModifyAckMessage;
         TemplateId::OrderCancelAckMessage -> order_cancel_ack_message: OrderCancelAckMessage;
@@ -39,20 +131,8 @@ type SbeMessage = unit {
         TemplateId::SessionConfigurationAcknowledgementMessage -> session_configuration_acknowledgement_message: SessionConfigurationAcknowledgementMessage;
         TemplateId::RiskControlAcknowledgmentMessage -> risk_control_acknowledgment_message: RiskControlAcknowledgmentMessage;
         TemplateId::RiskControlAlertMessage -> risk_control_alert_message: RiskControlAlertMessage;
-        TemplateId::SequencedMessageHeaderMessage -> sequenced_message_header_message: SequencedMessageHeaderMessage;
-        TemplateId::SubsessionJoinMessage -> subsession_join_message: SubsessionJoinMessage;
-        TemplateId::SubsessionJoinResponseMessage -> subsession_join_response_message: SubsessionJoinResponseMessage;
-        TemplateId::SubsessionLeaveMessage -> subsession_leave_message: SubsessionLeaveMessage;
-        TemplateId::SubsessionLeaveResponseMessage -> subsession_leave_response_message: SubsessionLeaveResponseMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type MessageHeader = unit {
-    block_length: uint16;
-    template_id: uint16 &convert=TemplateId($$);
-    schema_id: uint16;
-    version: uint16;
 };
 
 type NewOrderSingleMessage = unit {
@@ -527,75 +607,18 @@ type RiskControlAlertMessage = unit {
     notification_reason: int8 &convert=NotificationReason($$);
 };
 
-type LoginRequestMessage = unit {
-    logon_id: bytes &size=16;
-    token: bytes &size=32;
-};
-
-type LoginResponseMessage = unit {
-    logon_id: bytes &size=16;
-    status: uint8 &convert=Status($$);
-};
-
-type GatewayHeartbeatMessage = unit {
-    keep_alive: uint8 &convert=KeepAlive($$);
-    gateway_heartbeat_message_sub_sessions_groups: GatewayHeartbeatMessageSubSessionsGroups;
-};
-
-type GatewayHeartbeatMessageSubSessionsGroups = unit {
-    session_info_group_encoding: SessionInfoGroupEncoding;
-    gateway_heartbeat_message_sub_sessions_group: GatewayHeartbeatMessageSubSessionsGroup[self.session_info_group_encoding.num_in_group];
-};
-
-type SessionInfoGroupEncoding = unit {
-    block_length_uint_8: uint8;
-    num_in_group: uint8;
-};
-
-type GatewayHeartbeatMessageSubSessionsGroup = unit {
-    subsession_type: int8 &convert=SubsessionType($$);
-    subsession_id: uint64;
-    joined: uint8 &convert=Joined($$);
-    next_seq_no: uint32;
-};
-
-type TerminateMessage = unit {
-    reason: uint8 &convert=Reason($$);
-};
-
-type SequencedMessageHeaderMessage = unit {
-    subsession_id: uint64;
-    sequence: uint32;
-    timestamp: uint64;
-};
-
-type SubsessionJoinMessage = unit {
-    subsession_id: uint64;
-    start_sequence: uint32;
-    end_sequence: uint32;
-};
-
-type SubsessionJoinResponseMessage = unit {
-    subsession_id: uint64;
-    status: uint8 &convert=Status($$);
-};
-
-type SubsessionLeaveMessage = unit {
-    subsession_id: uint64;
-};
-
-type SubsessionLeaveResponseMessage = unit {
-    subsession_id: uint64;
-    reason: uint8 &convert=Reason($$);
-};
-
 type TemplateId = enum {
-    NewOrderSingleMessage = 1,
-    OrderCancelReplaceRequestMessage = 2,
-    OrderCancelRequestMessage = 3,
-    NewBulkQuoteMessage = 4,
-    MassCancelRequestMessage = 5,
-    PurgeRequestMessage = 6,
+    LoginRequestMessage = 1,
+    LoginResponseMessage = 2,
+    GatewayHeartbeatMessage = 3,
+    ClientHeartbeatMessage = 4,
+    LogoutRequestMessage = 5,
+    TerminateMessage = 6,
+    SequencedMessageHeaderMessage = 7,
+    SubsessionJoinMessage = 8,
+    SubsessionJoinResponseMessage = 9,
+    SubsessionLeaveMessage = 10,
+    SubsessionLeaveResponseMessage = 11,
     OrderAckMessage = 101,
     UnsolicitedModifyAckMessage = 102,
     OrderCancelAckMessage = 103,
@@ -617,11 +640,69 @@ type TemplateId = enum {
     SessionConfigurationAcknowledgementMessage = 155,
     RiskControlAcknowledgmentMessage = 156,
     RiskControlAlertMessage = 157,
-    SequencedMessageHeaderMessage = 7,
-    SubsessionJoinMessage = 8,
-    SubsessionJoinResponseMessage = 9,
-    SubsessionLeaveMessage = 10,
-    SubsessionLeaveResponseMessage = 11,
+};
+
+type SchemaId = enum {
+    Session = 20000,
+    Business = 20001,
+};
+
+type Status = enum {
+    Success = 0,
+    SessionLevelReject = 1,
+    LogoutRequested = 2,
+    Unknown = 3,
+    InvalidLogonId = 4,
+    InvalidToken = 5,
+    AlreadyLoggedIn = 6,
+    LoginTimeout = 7,
+    InvalidPacketLength = 8,
+    InvalidMessage = 9,
+    JoinRevoked = 10,
+    HeartbeatTimeout = 11,
+    MessageOutOfSequence = 12,
+    InvalidSubsessionId = 13,
+    SubsessionNotJoined = 14,
+    DenialOfService = 15,
+    InvalidArgument = 16,
+    AlreadyJoined = 17,
+};
+
+type KeepAlive = enum {
+    False = 0,
+    True = 1,
+};
+
+type SubsessionType = enum {
+    ClientToGateway = 0,
+    GatewayToClient = 1,
+    ReferenceData = 2,
+};
+
+type Joined = enum {
+    False = 0,
+    True = 1,
+};
+
+type Reason = enum {
+    Success = 0,
+    SessionLevelReject = 1,
+    LogoutRequested = 2,
+    Unknown = 3,
+    InvalidLogonId = 4,
+    InvalidToken = 5,
+    AlreadyLoggedIn = 6,
+    LoginTimeout = 7,
+    InvalidPacketLength = 8,
+    InvalidMessage = 9,
+    JoinRevoked = 10,
+    HeartbeatTimeout = 11,
+    MessageOutOfSequence = 12,
+    InvalidSubsessionId = 13,
+    SubsessionNotJoined = 14,
+    DenialOfService = 15,
+    InvalidArgument = 16,
+    AlreadyJoined = 17,
 };
 
 type CustomerOrFirm = enum {
@@ -1031,63 +1112,5 @@ type BlockedByBreachIndicator = enum {
 type NotificationReason = enum {
     ThresholdExceeded = 0,
     CheckFailure = 1,
-};
-
-type Status = enum {
-    Success = 0,
-    SessionLevelReject = 1,
-    LogoutRequested = 2,
-    Unknown = 3,
-    InvalidLogonId = 4,
-    InvalidToken = 5,
-    AlreadyLoggedIn = 6,
-    LoginTimeout = 7,
-    InvalidPacketLength = 8,
-    InvalidMessage = 9,
-    JoinRevoked = 10,
-    HeartbeatTimeout = 11,
-    MessageOutOfSequence = 12,
-    InvalidSubsessionId = 13,
-    SubsessionNotJoined = 14,
-    DenialOfService = 15,
-    InvalidArgument = 16,
-    AlreadyJoined = 17,
-};
-
-type KeepAlive = enum {
-    False = 0,
-    True = 1,
-};
-
-type SubsessionType = enum {
-    ClientToGateway = 0,
-    GatewayToClient = 1,
-    ReferenceData = 2,
-};
-
-type Joined = enum {
-    False = 0,
-    True = 1,
-};
-
-type Reason = enum {
-    Success = 0,
-    SessionLevelReject = 1,
-    LogoutRequested = 2,
-    Unknown = 3,
-    InvalidLogonId = 4,
-    InvalidToken = 5,
-    AlreadyLoggedIn = 6,
-    LoginTimeout = 7,
-    InvalidPacketLength = 8,
-    InvalidMessage = 9,
-    JoinRevoked = 10,
-    HeartbeatTimeout = 11,
-    MessageOutOfSequence = 12,
-    InvalidSubsessionId = 13,
-    SubsessionNotJoined = 14,
-    DenialOfService = 15,
-    InvalidArgument = 16,
-    AlreadyJoined = 17,
 };
 
