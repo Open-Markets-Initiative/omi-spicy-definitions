@@ -1,0 +1,306 @@
+module AquisAquisequitiesRealtimeAmdV40;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AquisequitiesRealtimeV40 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    message_count: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::OrderAdd -> order_add: OrderAdd;
+        MsgType::OrderCancel -> order_cancel: OrderCancel;
+        MsgType::OrderModify -> order_modify: OrderModify;
+        MsgType::Trade -> trade: Trade;
+        MsgType::TradeBustMessage -> trade_bust_message: TradeBustMessage;
+        MsgType::TickTableDataMessage -> tick_table_data_message: TickTableDataMessage;
+        MsgType::SecurityDefinitionMessage -> security_definition_message: SecurityDefinitionMessage;
+        MsgType::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
+        MsgType::AoDUpdateMessage -> ao_d_update_message: AoDUpdateMessage;
+        MsgType::MaCUpdateMessage -> ma_c_update_message: MaCUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_type: uint8 &convert=MsgType($$);
+    msg_length: uint8;
+    seq_no: uint32;
+};
+
+type OrderAdd = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    side: uint8 &convert=Side($$);
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint64 &byte-order=spicy::ByteOrder::Little;
+    order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+    md_flags: MdFlags;
+};
+
+type MdFlags = unit {
+    unrestricted_liquidity_indicator: bytes &size=1;
+    reserved_7: bytes &size=1;
+};
+
+type OrderCancel = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+    md_flags: MdFlags;
+};
+
+type OrderModify = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint64 &byte-order=spicy::ByteOrder::Little;
+    order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+    md_flags: MdFlags;
+};
+
+type Trade = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    trade_type: uint8 &convert=TradeType($$);
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint64 &byte-order=spicy::ByteOrder::Little;
+    order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    trade_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+    binary_mmt: BinaryMmt;
+    md_flags: MdFlags;
+};
+
+type BinaryMmt = unit {
+    market_mechanism: uint8 &convert=MarketMechanism($$);
+    trading_mode: uint8 &convert=TradingMode($$);
+    transaction_category: uint8 &convert=TransactionCategory($$);
+    negotiation_indicator_or_pre_trade_transparency_waiver: uint8 &convert=NegotiationIndicatorOrPreTradeTransparencyWaiver($$);
+    crossing_trade: uint8 &convert=CrossingTrade($$);
+    modification_indicator: uint8 &convert=ModificationIndicator($$);
+    benchmark_reference_price_indicator: uint8 &convert=BenchmarkReferencePriceIndicator($$);
+    dividend: uint8 &convert=Dividend($$);
+    off_book_automation: uint8 &convert=OffBookAutomation($$);
+    price_formation_discovery_process: uint8 &convert=PriceFormationDiscoveryProcess($$);
+    algorithmic_indicator: uint8 &convert=AlgorithmicIndicator($$);
+    publication_mode_post_trade_deferral: uint8 &convert=PublicationModePostTradeDeferral($$);
+    deferral_type: bytes &size=1;
+    duplicative_indicator: uint8 &convert=DuplicativeIndicator($$);
+    spare: bytes &size=1;
+};
+
+type TradeBustMessage = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint64 &byte-order=spicy::ByteOrder::Little;
+    trade_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+    binary_mmt: BinaryMmt;
+};
+
+type TickTableDataMessage = unit {
+    tick_table_id: uint8;
+    name: bytes &size=10;
+    threshold: uint64 &byte-order=spicy::ByteOrder::Little;
+    tick_size: uint64 &byte-order=spicy::ByteOrder::Little;
+};
+
+type SecurityDefinitionMessage = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    umtf: bytes &size=6;
+    isin: bytes &size=12;
+    currency: bytes &size=3;
+    mic: bytes &size=4;
+    tick_table_id: uint8;
+    security_definition_flags: SecurityDefinitionFlags;
+    reserved_char_2020: bytes &size=20;
+    lot_size: uint64 &byte-order=spicy::ByteOrder::Little;
+    lot_size_decimal: uint8;
+};
+
+type SecurityDefinitionFlags = unit {
+    mac_enabled: bytes &size=1;
+    test_stock: bytes &size=1;
+    illiquid: bytes &size=1;
+    reserved_1: bytes &size=1;
+    aod_enabled: bytes &size=1;
+    reserved_2: bytes &size=1;
+    avx_enabled: bytes &size=1;
+    reserved_8: bytes &size=2;
+};
+
+type SecurityStatusMessage = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    trading_status: uint8 &convert=TradingStatus($$);
+    market_flags: MarketFlags;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+    trading_phase: uint8 &convert=TradingPhase($$);
+};
+
+type MarketFlags = unit {
+    trading: bytes &size=1;
+    mac_open: bytes &size=1;
+    mac_run: bytes &size=1;
+    reserved_5: bytes &size=1;
+};
+
+type AoDUpdateMessage = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    indicative_price: uint64 &byte-order=spicy::ByteOrder::Little;
+    match_vol: uint32 &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+};
+
+type MaCUpdateMessage = unit {
+    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    indicative_price: uint64 &byte-order=spicy::ByteOrder::Little;
+    closing_buy_qty: uint32 &byte-order=spicy::ByteOrder::Little;
+    closing_sell_qty: uint32 &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+};
+
+type MsgType = enum {
+    OrderAdd = 2,
+    OrderCancel = 3,
+    OrderModify = 4,
+    Trade = 5,
+    TradeBustMessage = 6,
+    TickTableDataMessage = 7,
+    SecurityDefinitionMessage = 8,
+    SecurityStatusMessage = 9,
+    AoDUpdateMessage = 17,
+    MaCUpdateMessage = 16,
+};
+
+type Side = enum {
+    BuyOrder = 1,
+    SellOrder = 2,
+};
+
+type TradeType = enum {
+    VisibleOrder = 1,
+    HiddenOrder = 2,
+    MarketAtClose = 3,
+    LisCross = 4,
+    BenchmarkCross = 5,
+    AuctionOnDemand = 6,
+    AquisVwapMatch = 12,
+};
+
+type MarketMechanism = enum {
+    CentralLimitOrderBook = 1,
+    QuoteDrivenMarket = 2,
+    DarkOrderBook = 3,
+    OffBook = 4,
+    PeriodicAuction = 5,
+    Rfq = 6,
+    Other = 7,
+};
+
+type TradingMode = enum {
+    UndefinedAuction = 1,
+    OpeningAuction = 2,
+    ClosingAuction = 3,
+    IntradayAuction = 4,
+    UnscheduledAuction = 5,
+    ContinuousTrading = 6,
+    AtMarketClose = 7,
+    OutOfMainSession = 8,
+    OnExchangeTradeReporting = 9,
+};
+
+type TransactionCategory = enum {
+    DarkTrade = 1,
+    TradeThatHasReceivedPriceImprovement = 2,
+    PackageTrade = 3,
+    ExchangeForPhysicals = 4,
+    NoneApply = 5,
+};
+
+type NegotiationIndicatorOrPreTradeTransparencyWaiver = enum {
+    NegotiatedTrade = 0,
+    NegotiatedTradeInLiquidInstruments = 1,
+    NegotiatedTradeInIlliquidInstruments = 2,
+    NegotiatedTradeOtherThanCurrentMarketPrice = 3,
+    NoNegotiatedTrade = 4,
+    SiIlliquidInstruments = 5,
+    SiAboveStandardMarketSize = 6,
+    IlqdAndSize = 7,
+};
+
+type CrossingTrade = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type ModificationIndicator = enum {
+    TradeCancelation = 1,
+    TradeAmendment = 2,
+    NewTrade = 3,
+};
+
+type BenchmarkReferencePriceIndicator = enum {
+    BenchmarkTrade = 1,
+    ReferencePriceTrade = 2,
+    NoBenchmarkOrReferencePrice = 3,
+};
+
+type Dividend = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type OffBookAutomation = enum {
+    Unspecified = 1,
+    OffBookNonAutomated = 2,
+    OffBookAutomated = 3,
+};
+
+type PriceFormationDiscoveryProcess = enum {
+    PlainVanilla = 1,
+    NonPriceForming = 2,
+    TradeNotContributingToPriceDiscovery = 3,
+    PriceNotCurrentlyAvailableButPending = 4,
+};
+
+type AlgorithmicIndicator = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type PublicationModePostTradeDeferral = enum {
+    ImmediatePublication = 1,
+    NonImmediatePublication = 2,
+    Lrgs = 3,
+    Ilqd = 4,
+    Size = 5,
+    IlqdAndSize = 6,
+    IlqdAndLrgs = 7,
+};
+
+type DuplicativeIndicator = enum {
+    Unique = 0,
+    Duplicative = 1,
+};
+
+type TradingStatus = enum {
+    Active = 1,
+    Halted = 2,
+    Suspended = 3,
+    AoDStart = 8,
+    AoDEnd = 24,
+};
+
+type TradingPhase = enum {
+    Closed = 0,
+    Continuous = 1,
+};
+

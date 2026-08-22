@@ -1,0 +1,21 @@
+module AquisAquisequitiesTcpheaderAtpV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type AquisequitiesTcpheaderV10 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    payload: bytes &size=self.message_header.msg_length - 7;
+};
+
+type MessageHeader = unit {
+    msg_length: uint16;
+    msg_type: uint8;
+    msg_seq_no: uint32;
+};
+

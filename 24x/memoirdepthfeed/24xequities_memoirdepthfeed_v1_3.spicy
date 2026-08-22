@@ -1,0 +1,208 @@
+module N24x24xequitiesMemoirdepthfeedSbeV13;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type T24xequitiesMemoirdepthfeedV13 = unit {
+    common_header: CommonHeader;
+    sequenced_messages: SequencedMessage;
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    header_length: uint8;
+    session_id: uint64;
+    sequence_number: uint64;
+};
+
+type SequencedMessage = unit {
+    message_count: uint16;
+    message: Message[self.message_count];
+};
+
+type Message = unit {
+    message_length: uint16;
+    sbe_message: SbeMessage;
+};
+
+type SbeMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::InstrumentDirectoryMessage -> instrument_directory_message: InstrumentDirectoryMessage;
+        TemplateId::RegShoRestrictionMessage -> reg_sho_restriction_message: RegShoRestrictionMessage;
+        TemplateId::SecurityTradingStatusMessage -> security_trading_status_message: SecurityTradingStatusMessage;
+        TemplateId::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        TemplateId::OrderAddedMessage -> order_added_message: OrderAddedMessage;
+        TemplateId::OrderDeletedMessage -> order_deleted_message: OrderDeletedMessage;
+        TemplateId::OrderReducedMessage -> order_reduced_message: OrderReducedMessage;
+        TemplateId::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        TemplateId::TradeMessage -> trade_message: TradeMessage;
+        TemplateId::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        TemplateId::CorrectedTradeMessage -> corrected_trade_message: CorrectedTradeMessage;
+        TemplateId::ClearBookMessage -> clear_book_message: ClearBookMessage;
+        TemplateId::SnapshotCompleteMessage -> snapshot_complete_message: SnapshotCompleteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint8 &convert=TemplateId($$);
+    schema_id: uint8;
+    version: uint16;
+};
+
+type InstrumentDirectoryMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    symbol: bytes &size=6;
+    symbol_sfx: bytes &size=6;
+    round_lot: uint32;
+    reserved: uint8;
+    is_test_symbol: uint8 &convert=IsTestSymbol($$);
+    mpv: int64;
+};
+
+type RegShoRestrictionMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    short_sale_restriction: uint8 &convert=ShortSaleRestriction($$);
+};
+
+type SecurityTradingStatusMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    security_trading_status_reason: uint8 &convert=SecurityTradingStatusReason($$);
+};
+
+type TradingSessionStatusMessage = unit {
+    timestamp: uint64;
+    trading_session: uint8 &convert=TradingSession($$);
+};
+
+type OrderAddedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: int64;
+};
+
+type OrderDeletedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+};
+
+type OrderReducedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+    quantity: uint32;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+    trade_id: uint64;
+    quantity: uint32;
+    price: int64;
+};
+
+type TradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    trade_id: uint64;
+    quantity: uint32;
+    price: int64;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: int64;
+};
+
+type CorrectedTradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: int64;
+    corrected_quantity: uint32;
+    corrected_price: int64;
+};
+
+type ClearBookMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+};
+
+type SnapshotCompleteMessage = unit {
+    timestamp: uint64;
+    as_of_sequence_number: uint64;
+};
+
+type MessageType = enum {
+    HeartbeatMessage = 0,
+    SessionShutdownMessage = 1,
+    SequencedMessage = 2,
+};
+
+type TemplateId = enum {
+    InstrumentDirectoryMessage = 1,
+    RegShoRestrictionMessage = 2,
+    SecurityTradingStatusMessage = 3,
+    TradingSessionStatusMessage = 5,
+    OrderAddedMessage = 10,
+    OrderDeletedMessage = 11,
+    OrderReducedMessage = 12,
+    OrderExecutedMessage = 13,
+    TradeMessage = 14,
+    BrokenTradeMessage = 15,
+    CorrectedTradeMessage = 16,
+    ClearBookMessage = 18,
+    SnapshotCompleteMessage = 100,
+};
+
+type IsTestSymbol = enum {
+    False = 0,
+    True = 1,
+};
+
+type ShortSaleRestriction = enum {
+    False = 0,
+    True = 1,
+};
+
+type SecurityTradingStatus = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    Quoting = 0x51,
+    Trading = 0x54,
+};
+
+type SecurityTradingStatusReason = enum {
+    None = 0x58,
+    Regulatory = 0x52,
+    Administrative = 0x41,
+};
+
+type TradingSession = enum {
+    Opening = 0x31,
+    Trading = 0x32,
+    PostTrading = 0x33,
+    Closed = 0x34,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

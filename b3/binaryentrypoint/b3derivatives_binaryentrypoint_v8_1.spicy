@@ -1,0 +1,1902 @@
+module B3B3derivativesBinaryentrypointSbeV81;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type B3derivativesBinaryentrypointV81 = unit {
+    simple_open_frame: SimpleOpenFrame[] &eod;
+};
+
+type SimpleOpenFrame = unit {
+    simple_open_framing_header: SimpleOpenFramingHeader;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::NegotiateMessage -> negotiate_message: NegotiateMessage;
+        TemplateId::NegotiateResponseMessage -> negotiate_response_message: NegotiateResponseMessage;
+        TemplateId::NegotiateRejectMessage -> negotiate_reject_message: NegotiateRejectMessage;
+        TemplateId::EstablishMessage -> establish_message: EstablishMessage;
+        TemplateId::EstablishAckMessage -> establish_ack_message: EstablishAckMessage;
+        TemplateId::EstablishRejectMessage -> establish_reject_message: EstablishRejectMessage;
+        TemplateId::TerminateMessage -> terminate_message: TerminateMessage;
+        TemplateId::NotAppliedMessage -> not_applied_message: NotAppliedMessage;
+        TemplateId::SequenceMessage -> sequence_message: SequenceMessage;
+        TemplateId::RetransmitRequestMessage -> retransmit_request_message: RetransmitRequestMessage;
+        TemplateId::RetransmissionMessage -> retransmission_message: RetransmissionMessage;
+        TemplateId::RetransmitRejectMessage -> retransmit_reject_message: RetransmitRejectMessage;
+        TemplateId::SimpleNewOrderMessage -> simple_new_order_message: SimpleNewOrderMessage;
+        TemplateId::SimpleModifyOrderMessage -> simple_modify_order_message: SimpleModifyOrderMessage;
+        TemplateId::NewOrderSingleMessage -> new_order_single_message: NewOrderSingleMessage;
+        TemplateId::OrderCancelReplaceRequestMessage -> order_cancel_replace_request_message: OrderCancelReplaceRequestMessage;
+        TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
+        TemplateId::NewOrderCrossMessage -> new_order_cross_message: NewOrderCrossMessage;
+        TemplateId::ExecutionReportNewMessage -> execution_report_new_message: ExecutionReportNewMessage;
+        TemplateId::ExecutionReportModifyMessage -> execution_report_modify_message: ExecutionReportModifyMessage;
+        TemplateId::ExecutionReportCancelMessage -> execution_report_cancel_message: ExecutionReportCancelMessage;
+        TemplateId::ExecutionReportTradeMessage -> execution_report_trade_message: ExecutionReportTradeMessage;
+        TemplateId::ExecutionReportRejectMessage -> execution_report_reject_message: ExecutionReportRejectMessage;
+        TemplateId::ExecutionReportForwardMessage -> execution_report_forward_message: ExecutionReportForwardMessage;
+        TemplateId::BusinessMessageRejectMessage -> business_message_reject_message: BusinessMessageRejectMessage;
+        TemplateId::SecurityDefinitionRequestMessage -> security_definition_request_message: SecurityDefinitionRequestMessage;
+        TemplateId::SecurityDefinitionResponseMessage -> security_definition_response_message: SecurityDefinitionResponseMessage;
+        TemplateId::QuoteRequestMessage -> quote_request_message: QuoteRequestMessage;
+        TemplateId::QuoteStatusReportMessage -> quote_status_report_message: QuoteStatusReportMessage;
+        TemplateId::QuoteMessage -> quote_message: QuoteMessage;
+        TemplateId::QuoteCancelMessage -> quote_cancel_message: QuoteCancelMessage;
+        TemplateId::QuoteRequestRejectMessage -> quote_request_reject_message: QuoteRequestRejectMessage;
+        TemplateId::PositionMaintenanceCancelRequestMessage -> position_maintenance_cancel_request_message: PositionMaintenanceCancelRequestMessage;
+        TemplateId::PositionMaintenanceRequestMessage -> position_maintenance_request_message: PositionMaintenanceRequestMessage;
+        TemplateId::PositionMaintenanceReportMessage -> position_maintenance_report_message: PositionMaintenanceReportMessage;
+        TemplateId::AllocationInstructionMessage -> allocation_instruction_message: AllocationInstructionMessage;
+        TemplateId::AllocationReportMessage -> allocation_report_message: AllocationReportMessage;
+        TemplateId::OrderMassActionRequestMessage -> order_mass_action_request_message: OrderMassActionRequestMessage;
+        TemplateId::OrderMassActionReportMessage -> order_mass_action_report_message: OrderMassActionReportMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SimpleOpenFramingHeader = unit {
+    message_length: uint16;
+    encoding_type: uint16;
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type NegotiateMessage = unit {
+    session_id: uint32;
+    session_ver_id: uint64;
+    timestamp: uint64;
+    entering_firm: uint32;
+    onbehalf_firm: uint32;
+    credentials: Credentials;
+    client_ip: ClientIp;
+    client_app_name: ClientAppName;
+    client_app_version: ClientAppVersion;
+};
+
+type Credentials = unit {
+    credentials_length: uint8;
+    credentials_data: bytes &size=self.credentials_length;
+};
+
+type ClientIp = unit {
+    client_ip_length: uint8;
+    client_ip_data: bytes &size=self.client_ip_length;
+};
+
+type ClientAppName = unit {
+    client_app_name_length: uint8;
+    client_app_name_data: bytes &size=self.client_app_name_length;
+};
+
+type ClientAppVersion = unit {
+    client_app_version_length: uint8;
+    client_app_version_data: bytes &size=self.client_app_version_length;
+};
+
+type NegotiateResponseMessage = unit {
+    session_id: uint32;
+    session_ver_id: uint64;
+    request_timestamp: uint64;
+    entering_firm: uint32;
+};
+
+type NegotiateRejectMessage = unit {
+    session_id: uint32;
+    session_ver_id: uint64;
+    request_timestamp: uint64;
+    entering_firm_optional: uint32;
+    negotiation_reject_code: uint8 &convert=NegotiationRejectCode($$);
+    : skip bytes &size=3;   # padding
+    current_session_ver_id: uint64;
+};
+
+type EstablishMessage = unit {
+    session_id: uint32;
+    session_ver_id: uint64;
+    timestamp: uint64;
+    keep_alive_interval: uint64;
+    next_seq_no: uint32;
+    cancel_on_disconnect_type: uint8 &convert=CancelOnDisconnectType($$);
+    : skip bytes &size=1;   # padding
+    cod_timeout_window: uint64;
+    credentials: Credentials;
+};
+
+type EstablishAckMessage = unit {
+    session_id: uint32;
+    session_ver_id: uint64;
+    request_timestamp: uint64;
+    keep_alive_interval: uint64;
+    next_seq_no: uint32;
+    last_incoming_seq_no: uint32;
+};
+
+type EstablishRejectMessage = unit {
+    session_id: uint32;
+    session_ver_id: uint64;
+    request_timestamp: uint64;
+    establishment_reject_code: uint8 &convert=EstablishmentRejectCode($$);
+    : skip bytes &size=1;   # padding
+    last_incoming_seq_no_optional: uint32;
+};
+
+type TerminateMessage = unit {
+    session_id: uint32;
+    session_ver_id: uint64;
+    termination_code: uint8 &convert=TerminationCode($$);
+};
+
+type NotAppliedMessage = unit {
+    from_seq_no: uint32;
+    count: uint32;
+};
+
+type SequenceMessage = unit {
+    next_seq_no: uint32;
+};
+
+type RetransmitRequestMessage = unit {
+    session_id: uint32;
+    timestamp: uint64;
+    from_seq_no: uint32;
+    count: uint32;
+};
+
+type RetransmissionMessage = unit {
+    session_id: uint32;
+    request_timestamp: uint64;
+    next_seq_no: uint32;
+    count: uint32;
+};
+
+type RetransmitRejectMessage = unit {
+    session_id: uint32;
+    request_timestamp: uint64;
+    retransmit_reject_code: uint8 &convert=RetransmitRejectCode($$);
+};
+
+type SimpleNewOrderMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    ordtagid: uint8;
+    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    clordid: uint64;
+    account: uint32;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    self_trade_prevention_instruction: uint8 &convert=SelfTradePreventionInstruction($$);
+    security_id: uint64;
+    side: uint8 &convert=Side($$);
+    simple_ordtype: uint8 &convert=SimpleOrdtype($$);
+    time_in_force_simple: uint8 &convert=TimeInForceSimple($$);
+    routing_instruction: uint8 &convert=RoutingInstruction($$);
+    order_qty: uint64;
+    price_optional: int64;
+    investor_id: InvestorId;
+    memo: Memo;
+};
+
+type InboundBusinessHeader = unit {
+    session_id: uint32;
+    msg_seq_num: uint32;
+    sending_time: uint64;
+    market_segment_id: uint8;
+    padding: bytes &size=1;
+};
+
+type InvestorId = unit {
+    prefix: uint16;
+    document: uint32;
+};
+
+type Memo = unit {
+    memo_length: uint8;
+    memo_data: bytes &size=self.memo_length;
+};
+
+type SimpleModifyOrderMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    ordtagid: uint8;
+    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    clordid: uint64;
+    account: uint32;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    self_trade_prevention_instruction: uint8 &convert=SelfTradePreventionInstruction($$);
+    security_id: uint64;
+    side: uint8 &convert=Side($$);
+    simple_ordtype: uint8 &convert=SimpleOrdtype($$);
+    time_in_force_simple: uint8 &convert=TimeInForceSimple($$);
+    routing_instruction: uint8 &convert=RoutingInstruction($$);
+    order_qty: uint64;
+    price_optional: int64;
+    order_id_optional: uint64;
+    origclordid: uint64;
+    investor_id: InvestorId;
+    memo: Memo;
+};
+
+type NewOrderSingleMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    ordtagid: uint8;
+    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    clordid: uint64;
+    account: uint32;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    self_trade_prevention_instruction: uint8 &convert=SelfTradePreventionInstruction($$);
+    security_id: uint64;
+    side: uint8 &convert=Side($$);
+    ordtype: uint8 &convert=Ordtype($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    routing_instruction: uint8 &convert=RoutingInstruction($$);
+    order_qty: uint64;
+    price_optional: int64;
+    stop_px: int64;
+    min_qty: uint64;
+    max_floor: uint64;
+    executing_trader_optional: bytes &size=5;
+    expire_date: uint16;
+    custodian_info: CustodianInfo;
+    investor_id: InvestorId;
+    strategy_id: int32;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type CustodianInfo = unit {
+    custodian: uint32;
+    custody_account: uint32;
+    custody_allocation_type: uint32;
+};
+
+type DeskId = unit {
+    desk_id_length: uint8;
+    desk_id_data: bytes &size=self.desk_id_length;
+};
+
+type OrderCancelReplaceRequestMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    ordtagid: uint8;
+    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    clordid: uint64;
+    account: uint32;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    self_trade_prevention_instruction: uint8 &convert=SelfTradePreventionInstruction($$);
+    security_id: uint64;
+    side: uint8 &convert=Side($$);
+    ordtype: uint8 &convert=Ordtype($$);
+    time_in_force_optional: uint8 &convert=TimeInForceOptional($$);
+    routing_instruction: uint8 &convert=RoutingInstruction($$);
+    order_qty: uint64;
+    price_optional: int64;
+    order_id_optional: uint64;
+    origclordid: uint64;
+    stop_px: int64;
+    min_qty: uint64;
+    max_floor: uint64;
+    executing_trader_optional: bytes &size=5;
+    account_type: uint8 &convert=AccountType($$);
+    expire_date: uint16;
+    custodian_info: CustodianInfo;
+    investor_id: InvestorId;
+    strategy_id: int32;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type OrderCancelRequestMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    : skip bytes &size=2;   # padding
+    clordid: uint64;
+    security_id: uint64;
+    order_id_optional: uint64;
+    origclordid: uint64;
+    side: uint8 &convert=Side($$);
+    single_cancel_restatement_reason: uint8 &convert=SingleCancelRestatementReason($$);
+    : skip bytes &size=2;   # padding
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    executing_trader_optional: bytes &size=5;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type NewOrderCrossMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    : skip bytes &size=2;   # padding
+    crossid: uint64;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    executing_trader_optional: bytes &size=5;
+    security_id: uint64;
+    order_qty: uint64;
+    price: int64;
+    crossed_indicator: uint16 &convert=CrossedIndicator($$);
+    cross_type: uint8 &convert=CrossType($$);
+    cross_prioritization: uint8 &convert=CrossPrioritization($$);
+    max_sweep_qty: uint64;
+    cross_sides_groups: CrossSidesGroups;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type CrossSidesGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    cross_sides_group: CrossSidesGroup[self.group_size_encoding.num_in_group];
+};
+
+type GroupSizeEncoding = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type CrossSidesGroup = unit {
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=1;   # padding
+    account: uint32;
+    entering_firm_optional: uint32;
+    clordid: uint64;
+};
+
+type ExecutionReportNewMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    side: uint8 &convert=Side($$);
+    ord_status: uint8 &convert=OrdStatus($$);
+    clordid: uint64;
+    secondary_order_id: uint64;
+    security_id: uint64;
+    order_id: uint64;
+    account: uint32;
+    exec_id: uint64;
+    transact_time: uint64;
+    market_segment_received_time: uint64;
+    protection_price: int64;
+    trade_date: uint16;
+    working_indicator: uint8 &convert=WorkingIndicator($$);
+    multi_leg_reporting_type: uint8 &convert=MultiLegReportingType($$);
+    ordtype: uint8 &convert=Ordtype($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    expire_date: uint16;
+    order_qty: uint64;
+    price_optional: int64;
+    stop_px: int64;
+    min_qty: uint64;
+    max_floor: uint64;
+    crossid_optional: uint64;
+    received_time: uint64;
+    : skip bytes &size=3;   # padding
+    ordtagid_optional: uint8;
+    investor_id: InvestorId;
+    cross_type: uint8 &convert=CrossType($$);
+    cross_prioritization: uint8 &convert=CrossPrioritization($$);
+    mm_protection_reset_boolean_optional: uint8 &convert=MmProtectionResetBooleanOptional($$);
+    : skip bytes &size=3;   # padding
+    strategy_id: int32;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type OutboundBusinessHeader = unit {
+    session_id: uint32;
+    msg_seq_num: uint32;
+    sending_time: uint64;
+    poss_resend: uint8;
+    padding: bytes &size=1;
+};
+
+type ExecutionReportModifyMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    side: uint8 &convert=Side($$);
+    ord_status: uint8 &convert=OrdStatus($$);
+    clordid: uint64;
+    secondary_order_id: uint64;
+    security_id: uint64;
+    leaves_qty: uint64;
+    account: uint32;
+    exec_id: uint64;
+    transact_time: uint64;
+    cum_qty: uint64;
+    market_segment_received_time: uint64;
+    order_id: uint64;
+    origclordid: uint64;
+    protection_price: int64;
+    trade_date: uint16;
+    working_indicator: uint8 &convert=WorkingIndicator($$);
+    multi_leg_reporting_type: uint8 &convert=MultiLegReportingType($$);
+    ordtype: uint8 &convert=Ordtype($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    expire_date: uint16;
+    order_qty: uint64;
+    price_optional: int64;
+    stop_px: int64;
+    min_qty: uint64;
+    max_floor: uint64;
+    received_time: uint64;
+    : skip bytes &size=3;   # padding
+    ordtagid_optional: uint8;
+    investor_id: InvestorId;
+    mm_protection_reset_boolean_optional: uint8 &convert=MmProtectionResetBooleanOptional($$);
+    : skip bytes &size=3;   # padding
+    strategy_id: int32;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type ExecutionReportCancelMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    side: uint8 &convert=Side($$);
+    ord_status: uint8 &convert=OrdStatus($$);
+    clordid: uint64;
+    secondary_order_id: uint64;
+    security_id: uint64;
+    cum_qty: uint64;
+    account: uint32;
+    exec_id: uint64;
+    transact_time: uint64;
+    market_segment_received_time: uint64;
+    order_id: uint64;
+    origclordid: uint64;
+    trade_date: uint16;
+    working_indicator: uint8 &convert=WorkingIndicator($$);
+    exec_restatement_reason: uint8 &convert=ExecRestatementReason($$);
+    : skip bytes &size=4;   # padding
+    mass_action_report_id_optional: uint64;
+    ordtype: uint8 &convert=Ordtype($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    expire_date: uint16;
+    order_qty: uint64;
+    price_optional: int64;
+    stop_px: int64;
+    min_qty: uint64;
+    max_floor: uint64;
+    received_time: uint64;
+    : skip bytes &size=3;   # padding
+    ordtagid_optional: uint8;
+    investor_id: InvestorId;
+    strategy_id: int32;
+    action_requested_from_session_id: uint32;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type ExecutionReportTradeMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    side: uint8 &convert=Side($$);
+    ord_status: uint8 &convert=OrdStatus($$);
+    clordid_optional: uint64;
+    secondary_order_id: uint64;
+    security_id: uint64;
+    account: uint32;
+    last_qty: uint64;
+    last_px: int64;
+    exec_id: uint64;
+    transact_time: uint64;
+    leaves_qty: uint64;
+    cum_qty: uint64;
+    aggressor_indicator: uint8 &convert=AggressorIndicator($$);
+    exec_type: uint8 &convert=ExecType($$);
+    order_category: uint8 &convert=OrderCategory($$);
+    multi_leg_reporting_type: uint8 &convert=MultiLegReportingType($$);
+    trade_id: uint32;
+    contra_broker: uint32;
+    order_id: uint64;
+    trade_date: uint16;
+    tot_no_related_sym: uint8;
+    : skip bytes &size=1;   # padding
+    secondary_exec_id: uint64;
+    exec_ref_id: uint64;
+    crossid_optional: uint64;
+    crossed_indicator: uint16 &convert=CrossedIndicator($$);
+    order_qty: uint64;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    cross_type: uint8 &convert=CrossType($$);
+    cross_prioritization: uint8 &convert=CrossPrioritization($$);
+    : skip bytes &size=1;   # padding
+    strategy_id: int32;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type ExecutionReportRejectMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    side: uint8 &convert=Side($$);
+    cxl_rej_response_to: uint8 &convert=CxlRejResponseTo($$);
+    clordid: uint64;
+    secondary_order_id_optional: uint64;
+    security_id: uint64;
+    ord_rej_reason: uint32 &convert=OrdRejReason($$);
+    transact_time: uint64;
+    exec_id: uint64;
+    order_id_optional: uint64;
+    origclordid: uint64;
+    account: uint32;
+    ordtype: uint8 &convert=Ordtype($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    expire_date: uint16;
+    order_qty: uint64;
+    price_optional: int64;
+    stop_px: int64;
+    min_qty: uint64;
+    max_floor: uint64;
+    crossid_optional: uint64;
+    crossed_indicator: uint16 &convert=CrossedIndicator($$);
+    received_time: uint64;
+    : skip bytes &size=3;   # padding
+    ordtagid_optional: uint8;
+    investor_id: InvestorId;
+    strategy_id: int32;
+    desk_id: DeskId;
+    memo: Memo;
+    text: Text;
+};
+
+type Text = unit {
+    text_length: uint8;
+    text_data: bytes &size=self.text_length;
+};
+
+type ExecutionReportForwardMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    side: uint8 &convert=Side($$);
+    ord_status: uint8 &convert=OrdStatus($$);
+    clordid_optional: uint64;
+    secondary_order_id: uint64;
+    security_id: uint64;
+    account: uint32;
+    last_qty: uint64;
+    last_px: int64;
+    exec_id: uint64;
+    transact_time: uint64;
+    leaves_qty: uint64;
+    cum_qty: uint64;
+    trade_id: uint32;
+    contra_broker: uint32;
+    order_id: uint64;
+    aggressor_indicator: uint8 &convert=AggressorIndicator($$);
+    settltype_optional: uint8 &convert=SettltypeOptional($$);
+    trade_date: uint16;
+    days_to_settlement_optional: uint16;
+    : skip bytes &size=2;   # padding
+    secondary_exec_id: uint64;
+    exec_ref_id: uint64;
+    fixed_rate_percentage_8_optional: int64;
+    order_qty: uint64;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type BusinessMessageRejectMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    ref_msg_type: uint8 &convert=RefMsgType($$);
+    : skip bytes &size=1;   # padding
+    ref_seq_num: uint32;
+    business_reject_ref_id: uint64;
+    business_reject_reason: uint32;
+    memo: Memo;
+    text: Text;
+};
+
+type SecurityDefinitionRequestMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    security_req_id: uint64;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    legs_groups: LegsGroups;
+};
+
+type LegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    legs_group: LegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type LegsGroup = unit {
+    leg_symbol: bytes &size=20;
+    leg_ratio_qty: int64;
+    leg_side: uint8 &convert=LegSide($$);
+    : skip bytes &size=1;   # padding
+};
+
+type SecurityDefinitionResponseMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    : skip bytes &size=2;   # padding
+    security_req_id: uint64;
+    security_id_optional: uint64;
+    security_response_type: uint8 &convert=SecurityResponseType($$);
+    security_strategy_type: bytes &size=3;
+    symbol: bytes &size=20;
+    security_response_id: uint64;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+};
+
+type QuoteRequestMessage = unit {
+    bidirectional_business_header: BidirectionalBusinessHeader;
+    security_id: uint64;
+    quote_req_id: uint64;
+    quote_id_optional: uint64;
+    trade_id_optional: uint32;
+    contra_broker: uint32;
+    transact_time: uint64;
+    price_8: int64;
+    settltype: uint8 &convert=Settltype($$);
+    execute_underlying_trade: uint8 &convert=ExecuteUnderlyingTrade($$);
+    order_qty: uint64;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    executing_trader: bytes &size=5;
+    fixed_rate_percentage_8: int64;
+    days_to_settlement: uint16;
+    sides_groups: SidesGroups;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type BidirectionalBusinessHeader = unit {
+    session_id: uint32;
+    msg_seq_num: uint32;
+    sending_time: uint64;
+    poss_resend: uint8;
+    market_segment_id_optional: uint8;
+    padding: bytes &size=1;
+};
+
+type SidesGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    sides_group: SidesGroup[self.group_size_encoding.num_in_group];
+};
+
+type SidesGroup = unit {
+    side: uint8 &convert=Side($$);
+    account: uint32;
+};
+
+type QuoteStatusReportMessage = unit {
+    bidirectional_business_header: BidirectionalBusinessHeader;
+    quote_reject_reason: uint32 &convert=QuoteRejectReason($$);
+    security_id: uint64;
+    quote_req_id: uint64;
+    quote_id: uint64;
+    trade_id_optional: uint32;
+    contra_broker: uint32;
+    transact_time: uint64;
+    quote_status: uint8 &convert=QuoteStatus($$);
+    quote_status_response_to: uint8 &convert=QuoteStatusResponseTo($$);
+    account: uint32;
+    side_optional: uint8 &convert=SideOptional($$);
+    settltype_optional: uint8 &convert=SettltypeOptional($$);
+    price_8_optional: int64;
+    order_qty: uint64;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    executing_trader: bytes &size=5;
+    fixed_rate_percentage_8_optional: int64;
+    execute_underlying_trade: uint8 &convert=ExecuteUnderlyingTrade($$);
+    days_to_settlement_optional: uint16;
+    desk_id: DeskId;
+    memo: Memo;
+    text: Text;
+};
+
+type QuoteMessage = unit {
+    bidirectional_business_header: BidirectionalBusinessHeader;
+    security_id: uint64;
+    quote_req_id: uint64;
+    quote_id: uint64;
+    transact_time: uint64;
+    price_8_optional: int64;
+    order_qty: uint64;
+    side: uint8 &convert=Side($$);
+    settltype: uint8 &convert=Settltype($$);
+    account: uint32;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    executing_trader: bytes &size=5;
+    fixed_rate_percentage_8: int64;
+    execute_underlying_trade: uint8 &convert=ExecuteUnderlyingTrade($$);
+    days_to_settlement: uint16;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type QuoteCancelMessage = unit {
+    bidirectional_business_header: BidirectionalBusinessHeader;
+    security_id: uint64;
+    quote_req_id_optional: uint64;
+    quote_id_optional: uint64;
+    account: uint32;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    executing_trader: bytes &size=5;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type QuoteRequestRejectMessage = unit {
+    bidirectional_business_header: BidirectionalBusinessHeader;
+    quote_request_reject_reason: uint32;
+    security_id: uint64;
+    quote_req_id: uint64;
+    quote_id_optional: uint64;
+    trade_id_optional: uint32;
+    contra_broker: uint32;
+    transact_time: uint64;
+    entering_trader: bytes &size=5;
+    settltype_optional: uint8 &convert=SettltypeOptional($$);
+    price_8_optional: int64;
+    order_qty_optional: uint64;
+    sender_location: bytes &size=10;
+    executing_trader: bytes &size=5;
+    fixed_rate_percentage_8_optional: int64;
+    days_to_settlement_optional: uint16;
+    sides_groups: SidesGroups;
+    desk_id: DeskId;
+    memo: Memo;
+    text: Text;
+};
+
+type PositionMaintenanceCancelRequestMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    pos_req_id: uint64;
+    security_id: uint64;
+    orig_pos_req_ref_id: uint64;
+    pos_maint_rpt_ref_id: uint64;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+};
+
+type PositionMaintenanceRequestMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    pos_req_id: uint64;
+    security_id: uint64;
+    threshold_amount: int64;
+    account: uint32;
+    sender_location: bytes &size=10;
+    pos_trans_type: uint8 &convert=PosTransType($$);
+    clearing_business_date: uint16;
+    contrary_instruction_indicator: uint8 &convert=ContraryInstructionIndicator($$);
+    entering_trader: bytes &size=5;
+    long_qty: uint64;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type PositionMaintenanceReportMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    pos_req_id_optional: uint64;
+    security_id: uint64;
+    pos_maint_rpt_id: uint64;
+    pos_trans_type: uint8 &convert=PosTransType($$);
+    pos_maint_action: uint8 &convert=PosMaintAction($$);
+    pos_maint_status: uint8 &convert=PosMaintStatus($$);
+    trade_id_optional: uint32;
+    orig_pos_req_ref_id: uint64;
+    account_type: uint8 &convert=AccountType($$);
+    clearing_business_date: uint16;
+    threshold_amount: int64;
+    transact_time: uint64;
+    account: uint32;
+    sender_location: bytes &size=10;
+    pos_maint_result: uint32;
+    contrary_instruction_indicator: uint8 &convert=ContraryInstructionIndicator($$);
+    positions_groups: PositionsGroups;
+    desk_id: DeskId;
+    memo: Memo;
+    text: Text;
+};
+
+type PositionsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    positions_group: PositionsGroup[self.group_size_encoding.num_in_group];
+};
+
+type PositionsGroup = unit {
+    pos_type: uint8 &convert=PosType($$);
+    long_qty_optional: uint64;
+    short_qty: uint64;
+};
+
+type AllocationInstructionMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    alloc_id: uint64;
+    security_id: uint64;
+    alloc_trans_type: uint8 &convert=AllocTransType($$);
+    alloc_type: uint8 &convert=AllocType($$);
+    alloc_no_orders_type: uint8 &convert=AllocNoOrdersType($$);
+    quantity: uint64;
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+    trade_id: uint32;
+    trade_date_optional: uint16;
+    individual_alloc_id: uint64;
+    alloc_account: uint32;
+    alloc_qty: uint64;
+    desk_id: DeskId;
+    memo: Memo;
+};
+
+type AllocationReportMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    alloc_id: uint64;
+    security_id: uint64;
+    alloc_report_id: uint64;
+    alloc_trans_type: uint8 &convert=AllocTransType($$);
+    alloc_report_type: uint8 &convert=AllocReportType($$);
+    alloc_no_orders_type: uint8 &convert=AllocNoOrdersType($$);
+    alloc_rej_code: uint32;
+    quantity: uint64;
+    alloc_status: uint8 &convert=AllocStatus($$);
+    trade_date_optional: uint16;
+    transact_time: uint64;
+    side: uint8 &convert=Side($$);
+    sender_location: bytes &size=10;
+    entering_trader: bytes &size=5;
+};
+
+type OrderMassActionRequestMessage = unit {
+    inbound_business_header: InboundBusinessHeader;
+    mass_action_type: uint8 &convert=MassActionType($$);
+    mass_action_scope: uint8 &convert=MassActionScope($$);
+    clordid: uint64;
+    mass_cancel_restatement_reason: uint8 &convert=MassCancelRestatementReason($$);
+    ordtagid: uint8;
+    side_optional: uint8 &convert=SideOptional($$);
+    : skip bytes &size=1;   # padding
+    asset: bytes &size=6;
+    security_id_optional: uint64;
+    investor_id: InvestorId;
+};
+
+type OrderMassActionReportMessage = unit {
+    outbound_business_header: OutboundBusinessHeader;
+    mass_action_type: uint8 &convert=MassActionType($$);
+    mass_action_scope: uint8 &convert=MassActionScope($$);
+    clordid: uint64;
+    mass_action_report_id: uint64;
+    transact_time: uint64;
+    mass_action_response: uint8 &convert=MassActionResponse($$);
+    mass_action_reject_reason: uint8 &convert=MassActionRejectReason($$);
+    mass_cancel_restatement_reason: uint8 &convert=MassCancelRestatementReason($$);
+    ordtagid: uint8;
+    side_optional: uint8 &convert=SideOptional($$);
+    : skip bytes &size=1;   # padding
+    asset: bytes &size=6;
+    security_id_optional: uint64;
+    investor_id: InvestorId;
+    text: Text;
+};
+
+type TemplateId = enum {
+    NegotiateMessage = 1,
+    NegotiateResponseMessage = 2,
+    NegotiateRejectMessage = 3,
+    EstablishMessage = 4,
+    EstablishAckMessage = 5,
+    EstablishRejectMessage = 6,
+    TerminateMessage = 7,
+    NotAppliedMessage = 8,
+    SequenceMessage = 9,
+    RetransmitRequestMessage = 12,
+    RetransmissionMessage = 13,
+    RetransmitRejectMessage = 14,
+    SimpleNewOrderMessage = 100,
+    SimpleModifyOrderMessage = 101,
+    NewOrderSingleMessage = 102,
+    OrderCancelReplaceRequestMessage = 104,
+    OrderCancelRequestMessage = 105,
+    NewOrderCrossMessage = 106,
+    ExecutionReportNewMessage = 200,
+    ExecutionReportModifyMessage = 201,
+    ExecutionReportCancelMessage = 202,
+    ExecutionReportTradeMessage = 203,
+    ExecutionReportRejectMessage = 204,
+    ExecutionReportForwardMessage = 205,
+    BusinessMessageRejectMessage = 206,
+    SecurityDefinitionRequestMessage = 300,
+    SecurityDefinitionResponseMessage = 301,
+    QuoteRequestMessage = 401,
+    QuoteStatusReportMessage = 402,
+    QuoteMessage = 403,
+    QuoteCancelMessage = 404,
+    QuoteRequestRejectMessage = 405,
+    PositionMaintenanceCancelRequestMessage = 501,
+    PositionMaintenanceRequestMessage = 502,
+    PositionMaintenanceReportMessage = 503,
+    AllocationInstructionMessage = 601,
+    AllocationReportMessage = 602,
+    OrderMassActionRequestMessage = 701,
+    OrderMassActionReportMessage = 702,
+};
+
+type NegotiationRejectCode = enum {
+    Unspecified = 0,
+    Credentials = 1,
+    FlowtypeNotSupported = 2,
+    AlreadyNegotiated = 3,
+    SessionBlocked = 4,
+    InvalidSessionid = 5,
+    InvalidSessionverid = 6,
+    InvalidTimestamp = 7,
+    InvalidFirm = 8,
+    NegotiateNotAllowed = 20,
+    DuplicateSessionConnection = 21,
+    AuthenticationInProgress = 22,
+    ProtocolVersionNotSupported = 23,
+};
+
+type CancelOnDisconnectType = enum {
+    DoNotCancelOnDisconnectOrTerminate = 0,
+    CancelOnDisconnectOnly = 1,
+    CancelOnTerminateOnly = 2,
+    CancelOnDisconnectOrTerminate = 3,
+};
+
+type EstablishmentRejectCode = enum {
+    Unspecified = 0,
+    Credentials = 1,
+    Unnegotiated = 2,
+    AlreadyEstablished = 3,
+    SessionBlocked = 4,
+    InvalidSessionid = 5,
+    InvalidSessionverid = 6,
+    InvalidTimestamp = 7,
+    InvalidKeepaliveInterval = 8,
+    InvalidNextseqno = 9,
+    EstablishAttemptsExceeded = 10,
+    EstablishNotAllowed = 20,
+    DuplicateSessionConnection = 21,
+    AuthenticationInProgress = 22,
+    ProtocolVersionNotSupported = 23,
+};
+
+type TerminationCode = enum {
+    Unspecified = 0,
+    Finished = 1,
+    Unnegotiated = 2,
+    NotEstablished = 3,
+    SessionBlocked = 4,
+    NegotiationInProgress = 5,
+    EstablishInProgress = 6,
+    KeepaliveIntervalLapsed = 10,
+    InvalidSessionid = 11,
+    InvalidSessionverid = 12,
+    InvalidTimestamp = 13,
+    InvalidNextseqno = 14,
+    UnrecognizedMessage = 15,
+    InvalidSofh = 16,
+    DecodingError = 17,
+    TerminateNotAllowed = 20,
+    TerminateInProgress = 21,
+    ProtocolVersionNotSupported = 23,
+    BackupTakeoverInProgress = 30,
+};
+
+type RetransmitRejectCode = enum {
+    OutOfRange = 0,
+    InvalidSession = 1,
+    RequestLimitExceeded = 2,
+    RetransmitInProgress = 3,
+    InvalidTimestamp = 4,
+    InvalidFromseqno = 5,
+    InvalidCount = 9,
+    ThrottleReject = 10,
+    SystemBusy = 11,
+};
+
+type MmProtectionResetBoolean = enum {
+    FalseValue = 0,
+    TrueValue = 1,
+};
+
+type SelfTradePreventionInstruction = enum {
+    None = 0,
+    CancelAggressorOrder = 1,
+    CancelRestingOrder = 2,
+    CancelBothOrders = 3,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type SimpleOrdtype = enum {
+    Market = 0x31,
+    Limit = 0x32,
+};
+
+type TimeInForceSimple = enum {
+    Day = 0x30,
+    ImmediateOrCancel = 0x33,
+    FillOrKill = 0x34,
+};
+
+type RoutingInstruction = enum {
+    RetailLiquidityTaker = 1,
+    WaivedPriority = 2,
+    BrokerOnly = 3,
+    BrokerOnlyRemoval = 4,
+};
+
+type Ordtype = enum {
+    Market = 0x31,
+    Limit = 0x32,
+    StopLoss = 0x33,
+    StopLimit = 0x34,
+    MarketWithLeftoverAsLimit = 0x4b,
+    Rlp = 0x57,
+    PeggedMidpoint = 0x50,
+};
+
+type TimeInForce = enum {
+    Day = 0x30,
+    GoodTillCancel = 0x31,
+    ImmediateOrCancel = 0x33,
+    FillOrKill = 0x34,
+    GoodTillDate = 0x36,
+    AtTheClose = 0x37,
+    GoodForAuction = 0x41,
+};
+
+type TimeInForceOptional = enum {
+    Day = 0x30,
+    GoodTillCancel = 0x31,
+    ImmediateOrCancel = 0x33,
+    FillOrKill = 0x34,
+    GoodTillDate = 0x36,
+    AtTheClose = 0x37,
+    GoodForAuction = 0x41,
+};
+
+type AccountType = enum {
+    RemoveAccountInformation = 38,
+    RegularAccount = 39,
+};
+
+type SingleCancelRestatementReason = enum {
+    CancelOrderDueToOperationalError = 203,
+};
+
+type CrossedIndicator = enum {
+    StructuredTransaction = 1001,
+    OperationalError = 1002,
+    TwapVwap = 1003,
+};
+
+type CrossType = enum {
+    AllOrNoneCross = 1,
+    CrossExecutedAgainstBookFromClient = 4,
+};
+
+type CrossPrioritization = enum {
+    None = 0,
+    BuySideIsPrioritized = 1,
+    SellSideIsPrioritized = 2,
+};
+
+type OrdStatus = enum {
+    New = 0x30,
+    PartiallyFilled = 0x31,
+    Filled = 0x32,
+    Canceled = 0x34,
+    Replaced = 0x35,
+    Rejected = 0x38,
+    Expired = 0x43,
+    Restated = 0x52,
+    PreviousFinalState = 0x5a,
+};
+
+type WorkingIndicator = enum {
+    FalseValue = 0,
+    TrueValue = 1,
+};
+
+type MultiLegReportingType = enum {
+    SingleSecurity = 0x31,
+    IndividuallegOfMultilegSecurity = 0x32,
+    MultilegSecurity = 0x33,
+};
+
+type MmProtectionResetBooleanOptional = enum {
+    FalseValue = 0,
+    TrueValue = 1,
+};
+
+type ExecRestatementReason = enum {
+    MarketOption = 8,
+    CancelOnHardDisconnection = 100,
+    CancelOnTerminate = 101,
+    CancelOnDisconnectAndTerminate = 102,
+    SelfTradingPrevention = 103,
+    CancelFromFirmsoft = 105,
+    CancelRestingOrderOnSelfTrade = 107,
+    MarketMakerProtection = 200,
+    RiskManagementCancellation = 201,
+    OrderMassActionFromClientRequest = 202,
+    CancelOrderDueToOperationalError = 203,
+    OrderCancelledDueToOperationalError = 204,
+    CancelOrderFirmsoftDueToOperationalError = 205,
+    OrderCancelledFirmsoftDueToOperationalError = 206,
+    MassCancelOrderDueToOperationalErrorRequest = 207,
+    MassCancelOrderDueToOperationalErrorEffective = 208,
+    CancelOnMidpointBrokerOnlyRemoval = 209,
+    CancelRemainingFromSweepCross = 210,
+    MassCancelOnBehalf = 211,
+    MassCancelOnBehalfDueToOperationalErrorEffective = 212,
+};
+
+type AggressorIndicator = enum {
+    FalseValue = 0,
+    TrueValue = 1,
+};
+
+type ExecType = enum {
+    Trade = 0x46,
+    TradeCancel = 0x48,
+};
+
+type OrderCategory = enum {
+    ResultOfOptionsExercise = 0x42,
+    ResultOfAssignmentFromAnOptionsExercise = 0x43,
+    ResultOfAutomaticOptionsExercise = 0x44,
+    ResultOfMidpointOrder = 0x45,
+    ResultOfBlockBookTrade = 0x46,
+    ResultOfTradeAtClose = 0x47,
+    ResultOfTradeAtAverage = 0x48,
+};
+
+type TradingSessionId = enum {
+    RegularDaySession = 1,
+    NonRegularSession = 6,
+};
+
+type TradingSessionSubId = enum {
+    Pause = 2,
+    Close = 4,
+    Open = 17,
+    PreClose = 18,
+    PreOpen = 21,
+    FinalClosingCall = 101,
+};
+
+type SecurityTradingStatus = enum {
+    TradingHalt = 2,
+    NoOpen = 4,
+    ReadyToTrade = 17,
+    Forbidden = 18,
+    UnknownOrInvalid = 20,
+    PreOpen = 21,
+    FinalClosingCall = 101,
+    Reserved = 110,
+};
+
+type CxlRejResponseTo = enum {
+    New = 0,
+    Cancel = 1,
+    Replace = 2,
+};
+
+type OrdRejReason = enum {
+    UnableToSendFixFromVolatilityupdateMessage = 000908,
+    OrdersMayNotBeEnteredWhileTheMarketIsClosedpaused = 001003,
+    FixFieldMissingOrIncorrect = 001007,
+    RequiredFieldMissing = 001010,
+    FixFieldIncorrect = 001011,
+    PriceMustBeGreaterThanZero = 001012,
+    InvalidOrderQualifier = 001013,
+    UserNotAuthorizedToTrade = 001014,
+    RequiredFieldMissingStopOrdersCannotBeIocfak = 001016,
+    RequiredFieldMissingDisplayQuantityOrdersCannotBeIocfok = 001017,
+    RequiredFieldMissingStopOrdersCannotBeIocfok = 001018,
+    MarketPriceOrdersNotSupportedByOppositeLimit = 002013,
+    OrderGtdExpireDateIsBeforeTheCurrentOrNextIfNotCurrentlyInASessionTradingSessionEndDate = 002019,
+    CannotModifyOrderBecauseOrderDoesNotExist = 002045,
+    DisclosedQuantityCannotBeGreaterThanTotalOrRemainingQuantity = 002046,
+    OrderContractIsUnknown = 002047,
+    TheOrderWasSubmittedWithADifferentSendercompidThanTheRequestingCancel = 002048,
+    TheOrderWasSubmittedWithADifferentClorderidThanTheCorrelationclorderidOfTheRequestingCancel = 002049,
+    TheOrderWasSubmittedWithADifferentClorderidThanTheOriginalclorderidOfTheRequestingCancel = 002050,
+    TheOrderWasSubmittedWithADifferentSideThanTheRequestingCancel = 002051,
+    TheOrderWasSubmittedWithADifferentGroupTag55ThanTheRequestingCancel = 002052,
+    TheOrderWasSubmittedWithADifferentSecurityTypeThanTheRequestingCancel = 002053,
+    TheOrderWasSubmittedWithADifferentAccountThanTheRequestingCancel = 002054,
+    TheOrderWasSubmittedWithADifferentQuantityThanTheRequestingCancel = 002055,
+    TheOrderWasSubmittedWithADifferentTraderidThanTheRequestingCancel = 002056,
+    AttemptToCancelAnOrderWithADifferentFirmidThanTheOriginalOrder = 002057,
+    AttemptToCancelAnOrderWithADifferentSenderlocationidThanTheOriginalOrder = 002058,
+    StopPriceMaximiniMustBeSmallerThanOrEqualToTriggerPrice = 002059,
+    SellOrderStopPriceMustBeBelowLastTradePrice = 002060,
+    BuyOrderStopPriceMustBeAboveLastTradePrice = 002061,
+    TheModifyWasSubmittedOnADifferentProductThanTheOriginalOrder = 002100,
+    AttemptToModifyAnOrderWithADifferentInflightfillMitigationStatusThanFirstModification = 002101,
+    AttemptToModifyAnOrderWithADifferentSendercompidThanTheOriginalOrder = 002102,
+    AttemptToModifyAnOrderWithADifferentTraderidThanTheOriginalOrder = 002103,
+    AttemptToModifyAnOrderWithADifferentAccountidThanTheOriginalOrder = 002104,
+    AttemptToModifyAnOrderWithADifferentFirmidThanTheOriginalOrder = 002105,
+    AttemptToModifyAnOrderWithADifferentSenderlocationidThanTheOriginalOrder = 002106,
+    DisclosedQuantityIsNotAllowed = 002107,
+    AccountOrGiveUpFirmRequiredForDmaCustomers = 002108,
+    DisclosedQtyCannotBeLessThanDisclosedQtyMin = 002109,
+    AcctType38NotValidForTag581ForDmaCustomers = 002110,
+    GiveUpNotValidForFxSpotContract = 002111,
+    VisibilityPermissionNotGrantedForExecutingTraderenteringTrader = 002112,
+    ExecutingTraderDoesntHaveAccessToProductGroup = 002113,
+    AttemptToModifyMarketOrderToSomeOtherType = 002114,
+    OrderQuantityIsOutsideOfTheAllowableRange = 002115,
+    AccountIsMandatoryForFxSpot = 002116,
+    OrderOnBehalfByDmaCustomerIsNotAllowed = 002117,
+    AttemptToModifyAnOrderWithADifferentAccounttypeThanTheOriginalOrder = 002118,
+    AccountOrGiveUpFirmRequiredForEquities = 002123,
+    OrderTypeNotPermittedWhileTheMarketIsInPreOpen = 002130,
+    OrderPriceIsOutsideLimits = 002137,
+    QtyIsNotMultipleOfRoundLot = 002138,
+    QtyIsGreaterOrEqualThanMaximumTradeVolume = 002139,
+    OrderPriceIsOutsideBands = 002179,
+    OrderPriceIsOutsideAuctionBands = 002180,
+    TradeOutsideOfShortTermVolatilityBands = 002181,
+    AllLegsMustHaveSameLotTypes = 002182,
+    AllLegsMustHaveSameTickIncrement = 002183,
+    AllLegsMustHaveSameStepOfQuotation = 002184,
+    TradePriceIsOutsideOfStaticLimits = 002185,
+    CodNotSupportedForGtcGtdOrders = 002186,
+    OrderNotBookableAtThisTime = 002187,
+    MinimumQuantityWasNotFilled = 002188,
+    OrderAttributesNotAllowedToTripAnAuction = 002189,
+    OrderTypeNotPermittedForGroup = 002311,
+    InstrumentHasAnRequestForCrossInProgress = 002500,
+    OrderQuantityTooLow = 002501,
+    CrosstypeIneligibleForInstrument = 002502,
+    RfqForCrossIsNotAllowedSinceContractIsNotRfqForCrossEligible = 002503,
+    DmaCrossorderNotAllowed = 002504,
+    CrossOrderRejectedDueToAuctionTriggerValidation = 002505,
+    TradeOnBehalfRejected = 002506,
+    MarketMakerProtectionInEffectForUserXxxxxxxxAndGroupXxxxxx = 002600,
+    RfqRejectedInstrumentexchangeNotTradable = 003000,
+    RfqRejectedInstrumentexchangeNotKnown = 003001,
+    ErrorCreatingContract = 003002,
+    BusinessRejectOther = 003010,
+    BusinessRejectUnknownId = 003011,
+    BusinessRejectUnknownSecurity = 003012,
+    BusinessRejectUnsupportedMessageType = 003013,
+    BusinessRejectApplicationNotAvailable = 003014,
+    BusinessRejectRequiredFieldMissing = 003015,
+    ContractClaimsToBeASpreadButIsMissingOneOrMoreLegs = 003016,
+    FixFieldLengthExceedsMaxLength = 003017,
+    SpecialAuctionPermissionsOrderEntryNotAllowed = 003020,
+    EngineDidNotRespondToFasRequest = 004000,
+    TermoMessageRejectedUnknownInstrument = 006001,
+    TermoMessageRejectedExchangeSecurityClosed = 006002,
+    TermoRejectedInstrumentexchangeNotTradable = 006003,
+    TermoMessageRejectedLimitsExceeded = 006004,
+    TermoMessageRejectedTooLateToEnter = 006005,
+    TermoMessageRejectedUnknownTermoQuote = 006006,
+    TermoMessageRejectedDuplicateTermoQuote = 006007,
+    TermoMessageRejectedInvalidBidaskSpread = 006008,
+    TermoMessageRejectedInvalidPrice = 006009,
+    TermoMessageRejectedNotAuthorizedToTermoQuoteThisInstrument = 006010,
+    TermoMessageRejectedPass = 006011,
+    FixFieldIncorrect_006012 = 006012,
+    NotAValidTermoInstrument = 006013,
+    ValuesDontMatchWithTheOriginalRequest = 006014,
+    CurrentTermoRequestStatusDoesNotAllowRejection = 006015,
+    CurrentTermoRequestStatusDoesNotAllowAcceptance = 006016,
+    WrongTypeOfOrderBookForTermo = 006017,
+    WrongTypeOfRequestForTermo = 006018,
+    DaysToSettlementMustBeBetween16And999 = 006019,
+    DaysToSettlementMustBeBetween16And90 = 006020,
+    InstrumentNotAllowedToThisMarket = 006021,
+    InstrumentNotAllowedToThisMarket_006022 = 006022,
+    TermoPriceShouldBeGreaterThanZero = 006023,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsPaused = 006024,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsPreOpen = 006025,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsPcp = 006026,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsNoCancel = 006027,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsReserved = 006028,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsForbidden = 006029,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsPreClose = 006030,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsPreOpen_006031 = 006031,
+    NotAValidTermoUnderlyingInstrument = 006032,
+    ReceivedANullAdminoperation = 006033,
+    FirstTradeOfDayForUnderlyingTermoInstrument = 006034,
+    TermoMessagesShouldNotBeEnteredWhenMarketIsInFinalClosingCall = 006035,
+    InvalidCashTradeInTvr = 006036,
+    OnlyBuyEntryRequestForTvrIsAccepted = 006037,
+    ThereIsNoBidAndAskForUnderlyingContract = 006038,
+    InvalidPrice = 006039,
+    InvalidCashTradeInTvr_006040 = 006040,
+    InvalidCashTradeInTvr_006041 = 006041,
+    InvalidCashTradeInTvr_006042 = 006042,
+    InvalidCashTradeInTvr_006043 = 006043,
+    InvalidCashTradeInTvr_006044 = 006044,
+    OrderRejected = 007000,
+    FokOrderUnmatchableInMarket = 007001,
+    OrdersMayNotBeEnteredWhileTheMarketIsClosed = 007002,
+    OrderContractIsUnknown_007005 = 007005,
+    NoPartialMatchFoundForThisFakOrder = 007006,
+    MaximumQuantityDepthForAnyOnePriceGroupMaxMayNotExceedIntegermaxValue = 007008,
+    ContractForThisOrderContractIsPastExpirationDateAndMayNoLongerBeTraded = 007009,
+    InvalidSpreadPrice = 007010,
+    MaximumNumberOfWorkingOrdersForThisContractHasBeenExceeded = 007011,
+    OrderWouldOverwriteExistingOrderOnBook = 007012,
+    OrderGroupDoesNotMatchGroupOfContract = 007013,
+    OrderSecurityTypeDoesNotMatchSecurityTypeOfContract = 007014,
+    OrderModifyHasDifferentSideThanExistingOrder = 007015,
+    ContractIsNotEligibleForElectronicMatching = 007017,
+    OrderContractIsNotGtcOrGtdEligible = 007018,
+    NoTradingCalendarFoundOnOrAfterOrderGtdExpireDate = 007020,
+    TagExpiredate432BeyondInstrumentExpiration = 007021,
+    TagExpiredate432BeyondUdsComboEarliestLegExpiration = 007022,
+    OrderCannotBeModifiedOrCancelledWhileTheMarketIsInNoCancel = 007024,
+    OrderTypeNotPermittedWhileTheMarketIsReserved = 007027,
+    OrderSessionDateIsInThePast = 007028,
+    OrdersMayNotBeEnteredWhileTheMarketIsForbidden = 007029,
+    QuoteRejectedExchangeSecurityIsForbidden = 007030,
+    OrdersMayNotBeEnteredWhileTheMarketIsPreclosed = 007031,
+    QuoteRejectedExchangeSecurityIsPreclosed = 007032,
+    OrdersMayNotBeEnteredWhileTheMarketIsOpen = 007033,
+    QuoteRejectedExchangeSecurityIsForbidden_007034 = 007034,
+    RfqRejectedInstrumentExchangeIsOpen = 007035,
+    TimeInForce59NotValidForOrderType40 = 007036,
+    GoodForAuctionOrderNotAllowed = 007037,
+    OnCloseOrderNotAllowed = 007038,
+    DuplicateClientOrderIdForThisSessioncontract = 007039,
+    GoodForAuctionOrderCancelNotAllowed = 007040,
+    OnCloseOrderCancelNotAllowed = 007041,
+    GoodForAuctionOrderModifyNotAllowed = 007042,
+    OnCloseOrderModifyNotAllowed = 007043,
+    ModifyOfOrderParticipatingInTopNotAllowed = 007044,
+    CancelOfOrderParticipatingInTopNotAllowed = 007045,
+    OrderTypeDurationCombinationInvalidForAuction = 007046,
+    OrderTypeDurationCombinationInvalid = 007047,
+    QuantityAttributeNotAllowedOnOrderDuringAuction = 007048,
+    OrderEntryWasUnsuccessfulErrorMessageIsNotPossibleToSendOrdersWithValidityTypeMarketOnAuctionWithMinimumQuantity = 007049,
+    MaxFloor111NotValidForTimeInForce59 = 007050,
+    SpreadOrdersMayNotBeEnteredWhileTheUnderlyingLegMarketIsInNonTradingState = 007055,
+    OrdersMayNotBeEnteredWhileTheMarketIsInFinalClosingCall = 007056,
+    QuoteRejectedUnknownInstrument = 007101,
+    QuoteRejectedExchangeSecurityClosed = 007102,
+    QuoteRejectedQuoteExceedsLimit = 007103,
+    QuoteRejectedTooLateToEnter = 007104,
+    QuoteRejectedUnknownQuote = 007105,
+    QuoteRejectedDuplicateQuoteInSameMessage = 007106,
+    QuoteRejectedInvalidBidaskSpread = 007107,
+    QuoteRejectedInvalidPrice = 007108,
+    QuoteRejectedNotAuthorizedToQuoteThisInstrument = 007109,
+    QuoteRejectedRestingCancelledTooManyRejects = 007110,
+    QuoteRejectedDuplicateQuoteDifferentId = 007111,
+    QuoteRejectedRestingCancelledQuoteExceedsLimit = 007112,
+    QuoteRejectedRestingCancelledDuplicateQuote = 007113,
+    QuoteRejectedRestingCancelledInvalidBidaskSpread = 007114,
+    QuoteRejectedRestingCancelledInvalidPrice = 007115,
+    QuoteRejectedRestingCancelledNotAuthorizedToQuoteThisInstrument = 007116,
+    QuoteRejectedUnspecifiedReason = 007117,
+    QuoteRejectedExchangeSecurityIsInPreOpen = 007118,
+    QuoteRejectedExchangeSecurityIsInNoCancel = 007119,
+    QuoteRejectedExchangeSecurityIsReserved = 007120,
+    ContractNotEligibleForNegotiatedQuote = 007121,
+    RlpOrderRejectedParticipantNotAuthorized = 007122,
+    AttemptToModifyTheOrderTypeFromtoRlp = 007123,
+    InvalidFieldForOrderWithOrderTypeTag40EqualsWRlp = 007124,
+    RlpOrderRejectedOnlyOneOrderIsAllowedByFirmAndSide = 007125,
+    InvalidFieldForOrderWithRoutingInstructionTag35487Equals1RetailLiquidityTaker = 007126,
+    InvalidFieldForOrderWithOrderTypeTag40EqualsPPegged = 007127,
+    QtyIsNotMultipleOfMinimumExecutionQuantityForPeggedOrder = 007128,
+    AccountIsMandatoryForPeggedOrder = 007129,
+    PeggedOrderCanNotBeSentInNonRegularSession = 007130,
+    AttemptToModifyTheOrderTypeFromtoPegged = 007131,
+    OrderRejectedPeggedOrdersAreNotAllowedForThisContract = 007132,
+    OrderRejectedRoutingInstructionTag35487EqualsBrokerOnly3NotAllowedForThisGroup = 007133,
+    OrderRejectedOnlyPeggedOrderWithRoutingInstructionTag35487EqualsBrokerOnly3IsAllowedForThisGroup = 007134,
+    CrossOrderSuspendedForTheParticipantOrSession = 007135,
+    OrderQuantityIsOutsideOfTheAllowableRangeOrderQuantityOrderqtyContractMinimumQuantityForCrossMincrossqty = 007136,
+    BbtMessagesShouldNotBeEnteredWhenMarketIsPaused = 007137,
+    BbtMessagesShouldNotBeEnteredWhenMarketIsPreOpen = 007138,
+    BbtMessagesShouldNotBeEnteredWhenMarketIsPcp = 007139,
+    BbtMessagesShouldNotBeEnteredWhenMarketIsNoCancel = 007140,
+    BbtMessagesShouldNotBeEnteredWhenMarketIsReserved = 007141,
+    BbtMessagesShouldNotBeEnteredWhenMarketIsForbidden = 007142,
+    BbtMessagesShouldNotBeEnteredWhenMarketIsPreClose = 007143,
+    InvalidFieldForBbtOrder = 007144,
+    ForCancelOnBehalfMustBeInformedOnlyTheActiontargetsessionidOrTheActiontargetgroupid = 007145,
+    ActiontargetgroupidInvalidItDoesntExistOrItIsDisabled = 007146,
+    FixSessionIsBlockedDueToMassCancel = 007147,
+    ActiontargetgroupidMustBeInformed = 007148,
+    FixSessionDoesntBelongToTheActiontargetgroupid = 007149,
+    TechnicalErrorFunctionNotPerformed = 009999,
+    ExercisePriceNotAllowed = 008006,
+    NoPositionsBlocked = 008007,
+    QuantityDoesntMatchWithTheOriginalRequestQuantityOnOriginalRequestQuantityOnOriginalRequest = 008008,
+    ExerciseMustBeOnMaturityDate = 008011,
+    FunctionNotAvailableThisTime = 008014,
+    BlockingQuantityMoreThan999999999 = 008015,
+    TradeDoesNotBelongToTheSpecifiedFirmFirmIdXxx = 008020,
+    BlockingQtyMoreThanAvailableQuantity = 008021,
+    ThereArentPositionsAvailableToExercise = 008022,
+    TotalQtyMustBeTheSumOfAllAllocqty = 008023,
+    TradeAlreadyCancelledOrDoesNotExistTradeIdXxx = 008024,
+    AvailableQuantityToBlockIsZero = 008027,
+    InvalidOperationForContractType = 008028,
+    FunctionClosedOrSuspended = 008036,
+    ExercisePriceOutsideRequiredMoneyness = 008039,
+    InvalidExerciseRequestIdToCancel = 008040,
+    InvalidBlockingIdToUnblock = 008059,
+    InvalidQuantityToUnblock = 008062,
+    OnBehalfOperationNotAllowedDuringCcrRecovery = 008063,
+    ProblemParsingIncomingMessage = 008065,
+    ExerciseQuantityShouldBeGreaterThanZero = 008066,
+    SystemInitialization = 030002,
+    LineBusy = 030003,
+    MessageOrAtributesAreInvalid = 030004,
+    InternalError = 030005,
+    TimeoutWaitingRiskEvaluation = 030006,
+    TimeoutWaitingRiskEvaluationLowPriority = 030007,
+    BrokerNegotiationBlocked = 030011,
+    BrokerNotAvailable = 030012,
+    BrokersCaptureAccountNotFound = 030013,
+    BrokersSegmentNegotiationBlocked = 030014,
+    BrokerSegmentNotAvailable = 030015,
+    BrokersSegmentProtectedModeUnderActivation = 030016,
+    BrokerPnNegotiationBlocked = 030017,
+    BrokerPnNotAvailable = 030018,
+    BrokerPnProtectedModeUnderActivation = 030019,
+    AccountNegotiationBlocked = 030021,
+    AccountNotAvailable = 030022,
+    AccountsProtectedModeUnderActivation = 030023,
+    AccountMandatoryOnDmaOrders = 030024,
+    TransientAccountIsHierarchicallyBlockedOnProtectedMode = 030025,
+    CrossordersOrCrossforwardNotAllowedWhileAccountInProtectedMode = 030026,
+    TransientAccountNotAllowedInExtendedHours = 030027,
+    DocumentNegotiationBlocked = 030031,
+    DocumentNotAvailable = 030032,
+    DocumentsProtectedModeUnderActivation = 030033,
+    ExecutorDocumentCannotUseDefaultBrokerProfile = 030034,
+    DocumentInBlockedProfile = 030035,
+    CrossordersOrCrossforwardNotAllowedWhileDocumentInProtectedMode = 030036,
+    EnteringTraderNegotiationBlocked = 030041,
+    EnteringTraderNotAvailable = 030042,
+    EnteringTraderBlockedBySfdOverflow = 030043,
+    NonDmaOrdersMustProvideAccountWhileInBrokersProtectedMode = 030044,
+    EnteringTraderNotAuthorizedToTradeAccountlessOrders = 030045,
+    EnteringTraderCannotTradeOnBehalfOfOtherFirmsAccount = 030046,
+    SymbolNotAvailable = 030050,
+    SymbolInternalDataCorrupted = 030051,
+    FixMessageTypeDoesNotSupportOperationsOnSuchSymbol = 030052,
+    SymbolsUnderlyingNotFoundForRiskAggregation = 030053,
+    SymbolsRiskUnitMatrixNotAvailable = 030054,
+    SymbolsReferencePriceMissingMarketOrdersNotAllowed = 030055,
+    SymbolsCalculatedPriceInvalid = 032056,
+    SpreadsLegNotAvailable = 030060,
+    SpreadsLegInternalDataCorrupted = 030061,
+    UnexpectedInternalErrorDuringRiskEvaluation = 030070,
+    SfdBrokerPnPnDocumentAggregationDayTradeCashBalanceStopLossNotConfigured = 030113,
+    SdpBrokerPnPnDocumentAggregationOrderExceededCashSettlementExposure = 030114,
+    RmktBrokerPnPnDocumentAggregationOrderQuantityExceededRiskIncrease = 030115,
+    SdpBrokerPnPnTraderAggregationOrderExceededCashSettlementExposure = 030116,
+    SpvdBrokerPnPnDocumentAggregationOrderExceededPotentialShortUncoveredBalance = 030117,
+    SpvdBrokerPnPnTraderAggregationOrderExceededPotentialShortUncoveredBalance = 030118,
+    RmseBrokerPnPnDocumentAggregationOrderExceededRiskIncreaseAtExtendedSession = 030119,
+    RmseBrokerOrderExceededRiskIncreaseAtExtendedSession = 030166,
+    MktaAccountBuyNotAllowedForSymbolsMarket = 030201,
+    MktaAccountSellNotAllowedForSymbolsMarket = 030202,
+    TmocAccountMaximumOrderSizeExceededForSingleOrder = 030204,
+    TmovAccountMaximumOrderSizeExceededForSingleOrder = 030205,
+    SpciAccountOrderQuantityExceededShortPositionPerInstrument = 030206,
+    SpviAccountOrderQuantityExceededLongPositionPerInstrument = 030207,
+    SdpAccountOrderExceededCashSettlementExposure = 030208,
+    RmktAccountOrderQuantityExceededRiskIncrease = 030210,
+    IrmktAccountOrderQuantityExceededRiskIncreaseReducingMode = 030211,
+    SpiAccountOrderQuantityExceededLongAndShortPositionReducingMode = 030212,
+    StdAccountTermoNotAllowedProtectedModeEnabled = 030213,
+    SpvdAccountOrderExceededPotentialShortUncoveredBalance = 030215,
+    MktaDocumentBuysellSymbolsMarketNotConfigured = 030300,
+    MktaDocumentBuyNotAllowedForSymbolsMarket = 030301,
+    MktaDocumentSellNotAllowedForSymbolsMarket = 030302,
+    TmoxDocumentMax = 030303,
+    TmocDocumentMaxBidQuantityExceededForSingleOrder = 030304,
+    TmovDocumentMaxOfferQuantityExceededForSingleOrder = 030305,
+    SpciDocumentOrderQuantityExceededMaxBidPotentialBalance = 030306,
+    SpviDocumentOrderQuantityExceededMaxOfferPotentialBalance = 030307,
+    SdpDocumentOrderExceededMaxFinancialPotentialBalanceDue = 030308,
+    StdDocumentOrderQuantityExceededMaxOperationsForwardBalance = 030309,
+    Rmkt = 030310,
+    IrmktDocumentOrderQuantityExceededMaxIncrementalMarketRisk = 030311,
+    SpiDocumentOrderQuantityExceededPreviousPotencialBalance = 030312,
+    StdDocumentTermoNotAllowed = 030313,
+    SfdDocumentDayTradeCashBalanceStopLossNotConfigured = 030314,
+    SpvdDocumentOrderExceededPotentialShortUncoveredBalance = 030315,
+    RmseDocumentOrderExceededRiskIncreaseAtExtendedSession = 030316,
+    RmseDocumentOrderExceededRiskIncreaseOfBrokerAtExtendedSession = 030317,
+    MktaEnteringTraderBuysellSymbolsMarketNotConfigured = 030400,
+    MktaEnteringTraderBuyNotAllowedForSymbolsMarket = 030401,
+    MktaEntering = 030402,
+    TmoxEnteringTraderMaxBidofferQuantityNotConfigured = 030403,
+    TmocEnteringTraderMaxBidQuantityExceededForSingleOrder = 030404,
+    TmovEnteringTraderMaxOfferQuantityExceededForSi = 030405,
+    SpciEnteringTraderOrderQuantityExceededMaxBidPotentialBalance = 030406,
+    SpviEnteringTraderOrderQuantityExceededMaxOfferPotentialBalance = 030407,
+    SdpEnteringTraderOrderExceededMaxFinancialPotential = 030408,
+    SpvdTraderOrderExceededPotentialShortUncoveredBalance = 030415,
+    OmsUnexpectedInternalError = 030500,
+    OmsInvalidSessionOrSymbol = 030501,
+    OmsClordidCannotBeEmpty = 030502,
+    OmsClordidIsDuplicated = 030503,
+    OmsClordidNotFound = 030504,
+    OmsOrigclordidCannotBeEmpty = 030505,
+    OmsCrossidCannotBeEmpty = 030506,
+    OmsClordidIsDuplicatedWithinCrossOrder = 030507,
+    OmsCrossOrderModificationIsNotAllowed = 030508,
+    OmsOrderidNotFound = 030509,
+    OmsOrderidCannotBeEmpty = 030510,
+    OmsQuotereqidCannotBeEmpty = 030511,
+    OmsQuotereqidIsDuplicated = 030512,
+    OmsQuotereqidNotFound = 030513,
+    OmsQuoteidCannotBeEmpty = 030514,
+    OmsIn = 030521,
+    Oms = 030522,
+    OmsEnteringFirmModificationIsNotAllowed = 030523,
+    OmsAccountModificationOnDmaOrderIsNotAllowed = 030524,
+    OmsAccountInformationMissingOnNon = 030525,
+    OmsEnteringTrader = 030526,
+    OmsReceivedExecutionReportRejectionForAnActiveOrder = 030527,
+    BrokerNegotiationBlocked_031011 = 031011,
+    BrokerNotAvailable_031012 = 031012,
+    BrokersCaptureAccountNotFound_031013 = 031013,
+    BrokersSegmentNegotiationBlocked_031014 = 031014,
+    BrokerSegmentNotAvailable_031015 = 031015,
+    BrokersSegmentProtectedModeUnderActivation_031016 = 031016,
+    AccountNegotiationBlocked_031021 = 031021,
+    AccountNotAvailable_031022 = 031022,
+    AccountsProtectedModeUnderActivation_031023 = 031023,
+    AccountMandatoryOnDmaOrders_031024 = 031024,
+    TransientAccountIsHierarchicallyBlockedOnProtectedMode_031025 = 031025,
+    CrossordersOrCrossforwardNotAllowedWhileAccountInProtectedMode_031026 = 031026,
+    TransientAccountNotAllowedInExtendedHours_031027 = 031027,
+    DocumentNegotiationBlocked_031031 = 031031,
+    DocumentNotAvailable_031032 = 031032,
+    DocumentsProtectedModeUnderActivation_031033 = 031033,
+    ExecutorDocumentCannotUseDefaultBrokerProfile_031034 = 031034,
+    DocumentInBlockedProfile_031035 = 031035,
+    CrossordersOrCrossforwardNotAllowedWhileDocumentInProtectedMode_031036 = 031036,
+    EnteringTraderNegotiationBlocked_031041 = 031041,
+    EnteringTraderNotAvailable_031042 = 031042,
+    EnteringTraderBlockedBySfdOverflow_031043 = 031043,
+    NonDmaOrdersMustProvideAccountWhileInBrokersProtectedMode_031044 = 031044,
+    EnteringTraderNotAuthorizedToTradeAccountlessOrders_031045 = 031045,
+    EnteringTraderCannotTradeOnBehalfOfOtherFirmsAccount_031046 = 031046,
+    SymbolNotAvailable_031050 = 031050,
+    SymbolInternalDataCorrupted_031051 = 031051,
+    FixMessageTypeDoesNotSupportOperationsOnSuchSymbol_031052 = 031052,
+    SymbolsUnderlyingNotFoundForRiskAggregation_031053 = 031053,
+    SymbolsRiskUnitMatrixNotAvailable_031054 = 031054,
+    SymbolsReferencePriceMissingMarketOrdersNotAllowed_031055 = 031055,
+    SymbolsCalculatedPriceInvalid_031056 = 031056,
+    SpreadsLegNotAvailable_031060 = 031060,
+    SpreadsLegInternalDataCorrupted_031061 = 031061,
+    UnexpectedInternalErrorDuringRiskEvaluation_031070 = 031070,
+    MktaAccountBuyNotAllowedForSymbolsMarket_031201 = 031201,
+    MktaAccountSellNotAllowedForSymbolsMarket_031202 = 031202,
+    TmocAccountMaxBidQuantityExceededForSingleOrder = 031204,
+    TmovAccountMaxOfferQuantityExceededForSingleOrder = 031205,
+    SpciAccountOrderQuantityExceededMaxBidPotentialBalance = 031206,
+    SpviAccountOrderQuantityExceededMaxOfferPotentialBalance = 031207,
+    SdpAccountOrderExceededMaxFinancialPotentialBalanceDue = 031208,
+    RmktAccountOrderQuantityExceededMaxMarketRisk = 031210,
+    IrmktAccountOrderQuantityExceededMaxIncrementalMarketRisk = 031211,
+    SpiAccountOrderQuantityExceededPreviousPotencialBalance = 031212,
+    StdAccountTermoNotAllowedProtectedModeEnabled_031213 = 031213,
+    SpvdAccountOrderExceededPotentialShortUncoveredBalance_031215 = 031215,
+    MktaDocumentBuysellSymbolsMarketNotConfigured_031300 = 031300,
+    MktaDocumentBuyNotAllowedForSymbolsMarket_031301 = 031301,
+    MktaDocumentSellNotAllowedForSymbolsMarket_031302 = 031302,
+    TmoxDocumentMaximumOrderSizeNotConfigured = 031303,
+    TmocDocumentMaximumOrderSizeExceededForSingleOrder = 031304,
+    TmovDocumentMaximumOrderSizeExceededForSingleOrder = 031305,
+    SpciDocumentOrderQuantityExceededShortPositionPerInstrument = 031306,
+    SpviDocumentOrderQuantityExceededLongPositionPerInstrument = 031307,
+    SdpDocumentOrderExceededCashSettlementExposure = 031308,
+    StdDocumentOrderQuantityExceededForwardContractsExposure = 031309,
+    RmktDocumentOrderQuantityExceededRiskIncrease = 031310,
+    IrmktDocumentOrderQuantityExceededRiskIncreaseReducingMode = 031311,
+    SpiDocumentOrderQuantityExceededLongAndShortPositionReducingMode = 031312,
+    StdDocumentTermoNotAllowedProtectedModeEnabled = 031313,
+    SfdDocumentDayTradeCashBalanceStopLossNotConfigured_031314 = 031314,
+    SpvdDocumentOrderExceededPotentialShortUncoveredBalance_031315 = 031315,
+    RmseDocumentOrderExceededRiskIncreaseAtExtendedSession_031316 = 031316,
+    RmseDocumentOrderExceededRiskIncreaseOfBrokerAtExtendedSession_031317 = 031317,
+    MktaEnteringTraderBuysellSymbolsMarketNotConfigured_031400 = 031400,
+    MktaEnteringTraderBuyNotAllowedForSymbolsMarket_031401 = 031401,
+    MktaEnteringTraderSellNotAllowedForSymbolsMarket = 031402,
+    TmoxEnteringTraderMaximumOrderSizeNotConfigured = 031403,
+    TmocEnteringTraderMaximumOrderSizeExceededForSingleOrder = 031404,
+    TmovEnteringTraderMaximumOrderSizeExceededForSingleOrder = 031405,
+    SpciEnteringTraderOrderQuantityExceededShortPositionPerInstrument = 031406,
+    SpviEnteringTraderOrderQuantityExceededLongPositionPerInstrument = 031407,
+    SdpEnteringTraderOrderExceededCashSettlementExposure = 031408,
+    OmsUnexpectedInternalError_031500 = 031500,
+    OmsInvalidSessionOrSymbol_031501 = 031501,
+    OmsClordidCannotBeEmpty_031502 = 031502,
+    OmsClordidIsDuplicated_031503 = 031503,
+    OmsClordidNotFound_031504 = 031504,
+    OmsOrigclordidCannotBeEmpty_031505 = 031505,
+    OmsCrossidCannotBeEmpty_031506 = 031506,
+    OmsClordidIsDuplicatedWithinCrossOrder_031507 = 031507,
+    OmsCrossOrderModificationIsNotAllowed_031508 = 031508,
+    OmsOrderidNotFound_031509 = 031509,
+    OmsOrderidCannotBeEmpty_031510 = 031510,
+    OmsQuotereqidCannotBeEmpty_031511 = 031511,
+    OmsQuotereqidIsDuplicated_031512 = 031512,
+    OmsQuotereqidNotFound_031513 = 031513,
+    OmsQuoteidCannotBeEmpty_031514 = 031514,
+    OmsInflightModificationIsNotAllowed = 031521,
+    OmsSideModificationIsNotAllowed = 031522,
+    OmsEnteringFirmModificationIsNotAllowed_031523 = 031523,
+    OmsAccountModificationOnDmaOrderIsNotAllowed_031524 = 031524,
+    OmsAccountInformationMissingOnNondmaOrder = 031525,
+    OmsEnteringTraderModificationOnNondmaOrderIsNotAllowed = 031526,
+    OmsReceivedExecutionReportRejectionForAnActiveOrder_031527 = 031527,
+    FieldMissingOrIncorrect = 032000,
+    LineNotAvailableOrBusy = 032001,
+    LineInternalError = 032002,
+    LineRecoveringOrStartingUp = 032003,
+    InternalGatewayErrorMessageForwardingFailure = 032004,
+    InvalidQuantity = 032005,
+    DuplicateOrder = 032006,
+    MissingAccountField = 032007,
+    UnknownAccount = 032008,
+    UnknownFirmidForRouting = 032009,
+    DuplicateFirmid = 032010,
+    DuplicateSenderLocation = 032011,
+    DuplicateEnteringTrader = 032012,
+    FirmOrTraderIsMissingInNondmaOrder = 032013,
+    FirmOrAccountIsMissingInDmaOrder = 032014,
+    SameParticipantsOnBothSidesOrInvalidSides = 032015,
+    BuySideAndSellSideHavingDifferentFirmids = 032016,
+    BuySideAndSellSideTradingDifferentAssets = 032017,
+    InvalidPrice_032018 = 032018,
+    LineOverloaded = 032019,
+    LineAdministrativelyBlocked = 032020,
+    InvalidPrice_032021 = 032021,
+    SystemOverloaded = 032022,
+    SystemError = 032023,
+    ThrottleLimitReached = 033000,
+    InvalidSecurityId = 033001,
+    UnknownMarketSegmentId = 033002,
+    FieldMissingOrIncorrect_033003 = 033003,
+    SystemError_033050 = 033050,
+};
+
+type SettltypeOptional = enum {
+    BuyersDiscretion = 0x30,
+    SellersDiscretion = 0x38,
+    Mutual = 0x58,
+};
+
+type RefMsgType = enum {
+    Negotiate = 0,
+    NegotiateResponse = 1,
+    NegotiateReject = 2,
+    Establish = 3,
+    EstablishAck = 4,
+    EstablishReject = 5,
+    Terminate = 6,
+    NotApplied = 9,
+    RetransmitRequest = 10,
+    Retransmission = 11,
+    RetransmitReject = 12,
+    Sequence = 13,
+    BusinessMessageReject = 14,
+    SimpleNewOrder = 15,
+    SimpleModifyOrder = 16,
+    NewOrderSingle = 17,
+    OrderCancelReplaceRequest = 18,
+    OrderCancelRequest = 19,
+    NewOrderCross = 20,
+    ExecutionReportNew = 21,
+    ExecutionReportModify = 22,
+    ExecutionReportCancel = 23,
+    ExecutionReportTrade = 24,
+    ExecutionReportReject = 25,
+    ExecutionReportForward = 26,
+    SecurityDefinitionRequest = 27,
+    SecurityDefinitionResponse = 28,
+    OrderMassActionRequest = 29,
+    OrderMassActionReport = 30,
+    QuoteRequest = 31,
+    QuoteStatusReport = 32,
+    Quote = 33,
+    QuoteCancel = 34,
+    QuoteRequestReject = 35,
+    PositionMaintenanceCancelRequest = 36,
+    PositionMaintenanceRequest = 37,
+    PositionMaintenanceReport = 38,
+    AllocationInstruction = 39,
+    AllocationReport = 40,
+};
+
+type LegSide = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type SecurityResponseType = enum {
+    AcceptSecurityProposalAsIs = 1,
+    RejectSecurityProposal = 5,
+    AcceptSecurityAsProposalWithRevisions = 2,
+};
+
+type Settltype = enum {
+    BuyersDiscretion = 0x30,
+    SellersDiscretion = 0x38,
+    Mutual = 0x58,
+};
+
+type ExecuteUnderlyingTrade = enum {
+    NoUnderlyingTrade = 0x30,
+    UnderlyingOpposingTrade = 0x31,
+};
+
+type QuoteRejectReason = enum {
+    TechnicalErrorFunctionNotPerformed = 009999,
+    ExercisePriceNotAllowed = 008006,
+    NoPositionsBlocked = 008007,
+    QuantityDoesntMatchWithTheOriginalRequestQuantityOnOriginalRequestQuantityOnOriginalRequest = 008008,
+    ExerciseMustBeOnMaturityDate = 008011,
+    FunctionNotAvailableThisTime = 008014,
+    BlockingQuantityMoreThan999999999 = 008015,
+    TradeDoesNotBelongToTheSpecifiedFirmFirmIdXxx = 008020,
+    BlockingQtyMoreThanAvailableQuantity = 008021,
+    ThereArentPositionsAvailableToExercise = 008022,
+    TotalQtyMustBeTheSumOfAllAllocqty = 008023,
+    TradeAlreadyCancelledOrDoesNotExistTradeIdXxx = 008024,
+    AvailableQuantityToBlockIsZero = 008027,
+    InvalidOperationForContractType = 008028,
+    FunctionClosedOrSuspended = 008036,
+    ExercisePriceOutsideRequiredMoneyness = 008039,
+    InvalidExerciseRequestIdToCancel = 008040,
+    InvalidBlockingIdToUnblock = 008059,
+    InvalidQuantityToUnblock = 008062,
+    OnBehalfOperationNotAllowedDuringCcrRecovery = 008063,
+    ProblemParsingIncomingMessage = 008065,
+    ExerciseQuantityShouldBeGreaterThanZero = 008066,
+    ContraryExerciseAlreadyRegisteredForThisPosition = 008069,
+    InthemoneyContractAllowsContraryExerciseToNotExerciseAutomaticallyOnly = 008070,
+    AtoutthemoneyContractAllowsContraryExerciseToExerciseAutomaticallyOnly = 008071,
+    DmaIsNotAllowedToRequestContraryExercise = 008072,
+    ContraryExercisesCanOnlyBeRequestedByDefaultLinkOrPositionOwnerWithDirectAccessOnAbsenceOfDefaultLink = 008073,
+    ContraryExerciseInvalidOperation = 008074,
+    ThresholdMustNotBeInformed = 008075,
+};
+
+type QuoteStatus = enum {
+    Expired = 7,
+    Accepted = 0,
+    Rejected = 5,
+    QuoteNotFound = 9,
+    Pending = 10,
+    Pass = 11,
+    Canceled = 17,
+};
+
+type QuoteStatusResponseTo = enum {
+    Quote = 0x30,
+    QuoteRequest = 0x31,
+    QuoteCancel = 0x32,
+    QuoteRequestReject = 0x33,
+};
+
+type SideOptional = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type PosTransType = enum {
+    Exercise = 1,
+    AutomaticExercise = 105,
+    ExerciseNotAutomatic = 106,
+};
+
+type ContraryInstructionIndicator = enum {
+    FalseValue = 0,
+    TrueValue = 1,
+};
+
+type PosMaintAction = enum {
+    New = 0x31,
+    Cancel = 0x33,
+};
+
+type PosMaintStatus = enum {
+    Accepted = 0x30,
+    Rejected = 0x32,
+    Completed = 0x33,
+    NotExecuted = 0x39,
+};
+
+type PosType = enum {
+    TransactionQuantity = 0x54,
+    StartOfDayQty = 0x53,
+    OptionExerciseQty = 0x45,
+    BlockedQty = 0x42,
+    UncoveredQty = 0x55,
+    CoveredQty = 0x43,
+};
+
+type AllocTransType = enum {
+    New = 0x30,
+    Cancel = 0x32,
+};
+
+type AllocType = enum {
+    RequestToIntermediary = 0x38,
+};
+
+type AllocNoOrdersType = enum {
+    NotSpecified = 0x30,
+};
+
+type AllocReportType = enum {
+    RequestToIntermediary = 0x38,
+};
+
+type AllocStatus = enum {
+    Accepted = 0x30,
+    RejectedByIntermediary = 0x35,
+};
+
+type MassActionType = enum {
+    ReleaseOrdersFromSuspension = 2,
+    CancelOrders = 3,
+    CancelAndSuspendOrders = 4,
+};
+
+type MassActionScope = enum {
+    AllOrdersForATradingSession = 6,
+};
+
+type MassCancelRestatementReason = enum {
+    OrderMassActionFromClientRequest = 202,
+    MassCancelOrderDueToOperationalErrorRequest = 207,
+};
+
+type MassActionResponse = enum {
+    Rejected = 0x30,
+    Accepted = 0x31,
+};
+
+type MassActionRejectReason = enum {
+    MassActionNotSupported = 0,
+    InvalidOrUnknownMarketSegment = 8,
+    Other = 99,
+};
+

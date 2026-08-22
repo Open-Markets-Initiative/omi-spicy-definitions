@@ -1,0 +1,52 @@
+module AquisAquisequitiesReplayAmdV40;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AquisequitiesReplayV40 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::LoginMessage -> login_message: LoginMessage;
+        MsgType::ReplayRequestMessage -> replay_request_message: ReplayRequestMessage;
+        MsgType::ReplayResponseMessage -> replay_response_message: ReplayResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_type: uint8 &convert=MsgType($$);
+    msg_length: uint8;
+    seq_no: uint32;
+};
+
+type LoginMessage = unit {
+    username: bytes &size=10;
+    password: bytes &size=10;
+};
+
+type ReplayRequestMessage = unit {
+    begin_seq_no: uint32 &byte-order=spicy::ByteOrder::Little;
+    end_seq_no: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type ReplayResponseMessage = unit {
+    response_code: uint8 &convert=ResponseCode($$);
+};
+
+type MsgType = enum {
+    LoginMessage = 13,
+    ReplayRequestMessage = 14,
+    ReplayResponseMessage = 15,
+};
+
+type ResponseCode = enum {
+    LoginSuccessful = 0,
+    BadBeginSeqNoInResendRequest = 1,
+    BadEndSeqNoInResendRequest = 2,
+};
+

@@ -1,0 +1,506 @@
+module AsxAsxderivativesNtpItchV105;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AsxderivativesNtpV105 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        MessageType::EndOfBusinessTradeDateMessage -> end_of_business_trade_date_message: EndOfBusinessTradeDateMessage;
+        MessageType::FutureSymbolDirectoryMessage -> future_symbol_directory_message: FutureSymbolDirectoryMessage;
+        MessageType::OptionsSymbolDirectoryMessage -> options_symbol_directory_message: OptionsSymbolDirectoryMessage;
+        MessageType::CombinationSymbolDirectoryMessage -> combination_symbol_directory_message: CombinationSymbolDirectoryMessage;
+        MessageType::BundlesSymbolDirectory -> bundles_symbol_directory: BundlesSymbolDirectory;
+        MessageType::OrderBookStateMessage -> order_book_state_message: OrderBookStateMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::OrderVolumeCancelledMessage -> order_volume_cancelled_message: OrderVolumeCancelledMessage;
+        MessageType::OrderDeletedMessage -> order_deleted_message: OrderDeletedMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::AuctionOrderExecutedMessage -> auction_order_executed_message: AuctionOrderExecutedMessage;
+        MessageType::CombinationOrderExecutedMessage -> combination_order_executed_message: CombinationOrderExecutedMessage;
+        MessageType::ImpliedOrderAddedMessage -> implied_order_added_message: ImpliedOrderAddedMessage;
+        MessageType::ImpliedOrderReplacedMessage -> implied_order_replaced_message: ImpliedOrderReplacedMessage;
+        MessageType::ImpliedOrderDeletedMessage -> implied_order_deleted_message: ImpliedOrderDeletedMessage;
+        MessageType::TradeExecutedMessage -> trade_executed_message: TradeExecutedMessage;
+        MessageType::CombinationTradeExecutedMessage -> combination_trade_executed_message: CombinationTradeExecutedMessage;
+        MessageType::TradeCancellationMessage -> trade_cancellation_message: TradeCancellationMessage;
+        MessageType::EquilibriumPriceMessage -> equilibrium_price_message: EquilibriumPriceMessage;
+        MessageType::OpenHighLowLastTradeAdjustmentMessage -> open_high_low_last_trade_adjustment_message: OpenHighLowLastTradeAdjustmentMessage;
+        MessageType::MarketSettlementMessage -> market_settlement_message: MarketSettlementMessage;
+        MessageType::TextMessage -> text_message: TextMessage;
+        MessageType::RequestForQuoteMessage -> request_for_quote_message: RequestForQuoteMessage;
+        MessageType::AnomalousOrderThresholdPublishMessage -> anomalous_order_threshold_publish_message: AnomalousOrderThresholdPublishMessage;
+        MessageType::VolumeAndOpenInterestMessage -> volume_and_open_interest_message: VolumeAndOpenInterestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type EndOfBusinessTradeDateMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type FutureSymbolDirectoryMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    symbol_name: bytes &size=32;
+    long_name: bytes &size=60;
+    isin: bytes &size=12;
+    exchange: bytes &size=6;
+    instrument: bytes &size=6;
+    cfi_code: bytes &size=6;
+    expiry_year: uint16;
+    expiry_month: uint8 &convert=ExpiryMonth($$);
+    price_display_decimals: uint8;
+    price_fractional_denominator: uint32;
+    price_minimum_tick: uint32;
+    last_trading_date: uint32;
+    prior_day_settlement: int64;
+    currency: bytes &size=3;
+    lot_size_or_face_value: uint64;
+    maturity_value: uint8;
+    coupon_rate: uint16;
+    payments_per_year: uint8;
+    block_lot_size: uint32;
+    expiry_date: uint32;
+};
+
+type OptionsSymbolDirectoryMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    symbol_name: bytes &size=32;
+    long_name: bytes &size=60;
+    isin: bytes &size=12;
+    exchange: bytes &size=6;
+    instrument: bytes &size=6;
+    cfi_code: bytes &size=6;
+    expiry_year: uint16;
+    expiry_month: uint8 &convert=ExpiryMonth($$);
+    option_type: uint8 &convert=OptionType($$);
+    strike: int64;
+    underlying_tradeable_instrument_id: uint32;
+    price_display_decimals: uint8;
+    price_fractional_denominator: uint32;
+    price_minimum_tick: uint32;
+    strike_price_decimal_position: uint8;
+    strike_price_fractional_denominator: uint32;
+    strike_price_minimum_tick: uint32;
+    last_trading_date: uint32;
+    prior_day_settlement: int64;
+    volatility: uint64;
+    currency: bytes &size=3;
+    lot_size_or_face_value: uint64;
+    maturity_value: uint8;
+    coupon_rate: uint16;
+    payments_per_year: uint8;
+    block_lot_size: uint32;
+    expiry_date: uint32;
+    basis_of_quotation: bytes &size=10;
+};
+
+type CombinationSymbolDirectoryMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    symbol_name: bytes &size=32;
+    long_name: bytes &size=60;
+    cfi_code: bytes &size=6;
+    price_method: uint8 &convert=PriceMethod($$);
+    price_display_decimals: uint8;
+    price_fractional_denominator: uint32;
+    price_minimum_tick: uint32;
+    legs: uint8;
+    combination_leg: CombinationLeg[6];
+};
+
+type CombinationLeg = unit {
+    tradeable_instrument_id_leg: uint32;
+    side_leg: uint8 &convert=SideLeg($$);
+    ratio_leg: uint32;
+    price_leg: int64;
+};
+
+type BundlesSymbolDirectory = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    symbol_name: bytes &size=32;
+    long_name: bytes &size=60;
+    cfi_code: bytes &size=6;
+    price_method: uint8 &convert=PriceMethod($$);
+    price_display_decimals: uint8;
+    price_fractional_denominator: uint32;
+    price_minimum_tick: uint32;
+    legs: uint8;
+    bundle_leg: BundleLeg[20];
+};
+
+type BundleLeg = unit {
+    tradeable_instrument_id_leg: uint32;
+    side_leg: uint8 &convert=SideLeg($$);
+    ratio_leg: uint32;
+    price_leg: int64;
+};
+
+type OrderBookStateMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    session_state: uint8 &convert=SessionState($$);
+};
+
+type AddOrderMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    order_book_priority: uint64;
+    quantity: uint32;
+    price: int64;
+};
+
+type OrderVolumeCancelledMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    quantity: uint32;
+};
+
+type OrderDeletedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+};
+
+type OrderExecutedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    quantity_remaining: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    trade_id: uint64;
+    executed_quantity: uint32;
+    trade_price: int64;
+    combination_trade_id: uint64;
+    counter_party_id: bytes &size=3;
+};
+
+type AuctionOrderExecutedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    quantity_remaining: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    trade_id: uint64;
+    executed_quantity: uint32;
+    trade_price: int64;
+    opposite_order_id: uint64;
+};
+
+type CombinationOrderExecutedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    quantity_remaining: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    trade_id: uint64;
+    executed_quantity: uint32;
+    trade_price: int64;
+    opposite_tradeable_instrument_id: uint32;
+    opposite_side: uint8 &convert=OppositeSide($$);
+    opposite_order_id: uint64;
+    combination_trade_id: uint64;
+};
+
+type ImpliedOrderAddedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    order_book_priority: uint64;
+    quantity: uint32;
+    price: int64;
+};
+
+type ImpliedOrderReplacedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    order_book_priority: uint64;
+    quantity: uint32;
+    price: int64;
+};
+
+type ImpliedOrderDeletedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+};
+
+type TradeExecutedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    trade_id: uint64;
+    executed_quantity: uint32;
+    trade_price: int64;
+    combination_trade_id: uint64;
+    participant_id_buyer: bytes &size=3;
+    participant_id_seller: bytes &size=3;
+};
+
+type CombinationTradeExecutedMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    trade_id: uint64;
+    executed_quantity: uint32;
+    trade_price: int64;
+    buyer_tradeable_instrument_id: uint32;
+    buyer_side: uint8 &convert=BuyerSide($$);
+    buyer_order_id: uint64;
+    buyer_combination_trade_id: uint64;
+    buyer_participant_id: bytes &size=3;
+    seller_tradeable_instrument_id: uint32;
+    seller_side: uint8 &convert=SellerSide($$);
+    seller_order_id: uint64;
+    seller_combination_trade_id: uint64;
+    seller_participant_id: bytes &size=3;
+};
+
+type TradeCancellationMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    trade_id: uint64;
+};
+
+type EquilibriumPriceMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    equilibrium_price: int64;
+    matched_quantity: uint64;
+    bid_quantity: uint64;
+    ask_quantity: uint64;
+};
+
+type OpenHighLowLastTradeAdjustmentMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    opening_trade: int64;
+    highest_trade: int64;
+    lowest_trade: int64;
+    last_trade: int64;
+    last_volume: uint32;
+    total_traded_volume: uint64;
+};
+
+type MarketSettlementMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    opening_trade: int64;
+    highest_trade: int64;
+    lowest_trade: int64;
+    last_trade: int64;
+    last_volume: uint32;
+    total_traded_volume: uint64;
+};
+
+type TextMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    source_id: bytes &size=6;
+    text: bytes &size=100;
+};
+
+type RequestForQuoteMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    rfq_side: uint8 &convert=RfqSide($$);
+    quantity: uint32;
+};
+
+type AnomalousOrderThresholdPublishMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    aot_price: int64;
+    aot_upper_price: int64;
+    aot_lower_price: int64;
+    etr_price: int64;
+    etr_upper_price: int64;
+    etr_lower_price: int64;
+};
+
+type VolumeAndOpenInterestMessage = unit {
+    nanoseconds: uint32;
+    trade_date: uint16;
+    tradeable_instrument_id: uint32;
+    cumulative_volume: uint64;
+    open_interest: uint64;
+    voi_trade_date: uint16;
+};
+
+type MessageType = enum {
+    SecondsMessage = 0x54,
+    EndOfBusinessTradeDateMessage = 0x53,
+    FutureSymbolDirectoryMessage = 0x66,
+    OptionsSymbolDirectoryMessage = 0x68,
+    CombinationSymbolDirectoryMessage = 0x4d,
+    BundlesSymbolDirectory = 0x6d,
+    OrderBookStateMessage = 0x4f,
+    AddOrderMessage = 0x41,
+    OrderVolumeCancelledMessage = 0x58,
+    OrderDeletedMessage = 0x44,
+    OrderExecutedMessage = 0x45,
+    AuctionOrderExecutedMessage = 0x43,
+    CombinationOrderExecutedMessage = 0x65,
+    ImpliedOrderAddedMessage = 0x6a,
+    ImpliedOrderReplacedMessage = 0x6c,
+    ImpliedOrderDeletedMessage = 0x6b,
+    TradeExecutedMessage = 0x50,
+    CombinationTradeExecutedMessage = 0x70,
+    TradeCancellationMessage = 0x42,
+    EquilibriumPriceMessage = 0x5a,
+    OpenHighLowLastTradeAdjustmentMessage = 0x74,
+    MarketSettlementMessage = 0x59,
+    TextMessage = 0x78,
+    RequestForQuoteMessage = 0x71,
+    AnomalousOrderThresholdPublishMessage = 0x57,
+    VolumeAndOpenInterestMessage = 0x56,
+};
+
+type EventCode = enum {
+    BusinessTradeDateHasEnded = 0x43,
+};
+
+type ExpiryMonth = enum {
+    Jan = 1,
+    Feb = 2,
+    Mar = 3,
+    Apr = 4,
+    May = 5,
+    Jun = 6,
+    Jul = 7,
+    Aug = 8,
+    Sep = 9,
+    Oct = 10,
+    Nov = 11,
+    Dec = 12,
+};
+
+type OptionType = enum {
+    Put = 0x50,
+    Call = 0x43,
+};
+
+type PriceMethod = enum {
+    NetPrice = 0,
+    YieldDifference = 2,
+    Individual = 3,
+    AveragePrice = 4,
+};
+
+type SideLeg = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type SessionState = enum {
+    PreOpen = 0x50,
+    Opened = 0x4f,
+    RegulatoryHalt = 0x52,
+    Halted = 0x48,
+    Closed = 0x43,
+    Maintenance = 0x4d,
+};
+
+type Side = enum {
+    Sell = 0x53,
+    Buy = 0x42,
+};
+
+type TradeType = enum {
+    NormalTrade = 0x54,
+    NormalCross = 0x74,
+    AuctionTrade = 0x4c,
+    AuctionCross = 0x6c,
+    CombinationToUnderlyingTrade = 0x53,
+    CombinationToUnderlyingCross = 0x73,
+    CombinationToCombinationTrade = 0x52,
+    CombinationToCombinationCross = 0x72,
+    StripToStripTrade = 0x41,
+    StripToStripCross = 0x61,
+    StripToOutrightTrade = 0x42,
+    StripToOutrightCross = 0x62,
+};
+
+type OppositeSide = enum {
+    Sell = 0x53,
+    Buy = 0x42,
+};
+
+type BuyerSide = enum {
+    Sell = 0x53,
+    Buy = 0x42,
+};
+
+type SellerSide = enum {
+    Sell = 0x53,
+    Buy = 0x42,
+};
+
+type RfqSide = enum {
+    TwoSidedQuote = 0x54,
+    BidQuote = 0x42,
+    AskQuote = 0x53,
+    Crossing = 0x58,
+};
+

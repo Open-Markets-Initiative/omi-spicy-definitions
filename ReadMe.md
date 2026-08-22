@@ -22,7 +22,7 @@ Updates are greatly appreciated; however, this entire repository is source gener
 
 | Protocol Count | Generated Lines |
 | --- | --- |
-| 23 | 7620 |
+| 59 | 31723 |
 
 ## Testing
 
@@ -34,12 +34,10 @@ Please report any parsing errors as an [issue](https://github.com/Open-Markets-I
 
 The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
 
-For a list of Omi Hft projects: [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects")
-
-For details of Omi rules and regulations: [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory")
+Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for details of Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
 ## Organizations
 
-> Investors Exchange · National Association of Securities Dealers Automated Quotations (Nasdaq)
+> 24 National Exchange · A2X Markets · Aquis Exchange · Australian Securities Exchange · Brasil, Bolsa, Balcão · Investors Exchange · National Association of Securities Dealers Automated Quotations (Nasdaq)
 
 ## Related Definitions
 

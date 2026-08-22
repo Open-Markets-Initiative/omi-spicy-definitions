@@ -1,0 +1,287 @@
+module AsxAsxsecuritiesTradeItchV31;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AsxsecuritiesTradeV31 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        MessageType::OrderBookDirectoryMessage -> order_book_directory_message: OrderBookDirectoryMessage;
+        MessageType::CombinationOrderBookDirectoryMessage -> combination_order_book_directory_message: CombinationOrderBookDirectoryMessage;
+        MessageType::TickSizeTableEntryMessage -> tick_size_table_entry_message: TickSizeTableEntryMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::OrderBookStateMessage -> order_book_state_message: OrderBookStateMessage;
+        MessageType::AddOrderNoParticipantIdMessage -> add_order_no_participant_id_message: AddOrderNoParticipantIdMessage;
+        MessageType::AddOrderParticipantIdMessage -> add_order_participant_id_message: AddOrderParticipantIdMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        MessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::EquilibriumPriceUpdateMessage -> equilibrium_price_update_message: EquilibriumPriceUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type OrderBookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16;
+    odd_lot_size: uint32;
+    round_lot_size: uint32;
+    block_lot_size: uint32;
+    nominal_value: uint64;
+};
+
+type CombinationOrderBookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16;
+    odd_lot_size: uint32;
+    round_lot_size: uint32;
+    block_lot_size: uint32;
+    nominal_value: uint64;
+    leg_1: Leg1;
+    leg_2: Leg2;
+    leg_3: Leg3;
+    leg_4: Leg4;
+};
+
+type Leg1 = unit {
+    leg_symbol: bytes &size=32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type Leg2 = unit {
+    leg_symbol: bytes &size=32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type Leg3 = unit {
+    leg_symbol: bytes &size=32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type Leg4 = unit {
+    leg_symbol: bytes &size=32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type TickSizeTableEntryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    tick_size: uint64;
+    price_from: int32;
+    price_to: int32;
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type OrderBookStateMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    state_name: bytes &size=20;
+};
+
+type AddOrderNoParticipantIdMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_book_position: uint32;
+    quantity: uint64;
+    price: int32;
+    exchange_order_type: ExchangeOrderType;
+    lot_type: uint8 &convert=LotType($$);
+};
+
+type ExchangeOrderType = unit {
+    reserved_2_bits: bytes &size=1;
+    market_bid: bytes &size=1;
+    price_stabilisation: bytes &size=1;
+    reserved_bit: bytes &size=1;
+    undisclosed: bytes &size=1;
+    reserved_7_bits: bytes &size=1;
+    implied_order: bytes &size=1;
+    unused_reserved_2_bits: bytes &size=1;
+};
+
+type AddOrderParticipantIdMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_book_position: uint32;
+    quantity: uint64;
+    price: int32;
+    exchange_order_type: ExchangeOrderType;
+    lot_type: uint8 &convert=LotType($$);
+    participant_id: bytes &size=7;
+};
+
+type OrderExecutedMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: bytes &size=12;
+    participant_id_owner: bytes &size=7;
+    participant_id_counterparty: bytes &size=7;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: bytes &size=12;
+    participant_id_owner: bytes &size=7;
+    participant_id_counterparty: bytes &size=7;
+    trade_price: int32;
+    occurred_at_cross: uint8 &convert=OccurredAtCross($$);
+    printable: uint8 &convert=Printable($$);
+};
+
+type OrderReplaceMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    new_order_book_position: uint32;
+    quantity: uint64;
+    price: int32;
+    exchange_order_type: ExchangeOrderType;
+};
+
+type OrderDeleteMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+};
+
+type TradeMessage = unit {
+    nanoseconds: uint32;
+    match_id: bytes &size=12;
+    side: uint8 &convert=Side($$);
+    quantity: uint64;
+    order_book_id: uint32;
+    trade_price: int32;
+    participant_id_owner: bytes &size=7;
+    participant_id_counterparty: bytes &size=7;
+    printable: uint8 &convert=Printable($$);
+    occurred_at_cross: uint8 &convert=OccurredAtCross($$);
+};
+
+type EquilibriumPriceUpdateMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    bid_quantity: uint64;
+    ask_quantity: uint64;
+    equilibrium_price: int32;
+    best_bid_price: int32;
+    best_ask_price: int32;
+    best_bid_quantity: uint64;
+    best_ask_quantity: uint64;
+};
+
+type MessageType = enum {
+    SecondsMessage = 0x54,
+    OrderBookDirectoryMessage = 0x52,
+    CombinationOrderBookDirectoryMessage = 0x4d,
+    TickSizeTableEntryMessage = 0x4c,
+    SystemEventMessage = 0x53,
+    OrderBookStateMessage = 0x4f,
+    AddOrderNoParticipantIdMessage = 0x41,
+    AddOrderParticipantIdMessage = 0x46,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderReplaceMessage = 0x55,
+    OrderDeleteMessage = 0x44,
+    TradeMessage = 0x50,
+    EquilibriumPriceUpdateMessage = 0x5a,
+};
+
+type FinancialProduct = enum {
+    Option = 1,
+    Future = 3,
+    Cash = 5,
+    StandardCombination = 11,
+};
+
+type LegSide = enum {
+    BuyLeg = 0x42,
+    SellLeg = 0x43,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    EndOfMessages = 0x43,
+};
+
+type Side = enum {
+    Sell = 0x53,
+    Buy = 0x42,
+};
+
+type LotType = enum {
+    Undefined = 0,
+    OddLot = 1,
+    RoundLot = 2,
+    BlockLot = 3,
+    AllOrNoneLot = 4,
+};
+
+type OccurredAtCross = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type Printable = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
