@@ -1,0 +1,151 @@
+module AsxAsxsecuritiesTradeOuchV36Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AsxsecuritiesTradeV36 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::EnterOrderMessage -> enter_order_message: EnterOrderMessage;
+        UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
+        UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
+        UnsequencedMessageType::CancelByOrderIdMessage -> cancel_by_order_id_message: CancelByOrderIdMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type EnterOrderMessage = unit {
+    order_token: bytes &size=14;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    quantity: uint64;
+    price: int32;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    open_close: uint8;
+    client_account: bytes &size=10;
+    customer_info: bytes &size=15;
+    exchange_info: bytes &size=32;
+    clearing_participant: bytes &size=1;
+    crossing_key: uint32;
+    regulatory_data: RegulatoryData;
+    ouch_order_type: uint8 &convert=OuchOrderType($$);
+    short_sell_quantity: uint64;
+    minimum_acceptable_quantity: uint64;
+};
+
+type RegulatoryData = unit {
+    capacity_of_participant: uint8 &convert=CapacityOfParticipant($$);
+    directed_wholesale: uint8 &convert=DirectedWholesale($$);
+    execution_venue: bytes &size=4;
+    intermediary_id: bytes &size=10;
+    order_origin: bytes &size=20;
+    filler: bytes &size=8;
+};
+
+type ReplaceOrderMessage = unit {
+    existing_order_token: bytes &size=14;
+    replacement_order_token: bytes &size=14;
+    quantity: uint64;
+    price: int32;
+    open_close: uint8;
+    client_account: bytes &size=10;
+    customer_info: bytes &size=15;
+    exchange_info: bytes &size=32;
+    regulatory_data: RegulatoryData;
+    short_sell_quantity: uint64;
+    minimum_acceptable_quantity: uint64;
+};
+
+type CancelOrderMessage = unit {
+    order_token: bytes &size=14;
+};
+
+type CancelByOrderIdMessage = unit {
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    EnterOrderMessage = 0x4f,
+    ReplaceOrderMessage = 0x55,
+    CancelOrderMessage = 0x58,
+    CancelByOrderIdMessage = 0x59,
+};
+
+type Side = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+    ShortSellOrder = 0x54,
+    CombinationBuyOrder = 0x43,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    FillAndKill = 3,
+    FillOrKill = 4,
+};
+
+type CapacityOfParticipant = enum {
+    Agency = 0x41,
+    Principal = 0x50,
+    Mixed = 0x4d,
+};
+
+type DirectedWholesale = enum {
+    True = 0x59,
+    False = 0x4e,
+};
+
+type OuchOrderType = enum {
+    LimitOrder = 0x59,
+    CentrePointOrder = 0x4e,
+    CentrePointOrder_x44 = 0x44,
+    SweepOrder = 0x53,
+    DualpostedSweepOrder = 0x50,
+    CentrePointBlockOrderWithSingleFillMaq = 0x42,
+    CentrePointOrderWithSingleFillMaq = 0x46,
+    LimitSweepOrderWithSingleFillMaq = 0x54,
+    AnyPriceBlockOrder = 0x43,
+    AnyPriceBlockOrderWithSingleFillMaq = 0x45,
+};
+

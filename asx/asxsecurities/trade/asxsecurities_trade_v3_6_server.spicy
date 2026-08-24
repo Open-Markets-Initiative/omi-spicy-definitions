@@ -1,29 +1,27 @@
-module AsxAsxsecuritiesTradeOuchV36;
+module AsxAsxsecuritiesTradeOuchV36Server;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
 public type AsxsecuritiesTradeV36 = unit {
-    soup_bin_tcp_packet: SoupBinTcpPacket[] &eod;
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
 };
 
-type SoupBinTcpPacket = unit {
-    packet_header: PacketHeader;
-    switch ( self.packet_header.packet_type ) {
-        PacketType::DebugPacket -> debug_packet: DebugPacket;
-        PacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
-        PacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
-        PacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
-        PacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
-        PacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
         * -> unknown: bytes &eod;
     };
 };
 
-type PacketHeader = unit {
+type ServerPacketHeader = unit {
     packet_length: uint16;
-    packet_type: uint8 &convert=PacketType($$);
+    server_packet_type: uint8 &convert=ServerPacketType($$);
 };
 
 type DebugPacket = unit {
@@ -137,78 +135,13 @@ type MatchAttributes = unit {
     : skip bytes &size=1;   # padding
 };
 
-type LoginRequestPacket = unit {
-    username: bytes &size=6;
-    password: bytes &size=10;
-    requested_session: bytes &size=10;
-    requested_sequence_number: bytes &size=20;
-};
-
-type UnsequencedDataPacket = unit {
-    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
-    switch ( self.unsequenced_message_type ) {
-        UnsequencedMessageType::EnterOrderMessage -> enter_order_message: EnterOrderMessage;
-        UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
-        UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
-        UnsequencedMessageType::CancelByOrderIdMessage -> cancel_by_order_id_message: CancelByOrderIdMessage;
-        * -> unknown: bytes &eod;
-    };
-};
-
-type EnterOrderMessage = unit {
-    order_token: bytes &size=14;
-    order_book_id: uint32;
-    side: uint8 &convert=Side($$);
-    quantity: uint64;
-    price: int32;
-    time_in_force: uint8 &convert=TimeInForce($$);
-    open_close: uint8;
-    client_account: bytes &size=10;
-    customer_info: bytes &size=15;
-    exchange_info: bytes &size=32;
-    clearing_participant: bytes &size=1;
-    crossing_key: uint32;
-    regulatory_data: RegulatoryData;
-    ouch_order_type: uint8 &convert=OuchOrderType($$);
-    short_sell_quantity: uint64;
-    minimum_acceptable_quantity: uint64;
-};
-
-type ReplaceOrderMessage = unit {
-    existing_order_token: bytes &size=14;
-    replacement_order_token: bytes &size=14;
-    quantity: uint64;
-    price: int32;
-    open_close: uint8;
-    client_account: bytes &size=10;
-    customer_info: bytes &size=15;
-    exchange_info: bytes &size=32;
-    regulatory_data: RegulatoryData;
-    short_sell_quantity: uint64;
-    minimum_acceptable_quantity: uint64;
-};
-
-type CancelOrderMessage = unit {
-    order_token: bytes &size=14;
-};
-
-type CancelByOrderIdMessage = unit {
-    order_book_id: uint32;
-    side: uint8 &convert=Side($$);
-    order_id: uint64;
-};
-
-type PacketType = enum {
+type ServerPacketType = enum {
     DebugPacket = 0x2b,
     LoginAcceptedPacket = 0x41,
     LoginRejectedPacket = 0x4a,
     SequencedDataPacket = 0x53,
     ServerHeartbeatPacket = 0x48,
     EndOfSessionPacket = 0x5a,
-    LoginRequestPacket = 0x4c,
-    UnsequencedDataPacket = 0x55,
-    ClientHeartbeatPacket = 0x52,
-    LogoutRequestPacket = 0x4f,
 };
 
 type SequencedMessageType = enum {
@@ -292,12 +225,5 @@ type CrossingDealingCapacity = enum {
     PrincipalOrder = 1,
     AgencyOrder = 3,
     MixedAgencyAndPrincipalOrder = 4,
-};
-
-type UnsequencedMessageType = enum {
-    EnterOrderMessage = 0x4f,
-    ReplaceOrderMessage = 0x55,
-    CancelOrderMessage = 0x58,
-    CancelByOrderIdMessage = 0x59,
 };
 
