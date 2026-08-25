@@ -1,0 +1,226 @@
+module NasdaqIseoptionsOrderfeedItchV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type IseoptionsOrderfeedV11 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::OptionDirectoryMessage -> option_directory_message: OptionDirectoryMessage;
+        MessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        MessageType::SecurityOpenClosedMessage -> security_open_closed_message: SecurityOpenClosedMessage;
+        MessageType::OpeningImbalanceMessage -> opening_imbalance_message: OpeningImbalanceMessage;
+        MessageType::OrderOnBookMessage -> order_on_book_message: OrderOnBookMessage;
+        MessageType::AuctionMessage -> auction_message: AuctionMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    timestamp: bytes &size=6;
+    event_code: uint8 &convert=EventCode($$);
+    current_year: uint16;
+    current_month: uint8;
+    current_day: uint8;
+    version: uint8;
+    subversion: uint8;
+};
+
+type OptionDirectoryMessage = unit {
+    timestamp: bytes &size=6;
+    option_id: uint32;
+    security_symbol: bytes &size=6;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    strike_price: int64;
+    option_type: uint8 &convert=OptionType($$);
+    source: uint8;
+    underlying_symbol: bytes &size=13;
+    trading_type: uint8 &convert=TradingType($$);
+    contract_size: uint16;
+    option_closing_type: uint8 &convert=OptionClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+    closing_only: uint8 &convert=ClosingOnly($$);
+};
+
+type TradingActionMessage = unit {
+    timestamp: bytes &size=6;
+    option_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type SecurityOpenClosedMessage = unit {
+    timestamp: bytes &size=6;
+    option_id: uint32;
+    open_state: uint8 &convert=OpenState($$);
+};
+
+type OpeningImbalanceMessage = unit {
+    timestamp: bytes &size=6;
+    option_id: uint32;
+    paired_contracts: uint32;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    imbalance_price: int32;
+    imbalance_volume: uint32;
+};
+
+type OrderOnBookMessage = unit {
+    timestamp: bytes &size=6;
+    option_id: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    side: uint8 &convert=Side($$);
+    price: int32;
+    size: uint32;
+    exec_flag: uint8 &convert=ExecFlag($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    owner_id: bytes &size=6;
+    giveup: bytes &size=6;
+    cmta: bytes &size=6;
+};
+
+type AuctionMessage = unit {
+    timestamp: bytes &size=6;
+    option_id: uint32;
+    auction_id: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    side: uint8 &convert=Side($$);
+    price: int32;
+    size: uint32;
+    exec_flag: uint8 &convert=ExecFlag($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    owner_id: bytes &size=6;
+    giveup: bytes &size=6;
+    cmta: bytes &size=6;
+    auction_event: uint8 &convert=AuctionEvent($$);
+    number_of_responses: uint8;
+    auction_response: AuctionResponse[self.number_of_responses];
+};
+
+type AuctionResponse = unit {
+    response_price: int32;
+    response_size: uint32;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    OptionDirectoryMessage = 0x44,
+    TradingActionMessage = 0x48,
+    SecurityOpenClosedMessage = 0x4f,
+    OpeningImbalanceMessage = 0x4e,
+    OrderOnBookMessage = 0x42,
+    AuctionMessage = 0x41,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    StartOfNormalHoursClosingProcess = 0x4e,
+    StartOfLateHoursClosingProcess = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    EndOfWcoEarlyClosing = 0x57,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type TradingType = enum {
+    Equity = 0x45,
+    Index = 0x49,
+    Etf = 0x46,
+    Currency = 0x43,
+};
+
+type OptionClosingType = enum {
+    Normal = 0x4e,
+    Late = 0x4c,
+};
+
+type Tradable = enum {
+    Tradable = 0x59,
+    NotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type ClosingOnly = enum {
+    ClosingPositionOnly = 0x59,
+    NotClosingPositionOnly = 0x4e,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    TradingOnTheOptionsSystem = 0x54,
+};
+
+type OpenState = enum {
+    OpenForAutoExecution = 0x59,
+    ClosedForAutoExecution = 0x4e,
+};
+
+type ImbalanceDirection = enum {
+    BuyImbalance = 0x42,
+    SellImbalance = 0x53,
+};
+
+type OrderType = enum {
+    Market = 0x4d,
+    Limit = 0x4c,
+};
+
+type Side = enum {
+    Bid = 0x42,
+    OfferAsk = 0x41,
+    Hidden = 0x20,
+};
+
+type ExecFlag = enum {
+    None = 0x4e,
+    Aon = 0x41,
+    Hidden = 0x20,
+};
+
+type OrderCapacity = enum {
+    Customer = 0x43,
+    CustomerProfessional = 0x44,
+    Firm = 0x46,
+    BrokerDealerCustomer = 0x42,
+    BrokerDealerFirm = 0x4b,
+    Proprietary = 0x45,
+    AwayMarketMaker = 0x4e,
+    MarketMaker = 0x4d,
+};
+
+type AuctionEvent = enum {
+    Start = 0x53,
+    AuctionUpdate = 0x55,
+    EndOfAuction = 0x45,
+};
+

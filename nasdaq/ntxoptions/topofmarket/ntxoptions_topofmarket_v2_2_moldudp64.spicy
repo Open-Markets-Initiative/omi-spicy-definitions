@@ -1,0 +1,214 @@
+module NasdaqNtxoptionsTopofmarketItchV22MoldUdp64;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NtxoptionsTopofmarketV22 = unit {
+    udp_packet_header: UdpPacketHeader;
+    messages: Message[self.udp_packet_header.message_count];
+};
+
+type UdpPacketHeader = unit {
+    udp_session: bytes &size=10;
+    udp_sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::DerivativeDirectoryMessage -> derivative_directory_message: DerivativeDirectoryMessage;
+        MessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        MessageType::BestBidAndAskUpdateShortFormMessage -> best_bid_and_ask_update_short_form_message: BestBidAndAskUpdateShortFormMessage;
+        MessageType::BestBidAndAskUpdateLongFormMessage -> best_bid_and_ask_update_long_form_message: BestBidAndAskUpdateLongFormMessage;
+        MessageType::BestBidOrAskUpdateShortFormMessage -> best_bid_or_ask_update_short_form_message: BestBidOrAskUpdateShortFormMessage;
+        MessageType::BestBidOrAskUpdateLongFormMessage -> best_bid_or_ask_update_long_form_message: BestBidOrAskUpdateLongFormMessage;
+        MessageType::TradeReportMessage -> trade_report_message: TradeReportMessage;
+        MessageType::BrokenTradeReportMessage -> broken_trade_report_message: BrokenTradeReportMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type DerivativeDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    security_symbol: bytes &size=6;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_date: uint8;
+    explicit_strike_price: uint32;
+    option_type: uint8 &convert=OptionType($$);
+    underlying_symbol: bytes &size=13;
+    closing_type: uint8 &convert=ClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+    isin: bytes &size=12;
+    tick_size_table_id: uint16;
+    price_notation: bytes &size=1;
+    volume_notation: bytes &size=1;
+    financial_product: uint16;
+    market_segment_id: bytes &size=1;
+    trading_currency: bytes &size=3;
+    mic: bytes &size=4;
+    instrument_long_name: bytes &size=16;
+};
+
+type TradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type BestBidAndAskUpdateShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    bid_market_order_size_short: uint16;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    bid_cust_size_short: uint16;
+    bid_procust_size_short: uint16;
+    ask_market_order_size_short: uint16;
+    ask_price_short: uint16;
+    ask_size_short: uint16;
+    ask_cust_size_short: uint16;
+    ask_procust_size_short: uint16;
+};
+
+type BestBidAndAskUpdateLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    bid_market_order_size_long: uint32;
+    bid_price_long: uint32;
+    bid_size_long: uint32;
+    bid_cust_size_long: uint32;
+    bid_procust_size_long: uint32;
+    ask_market_order_size_long: uint32;
+    ask_price_long: uint32;
+    ask_size_long: uint32;
+    ask_cust_size_long: uint32;
+    ask_procust_size_long: uint32;
+};
+
+type BestBidOrAskUpdateShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    market_order_size_short: uint16;
+    price_short: uint16;
+    size_short: uint16;
+    cust_size_short: uint16;
+    procust_size_short: uint16;
+};
+
+type BestBidOrAskUpdateLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    market_order_size_long: uint32;
+    price_long: uint32;
+    size_long: uint32;
+    cust_size_long: uint32;
+    procust_size_long: uint32;
+};
+
+type TradeReportMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    cross_id: uint32;
+    trade_condition: bytes &size=1;
+    price_long: uint32;
+    volume: uint32;
+};
+
+type BrokenTradeReportMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    original_cross_id: uint32;
+    original_price: uint32;
+    original_volume: uint32;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    DerivativeDirectoryMessage = 0x52,
+    TradingActionMessage = 0x48,
+    BestBidAndAskUpdateShortFormMessage = 0x71,
+    BestBidAndAskUpdateLongFormMessage = 0x51,
+    BestBidOrAskUpdateShortFormMessage = 0x62,
+    BestBidOrAskUpdateLongFormMessage = 0x42,
+    TradeReportMessage = 0x54,
+    BrokenTradeReportMessage = 0x58,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    EndOfNormalHoursProcessing = 0x4e,
+    EndOfLateHoursProcessing = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type OptionType = enum {
+    CallOption = 0x43,
+    PutOption = 0x50,
+    Na = 0x4e,
+};
+
+type ClosingType = enum {
+    NormalHours = 0x4e,
+    LateHours = 0x4c,
+};
+
+type Tradable = enum {
+    InstrumentIsTradable = 0x59,
+    InstrumentIsNotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    BuySideTradingSuspended = 0x42,
+    SellSideTradingSuspended = 0x53,
+    PreOpen = 0x49,
+    OpeningAuction = 0x4f,
+    ReOpening = 0x52,
+    ContinuousTrading = 0x54,
+    Closed = 0x58,
+};
+
+type QuoteCondition = enum {
+    RegularQuoteautoxEligible = 0x20,
+    AskSideNotFirmBidSideFirm = 0x58,
+    BidSideNotFirmAskSideFirm = 0x59,
+};
+

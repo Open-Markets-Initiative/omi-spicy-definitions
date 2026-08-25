@@ -1,0 +1,204 @@
+module NyseNyseequitiesOpenbookUltraV21K;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NyseequitiesOpenbookV21K = unit {
+    packet_header: PacketHeader;
+    switch ( self.packet_header.message_type ) {
+        MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
+        MessageType::UnavailableMessage -> unavailable_message: UnavailableMessage;
+        MessageType::RequestResponseMessage -> request_response_message: RequestResponseMessage;
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::BookRefreshRequestMessage -> book_refresh_request_message: BookRefreshRequestMessage;
+        MessageType::HeartbeatResponseMessage -> heartbeat_response_message: HeartbeatResponseMessage;
+        MessageType::ExtendedBookRefreshRequestMessage -> extended_book_refresh_request_message: ExtendedBookRefreshRequestMessage;
+        MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
+        MessageType::SymbolIndexMappingResponseMessage -> symbol_index_mapping_response_message: SymbolIndexMappingResponseMessage;
+        MessageType::FullUpdateMessage -> full_update_message: FullUpdateMessage;
+        MessageType::DeltaUpdateMessage -> delta_update_message: DeltaUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PacketHeader = unit {
+    packet_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+    sequence_number: uint32;
+    timestamp: uint32;
+    product_id: uint8 &convert=ProductId($$);
+    retransmission_flag: uint8 &convert=RetransmissionFlag($$);
+    message_count: uint8;
+    link_flag: uint8;
+};
+
+type SequenceNumberResetMessage = unit {
+    next_seq_number: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type UnavailableMessage = unit {
+    begin_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    end_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type RequestResponseMessage = unit {
+    source_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_id: bytes &size=20;
+    status: uint8 &convert=Status($$);
+    reject_reason: uint8 &convert=RejectReason($$);
+    filler_2: bytes &size=2;
+};
+
+type RetransmissionRequestMessage = unit {
+    begin_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    end_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_id: bytes &size=20;
+};
+
+type BookRefreshRequestMessage = unit {
+    symbol_16: bytes &size=16;
+    source_id: bytes &size=20;
+};
+
+type HeartbeatResponseMessage = unit {
+    source_id: bytes &size=20;
+};
+
+type ExtendedBookRefreshRequestMessage = unit {
+    source_id: bytes &size=20;
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    msg_type: uint16 &byte-order=spicy::ByteOrder::Little;
+};
+
+type SymbolIndexMappingRequestMessage = unit {
+    source_id: bytes &size=20;
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type SymbolIndexMappingResponseMessage = unit {
+    symbol_11: bytes &size=11;
+    filler_1: uint8;
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type FullUpdateMessage = unit {
+    update_size: uint16 &byte-order=spicy::ByteOrder::Little;
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_time: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_time_micro_secs: uint16 &byte-order=spicy::ByteOrder::Little;
+    symbol_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_session_id: uint8;
+    symbol_11: bytes &size=11;
+    price_scale_code: int8;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    trading_status: uint8 &convert=TradingStatus($$);
+    filler_1: uint8;
+    mpv: uint16 &byte-order=spicy::ByteOrder::Little;
+    full_price_point: FullPricePoint[self.update_size];
+};
+
+type FullPricePoint = unit {
+    price_numerator: int32 &byte-order=spicy::ByteOrder::Little;
+    volume: uint32 &byte-order=spicy::ByteOrder::Little;
+    num_orders: uint16 &byte-order=spicy::ByteOrder::Little;
+    side: uint8 &convert=Side($$);
+    filler_1: uint8;
+};
+
+type DeltaUpdateMessage = unit {
+    delta_size: uint16 &byte-order=spicy::ByteOrder::Little;
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_time: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_time_micro_secs: uint16 &byte-order=spicy::ByteOrder::Little;
+    source_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_session_id: uint8;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    trading_status: uint8 &convert=TradingStatus($$);
+    price_scale_code: int8;
+    delta_price_point: DeltaPricePoint[self.delta_size];
+};
+
+type DeltaPricePoint = unit {
+    price_numerator: int32 &byte-order=spicy::ByteOrder::Little;
+    volume: uint32 &byte-order=spicy::ByteOrder::Little;
+    chg_qty: uint32 &byte-order=spicy::ByteOrder::Little;
+    num_orders: uint16 &byte-order=spicy::ByteOrder::Little;
+    side: uint8 &convert=Side($$);
+    reason_code: uint8 &convert=ReasonCode($$);
+    link_id_1: uint32 &byte-order=spicy::ByteOrder::Little;
+    link_id_2: uint32 &byte-order=spicy::ByteOrder::Little;
+    link_id_3: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type MessageType = enum {
+    SequenceNumberResetMessage = 1,
+    HeartbeatMessage = 2,
+    UnavailableMessage = 5,
+    RequestResponseMessage = 10,
+    HeartbeatSubscriptionMessage = 19,
+    RetransmissionRequestMessage = 20,
+    BookRefreshRequestMessage = 22,
+    HeartbeatResponseMessage = 24,
+    ExtendedBookRefreshRequestMessage = 27,
+    SymbolIndexMappingRequestMessage = 34,
+    SymbolIndexMappingResponseMessage = 35,
+    FullUpdateMessage = 230,
+    DeltaUpdateMessage = 231,
+};
+
+type ProductId = enum {
+    NyseOpenbookUltra = 12,
+    NyseAmericanOpenbookUltra = 62,
+};
+
+type RetransmissionFlag = enum {
+    OriginalPacket = 1,
+    RetransmittedPacket = 2,
+    RefreshPacket = 5,
+    LastRefreshPacket = 6,
+};
+
+type Status = enum {
+    Accepted = 0x41,
+    Rejected = 0x52,
+};
+
+type RejectReason = enum {
+    RequestAccepted = 0x30,
+    RejectedDueToPermissions = 0x31,
+    InvalidSequenceRangeEgLowHigh = 0x32,
+    ExceededMaxSequenceRange1000 = 0x33,
+    ExceededMaxRetransRequestsInADay = 0x34,
+    ExceededMaxRefreshRequestsInADay = 0x35,
+    RejectedRequestedSeqnum1000000PacketsInThePastUseRefreshToRecoverCurrentStateIfNecessary = 0x36,
+};
+
+type QuoteCondition = enum {
+    NoSpecialQuoteCondition = 0x20,
+    SlowQuote = 0x57,
+};
+
+type TradingStatus = enum {
+    PreOpening = 0x50,
+    BeginAcceptingOrders = 0x42,
+    EarlySession = 0x45,
+    CoreSession = 0x4f,
+    LateSession = 0x4c,
+    Closed = 0x43,
+    Halted = 0x48,
+    Suspended = 0x36,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type ReasonCode = enum {
+    NewOrderadditionalInterestAdded = 0x4f,
+    Cancel = 0x43,
+    Execution = 0x45,
+    MultipleEvents = 0x58,
+};
+

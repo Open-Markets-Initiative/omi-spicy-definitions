@@ -1,0 +1,34 @@
+module IexIexequitiesIextpheaderUdpV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type IexequitiesIextpheaderV10 = unit {
+    iextp_header: IextpHeader;
+    messages: Message[self.iextp_header.message_count];
+};
+
+type IextpHeader = unit {
+    version: uint8;
+    : skip bytes &size=1;   # padding
+    message_protocol_id: uint16;
+    channel_id: uint32;
+    session_id: uint32;
+    payload_length: uint16;
+    message_count: uint16;
+    stream_offset: uint64;
+    first_message_sequence_number: uint64;
+    send_time: uint64;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    message_data: bytes &size=self.message_header.message_length - 1;
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: bytes &size=1;
+};
+

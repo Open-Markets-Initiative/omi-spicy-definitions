@@ -1,0 +1,246 @@
+module NasdaqPsxequitiesBboItchV212018;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PsxequitiesBboV212018 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoShortSalePriceTestRestrictedIndicatorMessage -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        MessageType::MwcbDeclineLevelMessage -> mwcb_decline_level_message: MwcbDeclineLevelMessage;
+        MessageType::MwcbStatusMessage -> mwcb_status_message: MwcbStatusMessage;
+        MessageType::OperationalHaltMessage -> operational_halt_message: OperationalHaltMessage;
+        MessageType::QuotationMessage -> quotation_message: QuotationMessage;
+        MessageType::NextSharesQuotationMessage -> next_shares_quotation_message: NextSharesQuotationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    round_lot_size: uint32;
+    round_lots_only: uint8 &convert=RoundLotsOnly($$);
+    issue_classification: bytes &size=1;
+    issue_sub_type: bytes &size=2;
+    authenticity: uint8 &convert=Authenticity($$);
+    short_sale_threshold_indicator: uint8 &convert=ShortSaleThresholdIndicator($$);
+    ipo_flag: uint8 &convert=IpoFlag($$);
+    luld_reference_price_tier: uint8 &convert=LuldReferencePriceTier($$);
+    etp_flag: uint8 &convert=EtpFlag($$);
+    etp_leverage_factor: uint32;
+    inverse_indicator: uint8 &convert=InverseIndicator($$);
+};
+
+type StockTradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+    reason: bytes &size=4;
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type MwcbDeclineLevelMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    level_1: uint64;
+    level_2: uint64;
+    level_3: uint64;
+};
+
+type MwcbStatusMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    breached_level: uint8 &convert=BreachedLevel($$);
+};
+
+type OperationalHaltMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    market_code: uint8 &convert=MarketCode($$);
+    operational_halt_action: uint8 &convert=OperationalHaltAction($$);
+};
+
+type QuotationMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    psx_best_bid_price: uint32;
+    psx_best_bid_size: uint32;
+    psx_best_offer_price: uint32;
+    psx_best_offer_size: uint32;
+};
+
+type NextSharesQuotationMessage = unit {
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    next_shares_symbol: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    nasdaq_best_bid: uint32;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    MwcbDeclineLevelMessage = 0x56,
+    MwcbStatusMessage = 0x57,
+    OperationalHaltMessage = 0x68,
+    QuotationMessage = 0x51,
+    NextSharesQuotationMessage = 0x41,
+};
+
+type EventCode = enum {
+    StartOfTransmissions = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type MarketCategory = enum {
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+    Nyse = 0x4e,
+    NyseAmex = 0x41,
+    NyseArca = 0x50,
+    BatsBzx = 0x5a,
+    InvestorsExchange = 0x56,
+    Na = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    Suspended = 0x53,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+    CreationsAndRedemptionsSuspended = 0x43,
+    Normal = 0x4e,
+    Na = 0x20,
+};
+
+type RoundLotsOnly = enum {
+    RoundLotsOnly = 0x59,
+    OddMixedAllowed = 0x4e,
+};
+
+type Authenticity = enum {
+    LiveProduction = 0x50,
+    Test = 0x54,
+};
+
+type ShortSaleThresholdIndicator = enum {
+    Restricted = 0x59,
+    NotRestricted = 0x4e,
+    Na = 0x20,
+};
+
+type IpoFlag = enum {
+    NasdaqListedInstrument = 0x59,
+    NasdaqListedInstrument_x4e = 0x4e,
+    Na = 0x20,
+};
+
+type LuldReferencePriceTier = enum {
+    Tier1 = 0x31,
+    Tier2 = 0x32,
+    Na = 0x20,
+};
+
+type EtpFlag = enum {
+    Etp = 0x59,
+    NotEtp = 0x4e,
+    Na = 0x20,
+};
+
+type InverseIndicator = enum {
+    InverseEtp = 0x59,
+    NotInverseEtp = 0x4e,
+};
+
+type SecurityClass = enum {
+    NasdaqListedIssue = 0x51,
+    Nyse = 0x4e,
+    NyseMkt = 0x41,
+    NyseArca = 0x50,
+    Bats = 0x5a,
+    Iexg = 0x56,
+    Na = 0x20,
+};
+
+type CurrentTradingState = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    QuotationOnlyPeriod = 0x51,
+    Trading = 0x54,
+};
+
+type RegShoAction = enum {
+    NoPriceTest = 0x30,
+    RegShoShortSalePriceTestRestriction = 0x31,
+    TestRestrictionRemains = 0x32,
+};
+
+type BreachedLevel = enum {
+    Level1 = 0x31,
+    Level2 = 0x32,
+    Level3 = 0x33,
+};
+
+type MarketCode = enum {
+    Nasdaq = 0x51,
+    Bx = 0x42,
+    Psx = 0x58,
+};
+
+type OperationalHaltAction = enum {
+    Halted = 0x48,
+    Resumed = 0x54,
+};
+

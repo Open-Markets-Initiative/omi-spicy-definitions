@@ -1,0 +1,388 @@
+module NasdaqPhlxoptionsSpreaddepthofmarketItchV21ServerTcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PhlxoptionsSpreaddepthofmarketV21 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_tcp_packet_header: ServerTcpPacketHeader;
+    switch ( self.server_tcp_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerTcpPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::ComplexStrategyDirectoryMessage -> complex_strategy_directory_message: ComplexStrategyDirectoryMessage;
+        SequencedMessageType::StrategyTradingActionMessage -> strategy_trading_action_message: StrategyTradingActionMessage;
+        SequencedMessageType::AddOrderShortFormMessage -> add_order_short_form_message: AddOrderShortFormMessage;
+        SequencedMessageType::AddOrderLongFormMessage -> add_order_long_form_message: AddOrderLongFormMessage;
+        SequencedMessageType::SingleSideExecutedMessage -> single_side_executed_message: SingleSideExecutedMessage;
+        SequencedMessageType::SingleSideExecutedWithPriceMessage -> single_side_executed_with_price_message: SingleSideExecutedWithPriceMessage;
+        SequencedMessageType::SingleSideReplaceShortFormMessage -> single_side_replace_short_form_message: SingleSideReplaceShortFormMessage;
+        SequencedMessageType::SingleSideReplaceLongFormMessage -> single_side_replace_long_form_message: SingleSideReplaceLongFormMessage;
+        SequencedMessageType::SingleSideDeleteMessage -> single_side_delete_message: SingleSideDeleteMessage;
+        SequencedMessageType::SingleSideUpdateMessage -> single_side_update_message: SingleSideUpdateMessage;
+        SequencedMessageType::ComplexStrategyTradeMessage -> complex_strategy_trade_message: ComplexStrategyTradeMessage;
+        SequencedMessageType::ComplexStrategyAuctionMessage -> complex_strategy_auction_message: ComplexStrategyAuctionMessage;
+        SequencedMessageType::EndOfReplaySequenceMessage -> end_of_replay_sequence_message: EndOfReplaySequenceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type ComplexStrategyDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    strategy_type: uint8 &convert=StrategyType($$);
+    underlying_symbol: bytes &size=13;
+    reserved_16: bytes &size=16;
+    number_of_legs: uint8;
+    leg_information: LegInformation[self.number_of_legs];
+};
+
+type LegInformation = unit {
+    option_id: uint32;
+    security_symbol: bytes &size=8;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    explicit_strike_price: uint32;
+    option_type: uint8 &convert=OptionType($$);
+    side: uint8 &convert=Side($$);
+    leg_ratio: uint32;
+};
+
+type StrategyTradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type AddOrderShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    order_reference_number: uint64;
+    depth_side: uint8 &convert=DepthSide($$);
+    depth_order_capacity: uint8 &convert=DepthOrderCapacity($$);
+    price_short: uint16;
+    volume_short: uint16;
+    scope: uint8 &convert=Scope($$);
+    reserved_3: bytes &size=3;
+};
+
+type AddOrderLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    order_reference_number: uint64;
+    depth_side: uint8 &convert=DepthSide($$);
+    depth_order_capacity: uint8 &convert=DepthOrderCapacity($$);
+    price_long: uint32;
+    volume_long: uint32;
+    scope: uint8 &convert=Scope($$);
+    reserved_3: bytes &size=3;
+};
+
+type SingleSideExecutedMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    order_reference_number: uint64;
+    executed_volume: uint32;
+    trade_condition: bytes &size=1;
+    auction_id: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+};
+
+type SingleSideExecutedWithPriceMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    order_reference_number: uint64;
+    cross_number: uint32;
+    match_number: uint32;
+    reserved_1: bytes &size=1;
+    price_long: uint32;
+    volume_long: uint32;
+    trade_condition: bytes &size=1;
+    auction_id: uint32;
+};
+
+type SingleSideReplaceShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    original_order_reference_number: uint64;
+    new_order_reference_number: uint64;
+    price_short: uint16;
+    volume_short: uint16;
+    order_type: uint8 &convert=OrderType($$);
+    scope: uint8 &convert=Scope($$);
+    reserved_3: bytes &size=3;
+};
+
+type SingleSideReplaceLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    original_order_reference_number: uint64;
+    new_order_reference_number: uint64;
+    price_long: uint32;
+    volume_long: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    scope: uint8 &convert=Scope($$);
+    reserved_3: bytes &size=3;
+};
+
+type SingleSideDeleteMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id_order_reference: uint32;
+    order_reference_number: uint64;
+};
+
+type SingleSideUpdateMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    order_reference_number: uint64;
+    change_reason: uint8 &convert=ChangeReason($$);
+    price_long: uint32;
+    volume_long: uint32;
+    order_type: uint8 &convert=OrderType($$);
+};
+
+type ComplexStrategyTradeMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+    reserved_4: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    price_long: uint32;
+    volume_long: uint32;
+    trade_condition: bytes &size=1;
+    auction_id: uint32;
+    reserved_1: bytes &size=1;
+    trade_type: uint8 &convert=TradeType($$);
+    reserved_16: bytes &size=16;
+};
+
+type ComplexStrategyAuctionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    auction_id: uint32;
+    auction_type: uint8 &convert=AuctionType($$);
+    auction_duration: uint32;
+    auction_event: uint8 &convert=AuctionEvent($$);
+    order_type: uint8 &convert=OrderType($$);
+    side: uint8 &convert=Side($$);
+    price_long: uint32;
+    size: uint32;
+    exec_flag: uint8 &convert=ExecFlag($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    scope: uint8 &convert=Scope($$);
+    owner_id: bytes &size=6;
+    giveup: bytes &size=6;
+    cmta: bytes &size=6;
+    response_price: uint32;
+    response_size: uint32;
+    reserved_4: uint32;
+    number_of_flex_dac_legs: uint8;
+    flex_dac_leg_information: FlexDacLegInformation[self.number_of_flex_dac_legs];
+};
+
+type FlexDacLegInformation = unit {
+    reserved_8: bytes &size=8;
+};
+
+type EndOfReplaySequenceMessage = unit {
+    end_of_replay_sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    ComplexStrategyDirectoryMessage = 0x73,
+    StrategyTradingActionMessage = 0x48,
+    AddOrderShortFormMessage = 0x72,
+    AddOrderLongFormMessage = 0x6f,
+    SingleSideExecutedMessage = 0x74,
+    SingleSideExecutedWithPriceMessage = 0x54,
+    SingleSideReplaceShortFormMessage = 0x69,
+    SingleSideReplaceLongFormMessage = 0x49,
+    SingleSideDeleteMessage = 0x44,
+    SingleSideUpdateMessage = 0x50,
+    ComplexStrategyTradeMessage = 0x71,
+    ComplexStrategyAuctionMessage = 0x61,
+    EndOfReplaySequenceMessage = 0x4d,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    StartOfNormalHoursClosingProcess = 0x4e,
+    StartOfLateHoursClosingProcess = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    EndOfWcoEarlyClosing = 0x57,
+};
+
+type StrategyType = enum {
+    VerticalSpread = 0x56,
+    TimeSpread = 0x54,
+    DiagonalSpread = 0x44,
+    Straddle = 0x53,
+    Strangle = 0x47,
+    Combo = 0x43,
+    RiskReversal = 0x52,
+    RatioSpread = 0x41,
+    BoxSpread = 0x42,
+    ButterflySpread = 0x46,
+    Custom = 0x55,
+};
+
+type OptionType = enum {
+    CallOption = 0x43,
+    PutOption = 0x50,
+    StockLeg = 0x20,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    ContinuousTrading = 0x54,
+    PreOpen = 0x49,
+    OpeningAuction = 0x4f,
+    ReOpening = 0x52,
+    Closed = 0x58,
+};
+
+type DepthSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    BuyMarket = 0x4f,
+    SellMarket = 0x50,
+};
+
+type DepthOrderCapacity = enum {
+    Customer = 0x43,
+    Firm = 0x46,
+    NasdaqRegisteredMarketMaker = 0x4d,
+    BrokerDealerOrder = 0x42,
+    ProfessionalOrder = 0x50,
+    OtherExchangeRegisteredMarketMaker = 0x4f,
+    JboJointBackOfficeOnlyPhlx = 0x4a,
+};
+
+type Scope = enum {
+    Local = 0x4c,
+    National = 0x4e,
+};
+
+type OrderType = enum {
+    Market = 0x4d,
+    Limit = 0x4c,
+};
+
+type ChangeReason = enum {
+    User = 0x55,
+};
+
+type CrossType = enum {
+    ComplexExposureAuction = 0x45,
+    OpeningAuction = 0x4f,
+    ReopeningAuction = 0x52,
+    PriceImprovementPimAuction = 0x50,
+    Facilitation = 0x43,
+    Solicitation = 0x53,
+    FlexAuction = 0x58,
+    None = 0x4e,
+};
+
+type TradeType = enum {
+    ElectronicTrade = 0x45,
+};
+
+type AuctionType = enum {
+    ComplexExposure = 0x45,
+    PriceImprovementPimAuction = 0x50,
+    Facilitation = 0x43,
+    Solicitation = 0x53,
+    FlexAuction = 0x58,
+};
+
+type AuctionEvent = enum {
+    Start = 0x53,
+    AuctionUpdate = 0x55,
+    EndOfAuction = 0x45,
+};
+
+type ExecFlag = enum {
+    None = 0x4e,
+    Aon = 0x41,
+};
+
+type OrderCapacity = enum {
+    CustomerOrder = 0x43,
+    FirmOrder = 0x46,
+    NasdaqRegisteredMarketMaker = 0x4d,
+    BrokerDealerOder = 0x42,
+    ProfessionalOrder = 0x50,
+    OtherExchangeRegisteredMarketMaker = 0x4f,
+    JboJointBackOfficeOnlyPhlx = 0x4a,
+};
+

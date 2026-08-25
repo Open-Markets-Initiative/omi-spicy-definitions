@@ -1,0 +1,1209 @@
+module CmeGlobexMdp3SbeV19Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CmeGlobexMdp3V19 = unit {
+    binary_packet_header: BinaryPacketHeader;
+    message: Message[] &eod;
+};
+
+type BinaryPacketHeader = unit {
+    packet_sequence_number: uint32;
+    sending_time: uint64;
+};
+
+type Message = unit {
+    message_size: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::ChannelReset -> channel_reset: ChannelReset;
+        TemplateId::AdminLogin -> admin_login: AdminLogin;
+        TemplateId::AdminLogout -> admin_logout: AdminLogout;
+        TemplateId::MdInstrumentDefinitionFutureLegacy -> md_instrument_definition_future_legacy: MdInstrumentDefinitionFutureLegacy;
+        TemplateId::MdInstrumentDefinitionSpreadLegacy -> md_instrument_definition_spread_legacy: MdInstrumentDefinitionSpreadLegacy;
+        TemplateId::SecurityStatus -> security_status: SecurityStatus;
+        TemplateId::MdIncrementalRefreshBookLegacy -> md_incremental_refresh_book_legacy: MdIncrementalRefreshBookLegacy;
+        TemplateId::MdIncrementalRefreshDailyStatisticsLegacy -> md_incremental_refresh_daily_statistics_legacy: MdIncrementalRefreshDailyStatisticsLegacy;
+        TemplateId::MdIncrementalRefreshLimitsBandingLegacy -> md_incremental_refresh_limits_banding_legacy: MdIncrementalRefreshLimitsBandingLegacy;
+        TemplateId::MdIncrementalRefreshSessionStatisticsLegacy -> md_incremental_refresh_session_statistics_legacy: MdIncrementalRefreshSessionStatisticsLegacy;
+        TemplateId::MdIncrementalRefreshVolume -> md_incremental_refresh_volume: MdIncrementalRefreshVolume;
+        TemplateId::SnapshotFullRefreshLegacy -> snapshot_full_refresh_legacy: SnapshotFullRefreshLegacy;
+        TemplateId::QuoteRequest -> quote_request: QuoteRequest;
+        TemplateId::MdInstrumentDefinitionOptionLegacy -> md_instrument_definition_option_legacy: MdInstrumentDefinitionOptionLegacy;
+        TemplateId::MdIncrementalRefreshTradeSummaryLegacy -> md_incremental_refresh_trade_summary_legacy: MdIncrementalRefreshTradeSummaryLegacy;
+        TemplateId::MdIncrementalRefreshOrderBookLegacy -> md_incremental_refresh_order_book_legacy: MdIncrementalRefreshOrderBookLegacy;
+        TemplateId::SnapshotFullRefreshOrderBookLegacy -> snapshot_full_refresh_order_book_legacy: SnapshotFullRefreshOrderBookLegacy;
+        TemplateId::MdIncrementalRefreshBook -> md_incremental_refresh_book: MdIncrementalRefreshBook;
+        TemplateId::MdIncrementalRefreshOrderBook -> md_incremental_refresh_order_book: MdIncrementalRefreshOrderBook;
+        TemplateId::MdIncrementalRefreshTradeSummary -> md_incremental_refresh_trade_summary: MdIncrementalRefreshTradeSummary;
+        TemplateId::MdIncrementalRefreshDailyStatistics -> md_incremental_refresh_daily_statistics: MdIncrementalRefreshDailyStatistics;
+        TemplateId::MdIncrementalRefreshLimitsBanding -> md_incremental_refresh_limits_banding: MdIncrementalRefreshLimitsBanding;
+        TemplateId::MdIncrementalRefreshSessionStatistics -> md_incremental_refresh_session_statistics: MdIncrementalRefreshSessionStatistics;
+        TemplateId::SnapshotFullRefresh -> snapshot_full_refresh: SnapshotFullRefresh;
+        TemplateId::SnapshotFullRefreshOrderBook -> snapshot_full_refresh_order_book: SnapshotFullRefreshOrderBook;
+        TemplateId::MdInstrumentDefinitionFuture -> md_instrument_definition_future: MdInstrumentDefinitionFuture;
+        TemplateId::MdInstrumentDefinitionOption -> md_instrument_definition_option: MdInstrumentDefinitionOption;
+        TemplateId::MdInstrumentDefinitionSpread -> md_instrument_definition_spread: MdInstrumentDefinitionSpread;
+        TemplateId::Negotiate -> negotiate: Negotiate;
+        TemplateId::NegotiationReject -> negotiation_reject: NegotiationReject;
+        TemplateId::NegotiationResponse -> negotiation_response: NegotiationResponse;
+        TemplateId::Terminate -> terminate: Terminate;
+        TemplateId::MarketDataRequest -> market_data_request: MarketDataRequest;
+        TemplateId::RequestAck -> request_ack: RequestAck;
+        TemplateId::RequestReject -> request_reject: RequestReject;
+        TemplateId::SecurityListRequest -> security_list_request: SecurityListRequest;
+        TemplateId::SecurityStatusRequest -> security_status_request: SecurityStatusRequest;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type ChannelReset = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    channel_reset_groups: ChannelResetGroups;
+};
+
+type MatchEventIndicator = unit {
+    last_trade_msg: bytes &size=1;
+    last_volume_msg: bytes &size=1;
+    last_quote_msg: bytes &size=1;
+    last_stats_msg: bytes &size=1;
+    last_implied_msg: bytes &size=1;
+    recovery_msg: bytes &size=1;
+    reserved: bytes &size=1;
+    end_of_event: bytes &size=1;
+};
+
+type ChannelResetGroups = unit {
+    group_size: GroupSize;
+    channel_reset_group: ChannelResetGroup[self.group_size.num_in_group];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type ChannelResetGroup = unit {
+    appl_id: int16;
+};
+
+type AdminLogin = unit {
+    heart_bt_int: int8;
+};
+
+type AdminLogout = unit {
+    text: bytes &size=100;
+};
+
+type MdInstrumentDefinitionFutureLegacy = unit {
+    match_event_indicator: MatchEventIndicator;
+    tot_num_reports_optional: uint32;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    last_update_time: uint64;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    appl_id: int16;
+    market_segment_id: uint8;
+    underlying_product: uint8;
+    security_exchange: bytes &size=4;
+    security_group: bytes &size=6;
+    asset: bytes &size=6;
+    symbol: bytes &size=20;
+    security_id: int32;
+    security_type: bytes &size=6;
+    cfi_code: bytes &size=6;
+    maturity_month_year: MaturityMonthYear;
+    currency: bytes &size=3;
+    settl_currency: bytes &size=3;
+    match_algorithm: bytes &size=1;
+    min_trade_vol: uint32;
+    max_trade_vol: uint32;
+    min_price_increment: int64;
+    display_factor: int64;
+    main_fraction: uint8;
+    sub_fraction: uint8;
+    price_display_format: uint8;
+    unit_of_measure: bytes &size=30;
+    unit_of_measure_qty: int64;
+    trading_reference_price: int64;
+    settl_price_type: SettlPriceType;
+    open_interest_qty: int32;
+    cleared_volume: int32;
+    high_limit_price: int64;
+    low_limit_price: int64;
+    max_price_variation: int64;
+    decay_quantity: int32;
+    decay_start_date: uint16;
+    original_contract_size: int32;
+    contract_multiplier: int32;
+    contract_multiplier_unit: int8;
+    flow_schedule_type: int8;
+    min_price_increment_amount: int64;
+    user_defined_instrument: bytes &size=1;
+    trading_reference_date: uint16;
+    events_groups: EventsGroups;
+    feed_types_groups: FeedTypesGroups;
+    inst_attrib_groups: InstAttribGroups;
+    lot_type_rules_groups: LotTypeRulesGroups;
+};
+
+type MaturityMonthYear = unit {
+    year: uint16;
+    month: uint8;
+    day: uint8;
+    week: uint8;
+};
+
+type SettlPriceType = unit {
+    final_daily: bytes &size=1;
+    actual: bytes &size=1;
+    rounded: bytes &size=1;
+    intraday: bytes &size=1;
+    reserved_bits: bytes &size=1;
+    unused_settl_price_type_5: bytes &size=1;
+    unused_settl_price_type_6: bytes &size=1;
+    null_value: bytes &size=1;
+};
+
+type EventsGroups = unit {
+    group_size: GroupSize;
+    events_group: EventsGroup[self.group_size.num_in_group];
+};
+
+type EventsGroup = unit {
+    event_type: uint8 &convert=EventType($$);
+    event_time: uint64;
+};
+
+type FeedTypesGroups = unit {
+    group_size: GroupSize;
+    feed_types_group: FeedTypesGroup[self.group_size.num_in_group];
+};
+
+type FeedTypesGroup = unit {
+    md_feed_type: bytes &size=3;
+    market_depth: int8;
+};
+
+type InstAttribGroups = unit {
+    group_size: GroupSize;
+    inst_attrib_group: InstAttribGroup[self.group_size.num_in_group];
+};
+
+type InstAttribGroup = unit {
+    inst_attrib_value: InstAttribValue;
+};
+
+type InstAttribValue = unit {
+    electronic_match_eligible: bytes &size=1;
+    order_cross_eligible: bytes &size=1;
+    block_trade_eligible: bytes &size=1;
+    efp_eligible: bytes &size=1;
+    ebf_eligible: bytes &size=1;
+    efs_eligible: bytes &size=1;
+    efr_eligible: bytes &size=1;
+    otc_eligible: bytes &size=1;
+    ilink_indicative_mass_quoting_eligible: bytes &size=1;
+    negative_strike_eligible: bytes &size=1;
+    negative_price_outright_eligible: bytes &size=1;
+    is_fractional: bytes &size=1;
+    volatility_quoted_option: bytes &size=1;
+    rfq_cross_eligible: bytes &size=1;
+    zero_price_outright_eligible: bytes &size=1;
+    decaying_product_eligibility: bytes &size=1;
+    variable_product_eligibility: bytes &size=1;
+    daily_product_eligibility: bytes &size=1;
+    gt_orders_eligibility: bytes &size=1;
+    implied_matching_eligibility: bytes &size=1;
+    triangulation_eligible: bytes &size=1;
+    variable_cab_eligible: bytes &size=1;
+    reserved_10: bytes &size=2;
+};
+
+type LotTypeRulesGroups = unit {
+    group_size: GroupSize;
+    lot_type_rules_group: LotTypeRulesGroup[self.group_size.num_in_group];
+};
+
+type LotTypeRulesGroup = unit {
+    lot_type: int8;
+    min_lot_size: int32;
+};
+
+type MdInstrumentDefinitionSpreadLegacy = unit {
+    match_event_indicator: MatchEventIndicator;
+    tot_num_reports_optional: uint32;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    last_update_time: uint64;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    appl_id: int16;
+    market_segment_id: uint8;
+    underlying_product_optional: uint8;
+    security_exchange: bytes &size=4;
+    security_group: bytes &size=6;
+    asset: bytes &size=6;
+    symbol: bytes &size=20;
+    security_id: int32;
+    security_type: bytes &size=6;
+    cfi_code: bytes &size=6;
+    maturity_month_year: MaturityMonthYear;
+    currency: bytes &size=3;
+    security_sub_type: bytes &size=5;
+    user_defined_instrument: bytes &size=1;
+    match_algorithm: bytes &size=1;
+    min_trade_vol: uint32;
+    max_trade_vol: uint32;
+    min_price_increment: int64;
+    display_factor: int64;
+    price_display_format: uint8;
+    price_ratio: int64;
+    tick_rule: int8;
+    unit_of_measure: bytes &size=30;
+    trading_reference_price: int64;
+    settl_price_type: SettlPriceType;
+    open_interest_qty: int32;
+    cleared_volume: int32;
+    high_limit_price: int64;
+    low_limit_price: int64;
+    max_price_variation: int64;
+    main_fraction: uint8;
+    sub_fraction: uint8;
+    trading_reference_date: uint16;
+    events_groups: EventsGroups;
+    feed_types_groups: FeedTypesGroups;
+    inst_attrib_groups: InstAttribGroups;
+    lot_type_rules_groups: LotTypeRulesGroups;
+    legs_groups: LegsGroups;
+};
+
+type LegsGroups = unit {
+    group_size: GroupSize;
+    legs_group: LegsGroup[self.group_size.num_in_group];
+};
+
+type LegsGroup = unit {
+    leg_security_id: int32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio_qty: int8;
+    leg_price: int64;
+    leg_option_delta: int32;
+};
+
+type SecurityStatus = unit {
+    transact_time: uint64;
+    security_group: bytes &size=6;
+    asset: bytes &size=6;
+    security_id_optional: int32;
+    trade_date: uint16;
+    match_event_indicator: MatchEventIndicator;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    halt_reason: uint8 &convert=HaltReason($$);
+    security_trading_event: uint8 &convert=SecurityTradingEvent($$);
+};
+
+type MdIncrementalRefreshBookLegacy = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_book_groups: IncrementalRefreshBookGroups;
+    incremental_refresh_book_order_id_groups: IncrementalRefreshBookOrderIdGroups;
+};
+
+type IncrementalRefreshBookGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_book_group: IncrementalRefreshBookGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshBookGroup = unit {
+    md_entry_px_optional_ex: int64;
+    md_entry_size_short_optional: int32;
+    security_id: int32;
+    rpt_seq: uint32;
+    number_of_orders_optional: int32;
+    md_price_level: uint8;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
+    : skip bytes &size=5;   # padding
+};
+
+type IncrementalRefreshBookOrderIdGroups = unit {
+    group_size_8_byte: GroupSize8Byte;
+    incremental_refresh_book_order_id_group: IncrementalRefreshBookOrderIdGroup[self.group_size_8_byte.num_in_group];
+};
+
+type GroupSize8Byte = unit {
+    block_length: uint16;
+    : skip bytes &size=5;   # padding
+    num_in_group: uint8;
+};
+
+type IncrementalRefreshBookOrderIdGroup = unit {
+    order_id: uint64;
+    md_order_priority: uint64;
+    md_display_qty_optional: int32;
+    reference_id: uint8;
+    order_update_action: uint8 &convert=OrderUpdateAction($$);
+    : skip bytes &size=2;   # padding
+};
+
+type MdIncrementalRefreshDailyStatisticsLegacy = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_daily_statistics_groups: IncrementalRefreshDailyStatisticsGroups;
+};
+
+type IncrementalRefreshDailyStatisticsGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_daily_statistics_group: IncrementalRefreshDailyStatisticsGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshDailyStatisticsGroup = unit {
+    md_entry_px_optional_ex: int64;
+    md_entry_size_short_optional: int32;
+    security_id: int32;
+    rpt_seq: uint32;
+    trading_reference_date: uint16;
+    settl_price_type: SettlPriceType;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_daily_statistics: uint8 &convert=MdEntryTypeDailyStatistics($$);
+    : skip bytes &size=7;   # padding
+};
+
+type MdIncrementalRefreshLimitsBandingLegacy = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_limits_banding_groups: IncrementalRefreshLimitsBandingGroups;
+};
+
+type IncrementalRefreshLimitsBandingGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_limits_banding_group: IncrementalRefreshLimitsBandingGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshLimitsBandingGroup = unit {
+    high_limit_price_ex: int64;
+    low_limit_price_ex: int64;
+    max_price_variation_ex: int64;
+    security_id: int32;
+    rpt_seq: uint32;
+};
+
+type MdIncrementalRefreshSessionStatisticsLegacy = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_session_statistics_groups: IncrementalRefreshSessionStatisticsGroups;
+};
+
+type IncrementalRefreshSessionStatisticsGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_session_statistics_group: IncrementalRefreshSessionStatisticsGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshSessionStatisticsGroup = unit {
+    md_entry_px_ex: int64;
+    security_id: int32;
+    rpt_seq: uint32;
+    open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_statistics: uint8 &convert=MdEntryTypeStatistics($$);
+    md_entry_size_short_optional: int32;
+    : skip bytes &size=1;   # padding
+};
+
+type MdIncrementalRefreshVolume = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_volume_groups: IncrementalRefreshVolumeGroups;
+};
+
+type IncrementalRefreshVolumeGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_volume_group: IncrementalRefreshVolumeGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshVolumeGroup = unit {
+    md_entry_size_short: int32;
+    security_id: int32;
+    rpt_seq: uint32;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    : skip bytes &size=3;   # padding
+};
+
+type SnapshotFullRefreshLegacy = unit {
+    last_msg_seq_num_processed: uint32;
+    tot_num_reports: uint32;
+    security_id: int32;
+    rpt_seq: uint32;
+    transact_time: uint64;
+    last_update_time: uint64;
+    trade_date: uint16;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    high_limit_price: int64;
+    low_limit_price: int64;
+    max_price_variation: int64;
+    snapshot_full_refresh_groups: SnapshotFullRefreshGroups;
+};
+
+type SnapshotFullRefreshGroups = unit {
+    group_size: GroupSize;
+    snapshot_full_refresh_group: SnapshotFullRefreshGroup[self.group_size.num_in_group];
+};
+
+type SnapshotFullRefreshGroup = unit {
+    md_entry_px_optional_ex: int64;
+    md_entry_size_short_optional: int32;
+    number_of_orders_optional: int32;
+    md_price_level_optional: int8;
+    trading_reference_date: uint16;
+    open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
+    settl_price_type: SettlPriceType;
+    md_entry_type: uint8 &convert=MdEntryType($$);
+};
+
+type QuoteRequest = unit {
+    transact_time: uint64;
+    quote_req_id: bytes &size=23;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=3;   # padding
+    related_sym_groups: RelatedSymGroups;
+};
+
+type RelatedSymGroups = unit {
+    group_size: GroupSize;
+    related_sym_group: RelatedSymGroup[self.group_size.num_in_group];
+};
+
+type RelatedSymGroup = unit {
+    symbol: bytes &size=20;
+    security_id: int32;
+    order_qty: int32;
+    quote_type: int8;
+    side: int8;
+    : skip bytes &size=2;   # padding
+};
+
+type MdInstrumentDefinitionOptionLegacy = unit {
+    match_event_indicator: MatchEventIndicator;
+    tot_num_reports_optional: uint32;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    last_update_time: uint64;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    appl_id: int16;
+    market_segment_id: uint8;
+    underlying_product: uint8;
+    security_exchange: bytes &size=4;
+    security_group: bytes &size=6;
+    asset: bytes &size=6;
+    symbol: bytes &size=20;
+    security_id: int32;
+    security_type: bytes &size=6;
+    cfi_code: bytes &size=6;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    maturity_month_year: MaturityMonthYear;
+    currency: bytes &size=3;
+    strike_price: int64;
+    strike_currency: bytes &size=3;
+    settl_currency: bytes &size=3;
+    min_cab_price: int64;
+    match_algorithm: bytes &size=1;
+    min_trade_vol: uint32;
+    max_trade_vol: uint32;
+    min_price_increment_optional: int64;
+    min_price_increment_amount: int64;
+    display_factor: int64;
+    tick_rule: int8;
+    main_fraction: uint8;
+    sub_fraction: uint8;
+    price_display_format: uint8;
+    unit_of_measure: bytes &size=30;
+    unit_of_measure_qty: int64;
+    trading_reference_price: int64;
+    settl_price_type: SettlPriceType;
+    cleared_volume: int32;
+    open_interest_qty: int32;
+    low_limit_price: int64;
+    high_limit_price: int64;
+    user_defined_instrument: bytes &size=1;
+    trading_reference_date: uint16;
+    events_groups: EventsGroups;
+    feed_types_groups: FeedTypesGroups;
+    inst_attrib_groups: InstAttribGroups;
+    lot_type_rules_groups: LotTypeRulesGroups;
+    option_underlyings_groups: OptionUnderlyingsGroups;
+    option_related_instruments_groups: OptionRelatedInstrumentsGroups;
+};
+
+type OptionUnderlyingsGroups = unit {
+    group_size: GroupSize;
+    option_underlyings_group: OptionUnderlyingsGroup[self.group_size.num_in_group];
+};
+
+type OptionUnderlyingsGroup = unit {
+    underlying_security_id: int32;
+    underlying_symbol: bytes &size=20;
+};
+
+type OptionRelatedInstrumentsGroups = unit {
+    group_size: GroupSize;
+    option_related_instruments_group: OptionRelatedInstrumentsGroup[self.group_size.num_in_group];
+};
+
+type OptionRelatedInstrumentsGroup = unit {
+    related_security_id: int32;
+    related_symbol: bytes &size=20;
+};
+
+type MdIncrementalRefreshTradeSummaryLegacy = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_trade_summary_groups: IncrementalRefreshTradeSummaryGroups;
+    incremental_refresh_trade_summary_order_id_groups: IncrementalRefreshTradeSummaryOrderIdGroups;
+};
+
+type IncrementalRefreshTradeSummaryGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_trade_summary_group: IncrementalRefreshTradeSummaryGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshTradeSummaryGroup = unit {
+    md_entry_px_ex: int64;
+    md_entry_size_short: int32;
+    security_id: int32;
+    rpt_seq: uint32;
+    number_of_orders: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_trade_entry_id: uint32;
+    : skip bytes &size=2;   # padding
+};
+
+type IncrementalRefreshTradeSummaryOrderIdGroups = unit {
+    group_size_8_byte: GroupSize8Byte;
+    incremental_refresh_trade_summary_order_id_group: IncrementalRefreshTradeSummaryOrderIdGroup[self.group_size_8_byte.num_in_group];
+};
+
+type IncrementalRefreshTradeSummaryOrderIdGroup = unit {
+    order_id: uint64;
+    last_qty: int32;
+    : skip bytes &size=4;   # padding
+};
+
+type MdIncrementalRefreshOrderBookLegacy = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_order_book_groups: IncrementalRefreshOrderBookGroups;
+};
+
+type IncrementalRefreshOrderBookGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_order_book_group: IncrementalRefreshOrderBookGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshOrderBookGroup = unit {
+    order_id_optional: uint64;
+    md_order_priority: uint64;
+    md_entry_px_optional_ex: int64;
+    md_display_qty_optional: int32;
+    security_id: int32;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
+    : skip bytes &size=6;   # padding
+};
+
+type SnapshotFullRefreshOrderBookLegacy = unit {
+    last_msg_seq_num_processed: uint32;
+    tot_num_reports: uint32;
+    security_id: int32;
+    no_chunks: uint32;
+    current_chunk: uint32;
+    transact_time: uint64;
+    snapshot_full_refresh_order_book_groups: SnapshotFullRefreshOrderBookGroups;
+};
+
+type SnapshotFullRefreshOrderBookGroups = unit {
+    group_size: GroupSize;
+    snapshot_full_refresh_order_book_group: SnapshotFullRefreshOrderBookGroup[self.group_size.num_in_group];
+};
+
+type SnapshotFullRefreshOrderBookGroup = unit {
+    order_id: uint64;
+    md_order_priority: uint64;
+    md_entry_px_ex: int64;
+    md_display_qty: int32;
+    md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
+};
+
+type MdIncrementalRefreshBook = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_book_groups: IncrementalRefreshBookGroups;
+    incremental_refresh_book_order_id_groups: IncrementalRefreshBookOrderIdGroups;
+};
+
+type MdIncrementalRefreshOrderBook = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_order_book_groups: IncrementalRefreshOrderBookGroups;
+};
+
+type MdIncrementalRefreshTradeSummary = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_trade_summary_groups: IncrementalRefreshTradeSummaryGroups;
+    incremental_refresh_trade_summary_order_id_groups: IncrementalRefreshTradeSummaryOrderIdGroups;
+};
+
+type MdIncrementalRefreshDailyStatistics = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_daily_statistics_groups: IncrementalRefreshDailyStatisticsGroups;
+};
+
+type MdIncrementalRefreshLimitsBanding = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_limits_banding_groups: IncrementalRefreshLimitsBandingGroups;
+};
+
+type MdIncrementalRefreshSessionStatistics = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_session_statistics_groups: IncrementalRefreshSessionStatisticsGroups;
+};
+
+type SnapshotFullRefresh = unit {
+    last_msg_seq_num_processed: uint32;
+    tot_num_reports: uint32;
+    security_id: int32;
+    rpt_seq: uint32;
+    transact_time: uint64;
+    last_update_time: uint64;
+    trade_date: uint16;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    high_limit_price_ex: int64;
+    low_limit_price_ex: int64;
+    max_price_variation_ex: int64;
+    snapshot_full_refresh_groups: SnapshotFullRefreshGroups;
+};
+
+type SnapshotFullRefreshOrderBook = unit {
+    last_msg_seq_num_processed: uint32;
+    tot_num_reports: uint32;
+    security_id: int32;
+    no_chunks: uint32;
+    current_chunk: uint32;
+    transact_time: uint64;
+    snapshot_full_refresh_order_book_groups: SnapshotFullRefreshOrderBookGroups;
+};
+
+type MdInstrumentDefinitionFuture = unit {
+    match_event_indicator: MatchEventIndicator;
+    tot_num_reports_optional: uint32;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    last_update_time: uint64;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    appl_id: int16;
+    market_segment_id: uint8;
+    underlying_product: uint8;
+    security_exchange: bytes &size=4;
+    security_group: bytes &size=6;
+    asset: bytes &size=6;
+    symbol: bytes &size=20;
+    security_id: int32;
+    security_type: bytes &size=6;
+    cfi_code: bytes &size=6;
+    maturity_month_year: MaturityMonthYear;
+    currency: bytes &size=3;
+    settl_currency: bytes &size=3;
+    match_algorithm: bytes &size=1;
+    min_trade_vol: uint32;
+    max_trade_vol: uint32;
+    min_price_increment: int64;
+    display_factor_ex: int64;
+    main_fraction: uint8;
+    sub_fraction: uint8;
+    price_display_format: uint8;
+    unit_of_measure: bytes &size=30;
+    unit_of_measure_qty_ex: int64;
+    trading_reference_price_ex: int64;
+    settl_price_type: SettlPriceType;
+    open_interest_qty: int32;
+    cleared_volume: int32;
+    high_limit_price_ex: int64;
+    low_limit_price_ex: int64;
+    max_price_variation_ex: int64;
+    decay_quantity: int32;
+    decay_start_date: uint16;
+    original_contract_size: int32;
+    contract_multiplier: int32;
+    contract_multiplier_unit: int8;
+    flow_schedule_type: int8;
+    min_price_increment_amount_ex: int64;
+    user_defined_instrument: bytes &size=1;
+    trading_reference_date: uint16;
+    events_groups: EventsGroups;
+    feed_types_groups: FeedTypesGroups;
+    inst_attrib_groups: InstAttribGroups;
+    lot_type_rules_groups: LotTypeRulesGroups;
+};
+
+type MdInstrumentDefinitionOption = unit {
+    match_event_indicator: MatchEventIndicator;
+    tot_num_reports_optional: uint32;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    last_update_time: uint64;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    appl_id: int16;
+    market_segment_id: uint8;
+    underlying_product: uint8;
+    security_exchange: bytes &size=4;
+    security_group: bytes &size=6;
+    asset: bytes &size=6;
+    symbol: bytes &size=20;
+    security_id: int32;
+    security_type: bytes &size=6;
+    cfi_code: bytes &size=6;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    maturity_month_year: MaturityMonthYear;
+    currency: bytes &size=3;
+    strike_price_ex: int64;
+    strike_currency: bytes &size=3;
+    settl_currency: bytes &size=3;
+    min_cab_price_ex: int64;
+    match_algorithm: bytes &size=1;
+    min_trade_vol: uint32;
+    max_trade_vol: uint32;
+    min_price_increment_optional: int64;
+    min_price_increment_amount_ex: int64;
+    display_factor_ex: int64;
+    tick_rule: int8;
+    main_fraction: uint8;
+    sub_fraction: uint8;
+    price_display_format: uint8;
+    unit_of_measure: bytes &size=30;
+    unit_of_measure_qty_ex: int64;
+    trading_reference_price_ex: int64;
+    settl_price_type: SettlPriceType;
+    cleared_volume: int32;
+    open_interest_qty: int32;
+    low_limit_price_ex: int64;
+    high_limit_price_ex: int64;
+    user_defined_instrument: bytes &size=1;
+    trading_reference_date: uint16;
+    events_groups: EventsGroups;
+    feed_types_groups: FeedTypesGroups;
+    inst_attrib_groups: InstAttribGroups;
+    lot_type_rules_groups: LotTypeRulesGroups;
+    option_underlyings_groups: OptionUnderlyingsGroups;
+    option_related_instruments_groups: OptionRelatedInstrumentsGroups;
+};
+
+type MdInstrumentDefinitionSpread = unit {
+    match_event_indicator: MatchEventIndicator;
+    tot_num_reports_optional: uint32;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    last_update_time: uint64;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    appl_id: int16;
+    market_segment_id: uint8;
+    underlying_product_optional: uint8;
+    security_exchange: bytes &size=4;
+    security_group: bytes &size=6;
+    asset: bytes &size=6;
+    symbol: bytes &size=20;
+    security_id: int32;
+    security_type: bytes &size=6;
+    cfi_code: bytes &size=6;
+    maturity_month_year: MaturityMonthYear;
+    currency: bytes &size=3;
+    security_sub_type: bytes &size=5;
+    user_defined_instrument: bytes &size=1;
+    match_algorithm: bytes &size=1;
+    min_trade_vol: uint32;
+    max_trade_vol: uint32;
+    min_price_increment_optional: int64;
+    display_factor_ex: int64;
+    price_display_format: uint8;
+    price_ratio_ex: int64;
+    tick_rule: int8;
+    unit_of_measure: bytes &size=30;
+    trading_reference_price_ex: int64;
+    settl_price_type: SettlPriceType;
+    open_interest_qty: int32;
+    cleared_volume: int32;
+    high_limit_price_ex: int64;
+    low_limit_price_ex: int64;
+    max_price_variation_ex: int64;
+    main_fraction: uint8;
+    sub_fraction: uint8;
+    trading_reference_date: uint16;
+    events_groups: EventsGroups;
+    feed_types_groups: FeedTypesGroups;
+    inst_attrib_groups: InstAttribGroups;
+    lot_type_rules_groups: LotTypeRulesGroups;
+    legs_groups: LegsGroups;
+};
+
+type Negotiate = unit {
+    hmac_signature: bytes &size=32;
+    access_key_id: bytes &size=20;
+    uuid: uint64;
+    request_timestamp: uint64;
+    session: bytes &size=5;
+    firm: bytes &size=5;
+};
+
+type NegotiationReject = unit {
+    reason: bytes &size=48;
+    uuid: uint64;
+    request_timestamp: uint64;
+    error_codes: uint8 &convert=ErrorCodes($$);
+    : skip bytes &size=5;   # padding
+};
+
+type NegotiationResponse = unit {
+    uuid: uint64;
+    request_timestamp: uint64;
+    secret_key_secure_id_expiration: uint16;
+    : skip bytes &size=4;   # padding
+};
+
+type Terminate = unit {
+    reason: bytes &size=48;
+    uuid: uint64;
+    request_timestamp: uint64;
+    error_codes: uint8 &convert=ErrorCodes($$);
+    : skip bytes &size=5;   # padding
+};
+
+type MarketDataRequest = unit {
+    md_req_id: uint32;
+    subscription_req_type: uint8 &convert=SubscriptionReqType($$);
+    market_data_request_security_groups: MarketDataRequestSecurityGroups;
+    market_data_request_related_symbol_groups: MarketDataRequestRelatedSymbolGroups;
+};
+
+type MarketDataRequestSecurityGroups = unit {
+    group_size: GroupSize;
+    market_data_request_security_group: MarketDataRequestSecurityGroup[self.group_size.num_in_group];
+};
+
+type MarketDataRequestSecurityGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type MarketDataRequestRelatedSymbolGroups = unit {
+    group_size: GroupSize;
+    market_data_request_related_symbol_group: MarketDataRequestRelatedSymbolGroup[self.group_size.num_in_group];
+};
+
+type MarketDataRequestRelatedSymbolGroup = unit {
+    security_id: int32;
+};
+
+type RequestAck = unit {
+    md_req_id: uint32;
+    subscription_req_type: uint8 &convert=SubscriptionReqType($$);
+    md_req_id_status: uint8 &convert=MdReqIdStatus($$);
+    request_ack_security_groups: RequestAckSecurityGroups;
+    request_ack_related_symbol_groups: RequestAckRelatedSymbolGroups;
+};
+
+type RequestAckSecurityGroups = unit {
+    group_size: GroupSize;
+    request_ack_security_group: RequestAckSecurityGroup[self.group_size.num_in_group];
+};
+
+type RequestAckSecurityGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type RequestAckRelatedSymbolGroups = unit {
+    group_size: GroupSize;
+    request_ack_related_symbol_group: RequestAckRelatedSymbolGroup[self.group_size.num_in_group];
+};
+
+type RequestAckRelatedSymbolGroup = unit {
+    security_id: int32;
+};
+
+type RequestReject = unit {
+    md_req_id_optional: uint32;
+    md_req_rej_reason: uint8 &convert=MdReqRejReason($$);
+    text: bytes &size=100;
+};
+
+type SecurityListRequest = unit {
+    md_req_id: uint32;
+    subscription_req_type: uint8 &convert=SubscriptionReqType($$);
+    security_list_request_security_groups: SecurityListRequestSecurityGroups;
+    security_list_request_related_symbol_groups: SecurityListRequestRelatedSymbolGroups;
+};
+
+type SecurityListRequestSecurityGroups = unit {
+    group_size: GroupSize;
+    security_list_request_security_group: SecurityListRequestSecurityGroup[self.group_size.num_in_group];
+};
+
+type SecurityListRequestSecurityGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type SecurityListRequestRelatedSymbolGroups = unit {
+    group_size: GroupSize;
+    security_list_request_related_symbol_group: SecurityListRequestRelatedSymbolGroup[self.group_size.num_in_group];
+};
+
+type SecurityListRequestRelatedSymbolGroup = unit {
+    security_id: int32;
+};
+
+type SecurityStatusRequest = unit {
+    md_req_id: uint32;
+    subscription_req_type: uint8 &convert=SubscriptionReqType($$);
+    security_status_request_security_groups: SecurityStatusRequestSecurityGroups;
+    security_status_request_related_symbol_groups: SecurityStatusRequestRelatedSymbolGroups;
+};
+
+type SecurityStatusRequestSecurityGroups = unit {
+    group_size: GroupSize;
+    security_status_request_security_group: SecurityStatusRequestSecurityGroup[self.group_size.num_in_group];
+};
+
+type SecurityStatusRequestSecurityGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type SecurityStatusRequestRelatedSymbolGroups = unit {
+    group_size: GroupSize;
+    security_status_request_related_symbol_group: SecurityStatusRequestRelatedSymbolGroup[self.group_size.num_in_group];
+};
+
+type SecurityStatusRequestRelatedSymbolGroup = unit {
+    security_id: int32;
+};
+
+type TemplateId = enum {
+    ChannelReset = 4,
+    AdminHeartbeat = 12,
+    AdminLogin = 15,
+    AdminLogout = 16,
+    MdInstrumentDefinitionFutureLegacy = 27,
+    MdInstrumentDefinitionSpreadLegacy = 29,
+    SecurityStatus = 30,
+    MdIncrementalRefreshBookLegacy = 32,
+    MdIncrementalRefreshDailyStatisticsLegacy = 33,
+    MdIncrementalRefreshLimitsBandingLegacy = 34,
+    MdIncrementalRefreshSessionStatisticsLegacy = 35,
+    MdIncrementalRefreshVolume = 37,
+    SnapshotFullRefreshLegacy = 38,
+    QuoteRequest = 39,
+    MdInstrumentDefinitionOptionLegacy = 41,
+    MdIncrementalRefreshTradeSummaryLegacy = 42,
+    MdIncrementalRefreshOrderBookLegacy = 43,
+    SnapshotFullRefreshOrderBookLegacy = 44,
+    MdIncrementalRefreshBook = 46,
+    MdIncrementalRefreshOrderBook = 47,
+    MdIncrementalRefreshTradeSummary = 48,
+    MdIncrementalRefreshDailyStatistics = 49,
+    MdIncrementalRefreshLimitsBanding = 50,
+    MdIncrementalRefreshSessionStatistics = 51,
+    SnapshotFullRefresh = 52,
+    SnapshotFullRefreshOrderBook = 53,
+    MdInstrumentDefinitionFuture = 54,
+    MdInstrumentDefinitionOption = 55,
+    MdInstrumentDefinitionSpread = 56,
+    Negotiate = 200,
+    NegotiationReject = 201,
+    NegotiationResponse = 202,
+    Terminate = 203,
+    MarketDataRequest = 205,
+    RequestAck = 206,
+    RequestReject = 207,
+    SecurityListRequest = 208,
+    SecurityStatusRequest = 209,
+    SubscriberHeartbeat = 210,
+};
+
+type SecurityUpdateAction = enum {
+    Add = 0x41,
+    Delete = 0x44,
+    Modify = 0x4d,
+};
+
+type MdSecurityTradingStatus = enum {
+    TradingHalt = 2,
+    Close = 4,
+    NewPriceIndication = 15,
+    ReadyToTrade = 17,
+    NotAvailableForTrading = 18,
+    UnknownOrInvalid = 20,
+    PreOpen = 21,
+    PreCross = 24,
+    Cross = 25,
+    PostClose = 26,
+    NoChange = 103,
+};
+
+type EventType = enum {
+    Activation = 5,
+    LastEligibleTradeDate = 7,
+};
+
+type LegSide = enum {
+    BuySide = 1,
+    SellSide = 2,
+};
+
+type SecurityTradingStatus = enum {
+    TradingHalt = 2,
+    Close = 4,
+    NewPriceIndication = 15,
+    ReadyToTrade = 17,
+    NotAvailableForTrading = 18,
+    UnknownorInvalid = 20,
+    PreOpen = 21,
+    PreCross = 24,
+    Cross = 25,
+    PostClose = 26,
+    NoChange = 103,
+};
+
+type HaltReason = enum {
+    GroupSchedule = 0,
+    SurveillanceIntervention = 1,
+    MarketEvent = 2,
+    InstrumentActivation = 3,
+    InstrumentExpiration = 4,
+    Unknown = 5,
+    RecoveryInProcess = 6,
+};
+
+type SecurityTradingEvent = enum {
+    NoEvent = 0,
+    NoCancel = 1,
+    ResetStatistics = 4,
+    ImpliedMatchingOn = 5,
+    ImpliedMatchingOff = 6,
+};
+
+type MdUpdateAction = enum {
+    New = 0,
+    Change = 1,
+    Delete = 2,
+    DeleteThru = 3,
+    DeleteFrom = 4,
+    Overlay = 5,
+};
+
+type MdEntryTypeBook = enum {
+    Bid = 0x30,
+    Offer = 0x31,
+    ImpliedBid = 0x45,
+    ImpliedOffer = 0x46,
+    BookReset = 0x4a,
+};
+
+type OrderUpdateAction = enum {
+    New = 0,
+    Update = 1,
+    Delete = 2,
+};
+
+type MdEntryTypeDailyStatistics = enum {
+    SettlementPrice = 0x36,
+    ClearedVolume = 0x42,
+    OpenInterest = 0x43,
+    FixingPrice = 0x57,
+};
+
+type OpenCloseSettlFlag = enum {
+    DailyOpenPrice = 0,
+    IndicativeOpeningPrice = 5,
+};
+
+type MdEntryTypeStatistics = enum {
+    OpenPrice = 0x34,
+    HighTrade = 0x37,
+    LowTrade = 0x38,
+    HighestBid = 0x4e,
+    LowestOffer = 0x4f,
+};
+
+type MdEntryType = enum {
+    Bid = 0x30,
+    Offer = 0x31,
+    Trade = 0x32,
+    OpenPrice = 0x34,
+    SettlementPrice = 0x36,
+    TradingSessionHighPrice = 0x37,
+    TradingSessionLowPrice = 0x38,
+    ClearedVolume = 0x42,
+    OpenInterest = 0x43,
+    ImpliedBid = 0x45,
+    ImpliedOffer = 0x46,
+    BookReset = 0x4a,
+    SessionHighBid = 0x4e,
+    SessionLowOffer = 0x4f,
+    FixingPrice = 0x57,
+    ElectronicVolume = 0x65,
+    ThresholdLimitsAndPriceBandVariation = 0x67,
+};
+
+type PutOrCall = enum {
+    Put = 0,
+    Call = 1,
+};
+
+type AggressorSide = enum {
+    NoAggressor = 0,
+    Buy = 1,
+    Sell = 2,
+};
+
+type ErrorCodes = enum {
+    HmacReject = 0,
+    InvalidValue = 1,
+    SlowConnection = 2,
+    Other = 3,
+};
+
+type SubscriptionReqType = enum {
+    Snapshot = 0,
+    SnapshotAndUpdates = 1,
+    Unsubscribe = 2,
+};
+
+type MdReqIdStatus = enum {
+    FullAck = 0,
+    PartialAck = 1,
+};
+
+type MdReqRejReason = enum {
+    UnknownSecurity = 0,
+    UnknownMessage = 1,
+    UnsupportedScope = 2,
+    Other = 3,
+};
+

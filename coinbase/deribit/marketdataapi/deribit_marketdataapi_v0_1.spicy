@@ -1,0 +1,287 @@
+module CoinbaseDeribitMarketdataapiSbeV01;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type DeribitMarketdataapiV01 = unit {
+    packet_header: PacketHeader;
+    md_message: MdMessage[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    sending_time: int64;
+    seq_num: int64;
+    channel_id: int32;
+    packet_type: PacketType;
+    message_count: uint16;
+};
+
+type PacketType = unit {
+    incremental_update: bytes &size=1;
+    snapshot: bytes &size=1;
+    retransmit: bytes &size=1;
+    : skip bytes &size=2;   # padding
+};
+
+type MdMessage = unit {
+    md_message_header: MdMessageHeader;
+    switch ( self.md_message_header.template_id ) {
+        TemplateId::InstrumentMessage -> instrument_message: InstrumentMessage;
+        TemplateId::TradingStatusUpdateMessage -> trading_status_update_message: TradingStatusUpdateMessage;
+        TemplateId::InstrumentInfoMessage -> instrument_info_message: InstrumentInfoMessage;
+        TemplateId::InstrumentRefMessage -> instrument_ref_message: InstrumentRefMessage;
+        TemplateId::BidPutMessage -> bid_put_message: BidPutMessage;
+        TemplateId::AskPutMessage -> ask_put_message: AskPutMessage;
+        TemplateId::BidQtyReducedMessage -> bid_qty_reduced_message: BidQtyReducedMessage;
+        TemplateId::AskQtyReducedMessage -> ask_qty_reduced_message: AskQtyReducedMessage;
+        TemplateId::BidDeleteMessage -> bid_delete_message: BidDeleteMessage;
+        TemplateId::AskDeleteMessage -> ask_delete_message: AskDeleteMessage;
+        TemplateId::TradeSummaryMessage -> trade_summary_message: TradeSummaryMessage;
+        TemplateId::TradeMessage -> trade_message: TradeMessage;
+        TemplateId::BlockTradeMessage -> block_trade_message: BlockTradeMessage;
+        TemplateId::SnapshotHeaderMessage -> snapshot_header_message: SnapshotHeaderMessage;
+        TemplateId::SnapshotTrailerMessage -> snapshot_trailer_message: SnapshotTrailerMessage;
+        TemplateId::EndOfCycleMessage -> end_of_cycle_message: EndOfCycleMessage;
+        TemplateId::RetransmitRequestMessage -> retransmit_request_message: RetransmitRequestMessage;
+        TemplateId::RetransmitRejectMessage -> retransmit_reject_message: RetransmitRejectMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MdMessageHeader = unit {
+    message_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_version: uint16;
+    message_flags: MessageFlags;
+    transact_time: int64;
+};
+
+type MessageFlags = unit {
+    start_of_transaction: bytes &size=1;
+    end_of_transaction: bytes &size=1;
+    : skip bytes &size=2;   # padding
+};
+
+type InstrumentMessage = unit {
+    instrument_id: int64;
+    symbol: bytes &size=64;
+    name: bytes &size=128;
+    base_currency: bytes &size=8;
+    quote_currency: bytes &size=8;
+    base_increment: int64;
+    tick_size: int64;
+    strike_price: int64;
+    large_tick_size_0: int64;
+    large_tick_threshold_0: int64;
+    large_tick_size_1: int64;
+    large_tick_threshold_1: int64;
+    creation_time: int64;
+    expiry_time: int64;
+    logical_expiry: LogicalExpiry;
+    flags: Flags;
+    type_field: int8 &convert=Type($$);
+    status: int8 &convert=Status($$);
+    quantity_exponent: int8;
+};
+
+type LogicalExpiry = unit {
+    year: int16;
+    month: int16;
+    week_of_month: int16;
+    day_of_month: int16;
+};
+
+type Flags = unit {
+    is_reversed: bytes &size=1;
+    is_put_option: bytes &size=1;
+    is_perpetual: bytes &size=1;
+    reserved_29: bytes &size=4;
+};
+
+type TradingStatusUpdateMessage = unit {
+    instrument_id: int64;
+    trading_status: int8 &convert=TradingStatus($$);
+};
+
+type InstrumentInfoMessage = unit {
+    instrument_id: int64;
+    min_sell_price: int64;
+    max_buy_price: int64;
+    index_price: int64;
+    mark_price: int64;
+};
+
+type InstrumentRefMessage = unit {
+    instrument_id: int64;
+    current_funding: bytes &size=8;
+    funding_8h: bytes &size=8;
+    estimated_delivery_price: int64;
+    delivery_price: int64;
+    settlement_price: int64;
+};
+
+type BidPutMessage = unit {
+    order_id: int64;
+    instrument_id: int64;
+    quantity_mantissa: int64;
+    price: int64;
+};
+
+type AskPutMessage = unit {
+    order_id: int64;
+    instrument_id: int64;
+    quantity_mantissa: int64;
+    price: int64;
+};
+
+type BidQtyReducedMessage = unit {
+    order_id: int64;
+    instrument_id: int64;
+    quantity_mantissa: int64;
+};
+
+type AskQtyReducedMessage = unit {
+    order_id: int64;
+    instrument_id: int64;
+    quantity_mantissa: int64;
+};
+
+type BidDeleteMessage = unit {
+    order_id: int64;
+    instrument_id: int64;
+};
+
+type AskDeleteMessage = unit {
+    order_id: int64;
+    instrument_id: int64;
+};
+
+type TradeSummaryMessage = unit {
+    instrument_id: int64;
+    taker_order_id: int64;
+    total_filled_mantissa: int64;
+    deepest_price: int64;
+    mark_price: int64;
+    index_price: int64;
+    implied_volatility: bytes &size=8;
+    taker_flags: TakerFlags;
+};
+
+type TakerFlags = unit {
+    is_sell: bytes &size=1;
+    is_liquidation: bytes &size=1;
+    reserved_30: bytes &size=4;
+};
+
+type TradeMessage = unit {
+    match_id: int64;
+    instrument_id: int64;
+    maker_order_id: int64;
+    fill_qty_mantissa: int64;
+    fill_price: int64;
+    maker_flags: MakerFlags;
+};
+
+type MakerFlags = unit {
+    is_sell: bytes &size=1;
+    is_liquidation: bytes &size=1;
+    reserved_30: bytes &size=4;
+};
+
+type BlockTradeMessage = unit {
+    match_id: int64;
+    instrument_id: int64;
+    block_trade_id: int64;
+    block_rfq_id: int64;
+    fill_qty_mantissa: int64;
+    fill_price: int64;
+    mark_price: int64;
+    index_price: int64;
+    implied_volatility: bytes &size=8;
+    taker_flags: TakerFlags;
+    number_of_legs: uint16;
+};
+
+type SnapshotHeaderMessage = unit {
+    instrument_id: int64;
+    incremental_timestamp: int64;
+    incremental_seq_num: int64;
+};
+
+type SnapshotTrailerMessage = unit {
+    instrument_id: int64;
+    timestamp: int64;
+    increment_seq_num: int64;
+};
+
+type EndOfCycleMessage = unit {
+    active_instrument_count: int32;
+};
+
+type RetransmitRequestMessage = unit {
+    begin_seq_num: int64;
+    message_count_uint_8: uint8;
+};
+
+type RetransmitRejectMessage = unit {
+    retry_delay_nanos: int64;
+    details: bytes &size=40;
+    reason: int8 &convert=Reason($$);
+};
+
+type TemplateId = enum {
+    InstrumentMessage = 10,
+    TradingStatusUpdateMessage = 12,
+    InstrumentInfoMessage = 13,
+    InstrumentRefMessage = 14,
+    BidPutMessage = 20,
+    AskPutMessage = 21,
+    BidQtyReducedMessage = 22,
+    AskQtyReducedMessage = 23,
+    BidDeleteMessage = 24,
+    AskDeleteMessage = 25,
+    TradeSummaryMessage = 30,
+    TradeMessage = 31,
+    BlockTradeMessage = 33,
+    SnapshotHeaderMessage = 100,
+    SnapshotTrailerMessage = 101,
+    EndOfCycleMessage = 119,
+    RetransmitRequestMessage = 200,
+    RetransmitRejectMessage = 202,
+};
+
+type Type = enum {
+    PerpFuture = 0,
+    Option = 1,
+    Spot = 2,
+    FutureCombo = 3,
+    OptionCombo = 4,
+    DatedFuture = 5,
+};
+
+type Status = enum {
+    Open = 0,
+    Inactive = 1,
+    Settlement = 2,
+    Delivered = 3,
+    Locked = 4,
+    Halted = 5,
+};
+
+type TradingStatus = enum {
+    Open = 0,
+    Inactive = 1,
+    Settlement = 2,
+    Delivered = 3,
+    Locked = 4,
+    Halted = 5,
+};
+
+type Reason = enum {
+    SeqTooLow = 1,
+    SeqTooHigh = 2,
+    RateLimitExceeded = 3,
+    OtherError = 4,
+};
+

@@ -1,0 +1,121 @@
+module NyseOptionsStreamprotocolPillarstreamV16;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NyseOptionsStreamprotocolV16 = unit {
+    login_message: LoginMessage;
+    login_response: LoginResponse;
+    stream_avail: StreamAvail;
+    heartbeat: Heartbeat;
+    open: Open;
+    open_response: OpenResponse;
+    close: Close;
+    close_response: CloseResponse;
+    seq_msg: SeqMsg;
+};
+
+type LoginMessage = unit {
+    msg_header: MsgHeader;
+    username: bytes &size=16;
+    password: bytes &size=32;
+    mic: bytes &size=4;
+    version: bytes &size=20;
+};
+
+type MsgHeader = unit {
+    msg_type: uint16 &convert=MsgType($$);
+    msg_length: uint16;
+};
+
+type LoginResponse = unit {
+    msg_header: MsgHeader;
+    username: bytes &size=16;
+    status: uint8 &convert=Status($$);
+};
+
+type StreamAvail = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    next_seq: uint64;
+    access: uint8;
+};
+
+type StreamId = unit {
+    sess: uint32;
+    user: uint32;
+};
+
+type Heartbeat = unit {
+    msg_header: MsgHeader;
+};
+
+type Open = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    start_seq: uint64;
+    end_seq: uint64;
+    access: uint8;
+    mode: uint8;
+};
+
+type OpenResponse = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    status: uint8 &convert=Status($$);
+    access: uint8;
+};
+
+type Close = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+};
+
+type CloseResponse = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    status: uint8 &convert=Status($$);
+};
+
+type SeqMsg = unit {
+    msg_header: MsgHeader;
+    seq_msg_id: SeqMsgId;
+    reserved_4: bytes &size=4;
+    timestamp: uint64;
+    seq_msg_header: SeqMsgHeader;
+    sequenced_message: SequencedMessage;
+};
+
+type SeqMsgId = unit {
+    stream_id: StreamId;
+    seq: uint64;
+};
+
+type SeqMsgHeader = unit {
+    seq_msg_type: uint16;
+    seq_msg_length: uint16;
+};
+
+type SequencedMessage = unit {
+    seq_msg_header: SeqMsgHeader;
+    data: bytes &size=self.seq_msg_header.seq_msg_length - 4;
+};
+
+type MsgType = enum {
+    Login = 0x0201,
+    LoginResponse = 0x0202,
+    StreamAvail = 0x0203,
+    Heartbeat = 0x0204,
+    Open = 0x0205,
+    OpenResponse = 0x0206,
+    Close = 0x0207,
+    CloseResponse = 0x0208,
+    SeqMsg = 0x0905,
+};
+
+type Status = enum {
+    RequestProcessedSuccessfully = 0,
+    NotLoggedIn = 18,
+};
+

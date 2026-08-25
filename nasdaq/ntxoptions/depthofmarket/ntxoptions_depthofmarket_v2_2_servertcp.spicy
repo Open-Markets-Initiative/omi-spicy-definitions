@@ -1,0 +1,407 @@
+module NasdaqNtxoptionsDepthofmarketItchV22ServerTcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NtxoptionsDepthofmarketV22 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_tcp_packet_header: ServerTcpPacketHeader;
+    switch ( self.server_tcp_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerTcpPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::DerivativeDirectoryMessage -> derivative_directory_message: DerivativeDirectoryMessage;
+        SequencedMessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        SequencedMessageType::AddOrderShortFormMessage -> add_order_short_form_message: AddOrderShortFormMessage;
+        SequencedMessageType::AddOrderLongFormMessage -> add_order_long_form_message: AddOrderLongFormMessage;
+        SequencedMessageType::AddQuoteShortFormMessage -> add_quote_short_form_message: AddQuoteShortFormMessage;
+        SequencedMessageType::AddQuoteLongFormMessage -> add_quote_long_form_message: AddQuoteLongFormMessage;
+        SequencedMessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        SequencedMessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        SequencedMessageType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        SequencedMessageType::OrderReplaceShortFormMessage -> order_replace_short_form_message: OrderReplaceShortFormMessage;
+        SequencedMessageType::OrderReplaceLongFormMessage -> order_replace_long_form_message: OrderReplaceLongFormMessage;
+        SequencedMessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        SequencedMessageType::OrderChangeMessage -> order_change_message: OrderChangeMessage;
+        SequencedMessageType::QuoteReplaceShortFormMessage -> quote_replace_short_form_message: QuoteReplaceShortFormMessage;
+        SequencedMessageType::QuoteReplaceLongFormMessage -> quote_replace_long_form_message: QuoteReplaceLongFormMessage;
+        SequencedMessageType::QuoteDeleteMessage -> quote_delete_message: QuoteDeleteMessage;
+        SequencedMessageType::TradeMessage -> trade_message: TradeMessage;
+        SequencedMessageType::NetOrderImbalanceMessage -> net_order_imbalance_message: NetOrderImbalanceMessage;
+        SequencedMessageType::EndOfReplaySequenceMessage -> end_of_replay_sequence_message: EndOfReplaySequenceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type DerivativeDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    security_symbol: bytes &size=6;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_date: uint8;
+    explicit_strike_price: uint32;
+    option_type: uint8 &convert=OptionType($$);
+    underlying_symbol: bytes &size=13;
+    closing_type: uint8 &convert=ClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+    isin: bytes &size=12;
+    tick_size_table_id: uint16;
+    price_notation: bytes &size=1;
+    volume_notation: bytes &size=1;
+    financial_product: uint16;
+    market_segment_id: bytes &size=1;
+    trading_currency: bytes &size=3;
+    mic: bytes &size=4;
+    instrument_long_name: bytes &size=16;
+};
+
+type TradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type AddOrderShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_reference_number: uint64;
+    market_side: uint8 &convert=MarketSide($$);
+    order_capacity: bytes &size=1;
+    price_short: uint16;
+    volume_short: uint16;
+    rank: uint16;
+};
+
+type AddOrderLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_reference_number: uint64;
+    market_side: uint8 &convert=MarketSide($$);
+    order_capacity: bytes &size=1;
+    price_long: uint32;
+    volume_long: uint32;
+    rank: uint16;
+};
+
+type AddQuoteShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    bid_reference_number: uint64;
+    ask_reference_number: uint64;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    ask_price_short: uint16;
+    ask_size_short: uint16;
+};
+
+type AddQuoteLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    bid_reference_number: uint64;
+    ask_reference_number: uint64;
+    bid_price_long: uint32;
+    bid_size_long: uint32;
+    ask_price_long: uint32;
+    ask_size_long: uint32;
+};
+
+type OrderExecutedMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    strategy_id: uint32;
+    reference_number: uint64;
+    executed_volume: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    strategy_id: uint32;
+    reference_number: uint64;
+    cross_number: uint32;
+    match_number: uint32;
+    printable: uint8 &convert=Printable($$);
+    price_long: uint32;
+    volume_long: uint32;
+};
+
+type OrderCancelMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_reference_number: uint64;
+    cancelled_volume: uint32;
+};
+
+type OrderReplaceShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    original_reference_number: uint64;
+    new_reference_number: uint64;
+    price_short: uint16;
+    volume_short: uint16;
+};
+
+type OrderReplaceLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    original_reference_number: uint64;
+    new_reference_number: uint64;
+    price_long: uint32;
+    volume_long: uint32;
+};
+
+type OrderDeleteMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    reference_number: uint64;
+};
+
+type OrderChangeMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    reference_number: uint64;
+    change_reason: uint8 &convert=ChangeReason($$);
+    price_long: uint32;
+    volume_long: uint32;
+};
+
+type QuoteReplaceShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    original_bid_reference_number: uint64;
+    bid_reference_number: uint64;
+    original_ask_reference_number: uint64;
+    ask_reference_number: uint64;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    ask_price_short: uint16;
+    ask_size_short: uint16;
+};
+
+type QuoteReplaceLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    original_bid_reference_number: uint64;
+    bid_reference_number: uint64;
+    original_ask_reference_number: uint64;
+    ask_reference_number: uint64;
+    bid_price_long: uint32;
+    bid_size_long: uint32;
+    ask_price_long: uint32;
+    ask_size_long: uint32;
+};
+
+type QuoteDeleteMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    bid_reference_number: uint64;
+    ask_reference_number: uint64;
+};
+
+type TradeMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+    strategy_id: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    price_long: uint32;
+    volume_long: uint32;
+    printable: uint8 &convert=Printable($$);
+    trade_type: uint8 &convert=TradeType($$);
+};
+
+type NetOrderImbalanceMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    auction_id: uint32;
+    auction_type: uint8 &convert=AuctionType($$);
+    paired_quantity: uint32;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    imbalance_price: uint32;
+    imbalance_volume: uint32;
+    customer_firm_indicator: bytes &size=1;
+    best_bid_price: uint32;
+    best_bid_quantity: uint32;
+    best_ask_price: uint32;
+    best_ask_quantity: uint32;
+};
+
+type EndOfReplaySequenceMessage = unit {
+    end_of_replay_sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    DerivativeDirectoryMessage = 0x52,
+    TradingActionMessage = 0x48,
+    AddOrderShortFormMessage = 0x61,
+    AddOrderLongFormMessage = 0x41,
+    AddQuoteShortFormMessage = 0x6a,
+    AddQuoteLongFormMessage = 0x4a,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderCancelMessage = 0x58,
+    OrderReplaceShortFormMessage = 0x75,
+    OrderReplaceLongFormMessage = 0x55,
+    OrderDeleteMessage = 0x44,
+    OrderChangeMessage = 0x47,
+    QuoteReplaceShortFormMessage = 0x6b,
+    QuoteReplaceLongFormMessage = 0x4b,
+    QuoteDeleteMessage = 0x59,
+    TradeMessage = 0x51,
+    NetOrderImbalanceMessage = 0x49,
+    EndOfReplaySequenceMessage = 0x4d,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    EndOfNormalHoursProcessing = 0x4e,
+    EndOfLateHoursProcessing = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type OptionType = enum {
+    CallOption = 0x43,
+    PutOption = 0x50,
+    Na = 0x4e,
+};
+
+type ClosingType = enum {
+    NormalHours = 0x4e,
+    LateHours = 0x4c,
+};
+
+type Tradable = enum {
+    InstrumentIsTradable = 0x59,
+    InstrumentIsNotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    BuySideTradingSuspended = 0x42,
+    SellSideTradingSuspended = 0x53,
+    PreOpen = 0x49,
+    OpeningAuction = 0x4f,
+    ReOpening = 0x52,
+    ContinuousTrading = 0x54,
+    Closed = 0x58,
+};
+
+type MarketSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    BuyAon = 0x58,
+    SellAon = 0x59,
+};
+
+type Printable = enum {
+    Nonprintable = 0x4e,
+    Printable = 0x59,
+};
+
+type ChangeReason = enum {
+    User = 0x55,
+    Reprice = 0x52,
+    Suspend = 0x53,
+};
+
+type CrossType = enum {
+    AllAuctions = 0x41,
+    PriceImprovement = 0x50,
+    None = 0x4e,
+};
+
+type TradeType = enum {
+    ElectronicTrade = 0x45,
+};
+
+type AuctionType = enum {
+    Opening = 0x4f,
+    Reopening = 0x52,
+    PriceImprovement = 0x50,
+    OrderExposure = 0x49,
+};
+
+type ImbalanceDirection = enum {
+    BuyImbalance = 0x42,
+    SellImbalance = 0x53,
+};
+

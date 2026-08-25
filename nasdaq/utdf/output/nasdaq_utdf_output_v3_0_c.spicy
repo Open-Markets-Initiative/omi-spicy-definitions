@@ -1,0 +1,740 @@
+module NasdaqUtdfOutputUtpV30C;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NasdaqUtdfOutputV30C = unit {
+    udp_packet_header: UdpPacketHeader;
+    messages: Message[self.udp_packet_header.message_count];
+};
+
+type UdpPacketHeader = unit {
+    udp_session: bytes &size=10;
+    udp_sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        0x54 -> trade_message: TradeMessage;
+        0x41 -> administrative_message: AdministrativeMessage;
+        0x56 -> total_consolidated_volume_message: TotalConsolidatedVolumeMessage;
+        0x43 -> control_message: ControlMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    version: bytes &size=1;
+    message_category: bytes &size=1;
+};
+
+type TradeMessage = unit {
+    trade_message_type: bytes &size=1;
+    switch ( self.trade_message_type ) {
+        0x41 -> trade_report_message_shortform_message: TradeReportMessageShortformMessage;
+        0x57 -> trade_report_message_longform_message: TradeReportMessageLongformMessage;
+        0x5a -> trade_cancel_error_message: TradeCancelErrorMessage;
+        0x59 -> trade_correction_message: TradeCorrectionMessage;
+        0x48 -> prior_day_as_of_trade_message: PriorDayAsOfTradeMessage;
+        0x4d -> fractional_trade_report_message_shortform_message: FractionalTradeReportMessageShortformMessage;
+        0x4e -> fractional_trade_report_message_longform_message: FractionalTradeReportMessageLongformMessage;
+        0x4f -> fractional_trade_cancel_error_message: FractionalTradeCancelErrorMessage;
+        0x50 -> fractional_trade_correction_message: FractionalTradeCorrectionMessage;
+        0x51 -> fractional_as_of_trade_message: FractionalAsOfTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TradeReportMessageShortformMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_short: bytes &size=5;
+    trade_id: uint64;
+    trade_price_short: uint16;
+    trade_volume_short: uint16;
+    sale_condition: bytes &size=4;
+    trade_through_exempt_flag: uint8 &convert=TradeThroughExemptFlag($$);
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    participant_price_change_indicator: uint8 &convert=ParticipantPriceChangeIndicator($$);
+};
+
+type TradeReportMessageLongformMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    trade_id: uint64;
+    trade_price_long: uint64;
+    trade_volume_long: uint32;
+    sale_condition: bytes &size=4;
+    trade_through_exempt_flag: uint8 &convert=TradeThroughExemptFlag($$);
+    sellers_sale_days: uint16;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    participant_price_change_indicator: uint8 &convert=ParticipantPriceChangeIndicator($$);
+};
+
+type TradeCancelErrorMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    trade_cancellation_type: uint8 &convert=TradeCancellationType($$);
+    original_trade_id: uint64;
+    original_trade_price: uint64;
+    original_volume_short: uint32;
+    original_sale_condition: bytes &size=4;
+    original_trade_through_exempt_flag: bytes &size=1;
+    original_sellers_sale_days: uint16;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_last_price: uint64;
+    consolidated_volume: uint64;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    consolidated_last_price_originator: bytes &size=1;
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+    market_participant_last_price: uint64;
+    market_participant_volume: uint64;
+};
+
+type TradeCorrectionMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    original_trade_id: uint64;
+    original_trade_price: uint64;
+    original_volume_short: uint32;
+    original_sale_condition: bytes &size=4;
+    original_trade_through_exempt_flag: bytes &size=1;
+    original_sellers_sale_days: uint16;
+    corrected_trade_id: uint64;
+    corrected_trade_price: uint64;
+    corrected_volume_short: uint32;
+    corrected_sale_condition: bytes &size=4;
+    corrected_trade_through_exempt_flag: bytes &size=1;
+    corrected_sellers_sale_days: uint16;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_last_price: uint64;
+    consolidated_volume: uint64;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    consolidated_last_price_originator: bytes &size=1;
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+    market_participant_last_price: uint64;
+    market_participant_volume: uint64;
+};
+
+type PriorDayAsOfTradeMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    trade_id: uint64;
+    trade_price_long: uint64;
+    trade_volume_long: uint32;
+    sale_condition: bytes &size=4;
+    trade_through_exempt_flag: uint8 &convert=TradeThroughExemptFlag($$);
+    sellers_sale_days: uint16;
+    as_of_action: uint8 &convert=AsOfAction($$);
+    timestamp_of_trade: uint64;
+};
+
+type FractionalTradeReportMessageShortformMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_short: bytes &size=5;
+    trade_id: uint64;
+    trade_price_short: uint16;
+    trade_volume: uint64;
+    sale_condition: bytes &size=4;
+    trade_through_exempt_flag: uint8 &convert=TradeThroughExemptFlag($$);
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    participant_price_change_indicator: uint8 &convert=ParticipantPriceChangeIndicator($$);
+};
+
+type FractionalTradeReportMessageLongformMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    trade_id: uint64;
+    trade_price_long: uint64;
+    trade_volume: uint64;
+    sale_condition: bytes &size=4;
+    trade_through_exempt_flag: uint8 &convert=TradeThroughExemptFlag($$);
+    sellers_sale_days: uint16;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    participant_price_change_indicator: uint8 &convert=ParticipantPriceChangeIndicator($$);
+};
+
+type FractionalTradeCancelErrorMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    trade_cancellation_type: uint8 &convert=TradeCancellationType($$);
+    original_trade_id: uint64;
+    original_trade_price: uint64;
+    original_volume_long: uint64;
+    original_sale_condition: bytes &size=4;
+    original_trade_through_exempt_flag: bytes &size=1;
+    original_sellers_sale_days: uint16;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_last_price: uint64;
+    consolidated_volume: uint64;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    consolidated_last_price_originator: bytes &size=1;
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+    market_participant_last_price: uint64;
+    market_participant_volume: uint64;
+};
+
+type FractionalTradeCorrectionMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    original_trade_id: uint64;
+    original_trade_price: uint64;
+    original_volume_long: uint64;
+    original_sale_condition: bytes &size=4;
+    original_trade_through_exempt_flag: bytes &size=1;
+    original_sellers_sale_days: uint16;
+    corrected_trade_id: uint64;
+    corrected_trade_price: uint64;
+    corrected_volume_long: uint64;
+    corrected_sale_condition: bytes &size=4;
+    corrected_trade_through_exempt_flag: bytes &size=1;
+    corrected_sellers_sale_days: uint16;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_last_price: uint64;
+    consolidated_volume: uint64;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    consolidated_last_price_originator: bytes &size=1;
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+    market_participant_last_price: uint64;
+    market_participant_volume: uint64;
+};
+
+type FractionalAsOfTradeMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    timestamp_2: uint64;
+    symbol_long: bytes &size=11;
+    trade_id: uint64;
+    trade_price_long: uint64;
+    trade_volume: uint64;
+    sale_condition: bytes &size=4;
+    trade_through_exempt_flag: uint8 &convert=TradeThroughExemptFlag($$);
+    sellers_sale_days: uint16;
+    as_of_action: uint8 &convert=AsOfAction($$);
+    timestamp_of_trade: uint64;
+};
+
+type AdministrativeMessage = unit {
+    administrative_message_type: bytes &size=1;
+    switch ( self.administrative_message_type ) {
+        0x41 -> general_administrative_message: GeneralAdministrativeMessage;
+        0x48 -> cross_sro_trading_action_message: CrossSroTradingActionMessage;
+        0x4b -> market_center_trading_action_message: MarketCenterTradingActionMessage;
+        0x42 -> issue_symbol_directory_message: IssueSymbolDirectoryMessage;
+        0x56 -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        0x50 -> limit_up_limit_down_price_band_message: LimitUpLimitDownPriceBandMessage;
+        0x43 -> market_wide_circuit_breaker_decline_level_message: MarketWideCircuitBreakerDeclineLevelMessage;
+        0x44 -> market_wide_circuit_breaker_status_message: MarketWideCircuitBreakerStatusMessage;
+        0x45 -> auction_collar_message: AuctionCollarMessage;
+        0x55 -> closing_trade_summary_report_message: ClosingTradeSummaryReportMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type GeneralAdministrativeMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    text_length: uint16;
+    text: bytes &size=self.text_length;
+};
+
+type CrossSroTradingActionMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol_long: bytes &size=11;
+    trading_action_code: uint8 &convert=TradingActionCode($$);
+    trading_action_sequence_number: uint32;
+    action_time: uint64;
+    reason_for_the_trading_action: bytes &size=6;
+};
+
+type MarketCenterTradingActionMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol_long: bytes &size=11;
+    trading_action_code: uint8 &convert=TradingActionCode($$);
+    action_time: uint64;
+    market_center_identifier: bytes &size=1;
+};
+
+type IssueSymbolDirectoryMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol_long: bytes &size=11;
+    old_symbol: bytes &size=11;
+    issue_name: bytes &size=30;
+    issue_type: uint8 &convert=IssueType($$);
+    issue_subtype: bytes &size=2;
+    market_tier: uint8 &convert=MarketTier($$);
+    authenticity: uint8 &convert=Authenticity($$);
+    short_sale_threshold_indicator: uint8 &convert=ShortSaleThresholdIndicator($$);
+    round_lot_size: uint16;
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol_long: bytes &size=11;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type LimitUpLimitDownPriceBandMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol_long: bytes &size=11;
+    luld_price_band_indicator: uint8 &convert=LuldPriceBandIndicator($$);
+    luld_price_band_effective_time: uint64;
+    limit_down_price: uint64;
+    limit_up_price: uint64;
+};
+
+type MarketWideCircuitBreakerDeclineLevelMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    mwcb_level_1: uint64;
+    mwcb_level_2: uint64;
+    mwcb_level_3: uint64;
+};
+
+type MarketWideCircuitBreakerStatusMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    mwcb_status_level_indicator: uint8 &convert=MwcbStatusLevelIndicator($$);
+};
+
+type AuctionCollarMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol_long: bytes &size=11;
+    trading_action_sequence_number: uint32;
+    collar_reference_price: uint64;
+    collar_up_price: uint64;
+    collar_down_price: uint64;
+    collar_extension_indicator: bytes &size=1;
+};
+
+type ClosingTradeSummaryReportMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol_long: bytes &size=11;
+    daily_consolidated_high_price: uint64;
+    daily_consolidated_low_price: uint64;
+    daily_consolidated_closing_price: uint64;
+    consolidated_last_price_originator: bytes &size=1;
+    consolidated_volume: uint64;
+    trading_action_indicator: uint8 &convert=TradingActionIndicator($$);
+    number_of_market_center_attachments: uint16;
+    market_center_closing_price_and_volume_summary: MarketCenterClosingPriceAndVolumeSummary[self.number_of_market_center_attachments];
+};
+
+type MarketCenterClosingPriceAndVolumeSummary = unit {
+    market_center_identifier: bytes &size=1;
+    market_center_closing_price: uint64;
+    market_center_volume: uint64;
+    market_center_close_indicator: uint8 &convert=MarketCenterCloseIndicator($$);
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+};
+
+type TotalConsolidatedVolumeMessage = unit {
+    total_consolidated_volume_message_type: bytes &size=1;
+    total_consolidated_volume_message_payload: TotalConsolidatedAndMarketCenterVolumeMessage;
+};
+
+type TotalConsolidatedAndMarketCenterVolumeMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    total_consolidated_volume: uint64;
+    number_of_market_center_attachments: uint16;
+    market_center_volume_group: MarketCenterVolumeGroup[self.number_of_market_center_attachments];
+};
+
+type MarketCenterVolumeGroup = unit {
+    market_center_identifier: bytes &size=1;
+    market_center_volume: uint64;
+};
+
+type ControlMessage = unit {
+    control_message_type: bytes &size=1;
+    switch ( self.control_message_type ) {
+        0x49 -> start_of_day_message: StartOfDayMessage;
+        0x4a -> end_of_day_message: EndOfDayMessage;
+        0x4f -> market_session_open_message: MarketSessionOpenMessage;
+        0x43 -> market_session_close_message: MarketSessionCloseMessage;
+        0x5a -> end_of_transmissions_message: EndOfTransmissionsMessage;
+        0x58 -> end_of_trade_reporting_message: EndOfTradeReportingMessage;
+        0x53 -> end_of_consolidated_last_sale_eligibility_message: EndOfConsolidatedLastSaleEligibilityMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type StartOfDayMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type EndOfDayMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type MarketSessionOpenMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type MarketSessionCloseMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type EndOfTransmissionsMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type EndOfTradeReportingMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type EndOfConsolidatedLastSaleEligibilityMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type MarketCenterOriginator = enum {
+    CboeByxExchangeInc = 0x59,
+    CboeBzxExchangeInc = 0x5a,
+    CboeEdgaExchangeInc = 0x4a,
+    CboeEdgxExchangeInc = 0x4b,
+    CboeExchangeInc = 0x57,
+    NasdaqTexasLlc = 0x42,
+    NasdaqPhlxLlc = 0x58,
+    NasdaqInc = 0x51,
+    NasdaqIseLlc = 0x49,
+    NewYorkStockExchangeLlc = 0x4e,
+    NyseArcaInc = 0x50,
+    NyseAmericanLlc = 0x41,
+    NyseNationalInc = 0x43,
+    NyseTexas = 0x4d,
+    TexasStockExchangeLlc = 0x46,
+    N24XNationalExchangeLlc = 0x47,
+    FinancialIndustryRegulatoryAuthority = 0x44,
+    InvestorsExchangeLlc = 0x56,
+    LongTermStockExchange = 0x4c,
+    MiaxPearlLlc = 0x48,
+    MemxLlc = 0x55,
+    MarketIndependentGeneratedBySip = 0x45,
+};
+
+type SubMarketCenterId = enum {
+    FinraNyseTrf = 0x4e,
+    FinraNasdaqTrfCarteret = 0x51,
+    FinraNasdaqTrfChicago = 0x42,
+    TradeOriginatesFromFinraAlternativeDisplayFacility = 0x20,
+};
+
+type SaleCondition = enum {
+    RegularSale = 0x40,
+    Acquisition = 0x41,
+    BunchedTrade = 0x42,
+    CashSale = 0x43,
+    Distribution = 0x44,
+    Placeholder = 0x45,
+    IntermarketSweep = 0x46,
+    BunchedSoldTrade = 0x47,
+    PriceVariationTrade = 0x48,
+    OddLotTrade = 0x49,
+    Rule155TradeAmex = 0x4b,
+    SoldLast = 0x4c,
+    MarketCenterOfficialClose = 0x4d,
+    Reserved = 0x4e,
+    OpeningPrints = 0x4f,
+    PriorReferencePrice = 0x50,
+    MarketCenterOfficialOpen = 0x51,
+    Seller = 0x52,
+    SplitTrade = 0x53,
+    FormT = 0x54,
+    ExtendedTradingHoursSoldOutOfSequence = 0x55,
+    ContingentTrade = 0x56,
+    AveragePriceTrade = 0x57,
+    CrossPeriodicAuctionTrade = 0x58,
+    YellowFlagRegularTrade = 0x59,
+    SoldOutOfSequence = 0x5a,
+    StoppedStockRegularTrade = 0x31,
+    DerivativelyPriced = 0x34,
+    ReOpeningPrints = 0x35,
+    ClosingPrints = 0x36,
+    QualifiedContingentTradeQct = 0x37,
+    PlaceholderFor611Exempt = 0x38,
+    CorrectedConsolidatedClosePerListingMarket = 0x39,
+};
+
+type TradeThroughExemptFlag = enum {
+    Rule611TradeThroughExempt = 0x58,
+    NotRule611TradeThroughExempt = 0x20,
+};
+
+type ConsolidatedPriceChangeIndicator = enum {
+    NoPricesChanged = 0x30,
+    ConsolidatedLastPriceChanged = 0x31,
+    ConsolidatedLowPriceChanged = 0x32,
+    ConsolidatedLastAndConsolidatedLowPricesChanged = 0x33,
+    ConsolidatedHighPriceChanged = 0x34,
+    ConsolidatedLastAndConsolidatedHighPricesChanged = 0x35,
+    ConsolidatedHighAndConsolidatedLowPricesChanged = 0x36,
+    AllConsolidatedPricesChanged = 0x37,
+};
+
+type ParticipantPriceChangeIndicator = enum {
+    NoPricesChanged = 0x30,
+    ParticipantLastPriceChanged = 0x31,
+    ParticipantLowPriceChanged = 0x32,
+    ParticipantLastAndLowPricesChanged = 0x33,
+    ParticipantHighPriceChanged = 0x34,
+    ParticipantLastAndHighPricesChanged = 0x35,
+    ParticipantHighAndLowPricesChanged = 0x36,
+    AllParticipantPricesChanged = 0x37,
+};
+
+type TradeCancellationType = enum {
+    Cancel = 0x43,
+    Error = 0x45,
+};
+
+type AsOfAction = enum {
+    AsOfTradeAddition = 0x41,
+    AsOfTradeCancel = 0x43,
+};
+
+type TradingActionCode = enum {
+    TradingHalt = 0x48,
+    QuotationResumptionIncludingAfterEma = 0x51,
+    TradingResumption = 0x54,
+    VolatilityTradingPause = 0x50,
+};
+
+type IssueType = enum {
+    AmericanDepositoryReceipt = 0x41,
+    Bond = 0x42,
+    CommonStock = 0x43,
+    DepositoryReceipt = 0x46,
+    Sec144A = 0x49,
+    LimitedPartnership = 0x4c,
+    Note = 0x4e,
+    OrdinaryShares = 0x4f,
+    PreferredStock = 0x50,
+    OtherSecurities = 0x51,
+    Rights = 0x52,
+    SharesOfBeneficialInterest = 0x53,
+    ConvertibleDebenture = 0x54,
+    Unit = 0x55,
+    UnitsOfBeneficialInterest = 0x56,
+    Warrant = 0x57,
+};
+
+type IssueSubtype = enum {
+    TrustPreferred = 0x41,
+    IndexLinkedNote = 0x42,
+    CommonShares = 0x43,
+    GlobalDepositaryShares = 0x44,
+    EtfUnitInvestmentTrust = 0x45,
+    Holdrs = 0x46,
+    ExchangeTradedDebt = 0x47,
+    EtfManagementInvestmentCompany = 0x49,
+    CorporateBackedTrustSecurity = 0x4a,
+    ContingentLitigationRightWarrant = 0x4c,
+    EquityLinkedNote = 0x4d,
+    NyRegistryShares = 0x4e,
+    IncomeDepositaryShares = 0x4f,
+    ThirdPartyTrustCertificate = 0x50,
+    ClosedEndFunds = 0x51,
+    RegS = 0x52,
+    Seed = 0x53,
+    TrackingStock = 0x54,
+    Portal = 0x55,
+    ContingentValueRight = 0x56,
+    TrustIssuedReceipts = 0x57,
+    Trust = 0x58,
+    Other = 0x59,
+    Na = 0x5a,
+};
+
+type MarketTier = enum {
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+};
+
+type Authenticity = enum {
+    LiveProduction = 0x50,
+    Test = 0x54,
+    Demo = 0x44,
+    Deleted = 0x58,
+};
+
+type ShortSaleThresholdIndicator = enum {
+    IssueIsRestrictedUnderSecRule203B3 = 0x59,
+    IssueIsNotRestricted = 0x4e,
+    ThresholdIndicatorNotAvailable = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    CreationsAndorRedemptionsSuspendedForExchangeTradedProduct = 0x43,
+    DeficientIssuerFailedToMeetNasdaqContinuedListingRequirements = 0x44,
+    DelinquentIssuerMissedRegulatoryFilingDeadline = 0x45,
+    BankruptIssuerHasFiledForBankruptcy = 0x51,
+    NormalDefaultIssuerIsNotDeficientDelinquentOrBankrupt = 0x4e,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInEffect = 0x30,
+    RegShoInEffectDueToAnIntraDayPriceDropInSecurity = 0x31,
+    RegShoRestrictionRemainsInEffect = 0x32,
+};
+
+type LuldPriceBandIndicator = enum {
+    OpeningUpdate = 0x41,
+    IntraDayUpdate = 0x42,
+    RestatedValue = 0x43,
+    SuspendedDuringTradingHaltOrTradingPause = 0x44,
+    ReOpeningUpdate = 0x45,
+    OutsidePriceBandRuleHours = 0x46,
+    NoneProvided = 0x20,
+};
+
+type MwcbStatusLevelIndicator = enum {
+    MarketWideCircuitBreakerDeclineLevel1Breached7Decline = 0x31,
+    MarketWideCircuitBreakerDeclineLevel2Breached13Decline = 0x32,
+    MarketWideCircuitBreakerDeclineLevel3Breached20Decline = 0x33,
+};
+
+type TradingActionIndicator = enum {
+    TradingHaltInEffect = 0x48,
+    RegularTradingInEffect = 0x20,
+};
+
+type MarketCenterCloseIndicator = enum {
+    MarketCenterClosingPriceIsBasedOnTransactionWithMSaleConditionModifier = 0x4d,
+    MarketCenterClosingPriceIsNotBasedOnATransactionWithAnMSaleConditionModifier = 0x20,
+};
+

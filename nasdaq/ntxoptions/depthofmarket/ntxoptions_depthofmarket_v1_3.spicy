@@ -1,0 +1,377 @@
+module NasdaqNtxoptionsDepthofmarketItchV13;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NtxoptionsDepthofmarketV13 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::BaseReferenceMessage -> base_reference_message: BaseReferenceMessage;
+        MessageType::OptionDirectoryMessage -> option_directory_message: OptionDirectoryMessage;
+        MessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        MessageType::OptionOpenMessage -> option_open_message: OptionOpenMessage;
+        MessageType::AddOrderMessageShortForm -> add_order_message_short_form: AddOrderMessageShortForm;
+        MessageType::AddOrderMessageLongForm -> add_order_message_long_form: AddOrderMessageLongForm;
+        MessageType::AddQuoteMessageShortForm -> add_quote_message_short_form: AddQuoteMessageShortForm;
+        MessageType::AddQuoteMessageLongForm -> add_quote_message_long_form: AddQuoteMessageLongForm;
+        MessageType::SingleSideExecutedMessage -> single_side_executed_message: SingleSideExecutedMessage;
+        MessageType::SingleSideOrderExecutedWithPriceMessage -> single_side_order_executed_with_price_message: SingleSideOrderExecutedWithPriceMessage;
+        MessageType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MessageType::SingleSideReplaceMessageShortForm -> single_side_replace_message_short_form: SingleSideReplaceMessageShortForm;
+        MessageType::SingleSideReplaceMessageLongForm -> single_side_replace_message_long_form: SingleSideReplaceMessageLongForm;
+        MessageType::SingleSideDeleteMessage -> single_side_delete_message: SingleSideDeleteMessage;
+        MessageType::SingleSideUpdateMessage -> single_side_update_message: SingleSideUpdateMessage;
+        MessageType::QuoteReplaceMessageShortForm -> quote_replace_message_short_form: QuoteReplaceMessageShortForm;
+        MessageType::QuoteReplaceMessageLongForm -> quote_replace_message_long_form: QuoteReplaceMessageLongForm;
+        MessageType::QuoteDeleteMessage -> quote_delete_message: QuoteDeleteMessage;
+        MessageType::BlockDeleteMessage -> block_delete_message: BlockDeleteMessage;
+        MessageType::NonAuctionOptionsTradeMessage -> non_auction_options_trade_message: NonAuctionOptionsTradeMessage;
+        MessageType::OptionsCrossTradeMessage -> options_cross_trade_message: OptionsCrossTradeMessage;
+        MessageType::BrokenTradeOrOrderExecutionMessage -> broken_trade_or_order_execution_message: BrokenTradeOrOrderExecutionMessage;
+        MessageType::NetOrderImbalanceIndicatorMessage -> net_order_imbalance_indicator_message: NetOrderImbalanceIndicatorMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type BaseReferenceMessage = unit {
+    nanoseconds: uint32;
+    base_reference_number: uint64;
+};
+
+type OptionDirectoryMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    security_symbol: bytes &size=6;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_date: uint8;
+    explicit_strike_price: int32;
+    option_type: uint8 &convert=OptionType($$);
+    source: uint8;
+    underlying_symbol: bytes &size=13;
+    options_closing_type: uint8 &convert=OptionsClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+};
+
+type TradingActionMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type OptionOpenMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    open_state: bytes &size=1;
+};
+
+type AddOrderMessageShortForm = unit {
+    nanoseconds: uint32;
+    order_reference_number_delta: uint32;
+    market_side: uint8 &convert=MarketSide($$);
+    option_id: uint32;
+    price: int16;
+    volume: uint16;
+};
+
+type AddOrderMessageLongForm = unit {
+    nanoseconds: uint32;
+    order_reference_number_delta: uint32;
+    market_side: uint8 &convert=MarketSide($$);
+    option_id: uint32;
+    price_long: int32;
+    volume_long: uint32;
+};
+
+type AddQuoteMessageShortForm = unit {
+    nanoseconds: uint32;
+    bid_reference_number_delta: uint32;
+    ask_reference_number_delta: uint32;
+    option_id: uint32;
+    bid_price: int16;
+    bid_size: uint16;
+    ask_price: int16;
+    ask_size: uint16;
+};
+
+type AddQuoteMessageLongForm = unit {
+    nanoseconds: uint32;
+    bid_reference_number_delta: uint32;
+    ask_reference_number_delta: uint32;
+    option_id: uint32;
+    bid: uint32;
+    bid_size_long: uint32;
+    ask: uint32;
+    ask_size_long: uint32;
+};
+
+type SingleSideExecutedMessage = unit {
+    nanoseconds: uint32;
+    reference_number_delta: uint32;
+    executed_contracts: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+};
+
+type SingleSideOrderExecutedWithPriceMessage = unit {
+    nanoseconds: uint32;
+    reference_number_delta: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+    printable: uint8 &convert=Printable($$);
+    price_long: int32;
+    volume_long: uint32;
+};
+
+type OrderCancelMessage = unit {
+    nanoseconds: uint32;
+    order_reference_number_delta: uint32;
+    cancelled_contracts: uint32;
+};
+
+type SingleSideReplaceMessageShortForm = unit {
+    nanoseconds: uint32;
+    original_reference_number_delta: uint32;
+    new_reference_number_delta: uint32;
+    price: int16;
+    volume: uint16;
+};
+
+type SingleSideReplaceMessageLongForm = unit {
+    nanoseconds: uint32;
+    original_reference_number_delta: uint32;
+    new_reference_number_delta: uint32;
+    price_long: int32;
+    volume_long: uint32;
+};
+
+type SingleSideDeleteMessage = unit {
+    nanoseconds: uint32;
+    reference_number_delta: uint32;
+};
+
+type SingleSideUpdateMessage = unit {
+    nanoseconds: uint32;
+    reference_number_delta: uint32;
+    change_reason: uint8 &convert=ChangeReason($$);
+    price_long: int32;
+    volume_long: uint32;
+};
+
+type QuoteReplaceMessageShortForm = unit {
+    nanoseconds: uint32;
+    original_bid_reference_number_delta: uint32;
+    bid_reference_number_delta: uint32;
+    original_ask_reference_number_delta: uint32;
+    ask_reference_delta_number: uint32;
+    bid_price: int16;
+    bid_size: uint16;
+    ask_price: int16;
+    ask_size: uint16;
+};
+
+type QuoteReplaceMessageLongForm = unit {
+    nanoseconds: uint32;
+    original_bid_reference_number_delta: uint32;
+    bid_reference_number_delta: uint32;
+    original_ask_reference_number_delta: uint32;
+    ask_reference_delta_number: uint32;
+    bid_price_long: int32;
+    bid_size_long: uint32;
+    ask_price_long: int32;
+    ask_size_long: uint32;
+};
+
+type QuoteDeleteMessage = unit {
+    nanoseconds: uint32;
+    bid_reference_number_delta: uint32;
+    ask_reference_number_delta: uint32;
+};
+
+type BlockDeleteMessage = unit {
+    nanoseconds: uint32;
+    total_number_of_reference_number_deltas: uint16;
+    reference_number_deltan: uint32;
+};
+
+type NonAuctionOptionsTradeMessage = unit {
+    nanoseconds: uint32;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    option_id: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+    price_long: int32;
+    volume_long: uint32;
+};
+
+type OptionsCrossTradeMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    price_long: int32;
+    volume_long: uint32;
+};
+
+type BrokenTradeOrOrderExecutionMessage = unit {
+    nanoseconds: uint32;
+    cross_number: uint32;
+    match_number: uint32;
+};
+
+type NetOrderImbalanceIndicatorMessage = unit {
+    nanoseconds: uint32;
+    auction_id: uint32;
+    auction_type: uint8 &convert=AuctionType($$);
+    paired_contracts: uint32;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    option_id: uint32;
+    imbalance_price: int32;
+    imbalance_volume: uint32;
+    customer_firm_indicator: uint8 &convert=CustomerFirmIndicator($$);
+    reserved: bytes &size=3;
+};
+
+type MessageType = enum {
+    SecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    BaseReferenceMessage = 0x4c,
+    OptionDirectoryMessage = 0x52,
+    TradingActionMessage = 0x48,
+    OptionOpenMessage = 0x4f,
+    AddOrderMessageShortForm = 0x61,
+    AddOrderMessageLongForm = 0x41,
+    AddQuoteMessageShortForm = 0x6a,
+    AddQuoteMessageLongForm = 0x4a,
+    SingleSideExecutedMessage = 0x45,
+    SingleSideOrderExecutedWithPriceMessage = 0x43,
+    OrderCancelMessage = 0x58,
+    SingleSideReplaceMessageShortForm = 0x75,
+    SingleSideReplaceMessageLongForm = 0x55,
+    SingleSideDeleteMessage = 0x44,
+    SingleSideUpdateMessage = 0x47,
+    QuoteReplaceMessageShortForm = 0x6b,
+    QuoteReplaceMessageLongForm = 0x4b,
+    QuoteDeleteMessage = 0x59,
+    BlockDeleteMessage = 0x5a,
+    NonAuctionOptionsTradeMessage = 0x50,
+    OptionsCrossTradeMessage = 0x51,
+    BrokenTradeOrOrderExecutionMessage = 0x42,
+    NetOrderImbalanceIndicatorMessage = 0x49,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type OptionsClosingType = enum {
+    Normal = 0x4e,
+    Late = 0x4c,
+};
+
+type Tradable = enum {
+    NotTradable = 0x4e,
+    IsTradable = 0x59,
+};
+
+type Mpv = enum {
+    Everywhere = 0x45,
+    Scaled = 0x53,
+    Pilot = 0x50,
+};
+
+type CurrentTradingState = enum {
+    Halt = 0x48,
+    Trading = 0x54,
+    BuySideTradingSuspended = 0x42,
+    SellSideTradingSuspended = 0x53,
+    Open = 0x59,
+    Closed = 0x4e,
+};
+
+type MarketSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type Printable = enum {
+    Nonprintable = 0x4e,
+    Printable = 0x59,
+};
+
+type ChangeReason = enum {
+    User = 0x55,
+    Reprice = 0x52,
+    Suspend = 0x53,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type CrossType = enum {
+    BxOpeningReopening = 0x4f,
+    BxOpeningReopening_x50 = 0x50,
+};
+
+type AuctionType = enum {
+    Opening = 0x4f,
+    Reopening = 0x52,
+    Exposure = 0x49,
+    PriceImprovement = 0x50,
+};
+
+type ImbalanceDirection = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type CustomerFirmIndicator = enum {
+    Customer = 0x43,
+    FirmJoint = 0x46,
+    Onfloor = 0x4d,
+    Professional = 0x50,
+    BrokerDealerNonRegistered = 0x42,
+};
+

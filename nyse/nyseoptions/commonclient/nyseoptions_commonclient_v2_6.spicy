@@ -1,0 +1,48 @@
+module NyseNyseoptionsCommonclientPillarV26;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NyseoptionsCommonclientV26 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msgs];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msgs: uint8;
+    seq_num: uint32;
+    send_time: SendTime;
+};
+
+type SendTime = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    payload: bytes &size=self.message_header.message_size - 4;
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16;
+};
+
+type DeliveryFlag = enum {
+    Heartbeat = 1,
+    PillarFailover = 10,
+    OriginalMessage = 11,
+    SequenceNumberResetMessage = 12,
+    OneRetransmissionPacket = 13,
+    RetransmissionSequenceMessage = 15,
+    OneRefreshPacket = 17,
+    RefreshSequenceStart = 18,
+    RefreshSequenceMessage = 19,
+    RefreshSequenceEnd = 20,
+    MessageUnavailable = 21,
+};
+

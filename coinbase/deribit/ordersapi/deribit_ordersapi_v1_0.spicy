@@ -1,0 +1,956 @@
+module CoinbaseDeribitOrdersapiSbeV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type DeribitOrdersapiV10 = unit {
+    sbe_message: SbeMessage[] &eod;
+};
+
+type SbeMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::LogonMessage -> logon_message: LogonMessage;
+        TemplateId::LogonConfMessage -> logon_conf_message: LogonConfMessage;
+        TemplateId::LogoutMessage -> logout_message: LogoutMessage;
+        TemplateId::LoggedOutMessage -> logged_out_message: LoggedOutMessage;
+        TemplateId::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        TemplateId::TestRequestMessage -> test_request_message: TestRequestMessage;
+        TemplateId::ResendRequestMessage -> resend_request_message: ResendRequestMessage;
+        TemplateId::GapFillMessage -> gap_fill_message: GapFillMessage;
+        TemplateId::RejectMessage -> reject_message: RejectMessage;
+        TemplateId::NewOrderRequestMessage -> new_order_request_message: NewOrderRequestMessage;
+        TemplateId::AmendOrderRequestMessage -> amend_order_request_message: AmendOrderRequestMessage;
+        TemplateId::CancelOrderRequestMessage -> cancel_order_request_message: CancelOrderRequestMessage;
+        TemplateId::MassQuoteRequestMessage -> mass_quote_request_message: MassQuoteRequestMessage;
+        TemplateId::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
+        TemplateId::MassQuoteCancelRequestMessage -> mass_quote_cancel_request_message: MassQuoteCancelRequestMessage;
+        TemplateId::NewOrderResponseMessage -> new_order_response_message: NewOrderResponseMessage;
+        TemplateId::NewOrderRejectMessage -> new_order_reject_message: NewOrderRejectMessage;
+        TemplateId::AmendOrderResponseMessage -> amend_order_response_message: AmendOrderResponseMessage;
+        TemplateId::AmendOrderRejectMessage -> amend_order_reject_message: AmendOrderRejectMessage;
+        TemplateId::CancelOrderResponseMessage -> cancel_order_response_message: CancelOrderResponseMessage;
+        TemplateId::CancelOrderRejectMessage -> cancel_order_reject_message: CancelOrderRejectMessage;
+        TemplateId::MassQuoteResponseMessage -> mass_quote_response_message: MassQuoteResponseMessage;
+        TemplateId::MassQuoteRejectMessage -> mass_quote_reject_message: MassQuoteRejectMessage;
+        TemplateId::MassCancelResponseMessage -> mass_cancel_response_message: MassCancelResponseMessage;
+        TemplateId::MassCancelRejectMessage -> mass_cancel_reject_message: MassCancelRejectMessage;
+        TemplateId::OrderFilledMessage -> order_filled_message: OrderFilledMessage;
+        TemplateId::OrdersCanceledMessage -> orders_canceled_message: OrdersCanceledMessage;
+        TemplateId::OrderPlacedMessage -> order_placed_message: OrderPlacedMessage;
+        TemplateId::MassQuoteOrdersPlacedMessage -> mass_quote_orders_placed_message: MassQuoteOrdersPlacedMessage;
+        TemplateId::MassQuoteMmpTriggeredMessage -> mass_quote_mmp_triggered_message: MassQuoteMmpTriggeredMessage;
+        TemplateId::OrdersMmpTriggeredMessage -> orders_mmp_triggered_message: OrdersMmpTriggeredMessage;
+        TemplateId::MassQuoteMmpUnfrozenMessage -> mass_quote_mmp_unfrozen_message: MassQuoteMmpUnfrozenMessage;
+        TemplateId::OrdersMmpUnfrozenMessage -> orders_mmp_unfrozen_message: OrdersMmpUnfrozenMessage;
+        * -> unknown: bytes &eod;
+    };
+    : skip bytes &size=0;   # padding
+};
+
+type MessageHeader = unit {
+    protocol_id: uint8;
+    session_flags: SessionFlags;
+    message_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_version: uint16;
+    sequence_number: int64;
+    last_processed_seq_no: int64;
+    send_time_ns: int64;
+};
+
+type SessionFlags = unit {
+    is_resend: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type LogonMessage = unit {
+    client_id: bytes &size=16;
+    secret: bytes &size=48;
+    reset_seq_num: int8 &convert=ResetSeqNum($$);
+};
+
+type LogonConfMessage = unit {
+    heartbeat_interval_seconds: int32;
+};
+
+type LogoutMessage = unit {
+    reason: Reason;
+};
+
+type Reason = unit {
+    reason_length: uint8;
+    reason_data: bytes &size=self.reason_length;
+};
+
+type LoggedOutMessage = unit {
+    reason: Reason;
+};
+
+type HeartbeatMessage = unit {
+    correlation_id: int64;
+};
+
+type TestRequestMessage = unit {
+    correlation_id: int64;
+};
+
+type ResendRequestMessage = unit {
+    from_sequence_number: int64;
+    to_sequence_number: int64;
+};
+
+type GapFillMessage = unit {
+    new_sequence_number: int64;
+};
+
+type RejectMessage = unit {
+    ref_sequence_number: int64;
+    reason_reject_reason: int8 &convert=ReasonRejectReason($$);
+    details: Details;
+};
+
+type Details = unit {
+    details_length: uint8;
+    details_data: bytes &size=self.details_length;
+};
+
+type NewOrderRequestMessage = unit {
+    client_order_id: int64;
+    correlation_id: int64;
+    instrument_id: int64;
+    price: int64;
+    quantity: Quantity;
+    show_qty: ShowQty;
+    self_match_prevention_id: int64;
+    side: int8 &convert=Side($$);
+    time_in_force: int8;
+    flags_order_flags: FlagsOrderFlags;
+    self_trading_mode: int8 &convert=SelfTradingMode($$);
+};
+
+type Quantity = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type ShowQty = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type FlagsOrderFlags = unit {
+    unused_order_flags_0: bytes &size=1;
+    post_only: bytes &size=1;
+    post_only_reject: bytes &size=1;
+    market_limit: bytes &size=1;
+    mmp: bytes &size=1;
+    reset_mmp: bytes &size=1;
+    reserved_10: bytes &size=2;
+};
+
+type AmendOrderRequestMessage = unit {
+    client_order_id: int64;
+    correlation_id: int64;
+    instrument_id: int64;
+    price: int64;
+    quantity: Quantity;
+    show_qty: ShowQty;
+    flags_replace_order_flags: FlagsReplaceOrderFlags;
+};
+
+type FlagsReplaceOrderFlags = unit {
+    unused_replace_order_flags_0: bytes &size=1;
+    post_only: bytes &size=1;
+    post_only_reject: bytes &size=1;
+    reserved_13: bytes &size=2;
+};
+
+type CancelOrderRequestMessage = unit {
+    client_order_id: int64;
+    correlation_id: int64;
+    instrument_id: int64;
+};
+
+type MassQuoteRequestMessage = unit {
+    quote_id: int64;
+    correlation_id: int64;
+    mmp_group_id: int64;
+    self_match_prevention_id: int64;
+    flags_mass_quote_flags: FlagsMassQuoteFlags;
+    mass_quote_request_message_quotes_groups: MassQuoteRequestMessageQuotesGroups;
+};
+
+type FlagsMassQuoteFlags = unit {
+    reset_mmp: bytes &size=1;
+    reserved_7: bytes &size=1;
+};
+
+type MassQuoteRequestMessageQuotesGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_request_message_quotes_group: MassQuoteRequestMessageQuotesGroup[self.group_size_encoding.num_in_group];
+};
+
+type GroupSizeEncoding = unit {
+    block_length: uint16;
+    num_in_group: uint16;
+};
+
+type MassQuoteRequestMessageQuotesGroup = unit {
+    instrument_id: int64;
+    bid_price_optional: int64;
+    ask_price_optional: int64;
+    bid_qty: BidQty;
+    ask_qty: AskQty;
+    bid_flags: BidFlags;
+    ask_flags: AskFlags;
+};
+
+type BidQty = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type AskQty = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type BidFlags = unit {
+    unused_order_flags_0: bytes &size=1;
+    post_only: bytes &size=1;
+    post_only_reject: bytes &size=1;
+    market_limit: bytes &size=1;
+    mmp: bytes &size=1;
+    reset_mmp: bytes &size=1;
+    reserved_10: bytes &size=2;
+};
+
+type AskFlags = unit {
+    unused_order_flags_0: bytes &size=1;
+    post_only: bytes &size=1;
+    post_only_reject: bytes &size=1;
+    market_limit: bytes &size=1;
+    mmp: bytes &size=1;
+    reset_mmp: bytes &size=1;
+    reserved_10: bytes &size=2;
+};
+
+type MassCancelRequestMessage = unit {
+    correlation_id: int64;
+    currency_pair_id: int64;
+    instrument_id_optional: int64;
+    product_type: int8 &convert=ProductType($$);
+    side: int8 &convert=Side($$);
+};
+
+type MassQuoteCancelRequestMessage = unit {
+    correlation_id: int64;
+    mmp_group_id: int64;
+    side: int8 &convert=Side($$);
+};
+
+type NewOrderResponseMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    price: int64;
+    quantity: Quantity;
+    total_filled: TotalFilled;
+    visible_qty: VisibleQty;
+    receive_time: int64;
+    side: int8 &convert=Side($$);
+    status: int8 &convert=Status($$);
+    cancel_reason: int8 &convert=CancelReason($$);
+    new_order_response_message_fills_groups: NewOrderResponseMessageFillsGroups;
+    new_order_response_message_legs_groups: NewOrderResponseMessageLegsGroups;
+};
+
+type TotalFilled = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type VisibleQty = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type NewOrderResponseMessageFillsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    new_order_response_message_fills_group: NewOrderResponseMessageFillsGroup[self.group_size_encoding.num_in_group];
+};
+
+type NewOrderResponseMessageFillsGroup = unit {
+    match_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+};
+
+type FillQty = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type NewOrderResponseMessageLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    new_order_response_message_legs_group: NewOrderResponseMessageLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type NewOrderResponseMessageLegsGroup = unit {
+    match_id: int64;
+    fill_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+    leg_side: int8 &convert=LegSide($$);
+};
+
+type NewOrderRejectMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    reason_order_reject_reason: int8 &convert=ReasonOrderRejectReason($$);
+    details: Details;
+};
+
+type AmendOrderResponseMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    price: int64;
+    quantity: Quantity;
+    total_filled: TotalFilled;
+    visible_qty: VisibleQty;
+    receive_time: int64;
+    status: int8 &convert=Status($$);
+    cancel_reason: int8 &convert=CancelReason($$);
+    amend_order_response_message_fills_groups: AmendOrderResponseMessageFillsGroups;
+    amend_order_response_message_legs_groups: AmendOrderResponseMessageLegsGroups;
+};
+
+type AmendOrderResponseMessageFillsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    amend_order_response_message_fills_group: AmendOrderResponseMessageFillsGroup[self.group_size_encoding.num_in_group];
+};
+
+type AmendOrderResponseMessageFillsGroup = unit {
+    match_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+};
+
+type AmendOrderResponseMessageLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    amend_order_response_message_legs_group: AmendOrderResponseMessageLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type AmendOrderResponseMessageLegsGroup = unit {
+    match_id: int64;
+    fill_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+    leg_side: int8 &convert=LegSide($$);
+};
+
+type AmendOrderRejectMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    reason_order_reject_reason: int8 &convert=ReasonOrderRejectReason($$);
+    details: Details;
+};
+
+type CancelOrderResponseMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    receive_time: int64;
+};
+
+type CancelOrderRejectMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id_optional: int64;
+    instrument_id: int64;
+    reason_cancel_order_reject_reason: int8 &convert=ReasonCancelOrderRejectReason($$);
+    details: Details;
+};
+
+type MassQuoteResponseMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    quote_id: int64;
+    correlation_id: int64;
+    mmp_group_id: int64;
+    receive_time: int64;
+    mass_quote_response_message_quotes_groups: MassQuoteResponseMessageQuotesGroups;
+    mass_quote_response_message_bid_fills_groups: MassQuoteResponseMessageBidFillsGroups;
+    mass_quote_response_message_ask_fills_groups: MassQuoteResponseMessageAskFillsGroups;
+    mass_quote_response_message_legs_groups: MassQuoteResponseMessageLegsGroups;
+};
+
+type MassQuoteResponseMessageQuotesGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_response_message_quotes_group: MassQuoteResponseMessageQuotesGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteResponseMessageQuotesGroup = unit {
+    instrument_id: int64;
+    bid_order_id: int64;
+    ask_order_id: int64;
+    bid_price: int64;
+    ask_price: int64;
+    bid_qty: BidQty;
+    ask_qty: AskQty;
+    bid_filled_qty: BidFilledQty;
+    ask_filled_qty: AskFilledQty;
+    bid_status: int8 &convert=BidStatus($$);
+    ask_status: int8 &convert=AskStatus($$);
+    bid_reject_reason: int8 &convert=BidRejectReason($$);
+    ask_reject_reason: int8 &convert=AskRejectReason($$);
+};
+
+type BidFilledQty = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type AskFilledQty = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type MassQuoteResponseMessageBidFillsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_response_message_bid_fills_group: MassQuoteResponseMessageBidFillsGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteResponseMessageBidFillsGroup = unit {
+    match_id: int64;
+    instrument_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+};
+
+type MassQuoteResponseMessageAskFillsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_response_message_ask_fills_group: MassQuoteResponseMessageAskFillsGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteResponseMessageAskFillsGroup = unit {
+    match_id: int64;
+    instrument_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+};
+
+type MassQuoteResponseMessageLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_response_message_legs_group: MassQuoteResponseMessageLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteResponseMessageLegsGroup = unit {
+    match_id: int64;
+    fill_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+    leg_side: int8 &convert=LegSide($$);
+};
+
+type MassQuoteRejectMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    quote_id: int64;
+    correlation_id: int64;
+    mmp_group_id: int64;
+    reason_mass_quote_reject_reason: int8 &convert=ReasonMassQuoteRejectReason($$);
+    details: Details;
+};
+
+type MassCancelResponseMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    correlation_id: int64;
+    receive_time: int64;
+    total_order_count: int32;
+};
+
+type MassCancelRejectMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    correlation_id: int64;
+    reason_mass_cancel_reject_reason: int8 &convert=ReasonMassCancelRejectReason($$);
+    details: Details;
+};
+
+type OrderFilledMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    order_filled_message_fills_groups: OrderFilledMessageFillsGroups;
+    order_filled_message_legs_groups: OrderFilledMessageLegsGroups;
+};
+
+type OrderFilledMessageFillsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    order_filled_message_fills_group: OrderFilledMessageFillsGroup[self.group_size_encoding.num_in_group];
+};
+
+type OrderFilledMessageFillsGroup = unit {
+    client_order_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    match_id: int64;
+    price: int64;
+    fill_qty: FillQty;
+    total_filled: TotalFilled;
+    side: int8 &convert=Side($$);
+    flags_fill_flags: FlagsFillFlags;
+};
+
+type FlagsFillFlags = unit {
+    is_quote: bytes &size=1;
+    is_fully_filled: bytes &size=1;
+    reserved_6: bytes &size=1;
+};
+
+type OrderFilledMessageLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    order_filled_message_legs_group: OrderFilledMessageLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type OrderFilledMessageLegsGroup = unit {
+    match_id: int64;
+    fill_id: int64;
+    price: int64;
+    fill_qty: FillQty;
+    leg_side: int8 &convert=LegSide($$);
+};
+
+type OrdersCanceledMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    flags_multi_part_event_flags: FlagsMultiPartEventFlags;
+    orders_canceled_message_orders_groups: OrdersCanceledMessageOrdersGroups;
+};
+
+type FlagsMultiPartEventFlags = unit {
+    is_last_message: bytes &size=1;
+    reserved_7: bytes &size=1;
+};
+
+type OrdersCanceledMessageOrdersGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    orders_canceled_message_orders_group: OrdersCanceledMessageOrdersGroup[self.group_size_encoding.num_in_group];
+};
+
+type OrdersCanceledMessageOrdersGroup = unit {
+    client_order_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    total_filled: TotalFilled;
+    cancel_reason: int8 &convert=CancelReason($$);
+    flags_cancel_flags: FlagsCancelFlags;
+};
+
+type FlagsCancelFlags = unit {
+    is_quote: bytes &size=1;
+    reserved_7: bytes &size=1;
+};
+
+type OrderPlacedMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    price: int64;
+    quantity: Quantity;
+    total_filled: TotalFilled;
+    visible_qty: VisibleQty;
+    status: int8 &convert=Status($$);
+    cancel_reason: int8 &convert=CancelReason($$);
+    order_placed_message_fills_groups: OrderPlacedMessageFillsGroups;
+    order_placed_message_legs_groups: OrderPlacedMessageLegsGroups;
+};
+
+type OrderPlacedMessageFillsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    order_placed_message_fills_group: OrderPlacedMessageFillsGroup[self.group_size_encoding.num_in_group];
+};
+
+type OrderPlacedMessageFillsGroup = unit {
+    match_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+};
+
+type OrderPlacedMessageLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    order_placed_message_legs_group: OrderPlacedMessageLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type OrderPlacedMessageLegsGroup = unit {
+    match_id: int64;
+    fill_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+    leg_side: int8 &convert=LegSide($$);
+};
+
+type MassQuoteOrdersPlacedMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    mmp_group_id: int64;
+    mass_quote_orders_placed_message_orders_groups: MassQuoteOrdersPlacedMessageOrdersGroups;
+    mass_quote_orders_placed_message_fills_groups: MassQuoteOrdersPlacedMessageFillsGroups;
+    mass_quote_orders_placed_message_legs_groups: MassQuoteOrdersPlacedMessageLegsGroups;
+};
+
+type MassQuoteOrdersPlacedMessageOrdersGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_orders_placed_message_orders_group: MassQuoteOrdersPlacedMessageOrdersGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteOrdersPlacedMessageOrdersGroup = unit {
+    client_order_id: int64;
+    order_id: int64;
+    instrument_id: int64;
+    price: int64;
+    quantity: Quantity;
+    total_filled: TotalFilled;
+    visible_qty: VisibleQty;
+    side: int8 &convert=Side($$);
+    status: int8 &convert=Status($$);
+    cancel_reason: int8 &convert=CancelReason($$);
+};
+
+type MassQuoteOrdersPlacedMessageFillsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_orders_placed_message_fills_group: MassQuoteOrdersPlacedMessageFillsGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteOrdersPlacedMessageFillsGroup = unit {
+    match_id: int64;
+    order_id_fill_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+};
+
+type MassQuoteOrdersPlacedMessageLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_orders_placed_message_legs_group: MassQuoteOrdersPlacedMessageLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteOrdersPlacedMessageLegsGroup = unit {
+    match_id: int64;
+    fill_id: int64;
+    fill_price: int64;
+    fill_qty: FillQty;
+    leg_side: int8 &convert=LegSide($$);
+};
+
+type MassQuoteMmpTriggeredMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    mmp_group_id: int64;
+    frozen_until: int64;
+    quantity_level: bytes &size=8;
+    vega_level: bytes &size=8;
+    delta_level: bytes &size=8;
+    trigger: int8 &convert=Trigger($$);
+};
+
+type OrdersMmpTriggeredMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    currency_pair_id: int64;
+    frozen_until: int64;
+    quantity_level: bytes &size=8;
+    vega_level: bytes &size=8;
+    delta_level: bytes &size=8;
+    trigger: int8 &convert=Trigger($$);
+};
+
+type MassQuoteMmpUnfrozenMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    mmp_group_id: int64;
+    correlation_id_optional: int64;
+};
+
+type OrdersMmpUnfrozenMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    currency_pair_id: int64;
+    correlation_id_optional: int64;
+};
+
+type TemplateId = enum {
+    LogonMessage = 1,
+    LogonConfMessage = 2,
+    LogoutMessage = 4,
+    LoggedOutMessage = 5,
+    HeartbeatMessage = 10,
+    TestRequestMessage = 11,
+    ResendRequestMessage = 20,
+    GapFillMessage = 21,
+    RejectMessage = 30,
+    NewOrderRequestMessage = 100,
+    AmendOrderRequestMessage = 110,
+    CancelOrderRequestMessage = 120,
+    MassQuoteRequestMessage = 130,
+    MassCancelRequestMessage = 140,
+    MassQuoteCancelRequestMessage = 145,
+    NewOrderResponseMessage = 200,
+    NewOrderRejectMessage = 202,
+    AmendOrderResponseMessage = 210,
+    AmendOrderRejectMessage = 212,
+    CancelOrderResponseMessage = 220,
+    CancelOrderRejectMessage = 222,
+    MassQuoteResponseMessage = 230,
+    MassQuoteRejectMessage = 232,
+    MassCancelResponseMessage = 240,
+    MassCancelRejectMessage = 242,
+    OrderFilledMessage = 300,
+    OrdersCanceledMessage = 310,
+    OrderPlacedMessage = 312,
+    MassQuoteOrdersPlacedMessage = 314,
+    MassQuoteMmpTriggeredMessage = 320,
+    OrdersMmpTriggeredMessage = 322,
+    MassQuoteMmpUnfrozenMessage = 324,
+    OrdersMmpUnfrozenMessage = 326,
+};
+
+type ResetSeqNum = enum {
+    False = 0,
+    True = 1,
+};
+
+type ReasonRejectReason = enum {
+    InvalidSchemaId = 1,
+    InvalidTemplateId = 2,
+    InvalidBlockLength = 3,
+    InvalidFieldValue = 4,
+};
+
+type Side = enum {
+    Buy = 1,
+    Both = 0,
+};
+
+type SelfTradingMode = enum {
+    CancelTaker = 0,
+    CancelMaker = 1,
+};
+
+type ProductType = enum {
+    All = 0,
+    Options = 1,
+    Futures = 2,
+    ComboFutures = 3,
+    ComboOptions = 4,
+    Spot = 5,
+};
+
+type Status = enum {
+    Active = 1,
+    Filled = 2,
+    Canceled = 3,
+    Queued = 4,
+};
+
+type CancelReason = enum {
+    Unknown = 0,
+    SelfMatchPrevention = 1,
+    TimeInForce = 2,
+    Admin = 3,
+    MmProtection = 4,
+    Liquidation = 5,
+    MarketStateTransition = 6,
+    ClientDisconnect = 7,
+    ReduceOnly = 8,
+    Delivered = 9,
+    Settlement = 10,
+    BookDeactivated = 11,
+    ByRequest = 12,
+    RiskCheckTimedOut = 13,
+    MmpGroupDeleted = 14,
+    PortfolioLocked = 15,
+    PostOnly = 16,
+};
+
+type LegSide = enum {
+    Buy = 1,
+    Both = 0,
+};
+
+type ReasonOrderRejectReason = enum {
+    SystemError = 0,
+    InvalidInstrument = 1,
+    InvalidField = 2,
+    InsufficientMargin = 3,
+    DuplicateClientOrderId = 4,
+    InvalidQuantity = 5,
+    InvalidPrice = 6,
+    NotAllowedByMarketState = 7,
+    PostOnly = 8,
+    TooManyOpenOrders = 9,
+    PermissionError = 10,
+    PortfolioNotFound = 11,
+    OrderNotFound = 12,
+    MmpNotConfigured = 13,
+    MmpMaxQuoteQtyExceeded = 14,
+    MmpGroupFrozen = 15,
+    InvalidMarginMode = 16,
+    InLiquidation = 17,
+    RiskCheckTimedOut = 18,
+    TooManyPendingReplaces = 19,
+    IcebergNotAllowed = 20,
+    InvalidAllocations = 21,
+    PriceTooHigh = 22,
+    PriceTooLow = 23,
+    PriceBandUnavailable = 24,
+    RateLimit = 25,
+    PortfolioLocked = 26,
+    PositionLimitExceeded = 27,
+    OrderSizeLimitExceeded = 28,
+};
+
+type ReasonCancelOrderRejectReason = enum {
+    Error = 0,
+    UnknownOrder = 1,
+    ClientPermissionError = 2,
+    NotAllowedByMarketState = 3,
+    CancelPending = 4,
+};
+
+type BidStatus = enum {
+    Inactive = 0,
+    Unmodified = 1,
+    QtyReduced = 2,
+    Updated = 3,
+    Filled = 4,
+    CanceledByRequest = 5,
+    CanceledByMmp = 6,
+    CanceledBySelfMatch = 7,
+    SpeedBumped = 8,
+};
+
+type AskStatus = enum {
+    Inactive = 0,
+    Unmodified = 1,
+    QtyReduced = 2,
+    Updated = 3,
+    Filled = 4,
+    CanceledByRequest = 5,
+    CanceledByMmp = 6,
+    CanceledBySelfMatch = 7,
+    SpeedBumped = 8,
+};
+
+type BidRejectReason = enum {
+    SystemError = 0,
+    InvalidInstrument = 1,
+    InvalidField = 2,
+    InsufficientMargin = 3,
+    DuplicateClientOrderId = 4,
+    InvalidQuantity = 5,
+    InvalidPrice = 6,
+    NotAllowedByMarketState = 7,
+    PostOnly = 8,
+    TooManyOpenOrders = 9,
+    PermissionError = 10,
+    PortfolioNotFound = 11,
+    OrderNotFound = 12,
+    MmpNotConfigured = 13,
+    MmpMaxQuoteQtyExceeded = 14,
+    MmpGroupFrozen = 15,
+    InvalidMarginMode = 16,
+    InLiquidation = 17,
+    RiskCheckTimedOut = 18,
+    TooManyPendingReplaces = 19,
+    IcebergNotAllowed = 20,
+    InvalidAllocations = 21,
+    PriceTooHigh = 22,
+    PriceTooLow = 23,
+    PriceBandUnavailable = 24,
+    RateLimit = 25,
+    PortfolioLocked = 26,
+    PositionLimitExceeded = 27,
+    OrderSizeLimitExceeded = 28,
+};
+
+type AskRejectReason = enum {
+    SystemError = 0,
+    InvalidInstrument = 1,
+    InvalidField = 2,
+    InsufficientMargin = 3,
+    DuplicateClientOrderId = 4,
+    InvalidQuantity = 5,
+    InvalidPrice = 6,
+    NotAllowedByMarketState = 7,
+    PostOnly = 8,
+    TooManyOpenOrders = 9,
+    PermissionError = 10,
+    PortfolioNotFound = 11,
+    OrderNotFound = 12,
+    MmpNotConfigured = 13,
+    MmpMaxQuoteQtyExceeded = 14,
+    MmpGroupFrozen = 15,
+    InvalidMarginMode = 16,
+    InLiquidation = 17,
+    RiskCheckTimedOut = 18,
+    TooManyPendingReplaces = 19,
+    IcebergNotAllowed = 20,
+    InvalidAllocations = 21,
+    PriceTooHigh = 22,
+    PriceTooLow = 23,
+    PriceBandUnavailable = 24,
+    RateLimit = 25,
+    PortfolioLocked = 26,
+    PositionLimitExceeded = 27,
+    OrderSizeLimitExceeded = 28,
+};
+
+type ReasonMassQuoteRejectReason = enum {
+    SystemError = 0,
+    InvalidMmpGroup = 1,
+    MmpGroupDisabled = 2,
+    MmpGroupFrozen = 3,
+    TooManyQuotes = 4,
+    InvalidInstrument = 5,
+    RateLimit = 6,
+    PortfolioLocked = 7,
+};
+
+type ReasonMassCancelRejectReason = enum {
+    Error = 0,
+    InvalidMmpGroup = 1,
+    ClientPermissionError = 2,
+    NotAllowedByMarketState = 3,
+};
+
+type Trigger = enum {
+    Quantity = 0,
+    Delta = 1,
+    Vega = 2,
+};
+

@@ -1,0 +1,219 @@
+module CmeGlobexSettlementsSbeV70Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CmeGlobexSettlementsV70 = unit {
+    binary_packet_header: BinaryPacketHeader;
+    message: Message[] &eod;
+};
+
+type BinaryPacketHeader = unit {
+    packet_sequence_number: uint32;
+    sending_time: uint64;
+};
+
+type Message = unit {
+    message_size: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::MdIncrementalRefreshSettle -> md_incremental_refresh_settle: MdIncrementalRefreshSettle;
+        TemplateId::MdIncrementalRefreshVoi -> md_incremental_refresh_voi: MdIncrementalRefreshVoi;
+        TemplateId::MdIncrementalRefreshHighLow -> md_incremental_refresh_high_low: MdIncrementalRefreshHighLow;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type MdIncrementalRefreshSettle = unit {
+    transact_time: uint64;
+    incremental_refresh_settle_groups: IncrementalRefreshSettleGroups;
+};
+
+type IncrementalRefreshSettleGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_settle_group: IncrementalRefreshSettleGroup[self.group_size.num_in_group];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type IncrementalRefreshSettleGroup = unit {
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type: bytes &size=1;
+    product_guid: uint64;
+    clearing_product_code: bytes &size=12;
+    security_type: bytes &size=6;
+    security_exchange: bytes &size=8;
+    maturity_month_year: MaturityMonthYear;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    strike_price: StrikePrice;
+    underlying_product_guid: uint64;
+    underlying_clearing_product_code: bytes &size=12;
+    underlying_security_type: bytes &size=6;
+    underlying_security_exchange: bytes &size=8;
+    underlying_maturity_month_year: UnderlyingMaturityMonthYear;
+    symbol: bytes &size=20;
+    instrument_guid: uint64;
+    security_id: uint32;
+    formatted_last_px: FormattedLastPx;
+    md_entry_px: int64;
+    settl_price_type: SettlPriceType;
+    trading_reference_date: uint16;
+    md_statistic_desc: bytes &size=40;
+};
+
+type MaturityMonthYear = unit {
+    year: uint16;
+    month: uint8;
+    day: uint8;
+    week: uint8;
+};
+
+type StrikePrice = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type UnderlyingMaturityMonthYear = unit {
+    year: uint16;
+    month: uint8;
+    day: uint8;
+    week: uint8;
+};
+
+type FormattedLastPx = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type SettlPriceType = unit {
+    final_daily: bytes &size=1;
+    actual: bytes &size=1;
+    rounded: bytes &size=1;
+    intraday: bytes &size=1;
+    cabinet: bytes &size=1;
+    reserved_bits: bytes &size=1;
+    unused_settl_price_type_6: bytes &size=1;
+    null_value: bytes &size=1;
+};
+
+type MdIncrementalRefreshVoi = unit {
+    transact_time: uint64;
+    incremental_refresh_voi_groups: IncrementalRefreshVoiGroups;
+};
+
+type IncrementalRefreshVoiGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_voi_group: IncrementalRefreshVoiGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshVoiGroup = unit {
+    product_guid: uint64;
+    clearing_product_code: bytes &size=12;
+    security_type: bytes &size=6;
+    security_exchange: bytes &size=8;
+    maturity_month_year: MaturityMonthYear;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    strike_price: StrikePrice;
+    underlying_product_guid: uint64;
+    underlying_clearing_product_code: bytes &size=12;
+    underlying_security_type: bytes &size=6;
+    underlying_security_exchange: bytes &size=8;
+    underlying_maturity_month_year: UnderlyingMaturityMonthYear;
+    symbol: bytes &size=20;
+    instrument_guid: uint64;
+    security_id: uint32;
+    cleared_volume: uint32;
+    open_interest_qty: uint32;
+    open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
+    trading_reference_date: uint16;
+};
+
+type MdIncrementalRefreshHighLow = unit {
+    transact_time: uint64;
+    incremental_refresh_high_low_groups: IncrementalRefreshHighLowGroups;
+};
+
+type IncrementalRefreshHighLowGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_high_low_group: IncrementalRefreshHighLowGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshHighLowGroup = unit {
+    product_guid: uint64;
+    clearing_product_code: bytes &size=12;
+    security_type: bytes &size=6;
+    security_exchange: bytes &size=8;
+    maturity_month_year: MaturityMonthYear;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    strike_price: StrikePrice;
+    underlying_product_guid: uint64;
+    underlying_clearing_product_code: bytes &size=12;
+    underlying_security_type: bytes &size=6;
+    underlying_security_exchange: bytes &size=8;
+    underlying_maturity_month_year: UnderlyingMaturityMonthYear;
+    symbol: bytes &size=20;
+    instrument_guid: uint64;
+    security_id: uint32;
+    low_px: LowPx;
+    low_px_ind: uint8 &convert=LowPxInd($$);
+    high_px: HighPx;
+    high_px_ind: uint8 &convert=HighPxInd($$);
+    trading_reference_date: uint16;
+};
+
+type LowPx = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type HighPx = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type TemplateId = enum {
+    MdIncrementalRefreshSettle = 401,
+    MdIncrementalRefreshVoi = 402,
+    MdIncrementalRefreshHighLow = 403,
+    AdminHeartbeat = 407,
+};
+
+type MdUpdateAction = enum {
+    New = 0,
+    Change = 1,
+    Delete = 2,
+};
+
+type PutOrCall = enum {
+    Put = 0,
+    Call = 1,
+};
+
+type OpenCloseSettlFlag = enum {
+    Estimated = 3,
+    ActualAdjusted = 4,
+};
+
+type LowPxInd = enum {
+    Ask = 0x41,
+    Bid = 0x42,
+    Trade = 0x54,
+};
+
+type HighPxInd = enum {
+    Ask = 0x41,
+    Bid = 0x42,
+    Trade = 0x54,
+};
+

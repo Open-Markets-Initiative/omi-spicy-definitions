@@ -1,0 +1,189 @@
+module CmeGlobexEbsspectrumSbeV120Tcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CmeGlobexEbsspectrumV120 = unit {
+    technical_header: TechnicalHeader;
+    tcp_message: TcpMessage[] &eod;
+};
+
+type TechnicalHeader = unit {
+    encoding_type: uint16;
+    message_sequence_number: uint32;
+    tcp_sending_time: uint64;
+};
+
+type TcpMessage = unit {
+    tcp_message_size: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::MdIncrementalRefreshSpectrum -> md_incremental_refresh_spectrum: MdIncrementalRefreshSpectrum;
+        TemplateId::MdIncrementalRefreshTicker -> md_incremental_refresh_ticker: MdIncrementalRefreshTicker;
+        TemplateId::MdSnapshotRefreshSpectrum -> md_snapshot_refresh_spectrum: MdSnapshotRefreshSpectrum;
+        TemplateId::MdSnapshotRefreshTicker -> md_snapshot_refresh_ticker: MdSnapshotRefreshTicker;
+        TemplateId::GlobalDayRoll -> global_day_roll: GlobalDayRoll;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type MdIncrementalRefreshSpectrum = unit {
+    transact_time: uint64;
+    incremental_refresh_spectrum_groups: IncrementalRefreshSpectrumGroups;
+};
+
+type IncrementalRefreshSpectrumGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_spectrum_group: IncrementalRefreshSpectrumGroup[self.group_size.num_in_group];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type IncrementalRefreshSpectrumGroup = unit {
+    md_entry_type_spectrum_entry_type: uint8 &convert=MdEntryTypeSpectrumEntryType($$);
+    financial_instrument_full_name: bytes &size=35;
+    symbol: bytes &size=20;
+    instrument_guid: uint64;
+    security_id: int32;
+    md_entry_px: int64;
+    md_entry_size: uint64;
+    md_entry_time: uint64;
+};
+
+type MdIncrementalRefreshTicker = unit {
+    transact_time: uint64;
+    incremental_refresh_ticker_groups: IncrementalRefreshTickerGroups;
+};
+
+type IncrementalRefreshTickerGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_ticker_group: IncrementalRefreshTickerGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshTickerGroup = unit {
+    md_entry_type_ticker_entry_type: uint8 &convert=MdEntryTypeTickerEntryType($$);
+    security_id: int32;
+    symbol: bytes &size=20;
+    instrument_guid: uint64;
+    financial_instrument_full_name: bytes &size=35;
+    md_entry_px: int64;
+    md_entry_size: uint64;
+    md_entry_time: uint64;
+    open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    aggressor_side: uint8 &convert=AggressorSide($$);
+};
+
+type MdSnapshotRefreshSpectrum = unit {
+    transact_time: uint64;
+    financial_instrument_full_name: bytes &size=35;
+    symbol: bytes &size=20;
+    instrument_guid: uint64;
+    security_id: int32;
+    snapshot_refresh_spectrum_groups: SnapshotRefreshSpectrumGroups;
+};
+
+type SnapshotRefreshSpectrumGroups = unit {
+    group_size: GroupSize;
+    snapshot_refresh_spectrum_group: SnapshotRefreshSpectrumGroup[self.group_size.num_in_group];
+};
+
+type SnapshotRefreshSpectrumGroup = unit {
+    md_entry_type_spectrum_entry_type: uint8 &convert=MdEntryTypeSpectrumEntryType($$);
+    md_entry_px: int64;
+    md_entry_size: uint64;
+    md_entry_time: uint64;
+};
+
+type MdSnapshotRefreshTicker = unit {
+    transact_time: uint64;
+    financial_instrument_full_name: bytes &size=35;
+    symbol: bytes &size=20;
+    instrument_guid: uint64;
+    security_id: int32;
+    snapshot_refresh_ticker_groups: SnapshotRefreshTickerGroups;
+};
+
+type SnapshotRefreshTickerGroups = unit {
+    group_size: GroupSize;
+    snapshot_refresh_ticker_group: SnapshotRefreshTickerGroup[self.group_size.num_in_group];
+};
+
+type SnapshotRefreshTickerGroup = unit {
+    md_entry_type_ticker_entry_type: uint8 &convert=MdEntryTypeTickerEntryType($$);
+    md_entry_px: int64;
+    md_entry_size: uint64;
+    md_entry_time: uint64;
+    open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    aggressor_side: uint8 &convert=AggressorSide($$);
+};
+
+type GlobalDayRoll = unit {
+    transact_time: uint64;
+    security_trading_event: uint8 &convert=SecurityTradingEvent($$);
+};
+
+type TemplateId = enum {
+    AdminHeartbeat = 302,
+    MdIncrementalRefreshSpectrum = 303,
+    MdIncrementalRefreshTicker = 304,
+    MdSnapshotRefreshSpectrum = 305,
+    MdSnapshotRefreshTicker = 306,
+    GlobalDayRoll = 307,
+};
+
+type MdEntryTypeSpectrumEntryType = enum {
+    Vwap = 0x39,
+    Twap = 0x74,
+};
+
+type MdEntryTypeTickerEntryType = enum {
+    TouchHigh = 0x6b,
+    TouchLow = 0x6c,
+    OpenBestBid = 0x6d,
+    OpenBestOffer = 0x6e,
+    CloseBestBid = 0x6f,
+    CloseBestOffer = 0x70,
+    MarketHigh = 0x71,
+    MarketLow = 0x72,
+    MarketBestOffer = 0x77,
+    MarketBestBid = 0x78,
+    Paid = 0x79,
+    Given = 0x7a,
+};
+
+type OpenCloseSettlFlag = enum {
+    CurrentDay = 0,
+    PreviousDay = 4,
+};
+
+type TradingSessionId = enum {
+    Gl = 0,
+    Sy = 1,
+    Tk = 2,
+    Hk = 3,
+    Ln = 4,
+    Ny = 5,
+};
+
+type AggressorSide = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type SecurityTradingEvent = enum {
+    GlobalDayRoll = 4,
+};
+

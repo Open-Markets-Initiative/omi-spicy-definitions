@@ -1,0 +1,229 @@
+module NasdaqPhlxoptionsOrdersItchV21MoldUdp64;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PhlxoptionsOrdersV21 = unit {
+    udp_packet_header: UdpPacketHeader;
+    messages: Message[self.udp_packet_header.message_count];
+};
+
+type UdpPacketHeader = unit {
+    udp_session: bytes &size=10;
+    udp_sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::DerivativeDirectoryMessage -> derivative_directory_message: DerivativeDirectoryMessage;
+        MessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::AuctionMessage -> auction_message: AuctionMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type DerivativeDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    security_symbol: bytes &size=8;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    explicit_strike_price: uint32;
+    option_type: uint8 &convert=OptionType($$);
+    underlying_symbol: bytes &size=13;
+    closing_type: uint8 &convert=ClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+    reserved_16: bytes &size=16;
+};
+
+type TradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type AddOrderMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_reference_number: uint64;
+    side: uint8 &convert=Side($$);
+    original_order_volume: uint32;
+    executable_order_volume: uint32;
+    order_status: uint8 &convert=OrderStatus($$);
+    order_type: uint8 &convert=OrderType($$);
+    order_qualifier: uint8 &convert=OrderQualifier($$);
+    limit_price: uint32;
+    all_or_none: uint8 &convert=AllOrNone($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    open_close_indicator: uint8 &convert=OpenCloseIndicator($$);
+    owner_id: bytes &size=6;
+    giveup: bytes &size=6;
+    cmta: bytes &size=6;
+};
+
+type AuctionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    auction_id: uint32;
+    auction_type: uint8 &convert=AuctionType($$);
+    auction_duration: uint32;
+    auction_event: uint8 &convert=AuctionEvent($$);
+    quantity: uint32;
+    side: uint8 &convert=Side($$);
+    price: uint32;
+    imbalance_volume: uint32;
+    exec_flag: uint8 &convert=ExecFlag($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    owner_id: bytes &size=6;
+    giveup: bytes &size=6;
+    cmta: bytes &size=6;
+    reserved_16: bytes &size=16;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    DerivativeDirectoryMessage = 0x6d,
+    TradingActionMessage = 0x48,
+    AddOrderMessage = 0x4f,
+    AuctionMessage = 0x4a,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    StartOfNormalHoursClosingProcess = 0x4e,
+    StartOfLateHoursClosingProcess = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    EndOfWcoEarlyClosing = 0x57,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+    NotApplicable = 0x4e,
+};
+
+type ClosingType = enum {
+    NormalHours = 0x4e,
+    LateHours = 0x4c,
+    WcoEarlyClosing = 0x57,
+};
+
+type Tradable = enum {
+    Tradable = 0x59,
+    NotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type CurrentTradingState = enum {
+    BuySideSuspended = 0x42,
+    SellSideSuspended = 0x53,
+    HaltInEffect = 0x48,
+    ContinuousTrading = 0x54,
+    PreOpen = 0x49,
+    OpeningAuction = 0x4f,
+    ReOpening = 0x52,
+    Closed = 0x58,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OrderStatus = enum {
+    Open = 0x4f,
+    Filled = 0x46,
+    Cancelled = 0x43,
+};
+
+type OrderType = enum {
+    Market = 0x4d,
+    Limit = 0x4c,
+};
+
+type OrderQualifier = enum {
+    OpeningOrder = 0x4f,
+    ImpliedOrder = 0x49,
+    Na = 0x20,
+};
+
+type AllOrNone = enum {
+    AllOrNoneOrder = 0x59,
+    NotAllOrNoneOrder = 0x4e,
+};
+
+type TimeInForce = enum {
+    DayOrder = 0x44,
+    GoodTillCancelled = 0x47,
+};
+
+type OrderCapacity = enum {
+    CustomerOrder = 0x43,
+    FirmOrder = 0x46,
+    MarketMakerOrder = 0x4d,
+    BrokerDealerOrder = 0x42,
+    ProfessionalOrder = 0x50,
+    OtherExchangeMarketMakerOrder = 0x4f,
+    JointBackOffice = 0x4a,
+    Na = 0x20,
+};
+
+type OpenCloseIndicator = enum {
+    OpensPosition = 0x4f,
+    ClosesPosition = 0x43,
+    Na = 0x20,
+};
+
+type AuctionType = enum {
+    BlockAuction = 0x42,
+    Opening = 0x4f,
+    Reopening = 0x52,
+    OrderExposure = 0x49,
+    PriceImprovementAuction = 0x50,
+    Facilitation = 0x43,
+    Solicitation = 0x53,
+    FlexAuction = 0x58,
+};
+
+type AuctionEvent = enum {
+    StartOfAuction = 0x53,
+    EndOfAuction = 0x45,
+    AuctionUpdate = 0x55,
+};
+
+type ExecFlag = enum {
+    None = 0x4e,
+    Aon = 0x41,
+};
+

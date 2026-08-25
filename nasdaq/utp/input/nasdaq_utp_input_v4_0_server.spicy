@@ -1,0 +1,816 @@
+module NasdaqUtpInputUtpV40Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NasdaqUtpInputV40 = unit {
+    server_tcp_packet_header: ServerTcpPacketHeader;
+    switch ( self.server_tcp_packet_header.server_packet_type ) {
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerTcpPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        0x51 -> inbound_quote_messages_message: InboundQuoteMessagesMessage;
+        0x54 -> inbound_trade_messages_message: InboundTradeMessagesMessage;
+        0x41 -> inbound_administrative_messages_message: InboundAdministrativeMessagesMessage;
+        0x43 -> inbound_control_messages_message: InboundControlMessagesMessage;
+        0x61 -> return_administrative_messages_message: ReturnAdministrativeMessagesMessage;
+        0x63 -> return_control_messages_message: ReturnControlMessagesMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    version: uint8;
+    message_category: bytes &size=1;
+};
+
+type InboundQuoteMessagesMessage = unit {
+    inbound_quote_messages_message_type: bytes &size=1;
+    switch ( self.inbound_quote_messages_message_type ) {
+        0x51 -> protected_exchange_quote_message_shortform_message: ProtectedExchangeQuoteMessageShortformMessage;
+        0x4c -> protected_exchange_quote_message_longform_message: ProtectedExchangeQuoteMessageLongformMessage;
+        0x4f -> exchange_odd_lot_quote_message_short_form_message: ExchangeOddLotQuoteMessageShortFormMessage;
+        0x4a -> exchange_odd_lot_quote_message_long_form_message: ExchangeOddLotQuoteMessageLongFormMessage;
+        0x50 -> exchange_combined_quote_message_short_form_message: ExchangeCombinedQuoteMessageShortFormMessage;
+        0x4b -> exchange_combined_quote_message_long_form_message: ExchangeCombinedQuoteMessageLongFormMessage;
+        0x47 -> finra_protected_quote_message_with_bbo_info_message: FinraProtectedQuoteMessageWithBboInfoMessage;
+        0x46 -> finra_protected_quote_message_without_bbo_info_message: FinraProtectedQuoteMessageWithoutBboInfoMessage;
+        0x48 -> finra_adf_odd_lot_quotation_message: FinraAdfOddLotQuotationMessage;
+        0x52 -> finra_adf_combined_quote_message_with_bbo: FinraAdfCombinedQuoteMessageWithBbo;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ProtectedExchangeQuoteMessageShortformMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_5: bytes &size=5;
+    bid_short_2: uint16;
+    bid_size_short_2: uint16;
+    ask_short_2: uint16;
+    ask_size_short_2: uint16;
+    cond: uint8 &convert=Cond($$);
+    rii: uint8 &convert=Rii($$);
+};
+
+type ProtectedExchangeQuoteMessageLongformMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    bid_long_8: uint64;
+    bid_size_int_4: uint32;
+    ask_long_8: uint64;
+    ask_size_int_4: uint32;
+    cond: uint8 &convert=Cond($$);
+    rii: uint8 &convert=Rii($$);
+};
+
+type ExchangeOddLotQuoteMessageShortFormMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_5: bytes &size=5;
+    ol_bid_level_count: uint16;
+    ol_ask_level_count: uint16;
+    odd_lot_bid_short_form_attachment: OddLotBidShortFormAttachment[self.ol_bid_level_count];
+    odd_lot_ask_short_form_attachment: OddLotAskShortFormAttachment[self.ol_ask_level_count];
+};
+
+type OddLotBidShortFormAttachment = unit {
+    ol_price_short_2: uint16;
+    ol_size: uint16;
+};
+
+type OddLotAskShortFormAttachment = unit {
+    ol_price_short_2: uint16;
+    ol_size: uint16;
+};
+
+type ExchangeOddLotQuoteMessageLongFormMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    ol_bid_level_count: uint16;
+    ol_ask_level_count: uint16;
+    odd_lot_bid_long_form_attachment: OddLotBidLongFormAttachment[self.ol_bid_level_count];
+    odd_lot_ask_long_form_attachment: OddLotAskLongFormAttachment[self.ol_ask_level_count];
+};
+
+type OddLotBidLongFormAttachment = unit {
+    ol_price_long_8: uint64;
+    ol_size: uint16;
+};
+
+type OddLotAskLongFormAttachment = unit {
+    ol_price_long_8: uint64;
+    ol_size: uint16;
+};
+
+type ExchangeCombinedQuoteMessageShortFormMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_5: bytes &size=5;
+    bid_short_2: uint16;
+    bid_size_short_2: uint16;
+    ask_short_2: uint16;
+    ask_size_short_2: uint16;
+    cond: uint8 &convert=Cond($$);
+    rii: uint8 &convert=Rii($$);
+    ol_bid_level_count: uint16;
+    ol_ask_level_count: uint16;
+    odd_lot_bid_short_form_attachment: OddLotBidShortFormAttachment[self.ol_bid_level_count];
+    odd_lot_ask_short_form_attachment: OddLotAskShortFormAttachment[self.ol_ask_level_count];
+};
+
+type ExchangeCombinedQuoteMessageLongFormMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    bid_long_8: uint64;
+    bid_size_int_4: uint32;
+    ask_long_8: uint64;
+    ask_size_int_4: uint32;
+    cond: uint8 &convert=Cond($$);
+    rii: uint8 &convert=Rii($$);
+    ol_bid_level_count: uint16;
+    ol_ask_level_count: uint16;
+    odd_lot_bid_long_form_attachment: OddLotBidLongFormAttachment[self.ol_bid_level_count];
+    odd_lot_ask_long_form_attachment: OddLotAskLongFormAttachment[self.ol_ask_level_count];
+};
+
+type FinraProtectedQuoteMessageWithBboInfoMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    bid_long_8: uint64;
+    bid_size_int_4: uint32;
+    ask_long_8: uint64;
+    ask_size_int_4: uint32;
+    cond: uint8 &convert=Cond($$);
+    mpid: bytes &size=4;
+    bbo_bid: uint64;
+    bbo_bid_size: uint32;
+    bbo_bid_mpid: bytes &size=4;
+    bbo_ask: uint64;
+    bbo_ask_size: uint32;
+    bbo_ask_mpid: bytes &size=4;
+    bbo_cond: uint8 &convert=BboCond($$);
+};
+
+type FinraProtectedQuoteMessageWithoutBboInfoMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    bid_long_8: uint64;
+    bid_size_int_4: uint32;
+    ask_long_8: uint64;
+    ask_size_int_4: uint32;
+    cond: uint8 &convert=Cond($$);
+    mpid: bytes &size=4;
+    bbo_indicator: uint8 &convert=BboIndicator($$);
+};
+
+type FinraAdfOddLotQuotationMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    ol_bid_level_count: uint16;
+    ol_ask_level_count: uint16;
+    odd_lot_bid_adf_form_attachment: OddLotBidAdfFormAttachment[self.ol_bid_level_count];
+    odd_lot_ask_adf_form_attachment: OddLotAskAdfFormAttachment[self.ol_ask_level_count];
+};
+
+type OddLotBidAdfFormAttachment = unit {
+    ol_price_long_8: uint64;
+    ol_size: uint16;
+    mpid: bytes &size=4;
+};
+
+type OddLotAskAdfFormAttachment = unit {
+    ol_price_long_8: uint64;
+    ol_size: uint16;
+    mpid: bytes &size=4;
+};
+
+type FinraAdfCombinedQuoteMessageWithBbo = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    bid_long_8: uint64;
+    bid_size_int_4: uint32;
+    ask_long_8: uint64;
+    ask_size_int_4: uint32;
+    cond: uint8 &convert=Cond($$);
+    mpid: bytes &size=4;
+    rii: uint8 &convert=Rii($$);
+    bbo_bid_price: uint64;
+    bbo_bid_size: uint32;
+    bbo_bid_mpid: bytes &size=4;
+    bbo_ask_price: uint64;
+    bbo_ask_size: uint32;
+    bbo_ask_mpid: bytes &size=4;
+    bbo_cond: uint8 &convert=BboCond($$);
+    ol_bid_level_count: uint16;
+    ol_ask_level_count: uint16;
+    odd_lot_bid_adf_form_attachment: OddLotBidAdfFormAttachment[self.ol_bid_level_count];
+    odd_lot_ask_adf_form_attachment: OddLotAskAdfFormAttachment[self.ol_ask_level_count];
+};
+
+type InboundTradeMessagesMessage = unit {
+    inbound_trade_messages_message_type: bytes &size=1;
+    switch ( self.inbound_trade_messages_message_type ) {
+        0x45 -> regular_trade_report_message: RegularTradeReportMessage;
+        0x49 -> trade_cancel_error_message: TradeCancelErrorMessage;
+        0x4a -> trade_correction_message: TradeCorrectionMessage;
+        0x48 -> as_of_trade_report_message: AsOfTradeReportMessage;
+        0x4b -> fractional_regular_trade_report_message: FractionalRegularTradeReportMessage;
+        0x4f -> fractional_trade_cancel_error_message: FractionalTradeCancelErrorMessage;
+        0x50 -> fractional_trade_correction_message: FractionalTradeCorrectionMessage;
+        0x51 -> fractional_as_of_trade_report_message: FractionalAsOfTradeReportMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RegularTradeReportMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    trade_id: uint32;
+    tt_exempt: uint8 &convert=TtExempt($$);
+    trcond: bytes &size=4;
+    ssday: uint16;
+    side: uint8 &convert=Side($$);
+    price: uint64;
+    volume_int_4: uint32;
+};
+
+type TradeCancelErrorMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    cancel_type: uint8 &convert=CancelType($$);
+    orig_trade_id: uint32;
+    orig_tt_exempt: bytes &size=1;
+    orig_trcond: bytes &size=4;
+    orig_ssday: uint16;
+    orig_side: bytes &size=1;
+    orig_price: uint64;
+    orig_volume_int_4: uint32;
+};
+
+type TradeCorrectionMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    trade_id: uint32;
+    orig_trade_id: uint32;
+    orig_tt_exempt: bytes &size=1;
+    orig_trcond: bytes &size=4;
+    orig_ssday: uint16;
+    side: uint8 &convert=Side($$);
+    orig_price: uint64;
+    orig_volume_int_4: uint32;
+    new_tt_exempt: bytes &size=1;
+    new_trcond: bytes &size=4;
+    new_ssday: uint16;
+    new_price: uint64;
+    new_volume_int_4: uint32;
+};
+
+type AsOfTradeReportMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    trade_id: uint32;
+    tt_exempt: uint8 &convert=TtExempt($$);
+    trcond: bytes &size=4;
+    ssday: uint16;
+    side: uint8 &convert=Side($$);
+    price: uint64;
+    volume_int_4: uint32;
+    trade_time: uint64;
+    reversal: uint8 &convert=Reversal($$);
+};
+
+type FractionalRegularTradeReportMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    trade_id: uint32;
+    tt_exempt: uint8 &convert=TtExempt($$);
+    trcond: bytes &size=4;
+    ssday: uint16;
+    side: uint8 &convert=Side($$);
+    price: uint64;
+    volume_long_8: uint64;
+};
+
+type FractionalTradeCancelErrorMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    cancel_type: uint8 &convert=CancelType($$);
+    orig_trade_id: uint32;
+    orig_tt_exempt: bytes &size=1;
+    orig_trcond: bytes &size=4;
+    orig_ssday: uint16;
+    orig_side: bytes &size=1;
+    orig_price: uint64;
+    orig_volume_long_8: uint64;
+};
+
+type FractionalTradeCorrectionMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    timestamp_2: uint64;
+    symbol_byte_11: bytes &size=11;
+    trade_id: uint32;
+    orig_trade_id: uint32;
+    orig_tt_exempt: bytes &size=1;
+    orig_trcond: bytes &size=4;
+    orig_ssday: uint16;
+    side: uint8 &convert=Side($$);
+    orig_price: uint64;
+    orig_volume_long_8: uint64;
+    new_tt_exempt: bytes &size=1;
+    new_trcond: bytes &size=4;
+    new_ssday: uint16;
+    new_price: uint64;
+    new_volume_long_8: uint64;
+};
+
+type FractionalAsOfTradeReportMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    trade_id: uint32;
+    tt_exempt: uint8 &convert=TtExempt($$);
+    trcond: bytes &size=4;
+    ssday: uint16;
+    side: uint8 &convert=Side($$);
+    price: uint64;
+    volume_long_8: uint64;
+    trade_time: uint64;
+    reversal: uint8 &convert=Reversal($$);
+};
+
+type InboundAdministrativeMessagesMessage = unit {
+    inbound_administrative_messages_message_type: bytes &size=1;
+    switch ( self.inbound_administrative_messages_message_type ) {
+        0x41 -> general_administrative_message: GeneralAdministrativeMessage;
+        0x4f -> trading_action_message: TradingActionMessage;
+        0x4a -> market_center_trading_action_message: MarketCenterTradingActionMessage;
+        0x55 -> market_center_mass_trading_action_message: MarketCenterMassTradingActionMessage;
+        0x56 -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        0x4d -> opening_reference_midpoint_price_message: OpeningReferenceMidpointPriceMessage;
+        0x4e -> t_1_adjusted_closing_price_message: T1AdjustedClosingPriceMessage;
+        0x58 -> market_open_message: MarketOpenMessage;
+        0x59 -> market_closed_message: MarketClosedMessage;
+        0x45 -> auction_collar_message: AuctionCollarMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type GeneralAdministrativeMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    text_len: uint16;
+    text: bytes &eod;
+};
+
+type TradingActionMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    action: uint8 &convert=Action($$);
+    action_sequence: uint32;
+    action_time: uint64;
+    reason: bytes &size=6;
+};
+
+type MarketCenterTradingActionMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    action: uint8 &convert=Action($$);
+    action_time: uint64;
+};
+
+type MarketCenterMassTradingActionMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    first_security: bytes &size=11;
+    last_security: bytes &size=11;
+    action: uint8 &convert=Action($$);
+    action_time: uint64;
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    action: uint8 &convert=Action($$);
+};
+
+type OpeningReferenceMidpointPriceMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    price: uint64;
+};
+
+type T1AdjustedClosingPriceMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    price: uint64;
+};
+
+type MarketOpenMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+};
+
+type MarketClosedMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+};
+
+type AuctionCollarMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+    action_sequence: uint32;
+    collar_reference_price: uint64;
+    collar_up_price: uint64;
+    collar_down_price: uint64;
+    collar_extension: bytes &size=1;
+};
+
+type InboundControlMessagesMessage = unit {
+    inbound_control_messages_message_type: bytes &size=1;
+    switch ( self.inbound_control_messages_message_type ) {
+        0x43 -> sequence_inquiry_message: SequenceInquiryMessage;
+        0x53 -> symbol_state_inquiry_message: SymbolStateInquiryMessage;
+        0x47 -> end_of_participant_reporting_message: EndOfParticipantReportingMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SequenceInquiryMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+};
+
+type SymbolStateInquiryMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    symbol_byte_11: bytes &size=11;
+};
+
+type EndOfParticipantReportingMessage = unit {
+    orig: bytes &size=2;
+    timestamp_1: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+};
+
+type ReturnAdministrativeMessagesMessage = unit {
+    return_administrative_messages_message_type: bytes &size=1;
+    switch ( self.return_administrative_messages_message_type ) {
+        0x41 -> return_general_administrative_message: ReturnGeneralAdministrativeMessage;
+        0x4a -> return_market_center_trading_action_acknowledgement_message: ReturnMarketCenterTradingActionAcknowledgementMessage;
+        0x58 -> return_market_open_message: ReturnMarketOpenMessage;
+        0x59 -> return_market_closed_message: ReturnMarketClosedMessage;
+        0x52 -> reject_message: RejectMessage;
+        0x4b -> sequence_acknowledgement_message: SequenceAcknowledgementMessage;
+        0x57 -> participant_input_warning_message: ParticipantInputWarningMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ReturnGeneralAdministrativeMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+    text_len: uint16;
+    text: bytes &eod;
+};
+
+type ReturnMarketCenterTradingActionAcknowledgementMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+    symbol_byte_11: bytes &size=11;
+    action: uint8 &convert=Action($$);
+    action_time: uint64;
+};
+
+type ReturnMarketOpenMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+};
+
+type ReturnMarketClosedMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+};
+
+type RejectMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    reject_code: uint16 &convert=RejectCode($$);
+    syntax_violation: uint8 &convert=SyntaxViolation($$);
+};
+
+type SequenceAcknowledgementMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+};
+
+type ParticipantInputWarningMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    warning_code: uint16;
+    symbol_byte_11: bytes &size=11;
+    ol_attachmen_type: bytes &size=1;
+    ol_attachment_count: uint16;
+};
+
+type ReturnControlMessagesMessage = unit {
+    return_control_messages_message_type: bytes &size=1;
+    switch ( self.return_control_messages_message_type ) {
+        0x45 -> start_of_day_message: StartOfDayMessage;
+        0x46 -> end_of_day_message: EndOfDayMessage;
+        0x43 -> sequence_inquiry_response_message: SequenceInquiryResponseMessage;
+        0x53 -> symbol_state_inquiry_response_message: SymbolStateInquiryResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type StartOfDayMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+};
+
+type EndOfDayMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+};
+
+type SequenceInquiryResponseMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+    feed_sequence: uint64;
+    part_token: uint64;
+    sip_state: uint8 &convert=SipState($$);
+};
+
+type SymbolStateInquiryResponseMessage = unit {
+    orig: bytes &size=2;
+    sip_time: uint64;
+    symbol_byte_11: bytes &size=11;
+    next_trade_id: uint32;
+    next_action_sequence: uint32;
+    symbol_state: uint8 &convert=SymbolState($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &eod;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type ServerPacketType = enum {
+    SequencedDataPacket = 0x53,
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type Cond = enum {
+    ManualAskAutomatedBid = 0x41,
+    ManualBidAutomatedAsk = 0x42,
+    FastTrading = 0x46,
+    ManualBidAndAsk = 0x48,
+    OrderImbalance = 0x49,
+    ClosedQuote = 0x4c,
+    NonfirmQuote = 0x4e,
+    OpeningQuoteAutomated = 0x4f,
+    RegularTwosidedOpenQuoteAutomated = 0x52,
+    ManualBidAndAskNonfirm = 0x55,
+    OrderInflux = 0x58,
+    AutomatedBidNoOfferOrAutomatedOfferNoBid = 0x59,
+    NoOpennoResume = 0x5a,
+    IntradayAuction = 0x34,
+};
+
+type Rii = enum {
+    RetailInterestNotApplicable = 0x20,
+    RetailInterestOnBidQuote = 0x41,
+    RetailInterestOnAskQuote = 0x42,
+    RetailInterestOnBothBidAndAskQuote = 0x43,
+};
+
+type BboCond = enum {
+    ManualAskAutomatedBid = 0x41,
+    ManualBidAutomatedAsk = 0x42,
+    FastTrading = 0x46,
+    ManualBidAndAsk = 0x48,
+    OrderImbalance = 0x49,
+    ClosedQuote = 0x4c,
+    NonfirmQuote = 0x4e,
+    OpeningQuoteAutomated = 0x4f,
+    RegularTwosidedOpenQuoteAutomated = 0x52,
+};
+
+type BboIndicator = enum {
+    NoFinraBboChange = 0x41,
+    NoFinraBboExists = 0x42,
+};
+
+type TtExempt = enum {
+    Rule611TradeThroughExempt = 0x58,
+    NotRule611TradeThroughExempt = 0x20,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    Cross = 0x58,
+    ShortSale = 0x52,
+};
+
+type CancelType = enum {
+    Cancel = 0x43,
+    Error = 0x45,
+};
+
+type Reversal = enum {
+    TransactionRepresentsAReversal = 0x59,
+    TransactionDoesNotRepresentAReversal = 0x4e,
+};
+
+type Action = enum {
+    TradingHalt = 0x48,
+    QuotationResumptionIncludingRevokeEmergencyMarketAction = 0x51,
+    TradingResumption = 0x54,
+    VolatilityTradingPause = 0x50,
+    WipeoutQuote = 0x57,
+    EmergencyMarketActionWipeoutAndRejectNewQuotes = 0x45,
+    ClearOddLotQuotes = 0x4f,
+};
+
+type RejectCode = enum {
+    InvalidMessageType = 1,
+    InvalidOriginatingParticipant = 2,
+    MissingMessageGapDetected = 7,
+    SystemNotOpen = 11,
+    UnknownSecurityId = 26,
+    InvalidTradeCancellationType = 27,
+    InvalidPrice = 28,
+    InvalidVolume = 29,
+    InvalidCondition = 31,
+    InvalidNumberOfDaysField = 32,
+    InvalidExecutionSide = 33,
+    SecurityHalted = 36,
+    InvalidMessageFormat = 37,
+    InvalidSize = 48,
+    InvalidDateAndTime = 60,
+    MarketOpenMessageNotReceived = 62,
+    InvalidMpid = 66,
+    InvalidFinraBboMpid = 68,
+    InvalidFinraBboPrice = 69,
+    InvalidFinraBboSize = 70,
+    InvalidFinraBboCond = 71,
+    TradeDoesntMatch = 73,
+    ParticipantHalted = 75,
+    InvalidReversalIndicator = 76,
+    InvalidReason = 77,
+    MarketWideHalt = 79,
+    InvalidRetailInterestIndicator = 80,
+    InvalidReportingTime = 82,
+    UnsupportedMessageVersion = 83,
+    OriginatingParticipantNotAllowed = 84,
+    InvalidBboIndicator = 86,
+    InvalidTradeThroughExemptFlag = 87,
+    InvalidAction = 88,
+    ActionNotAllowed = 89,
+    UnexpectedTradeId = 92,
+    UnexpectedTradingActionSequence = 93,
+    InvalidOddLevel = 101,
+};
+
+type SyntaxViolation = enum {
+    SyntaxViolationPortWillDisconnect = 0x59,
+    NoSyntaxViolation = 0x4e,
+};
+
+type SipState = enum {
+    BeforeStartOfDaySod = 0x4e,
+    AfterStartOfDaySodBeforeEndOfDayEod = 0x53,
+    AfterEndOfDayEod = 0x45,
+};
+
+type SymbolState = enum {
+    TradingHalt = 0x48,
+    QuotationOnly = 0x51,
+    Trading = 0x54,
+    VolatilityTradingPause = 0x50,
+};
+

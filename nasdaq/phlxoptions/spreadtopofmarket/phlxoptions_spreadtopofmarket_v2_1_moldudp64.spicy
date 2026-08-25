@@ -1,0 +1,174 @@
+module NasdaqPhlxoptionsSpreadtopofmarketItchV21MoldUdp64;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PhlxoptionsSpreadtopofmarketV21 = unit {
+    udp_packet_header: UdpPacketHeader;
+    messages: Message[self.udp_packet_header.message_count];
+};
+
+type UdpPacketHeader = unit {
+    udp_session: bytes &size=10;
+    udp_sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::ComplexStrategyDirectoryMessage -> complex_strategy_directory_message: ComplexStrategyDirectoryMessage;
+        MessageType::StrategyTradingActionMessage -> strategy_trading_action_message: StrategyTradingActionMessage;
+        MessageType::StrategyBestBidAndAskUpdateMessage -> strategy_best_bid_and_ask_update_message: StrategyBestBidAndAskUpdateMessage;
+        MessageType::StrategyBestBidUpdateMessage -> strategy_best_bid_update_message: StrategyBestBidUpdateMessage;
+        MessageType::StrategyBestAskUpdateMessage -> strategy_best_ask_update_message: StrategyBestAskUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type ComplexStrategyDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    strategy_type: uint8 &convert=StrategyType($$);
+    underlying_symbol: bytes &size=13;
+    reserved_16: bytes &size=16;
+    number_of_legs: uint8;
+    leg_information: LegInformation[self.number_of_legs];
+};
+
+type LegInformation = unit {
+    option_id: uint32;
+    security_symbol: bytes &size=8;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    explicit_strike_price: uint32;
+    option_type: uint8 &convert=OptionType($$);
+    side: uint8 &convert=Side($$);
+    leg_ratio: uint32;
+};
+
+type StrategyTradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type StrategyBestBidAndAskUpdateMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    quote_condition: bytes &size=1;
+    bid_market_size: uint32;
+    bid_price: uint32;
+    bid_size: uint32;
+    bid_cust_size: uint32;
+    bid_pro_cust_size: uint32;
+    bid_dntt_size: uint32;
+    bid_dntt_market_size: uint32;
+    ask_market_size: uint32;
+    ask_price: uint32;
+    ask_size: uint32;
+    ask_cust_size: uint32;
+    ask_pro_cust_size: uint32;
+    ask_dntt_size: uint32;
+    ask_dntt_market_size: uint32;
+};
+
+type StrategyBestBidUpdateMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    quote_condition: bytes &size=1;
+    market_size: uint32;
+    price: uint32;
+    size: uint32;
+    cust_size: uint32;
+    pro_cust_size: uint32;
+    dntt_size: uint32;
+    dntt_market_size: uint32;
+};
+
+type StrategyBestAskUpdateMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    quote_condition: bytes &size=1;
+    market_size: uint32;
+    price: uint32;
+    size: uint32;
+    cust_size: uint32;
+    pro_cust_size: uint32;
+    dntt_size: uint32;
+    dntt_market_size: uint32;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    ComplexStrategyDirectoryMessage = 0x73,
+    StrategyTradingActionMessage = 0x48,
+    StrategyBestBidAndAskUpdateMessage = 0x45,
+    StrategyBestBidUpdateMessage = 0x63,
+    StrategyBestAskUpdateMessage = 0x64,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    StartOfNormalHoursClosingProcess = 0x4e,
+    StartOfLateHoursClosingProcess = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    EndOfWcoEarlyClosing = 0x57,
+};
+
+type StrategyType = enum {
+    VerticalSpread = 0x56,
+    TimeSpread = 0x54,
+    DiagonalSpread = 0x44,
+    Straddle = 0x53,
+    Strangle = 0x47,
+    Combo = 0x43,
+    RiskReversal = 0x52,
+    RatioSpread = 0x41,
+    BoxSpread = 0x42,
+    ButterflySpread = 0x46,
+    Custom = 0x55,
+};
+
+type OptionType = enum {
+    CallOption = 0x43,
+    PutOption = 0x50,
+    StockLeg = 0x20,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    ContinuousTrading = 0x54,
+    PreOpen = 0x49,
+    OpeningAuction = 0x4f,
+    ReOpening = 0x52,
+    Closed = 0x58,
+};
+

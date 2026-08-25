@@ -1,0 +1,551 @@
+module NasdaqUtpSnapshotUtpV30Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NasdaqUtpSnapshotV30 = unit {
+    server_tcp_packet_header: ServerTcpPacketHeader;
+    switch ( self.server_tcp_packet_header.server_packet_type ) {
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerTcpPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        0x41 -> administrative_message: AdministrativeMessage;
+        0x43 -> control_message: ControlMessage;
+        0x51 -> quote_message: QuoteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    version: uint8;
+    message_category: bytes &size=1;
+};
+
+type AdministrativeMessage = unit {
+    administrative_message_type: bytes &size=1;
+    switch ( self.administrative_message_type ) {
+        0x42 -> issue_symbol_directory_message: IssueSymbolDirectoryMessage;
+        0x46 -> enhanced_issue_symbol_directory_message: EnhancedIssueSymbolDirectoryMessage;
+        0x56 -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        0x48 -> cross_sro_trading_action_message: CrossSroTradingActionMessage;
+        0x4b -> market_center_trading_action_message: MarketCenterTradingActionMessage;
+        0x43 -> market_wide_circuit_breaker_decline_level_message: MarketWideCircuitBreakerDeclineLevelMessage;
+        0x50 -> limit_up_limit_down_price_band_message: LimitUpLimitDownPriceBandMessage;
+        0x45 -> auction_collar_message: AuctionCollarMessage;
+        0x53 -> snapshot_sequence_message: SnapshotSequenceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type IssueSymbolDirectoryMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol: bytes &size=11;
+    old_symbol: bytes &size=11;
+    issue_name: bytes &size=30;
+    issue_type: uint8 &convert=IssueType($$);
+    issue_subtype: bytes &size=2;
+    market_tier: uint8 &convert=MarketTier($$);
+    authenticity: uint8 &convert=Authenticity($$);
+    short_sale_threshold_indicator: uint8 &convert=ShortSaleThresholdIndicator($$);
+    round_lot_size: uint16;
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+};
+
+type EnhancedIssueSymbolDirectoryMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol: bytes &size=11;
+    old_symbol: bytes &size=11;
+    issue_name: bytes &size=30;
+    issue_type: uint8 &convert=IssueType($$);
+    issue_subtype: bytes &size=2;
+    market_tier: uint8 &convert=MarketTier($$);
+    authenticity: uint8 &convert=Authenticity($$);
+    short_sale_threshold_indicator: uint8 &convert=ShortSaleThresholdIndicator($$);
+    round_lot_size: uint16;
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    etp_indicator: bytes &size=1;
+    new_issue_indicator: bytes &size=1;
+    mpi_tick: uint8 &convert=MpiTick($$);
+    trading_state: uint8 &convert=TradingState($$);
+    halt_reason: bytes &size=6;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+    consolidated_prior_day_close_price: uint64;
+    listing_market_official_prior_day_close_price: uint64;
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol: bytes &size=11;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type CrossSroTradingActionMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol: bytes &size=11;
+    trading_action_code: uint8 &convert=TradingActionCode($$);
+    trading_action_sequence_number: uint32;
+    action_time: uint64;
+    reason_for_the_trading_action: bytes &size=6;
+};
+
+type MarketCenterTradingActionMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol: bytes &size=11;
+    trading_action_code: uint8 &convert=TradingActionCode($$);
+    action_time: uint64;
+    market_center_identifier: bytes &size=1;
+};
+
+type MarketWideCircuitBreakerDeclineLevelMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    mwcb_level_1: uint64;
+    mwcb_level_2: uint64;
+    mwcb_level_3: uint64;
+};
+
+type LimitUpLimitDownPriceBandMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol: bytes &size=11;
+    luld_price_band_indicator: uint8 &convert=LuldPriceBandIndicator($$);
+    luld_price_band_effective_time: uint64;
+    limit_down_price: uint64;
+    limit_up_price: uint64;
+};
+
+type AuctionCollarMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    symbol: bytes &size=11;
+    trading_action_sequence_number: uint32;
+    collar_reference_price: uint64;
+    collar_up_price: uint64;
+    collar_down_price: uint64;
+    collar_extension_indicator: bytes &size=1;
+};
+
+type SnapshotSequenceMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    sequence_number: uint64;
+};
+
+type ControlMessage = unit {
+    control_message_type: bytes &size=1;
+    switch ( self.control_message_type ) {
+        0x49 -> start_of_day_message: StartOfDayMessage;
+        0x4f -> market_session_open_message: MarketSessionOpenMessage;
+        0x43 -> market_session_close_message: MarketSessionCloseMessage;
+        0x4a -> end_of_day_message: EndOfDayMessage;
+        0x5a -> end_of_transmissions_message: EndOfTransmissionsMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type StartOfDayMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type MarketSessionOpenMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type MarketSessionCloseMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type EndOfDayMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type EndOfTransmissionsMessage = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+};
+
+type QuoteMessage = unit {
+    quote_message_type: bytes &size=1;
+    switch ( self.quote_message_type ) {
+        0x44 -> utp_combined_quote_message_long_form: UtpCombinedQuoteMessageLongForm;
+        0x42 -> odd_lot_quote_message_long_form: OddLotQuoteMessageLongForm;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type UtpCombinedQuoteMessageLongForm = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    finra_adf_timestamp: uint64;
+    symbol: bytes &size=11;
+    bid_price: uint64;
+    bid_size: uint32;
+    ask_price: uint64;
+    ask_size: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    sip_generated_update_flag: uint8 &convert=SipGeneratedUpdateFlag($$);
+    luld_bbo_indicator: uint8 &convert=LuldBboIndicator($$);
+    retail_interest_indicator: uint8 &convert=RetailInterestIndicator($$);
+    nbbo_appendage_indicator: uint8 &convert=NbboAppendageIndicator($$);
+    luld_national_bbo_indicator: uint8 &convert=LuldNationalBboIndicator($$);
+    finra_adf_mpid_appendage_indicator: uint8 &convert=FinraAdfMpidAppendageIndicator($$);
+    bolo_appendage_indicator: uint8 &convert=BoloAppendageIndicator($$);
+    odd_lot_attachment_type: uint8 &convert=OddLotAttachmentType($$);
+    odd_lot_attachment_count: uint16;
+    national_bbo_appendage_longform: NationalBboAppendageLongform;
+    finra_adf_mpid_appendage: FinraAdfMpidAppendage;
+    bolo_appendage_mpid_form: BoloAppendageMpidForm;
+};
+
+type NationalBboAppendageLongform = unit {
+    nbbo_quote_condition: bytes &size=1;
+    national_best_bid_market_center: bytes &size=1;
+    national_best_bid_price: uint64;
+    national_best_bid_size: uint32;
+    national_best_ask_market_center: bytes &size=1;
+    national_best_ask_price: uint64;
+    national_best_ask_size: uint32;
+};
+
+type FinraAdfMpidAppendage = unit {
+    bid_adf_mpid: bytes &size=4;
+    ask_adf_mpid: bytes &size=4;
+};
+
+type BoloAppendageMpidForm = unit {
+    bolo_best_bid_market_center: bytes &size=1;
+    bolo_bid_price: uint64;
+    bolo_bid_size: uint16;
+    bolo_best_ask_market_center: bytes &size=1;
+    bolo_ask_price: uint64;
+    bolo_ask_size: uint16;
+    bolo_best_bid_market_participant_identifier: bytes &size=4;
+    bolo_best_ask_market_participant_identifier: bytes &size=4;
+};
+
+type OddLotQuoteMessageLongForm = unit {
+    market_center_originator: uint8 &convert=MarketCenterOriginator($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    timestamp_1: uint64;
+    participant_token: uint64;
+    adf_timestamp: uint64;
+    symbol: bytes &size=11;
+    sip_generated_update_flag: uint8 &convert=SipGeneratedUpdateFlag($$);
+    bolo_appendage_indicator: uint8 &convert=BoloAppendageIndicator($$);
+    odd_lot_attachment_type: uint8 &convert=OddLotAttachmentType($$);
+    odd_lot_attachment_count: uint16;
+    bolo_appendage_mpid_form: BoloAppendageMpidForm;
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type ServerPacketType = enum {
+    SequencedDataPacket = 0x53,
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type MarketCenterOriginator = enum {
+    CboeByxExchangeInc = 0x59,
+    CboeBzxExchangeInc = 0x5a,
+    CboeEdgaExchangeInc = 0x4a,
+    CboeEdgxExchangeInc = 0x4b,
+    CboeExchangeInc = 0x57,
+    NasdaqTexasLlc = 0x42,
+    NasdaqPhlxLlc = 0x58,
+    NasdaqInc = 0x51,
+    NasdaqIseLlc = 0x49,
+    NewYorkStockExchangeLlc = 0x4e,
+    NyseArcaInc = 0x50,
+    NyseAmericanLlc = 0x41,
+    NyseNationalInc = 0x43,
+    NyseTexas = 0x4d,
+    TexasStockExchangeLlc = 0x46,
+    N24XNationalExchangeLlc = 0x47,
+    FinancialIndustryRegulatoryAuthority = 0x44,
+    InvestorsExchangeLlc = 0x56,
+    LongTermStockExchange = 0x4c,
+    MiaxPearlLlc = 0x48,
+    MemxLlc = 0x55,
+    MarketIndependentGeneratedBySip = 0x45,
+};
+
+type SubMarketCenterId = enum {
+    FinraNyseTrf = 0x4e,
+    FinraNasdaqTrfCarteret = 0x51,
+    FinraNasdaqTrfChicago = 0x42,
+    TradeOriginatesFromFinraAlternativeDisplayFacility = 0x20,
+};
+
+type IssueType = enum {
+    AmericanDepositoryReceipt = 0x41,
+    Bond = 0x42,
+    CommonStock = 0x43,
+    DepositoryReceipt = 0x46,
+    Sec144A = 0x49,
+    LimitedPartnership = 0x4c,
+    Note = 0x4e,
+    OrdinaryShares = 0x4f,
+    PreferredStock = 0x50,
+    OtherSecurities = 0x51,
+    Rights = 0x52,
+    SharesOfBeneficialInterest = 0x53,
+    ConvertibleDebenture = 0x54,
+    Unit = 0x55,
+    UnitsOfBeneficialInterest = 0x56,
+    Warrant = 0x57,
+};
+
+type IssueSubtype = enum {
+    TrustPreferred = 0x41,
+    IndexLinkedNote = 0x42,
+    CommonShares = 0x43,
+    GlobalDepositaryShares = 0x44,
+    EtfUnitInvestmentTrust = 0x45,
+    Holdrs = 0x46,
+    ExchangeTradedDebt = 0x47,
+    EtfManagementInvestmentCompany = 0x49,
+    CorporateBackedTrustSecurity = 0x4a,
+    ContingentLitigationRightWarrant = 0x4c,
+    EquityLinkedNote = 0x4d,
+    NyRegistryShares = 0x4e,
+    IncomeDepositaryShares = 0x4f,
+    ThirdPartyTrustCertificate = 0x50,
+    ClosedEndFunds = 0x51,
+    RegS = 0x52,
+    Seed = 0x53,
+    TrackingStock = 0x54,
+    Portal = 0x55,
+    ContingentValueRight = 0x56,
+    TrustIssuedReceipts = 0x57,
+    Trust = 0x58,
+    Other = 0x59,
+    Na = 0x5a,
+};
+
+type MarketTier = enum {
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+};
+
+type Authenticity = enum {
+    LiveProduction = 0x50,
+    Test = 0x54,
+    Demo = 0x44,
+    Deleted = 0x58,
+};
+
+type ShortSaleThresholdIndicator = enum {
+    IssueIsRestrictedUnderSecRule203B3 = 0x59,
+    IssueIsNotRestricted = 0x4e,
+    ThresholdIndicatorNotAvailable = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    CreationsAndorRedemptionsSuspendedForExchangeTradedProduct = 0x43,
+    DeficientIssuerFailedToMeetNasdaqContinuedListingRequirements = 0x44,
+    DelinquentIssuerMissedRegulatoryFilingDeadline = 0x45,
+    BankruptIssuerHasFiledForBankruptcy = 0x51,
+    NormalDefaultIssuerIsNotDeficientDelinquentOrBankrupt = 0x4e,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+};
+
+type MpiTick = enum {
+    PennyMpi = 0x50,
+    HalfPennyMpiEffectiveNov2026PerSecMandate = 0x48,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInEffect = 0x30,
+    RegShoInEffectDueToAnIntraDayPriceDropInSecurity = 0x31,
+    RegShoRestrictionRemainsInEffect = 0x32,
+};
+
+type TradingActionCode = enum {
+    TradingHalt = 0x48,
+    QuotationResumptionIncludingAfterEma = 0x51,
+    TradingResumption = 0x54,
+    VolatilityTradingPause = 0x50,
+};
+
+type LuldPriceBandIndicator = enum {
+    OpeningUpdate = 0x41,
+    IntraDayUpdate = 0x42,
+    RestatedValue = 0x43,
+    SuspendedDuringTradingHaltOrTradingPause = 0x44,
+    ReOpeningUpdate = 0x45,
+    OutsidePriceBandRuleHours = 0x46,
+    NoneProvided = 0x20,
+};
+
+type QuoteCondition = enum {
+    ManualAskAutomatedBid = 0x41,
+    ManualBidAutomatedAsk = 0x42,
+    FastTrading = 0x46,
+    ManualBidAndAsk = 0x48,
+    OrderImbalance = 0x49,
+    ClosedQuote = 0x4c,
+    NonfirmQuote = 0x4e,
+    OpeningQuoteAutomated = 0x4f,
+    RegularTwosidedOpenQuoteAutomated = 0x52,
+    ManualBidAndAskNonfirm = 0x55,
+    OrderInflux = 0x58,
+    AutomatedBidNoOfferOrAutomatedOfferNoBid = 0x59,
+    NoOpenNoResume = 0x5a,
+    IntradayAuction = 0x34,
+};
+
+type SipGeneratedUpdateFlag = enum {
+    TransactionOriginatedFromMarketParticipant = 0x20,
+    SiPgeneratedTransactionEgPriceBandChange = 0x45,
+};
+
+type LuldBboIndicator = enum {
+    LimitUpLimitDownNotApplicable = 0x20,
+    BidPriceAboveUpperLimitPriceBandBidIsNonExecutable = 0x41,
+    AskPriceBelowLowerLimitPriceBandAskIsNonExecutable = 0x42,
+    BidAndAskOutsidePriceBandNotExecutable = 0x43,
+};
+
+type RetailInterestIndicator = enum {
+    RetailInterestNotApplicable = 0x20,
+    RetailInterestOnBidQuote = 0x41,
+    RetailInterestOnAskQuote = 0x42,
+    RetailInterestOnBothBidAndAskQuote = 0x43,
+};
+
+type NbboAppendageIndicator = enum {
+    NoNationalBboChange = 0x30,
+    NoNationalBboCanBeCalculated = 0x31,
+    ShortFormNationalBboAppendageAttached = 0x32,
+    LongFormNationalBboAppendageAttached = 0x33,
+    QuoteContainsAllNationalBboInformation = 0x34,
+};
+
+type LuldNationalBboIndicator = enum {
+    LimitUpLimitDownNotApplicable = 0x20,
+    NationalBestBidAndNationalBestAskAreExecutable = 0x41,
+    NationalBestBidBelowLowerLimitPriceBandNonExecutable = 0x42,
+    NationalBestAskAboveUpperLimitPriceBandNonExecutable = 0x43,
+    NationalBestBidBelowLowerAndNationalBestAskAboveUpperLimitPriceBandsNonExecutable = 0x44,
+    NationalBestBidEqualsUpperLimitPriceBandNationalBestBidIsInLimitState = 0x45,
+    NationalBestOfferEqualsLowerLimitPriceBandNationalBestAskIsInLimitState = 0x46,
+    NationalBestBidEqualsUpperLimitPriceBandInLimitStateAndNationalBestAskAboveUpperLimitPriceBandNonExecutable = 0x47,
+    NationalBestAskEqualsLowerLimitPriceBandInLimitStateAndNationalBestBidBelowLowerLimitPriceBandNonExecutable = 0x48,
+    NationalBestBidEqualsUpperLimitPriceBandAndNationalBestAskEqualsLowerLimitPriceBandCrossedNotInLimitState = 0x49,
+};
+
+type FinraAdfMpidAppendageIndicator = enum {
+    NotApplicableQuotationOriginatesFromAUtpParticipantOtherThanFinra = 0x20,
+    NoAdfMpidChangesCurrentAdfQuoteDoesNotAffectTheFinraMpid = 0x30,
+    NoAdfMpidExistsNoCalculationOfTheFinraMpid = 0x31,
+    AdfMpiDsAttachedFinraMpidWasGenerated = 0x32,
+};
+
+type BoloAppendageIndicator = enum {
+    NoBoloChange = 0x30,
+    NoBoloCanBeCalculated = 0x31,
+    ShortFormBoloAppendageAttached = 0x32,
+    LongFormBoloAppendageAttached = 0x33,
+    MpidFormBoloAppendageAttached = 0x35,
+};
+
+type OddLotAttachmentType = enum {
+    NoOddLotPriceLevelsAttached = 0x30,
+    ShortFormOddLotPriceLevelsAttached = 0x32,
+    LongFormOddLotPriceLevelsAttached = 0x33,
+    MpidFormOddLotPriceLevelsAttached = 0x35,
+};
+

@@ -1,0 +1,487 @@
+module NyseNationalequitiesTradesPillarV26;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NationalequitiesTradesV26 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msgs];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msgs: uint8;
+    seq_num: uint32;
+    send_time: SendTime;
+};
+
+type SendTime = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
+        MessageType::SourceTimeReferenceMessage -> source_time_reference_message: SourceTimeReferenceMessage;
+        MessageType::SymbolIndexMappingMessage -> symbol_index_mapping_message: SymbolIndexMappingMessage;
+        MessageType::SymbolClearMessage -> symbol_clear_message: SymbolClearMessage;
+        MessageType::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
+        MessageType::RefreshRequestMessage -> refresh_request_message: RefreshRequestMessage;
+        MessageType::MessageUnavailableMessage -> message_unavailable_message: MessageUnavailableMessage;
+        MessageType::RefreshHeaderMessage -> refresh_header_message: RefreshHeaderMessage;
+        MessageType::RequestResponseMessage -> request_response_message: RequestResponseMessage;
+        MessageType::HeartbeatResponseMessage -> heartbeat_response_message: HeartbeatResponseMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        MessageType::StockSummaryMessage -> stock_summary_message: StockSummaryMessage;
+        MessageType::TrfFractionalTradeMessage -> trf_fractional_trade_message: TrfFractionalTradeMessage;
+        MessageType::TrfTradeCancelMessage -> trf_trade_cancel_message: TrfTradeCancelMessage;
+        MessageType::TrfFractionalTradeCorrectionMessage -> trf_fractional_trade_correction_message: TrfFractionalTradeCorrectionMessage;
+        MessageType::TrfFractionalPriorDayTradeMessage -> trf_fractional_prior_day_trade_message: TrfFractionalPriorDayTradeMessage;
+        MessageType::TrfFractionalPriorDayTradeCancelMessage -> trf_fractional_prior_day_trade_cancel_message: TrfFractionalPriorDayTradeCancelMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type SequenceNumberResetMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type SourceTimeReferenceMessage = unit {
+    id: uint32;
+    symbol_seq_num: uint32;
+    source_time: uint32;
+};
+
+type SymbolIndexMappingMessage = unit {
+    symbol_index: uint32;
+    symbol: bytes &size=11;
+    reserved_1: uint8;
+    market_id: uint16 &convert=MarketId($$);
+    system_id: uint8;
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    price_scale_code: uint8;
+    security_type: uint8 &convert=SecurityType($$);
+    lot_size: uint16;
+    prev_close_price: int32;
+    prev_close_volume: uint32;
+    price_resolution: uint8;
+    round_lot: uint8 &convert=RoundLot($$);
+    mpv: uint16;
+    unit_of_trade: uint16;
+    reserved_2: uint16;
+};
+
+type SymbolClearMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    next_source_seq_num: uint32;
+};
+
+type SecurityStatusMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    security_status: uint8 &convert=SecurityStatus($$);
+    halt_condition: uint8 &convert=HaltCondition($$);
+    reserved_4: uint32;
+    price_1: int32;
+    price_2: int32;
+    ssr_triggering_exchange_id: uint8 &convert=SsrTriggeringExchangeId($$);
+    ssr_triggering_volume: uint32;
+    time_field: uint32;
+    ssr_state: uint8 &convert=SsrState($$);
+    market_state: uint8 &convert=MarketState($$);
+    session_state: bytes &size=1;
+};
+
+type RetransmissionRequestMessage = unit {
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type SymbolIndexMappingRequestMessage = unit {
+    symbol_index: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+    retransmit_method: uint8;
+};
+
+type RefreshRequestMessage = unit {
+    symbol_index: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type MessageUnavailableMessage = unit {
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type RefreshHeaderMessage = unit {
+    current_refresh_pkt: uint16;
+    total_refresh_pkts: uint16;
+    last_seq_num: uint32;
+    last_symbol_seq_num: uint32;
+};
+
+type RequestResponseMessage = unit {
+    request_seq_num: uint32;
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+    status: uint8 &convert=Status($$);
+};
+
+type HeartbeatResponseMessage = unit {
+    source_id: bytes &size=10;
+};
+
+type TradeMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    trade_id: uint32;
+    price: int32;
+    volume: uint32;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
+    trade_cond_2: uint8 &convert=TradeCond2($$);
+    trade_cond_3: uint8 &convert=TradeCond3($$);
+    trade_cond_4: uint8 &convert=TradeCond4($$);
+};
+
+type TradeCancelMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    original_trade_id: uint32;
+};
+
+type TradeCorrectionMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    original_trade_id: uint32;
+    trade_id: uint32;
+    price: int32;
+    volume: uint32;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
+    trade_cond_2: uint8 &convert=TradeCond2($$);
+    trade_cond_3: uint8 &convert=TradeCond3($$);
+    trade_cond_4: uint8 &convert=TradeCond4($$);
+};
+
+type StockSummaryMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    high_price: int32;
+    low_price: int32;
+    open: uint32;
+    close: uint32;
+    total_volume: uint32;
+};
+
+type TrfFractionalTradeMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    trade_id: uint32;
+    price: int32;
+    fractional_volume: uint64;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
+    trade_cond_2: uint8 &convert=TradeCond2($$);
+    trade_cond_3: uint8 &convert=TradeCond3($$);
+    trade_cond_4: uint8 &convert=TradeCond4($$);
+    exec_day_time: uint32;
+    exec_day_time_ns: uint32;
+};
+
+type TrfTradeCancelMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    original_trade_id: uint32;
+};
+
+type TrfFractionalTradeCorrectionMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    original_trade_id: uint32;
+    trade_id: uint32;
+    price: int32;
+    fractional_volume: uint64;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
+    trade_cond_2: uint8 &convert=TradeCond2($$);
+    trade_cond_3: uint8 &convert=TradeCond3($$);
+    trade_cond_4: uint8 &convert=TradeCond4($$);
+    exec_day_time: uint32;
+    exec_day_time_ns: uint32;
+};
+
+type TrfFractionalPriorDayTradeMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    trade_id: uint32;
+    price: int32;
+    fractional_volume: uint64;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
+    trade_cond_2: uint8 &convert=TradeCond2($$);
+    trade_cond_3: uint8 &convert=TradeCond3($$);
+    trade_cond_4: uint8 &convert=TradeCond4($$);
+    prior_day_time: uint32;
+    prior_day_time_ns: uint32;
+};
+
+type TrfFractionalPriorDayTradeCancelMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    trade_id: uint32;
+    price: int32;
+    fractional_volume: uint64;
+    prior_day_time: uint32;
+    prior_day_time_ns: uint32;
+};
+
+type DeliveryFlag = enum {
+    Heartbeat = 1,
+    PillarFailover = 10,
+    OriginalMessage = 11,
+    SequenceNumberResetMessage = 12,
+    OneRetransmissionPacket = 13,
+    RetransmissionSequenceMessage = 15,
+    OneRefreshPacket = 17,
+    RefreshSequenceStart = 18,
+    RefreshSequenceMessage = 19,
+    RefreshSequenceEnd = 20,
+    MessageUnavailable = 21,
+};
+
+type MessageType = enum {
+    SequenceNumberResetMessage = 1,
+    SourceTimeReferenceMessage = 2,
+    SymbolIndexMappingMessage = 3,
+    SymbolClearMessage = 32,
+    SecurityStatusMessage = 34,
+    RetransmissionRequestMessage = 10,
+    SymbolIndexMappingRequestMessage = 13,
+    RefreshRequestMessage = 15,
+    MessageUnavailableMessage = 31,
+    RefreshHeaderMessage = 35,
+    RequestResponseMessage = 11,
+    HeartbeatResponseMessage = 12,
+    TradeMessage = 220,
+    TradeCancelMessage = 221,
+    TradeCorrectionMessage = 222,
+    StockSummaryMessage = 223,
+    TrfFractionalTradeMessage = 210,
+    TrfTradeCancelMessage = 216,
+    TrfFractionalTradeCorrectionMessage = 212,
+    TrfFractionalPriorDayTradeMessage = 213,
+    TrfFractionalPriorDayTradeCancelMessage = 214,
+};
+
+type MarketId = enum {
+    NyseEquities = 1,
+    NyseArcaEquities = 3,
+    NyseArcaOptions = 4,
+    NyseBonds = 5,
+    NyseAmericanOptions = 8,
+    NyseAmericanEquities = 9,
+    NyseNationalEquities = 10,
+    NyseTexasEquities = 11,
+};
+
+type ExchangeCode = enum {
+    NyseAmerican = 0x41,
+    Ltse = 0x4c,
+    NyseTexas = 0x4d,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x51,
+    Iex = 0x56,
+    Cboe = 0x5a,
+};
+
+type SecurityType = enum {
+    Adr = 0x41,
+    CommonStock = 0x43,
+    Debentures = 0x44,
+    Etf = 0x45,
+    Foreign = 0x46,
+    UsDepositaryShares = 0x48,
+    Units = 0x49,
+    IndexLinkedNotes = 0x4c,
+    MiscliquidTrust = 0x4d,
+    OrdinaryShares = 0x4f,
+    PreferredStock = 0x50,
+    Rights = 0x52,
+    SharesOfBeneficiaryInterest = 0x53,
+    Test = 0x54,
+    ClosedEndFund = 0x55,
+    Warrant = 0x57,
+};
+
+type RoundLot = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type SecurityStatus = enum {
+    TradingHalt = 0x34,
+    Resume = 0x35,
+    Suspend = 0x36,
+    ShortSaleRestrictionActivatedDay1 = 0x41,
+    ShortSaleRestrictionContinuedDay2 = 0x43,
+    ShortSaleRestrictionDeactivated = 0x44,
+    Preopening = 0x50,
+    BeginAcceptingOrders = 0x42,
+    EarlySession = 0x45,
+    CoreSession = 0x4f,
+    LateSessionNonNyseOnly = 0x4c,
+    Closed = 0x58,
+    HaltResumePriceIndication = 0x49,
+    PreOpeningPriceIndication = 0x47,
+};
+
+type HaltCondition = enum {
+    SecurityNotDelayedhalted = 0x7e,
+    NewsReleasedNewsDissemination = 0x44,
+    OrderImbalance = 0x49,
+    NewsPending = 0x50,
+    LuldPause = 0x4d,
+    EquipmentChangeover = 0x58,
+    AdditionalInformationRequested = 0x41,
+    RegulatoryConcern = 0x43,
+    MergerEffective = 0x45,
+    EtfComponentPricesNotAvailable = 0x46,
+    CorporateAction = 0x4e,
+    NewSecurityOffering = 0x4f,
+    IntradayIndicativeValueNotAvailable = 0x56,
+    Suspend = 0x36,
+    MarketWideCircuitBreakerHaltLevel1 = 0x31,
+    MarketWideCircuitBreakerHaltLevel2 = 0x32,
+    MarketWideCircuitBreakerHaltLevel3 = 0x33,
+};
+
+type SsrTriggeringExchangeId = enum {
+    NyseAmerican = 0x41,
+    NasdaqOmxBx = 0x42,
+    NyseNational = 0x43,
+    Finra = 0x44,
+    N24X = 0x47,
+    MiamiPeral = 0x48,
+    NasdaqIse = 0x49,
+    CboeEdga = 0x4a,
+    CboeEdgx = 0x4b,
+    Ltse = 0x4c,
+    NyseTexas = 0x4d,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x51,
+    NasdaqOmx = 0x54,
+    Memx = 0x55,
+    Iex = 0x56,
+    Cbsx = 0x57,
+    NasdaqOmxPsx = 0x58,
+    CboeByx = 0x59,
+    CboeBzx = 0x5a,
+};
+
+type SsrState = enum {
+    NoShortSaleRestrictionInEffect = 0x7e,
+    ShortSaleRestrictionInEffect = 0x45,
+};
+
+type MarketState = enum {
+    Preopening = 0x50,
+    EarlySession = 0x45,
+    CoreSession = 0x4f,
+    LateSessionNonNyseOnly = 0x4c,
+    Closed = 0x58,
+};
+
+type Status = enum {
+    MessageWasAccepted = 0x30,
+    RejectedDueToAnInvalidSourceId = 0x31,
+    RejectedDueToMaximumSequenceRangeSeeThresholdLimits = 0x33,
+    RejectedDueToMaximumRequestInADay = 0x34,
+    RejectedDueToMaximumNumberOfRefreshRequestsInADay = 0x35,
+    RejectedRequestMessageSeqNumTtlTimeToLiveIsTooOldUseRefreshToRecoverCurrentStateIfNecessary = 0x36,
+    RejectedDueToAnInvalidChannelId = 0x37,
+    RejectedDueToAnInvalidProductId = 0x38,
+    RejectedDueTo1InvalidMsgTypeOr2MismatchBetweenMsgTypeAndMsgSize = 0x39,
+};
+
+type TradeCond1 = enum {
+    RegularSale = 0x40,
+    Cash = 0x43,
+    RegularSaleTrfOnly = 0x20,
+    SellerTrfOnly = 0x52,
+};
+
+type TradeCond2 = enum {
+    Na = 0x20,
+    IntermarketSweepOrder = 0x46,
+    MarketCenterOpeningTrade = 0x4f,
+    DerivativelyPricedTrfOnly = 0x34,
+    ReopeningTrade = 0x35,
+    MarketCenterClosingTrade = 0x36,
+    QualifiedContingentTradeTrfOrTexasOnly = 0x37,
+    CorrectedConsolidatedClose = 0x39,
+};
+
+type TradeCond3 = enum {
+    Na = 0x20,
+    ExtendedHoursTrade = 0x54,
+    ExtendedHoursSoldOutOfSequence = 0x55,
+    Sold = 0x5a,
+};
+
+type TradeCond4 = enum {
+    Na = 0x20,
+    OddLotTrade = 0x49,
+    OfficialClosingPrice = 0x4d,
+    OfficialOpenPrice = 0x51,
+    ContingentTradeTrfOrTexasOnly = 0x56,
+    PriorReferencePriceTrfOnly = 0x50,
+    WeightedAveragePriceTrfOnly = 0x57,
+};
+

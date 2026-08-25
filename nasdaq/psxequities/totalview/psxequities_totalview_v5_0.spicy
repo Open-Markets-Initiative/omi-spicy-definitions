@@ -1,0 +1,444 @@
+module NasdaqPsxequitiesTotalviewItchV50;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PsxequitiesTotalviewV50 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoShortSalePriceTestRestrictedIndicatorMessage -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        MessageType::MarketParticipantPositionMessage -> market_participant_position_message: MarketParticipantPositionMessage;
+        MessageType::MwcbDeclineLevelMessage -> mwcb_decline_level_message: MwcbDeclineLevelMessage;
+        MessageType::MwcbStatusLevelMessage -> mwcb_status_level_message: MwcbStatusLevelMessage;
+        MessageType::LuldAuctionCollarMessage -> luld_auction_collar_message: LuldAuctionCollarMessage;
+        MessageType::OperationalHaltMessage -> operational_halt_message: OperationalHaltMessage;
+        MessageType::AddOrderNoMpidAttributionMessage -> add_order_no_mpid_attribution_message: AddOrderNoMpidAttributionMessage;
+        MessageType::AddOrderWithMpidAttributionMessage -> add_order_with_mpid_attribution_message: AddOrderWithMpidAttributionMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        MessageType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        MessageType::TradeMessageNonCross -> trade_message_non_cross: TradeMessageNonCross;
+        MessageType::CrossTradeMessage -> cross_trade_message: CrossTradeMessage;
+        MessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        MessageType::NetOrderImbalanceIndicatorMessage -> net_order_imbalance_indicator_message: NetOrderImbalanceIndicatorMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectoryMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    round_lot_size: uint32;
+    round_lots_only: uint8 &convert=RoundLotsOnly($$);
+    issue_classification: bytes &size=1;
+    issue_sub_type: bytes &size=2;
+    authenticity: uint8 &convert=Authenticity($$);
+    short_sale_threshold_indicator: uint8 &convert=ShortSaleThresholdIndicator($$);
+    ipo_flag: uint8 &convert=IpoFlag($$);
+    luld_reference_price_tier: uint8 &convert=LuldReferencePriceTier($$);
+    etp_flag: uint8 &convert=EtpFlag($$);
+    etp_leverage_factor: uint32;
+    inverse_indicator: uint8 &convert=InverseIndicator($$);
+};
+
+type StockTradingActionMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    trading_state: uint8 &convert=TradingState($$);
+    reserved: bytes &size=1;
+    reason: bytes &size=4;
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    locate_code: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type MarketParticipantPositionMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    mpid: bytes &size=4;
+    stock: bytes &size=8;
+    primary_market_maker: uint8 &convert=PrimaryMarketMaker($$);
+    market_maker_mode: uint8 &convert=MarketMakerMode($$);
+    market_participant_state: uint8 &convert=MarketParticipantState($$);
+};
+
+type MwcbDeclineLevelMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    level_1: uint64;
+    level_2: uint64;
+    level_3: uint64;
+};
+
+type MwcbStatusLevelMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    breached_level: uint8 &convert=BreachedLevel($$);
+};
+
+type LuldAuctionCollarMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    auction_collar_reference_price: uint32;
+    upper_auction_collar_price: uint32;
+    lower_auction_collar_price: uint32;
+    auction_collar_extension: uint32;
+};
+
+type OperationalHaltMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    stock: bytes &size=8;
+    market_code: uint8 &convert=MarketCode($$);
+    operational_halt_action: uint8 &convert=OperationalHaltAction($$);
+};
+
+type AddOrderNoMpidAttributionMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares_integer_4: uint32;
+    stock: bytes &size=8;
+    price: uint32;
+};
+
+type AddOrderWithMpidAttributionMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares_integer_4: uint32;
+    stock: bytes &size=8;
+    price: uint32;
+    attribution: bytes &size=4;
+};
+
+type OrderExecutedMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+    executed_shares: uint32;
+    match_number: uint64;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+    executed_shares: uint32;
+    match_number: uint64;
+    printable: uint8 &convert=Printable($$);
+    execution_price: uint32;
+};
+
+type OrderCancelMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+    cancelled_shares: uint32;
+};
+
+type OrderDeleteMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+};
+
+type OrderReplaceMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    original_order_reference_number: uint64;
+    new_order_reference_number: uint64;
+    shares_integer_4: uint32;
+    price: uint32;
+};
+
+type TradeMessageNonCross = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares_integer_4: uint32;
+    stock: bytes &size=8;
+    price: uint32;
+    match_number: uint64;
+};
+
+type CrossTradeMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    shares_integer_8: uint64;
+    stock: bytes &size=8;
+    cross_price: uint32;
+    match_number: uint64;
+    cross_type: uint8 &convert=CrossType($$);
+};
+
+type BrokenTradeMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    match_number: uint64;
+};
+
+type NetOrderImbalanceIndicatorMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    paired_shares: uint64;
+    imbalance_shares: uint64;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    stock: bytes &size=8;
+    far_price: uint32;
+    near_price: uint32;
+    current_reference_price: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    price_variation_indicator: uint8 &convert=PriceVariationIndicator($$);
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    MarketParticipantPositionMessage = 0x4c,
+    MwcbDeclineLevelMessage = 0x56,
+    MwcbStatusLevelMessage = 0x57,
+    LuldAuctionCollarMessage = 0x4a,
+    OperationalHaltMessage = 0x68,
+    AddOrderNoMpidAttributionMessage = 0x41,
+    AddOrderWithMpidAttributionMessage = 0x46,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderCancelMessage = 0x58,
+    OrderDeleteMessage = 0x44,
+    OrderReplaceMessage = 0x55,
+    TradeMessageNonCross = 0x50,
+    CrossTradeMessage = 0x51,
+    BrokenTradeMessage = 0x42,
+    NetOrderImbalanceIndicatorMessage = 0x49,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type MarketCategory = enum {
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+    Nyse = 0x4e,
+    NyseAmerican = 0x41,
+    NyseArca = 0x50,
+    BatsZ = 0x5a,
+    NyseTexas = 0x4d,
+    InvestorsExchangeLlc = 0x56,
+    Na = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    Suspended = 0x53,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+    CreationsAndRedemptionsSuspended = 0x43,
+    Normal = 0x4e,
+    Na = 0x20,
+};
+
+type RoundLotsOnly = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type Authenticity = enum {
+    LiveProduction = 0x50,
+    Test = 0x54,
+};
+
+type ShortSaleThresholdIndicator = enum {
+    Restricted = 0x59,
+    NotRestricted = 0x4e,
+    Na = 0x20,
+};
+
+type IpoFlag = enum {
+    Yes = 0x59,
+    No = 0x4e,
+    Na = 0x20,
+};
+
+type LuldReferencePriceTier = enum {
+    Tier1 = 0x31,
+    Tier2 = 0x32,
+    Na = 0x20,
+};
+
+type EtpFlag = enum {
+    Etp = 0x59,
+    NotEtp = 0x4e,
+    Na = 0x20,
+};
+
+type InverseIndicator = enum {
+    InverseEtp = 0x59,
+    NotInverseEtp = 0x4e,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    QuotationOnlyPeriod = 0x51,
+    Trading = 0x54,
+};
+
+type RegShoAction = enum {
+    NoPriceTest = 0x30,
+    RegShoShortSalePriceTestRestriction = 0x31,
+    TestRestrictionRemains = 0x32,
+};
+
+type PrimaryMarketMaker = enum {
+    Primary = 0x59,
+    NonPrimary = 0x4e,
+};
+
+type MarketMakerMode = enum {
+    Normal = 0x4e,
+    Passive = 0x50,
+    Syndicate = 0x53,
+    PreSyndicate = 0x52,
+    Penalty = 0x4c,
+};
+
+type MarketParticipantState = enum {
+    Active = 0x41,
+    ExcusedWithdrawn = 0x45,
+    Withdrawn = 0x57,
+    Suspended = 0x53,
+    Deleted = 0x44,
+};
+
+type BreachedLevel = enum {
+    Level1 = 0x31,
+    Level2 = 0x32,
+    Level3 = 0x33,
+};
+
+type MarketCode = enum {
+    Nasdaq = 0x51,
+    NasdaqTexas = 0x42,
+    Psx = 0x58,
+};
+
+type OperationalHaltAction = enum {
+    Halted = 0x48,
+    Resumed = 0x54,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type Printable = enum {
+    NonPrintable = 0x4e,
+    Printable = 0x59,
+};
+
+type CrossType = enum {
+    OpeningCross = 0x4f,
+    ClosingCross = 0x43,
+    CrossHaltedOrPaused = 0x48,
+    IntradayCrossAndPostCloseCross = 0x49,
+};
+
+type ImbalanceDirection = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NoImbalance = 0x4e,
+    InsufficientOrders = 0x4f,
+};
+
+type PriceVariationIndicator = enum {
+    LessThan1 = 0x4c,
+    OneToOnePointNineNinePercent = 0x31,
+    TwoToTwoPointNineNinePercent = 0x32,
+    ThreeToThreePointNineNinePercent = 0x33,
+    FourToFourPointNineNinePercent = 0x34,
+    FiveToFivePointNineNinePercent = 0x35,
+    SixToSixPointNineNinePercent = 0x36,
+    SevenToSevenPointNineNinePercent = 0x37,
+    EightToEightPointNineNinePercent = 0x38,
+    NineToNinePointNineNinePercent = 0x39,
+    TenToNineteenPointNineNinePercent = 0x41,
+    TwentyToTwentyNinePointNineNinePercent = 0x42,
+    ThirtyPercentOrGreater = 0x43,
+    NoCalculation = 0x20,
+};
+

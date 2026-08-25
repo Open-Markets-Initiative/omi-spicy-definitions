@@ -1,0 +1,308 @@
+module NasdaqPsxequitiesOrdersOuchV42Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PsxequitiesOrdersV42 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::AcceptedMessage -> accepted_message: AcceptedMessage;
+        SequencedMessageType::ReplacedMessage -> replaced_message: ReplacedMessage;
+        SequencedMessageType::CanceledMessage -> canceled_message: CanceledMessage;
+        SequencedMessageType::AiqCanceledMessage -> aiq_canceled_message: AiqCanceledMessage;
+        SequencedMessageType::ExecutedMessage -> executed_message: ExecutedMessage;
+        SequencedMessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        SequencedMessageType::RejectedMessage -> rejected_message: RejectedMessage;
+        SequencedMessageType::CancelPendingMessage -> cancel_pending_message: CancelPendingMessage;
+        SequencedMessageType::CancelRejectMessage -> cancel_reject_message: CancelRejectMessage;
+        SequencedMessageType::OrderPriorityUpdateMessage -> order_priority_update_message: OrderPriorityUpdateMessage;
+        SequencedMessageType::OrderModifiedMessage -> order_modified_message: OrderModifiedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type AcceptedMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: uint32;
+    stock: bytes &size=8;
+    price: uint32;
+    time_in_force: uint32;
+    firm: bytes &size=4;
+    display: uint8 &convert=Display($$);
+    order_reference_number: uint64;
+    capacity: uint8 &convert=Capacity($$);
+    intermarket_sweep_eligibility: uint8 &convert=IntermarketSweepEligibility($$);
+    minimum_quantity: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    order_state: uint8 &convert=OrderState($$);
+    bbo_weight_indicator: uint8 &convert=BboWeightIndicator($$);
+};
+
+type ReplacedMessage = unit {
+    timestamp: uint64;
+    replacement_order_token_alphanumeric_14: bytes &size=14;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: uint32;
+    stock: bytes &size=8;
+    price: uint32;
+    time_in_force: uint32;
+    firm: bytes &size=4;
+    display: uint8 &convert=Display($$);
+    order_reference_number: uint64;
+    capacity: uint8 &convert=Capacity($$);
+    intermarket_sweep_eligibility: uint8 &convert=IntermarketSweepEligibility($$);
+    minimum_quantity: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    order_state: uint8 &convert=OrderState($$);
+    previous_order_token: bytes &size=14;
+    bbo_weight_indicator: uint8 &convert=BboWeightIndicator($$);
+};
+
+type CanceledMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    decrement_shares: uint32;
+    canceled_reason: uint8 &convert=CanceledReason($$);
+};
+
+type AiqCanceledMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    decrement_shares: uint32;
+    aiq_canceled_reason: bytes &size=1;
+    quantity_prevented_from_trading: uint32;
+    execution_price: uint32;
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+};
+
+type ExecutedMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    executed_shares: uint32;
+    execution_price: uint32;
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    match_number: uint64;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    match_number: uint64;
+    broken_trade_reason: uint8 &convert=BrokenTradeReason($$);
+};
+
+type RejectedMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    rejected_reason: uint8 &convert=RejectedReason($$);
+};
+
+type CancelPendingMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+};
+
+type CancelRejectMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+};
+
+type OrderPriorityUpdateMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    price: uint32;
+    display: uint8 &convert=Display($$);
+    order_reference_number: uint64;
+};
+
+type OrderModifiedMessage = unit {
+    timestamp: uint64;
+    order_token: bytes &size=14;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: uint32;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    AcceptedMessage = 0x41,
+    ReplacedMessage = 0x55,
+    CanceledMessage = 0x43,
+    AiqCanceledMessage = 0x44,
+    ExecutedMessage = 0x45,
+    BrokenTradeMessage = 0x42,
+    RejectedMessage = 0x4a,
+    CancelPendingMessage = 0x50,
+    CancelRejectMessage = 0x49,
+    OrderPriorityUpdateMessage = 0x54,
+    OrderModifiedMessage = 0x4d,
+};
+
+type EventCode = enum {
+    StartOfDay = 0x53,
+    EndOfDay = 0x45,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    SellShort = 0x54,
+    SellShortExempt = 0x45,
+};
+
+type Display = enum {
+    AttributablePrice = 0x41,
+    AnonymousPrice = 0x59,
+    NonDisplay = 0x4e,
+    PostOnly = 0x50,
+    ChangedToNondisplayed = 0x5a,
+    ImbalanceOnly = 0x49,
+    MidPoint = 0x4d,
+    MidPoint_x57 = 0x57,
+};
+
+type Capacity = enum {
+    Other = 0x4f,
+    Agency = 0x41,
+    Principal = 0x50,
+    Riskless = 0x52,
+};
+
+type IntermarketSweepEligibility = enum {
+    Eligible = 0x59,
+    NotEligible = 0x4e,
+    Tradeat = 0x79,
+};
+
+type CrossType = enum {
+    NoCross = 0x4e,
+    Opening = 0x4f,
+    Closing = 0x43,
+};
+
+type OrderState = enum {
+    Live = 0x4c,
+    Dead = 0x44,
+};
+
+type BboWeightIndicator = enum {
+    LessThanPointTwoPercent = 0x30,
+    LessThanOnePercent = 0x31,
+    LessThanTwoPercent = 0x32,
+    GreaterThanTwoPercent = 0x33,
+    SetsTheQbbo = 0x53,
+    ImprovesTheNbbo = 0x4e,
+};
+
+type CanceledReason = enum {
+    UserRequestedCancel = 0x55,
+    ImmediateOrCancelOrder = 0x49,
+    Timeout = 0x54,
+    Supervisory = 0x53,
+    ThisOrderCannotBeExecutedBecauseOfARegulatoryRestriction = 0x44,
+    SelfMatchPrevention = 0x51,
+    SystemCancel = 0x5a,
+    Closed = 0x45,
+};
+
+type LiquidityFlag = enum {
+    Added = 0x41,
+    Removed = 0x52,
+    Opening = 0x4f,
+    OpeningCross = 0x4d,
+    Closing = 0x43,
+    ClosingCross = 0x4c,
+    HaltIpo = 0x48,
+    Halt = 0x4b,
+    Nondisplayed = 0x4a,
+    Removed_x6d = 0x6d,
+    Added_x6b = 0x6b,
+    DisplayedAddedLiquidity = 0x56,
+};
+
+type BrokenTradeReason = enum {
+    Erroneous = 0x45,
+    Consent = 0x43,
+    Supervisory = 0x53,
+    External = 0x58,
+};
+
+type RejectedReason = enum {
+    TestMode = 0x54,
+    Halted = 0x48,
+    SharesExceedsConfiguredSafetyThreshold = 0x5a,
+    InvalidStock = 0x53,
+    InvalidDisplayType = 0x44,
+    NasdaqOmxPsxIsClosed = 0x43,
+    RequestedFirmNotAuthorizedForRequestedClearingTypeOnThisAccount = 0x4c,
+    OutsideOfPermittedTimes = 0x4d,
+    ThisOrderIsNotAllowedInThisTypeOfCross = 0x52,
+    InvalidPrice = 0x58,
+    InvalidMinimum = 0x4e,
+    InvalidMidpoint = 0x57,
+    Reject = 0x61,
+    EasyToBorrowEtb = 0x62,
+    Restricted = 0x63,
+    Iso = 0x64,
+    Odd = 0x65,
+    MidPoint = 0x66,
+    PreMarket = 0x67,
+    PostMarket = 0x68,
+    ShortSale = 0x69,
+    OnOpen = 0x6a,
+    OnClose = 0x6b,
+    TwoSided = 0x6c,
+    Exceeded = 0x6d,
+    Exceeded_x6e = 0x6e,
+};
+

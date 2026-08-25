@@ -1,0 +1,119 @@
+module NyseNyseequitiesOpenbookUltraV21B;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NyseequitiesOpenbookV21B = unit {
+    packet_header: PacketHeader;
+    switch ( self.packet_header.message_type ) {
+        MessageType::FullUpdateMessage -> full_update_messages: FullUpdateMessages;
+        MessageType::DeltaUpdateMessage -> delta_update_messages: DeltaUpdateMessages;
+        MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PacketHeader = unit {
+    packet_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+    sequence_number: uint32;
+    timestamp: uint32;
+    product_id: uint8;
+    retransmission_flag: uint8;
+    message_count: uint8;
+    link_flag: uint8;
+};
+
+type FullUpdateMessages = unit {
+    full_update_message: FullUpdateMessage[] &eod;
+};
+
+type FullUpdateMessage = unit {
+    update_size: int16;
+    symbol_index: int32;
+    source_time: int32;
+    source_time_micro_secs: int16;
+    symbol_seq_num: int32;
+    source_session_id: int8;
+    symbol: bytes &size=11;
+    price_scale_code: int8;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    trading_status: uint8 &convert=TradingStatus($$);
+    : skip bytes &size=1;   # padding
+    mpv: int16;
+    full_price_point: FullPricePoint[] &eod;
+};
+
+type FullPricePoint = unit {
+    price_numerator: int32;
+    volume: int32;
+    num_orders: int16;
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=1;   # padding
+};
+
+type DeltaUpdateMessages = unit {
+    delta_update_message: DeltaUpdateMessage[] &eod;
+};
+
+type DeltaUpdateMessage = unit {
+    delta_size: int16;
+    symbol_index: int32;
+    source_time: int32;
+    source_time_micro_secs: int16;
+    source_seq_num: int32;
+    source_session_id: int8;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    trading_status: uint8 &convert=TradingStatus($$);
+    price_scale_code: int8;
+    delta_price_point: DeltaPricePoint[] &eod;
+};
+
+type DeltaPricePoint = unit {
+    price_numerator: int32;
+    volume: int32;
+    chg_qty: int32;
+    num_orders: int16;
+    side: uint8 &convert=Side($$);
+    reason_code: uint8 &convert=ReasonCode($$);
+    link_id_1: int32;
+    link_id_2: int32;
+    link_id_3: int32;
+};
+
+type SequenceNumberResetMessage = unit {
+    next_sequence_number: int32;
+};
+
+type MessageType = enum {
+    FullUpdateMessage = 230,
+    DeltaUpdateMessage = 231,
+    SequenceNumberResetMessage = 1,
+    HeartbeatMessage = 2,
+};
+
+type QuoteCondition = enum {
+    NoSpecialQuoteCondition = 0x20,
+    SlowQuote = 0x57,
+};
+
+type TradingStatus = enum {
+    PreOpening = 0x50,
+    CoreSession = 0x4f,
+    Closed = 0x58,
+    Halted = 0x48,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type ReasonCode = enum {
+    NewOrderadditionalInterestAdded = 0x4f,
+    Cancel = 0x43,
+    Execution = 0x45,
+    MultipleEvents = 0x58,
+};
+

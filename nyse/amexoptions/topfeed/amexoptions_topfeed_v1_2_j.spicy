@@ -1,0 +1,619 @@
+module NyseAmexoptionsTopfeedPillarV12J;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type AmexoptionsTopfeedV12J = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msgs];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msgs: uint8;
+    seq_num: uint32;
+    send_time: SendTime;
+};
+
+type SendTime = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
+        MessageType::SourceTimeReferenceMessage -> source_time_reference_message: SourceTimeReferenceMessage;
+        MessageType::SymbolIndexMappingMessage -> symbol_index_mapping_message: SymbolIndexMappingMessage;
+        MessageType::SymbolClearMessage -> symbol_clear_message: SymbolClearMessage;
+        MessageType::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
+        MessageType::OutrightSeriesIndexMappingMessage -> outright_series_index_mapping_message: OutrightSeriesIndexMappingMessage;
+        MessageType::OptionsStatusMessage -> options_status_message: OptionsStatusMessage;
+        MessageType::ComplexSeriesIndexMappingMessage -> complex_series_index_mapping_message: ComplexSeriesIndexMappingMessage;
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::RefreshHeaderMessage -> refresh_header_message: RefreshHeaderMessage;
+        MessageType::RefreshRequestMessage -> refresh_request_message: RefreshRequestMessage;
+        MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
+        MessageType::MessageUnavailableMessage -> message_unavailable_message: MessageUnavailableMessage;
+        MessageType::RequestResponseMessage -> request_response_message: RequestResponseMessage;
+        MessageType::HeartbeatResponseMessage -> heartbeat_response_message: HeartbeatResponseMessage;
+        MessageType::OptionsQuoteMessage -> options_quote_message: OptionsQuoteMessage;
+        MessageType::OptionsTradeMessage -> options_trade_message: OptionsTradeMessage;
+        MessageType::OptionsTradeCancelMessage -> options_trade_cancel_message: OptionsTradeCancelMessage;
+        MessageType::OptionsTradeCorrectionMessage -> options_trade_correction_message: OptionsTradeCorrectionMessage;
+        MessageType::OptionsImbalanceMessage -> options_imbalance_message: OptionsImbalanceMessage;
+        MessageType::SeriesRfqMessage -> series_rfq_message: SeriesRfqMessage;
+        MessageType::OutrightSeriesSummaryMessage -> outright_series_summary_message: OutrightSeriesSummaryMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type SequenceNumberResetMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type SourceTimeReferenceMessage = unit {
+    id: uint32;
+    symbol_seq_num: uint32;
+    source_time: uint32;
+};
+
+type SymbolIndexMappingMessage = unit {
+    symbol_index: uint32;
+    symbol: bytes &size=11;
+    reserved_1: bytes &size=1;
+    market_id: uint16 &convert=MarketId($$);
+    system_id: uint8;
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    security_type: uint8 &convert=SecurityType($$);
+    lot_size: uint16;
+    prev_close_price: int32;
+    prev_close_volume: uint32;
+    price_resolution: uint8 &convert=PriceResolution($$);
+    round_lot: uint8 &convert=RoundLot($$);
+    reserved_2: uint16;
+    second_reserved_2: uint16;
+    third_reserved_2: uint16;
+};
+
+type SymbolClearMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    next_source_seq_num: uint32;
+};
+
+type SecurityStatusMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    security_status: uint8 &convert=SecurityStatus($$);
+    halt_condition: uint8 &convert=HaltCondition($$);
+    reserved_4: uint32;
+    price_1: int32;
+    price_2: int32;
+    ssr_triggering_exchange_id: uint8 &convert=SsrTriggeringExchangeId($$);
+    ssr_triggering_volume: uint32;
+    time_field: uint32;
+    ssr_state: uint8 &convert=SsrState($$);
+    market_state: uint8 &convert=MarketState($$);
+    session_state: bytes &size=1;
+};
+
+type OutrightSeriesIndexMappingMessage = unit {
+    series_index: uint32;
+    series_type: uint8 &convert=SeriesType($$);
+    market_id: uint16 &convert=MarketId($$);
+    system_id: uint8;
+    option_symbol_root: bytes &size=6;
+    underlying_symbol: bytes &size=11;
+    underlying_index: uint32;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    contract_multiplier: uint16;
+    maturity_date: bytes &size=6;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    strike_price: bytes &size=10;
+    closing_only_indicator: uint8 &convert=ClosingOnlyIndicator($$);
+    reserved_1: bytes &size=1;
+};
+
+type OptionsStatusMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    series_index: uint32;
+    series_seq_num: uint32;
+    series_status: uint8 &convert=SeriesStatus($$);
+    market_state: uint8 &convert=MarketState($$);
+    options_status_halt_condition: uint8 &convert=OptionsStatusHaltCondition($$);
+};
+
+type ComplexSeriesIndexMappingMessage = unit {
+    series_index: uint32;
+    market_id: uint16 &convert=MarketId($$);
+    system_id: uint8;
+    no_of_legs: uint16;
+    complex_series_index_mapping_leg: ComplexSeriesIndexMappingLeg[self.no_of_legs];
+};
+
+type ComplexSeriesIndexMappingLeg = unit {
+    symbol_index: uint32;
+    leg_ratio_qty: uint16;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_security_type: uint8 &convert=LegSecurityType($$);
+};
+
+type RetransmissionRequestMessage = unit {
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type RefreshHeaderMessage = unit {
+    current_refresh_pkt: uint16;
+    total_refresh_pkts: uint16;
+    last_seq_num: uint32;
+    last_symbol_seq_num: uint32;
+};
+
+type RefreshRequestMessage = unit {
+    symbol_index: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type SymbolIndexMappingRequestMessage = unit {
+    symbol_index: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+    retransmit_method: uint8 &convert=RetransmitMethod($$);
+};
+
+type MessageUnavailableMessage = unit {
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type RequestResponseMessage = unit {
+    request_seq_num: uint32;
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+    status: uint8 &convert=Status($$);
+};
+
+type HeartbeatResponseMessage = unit {
+    source_id: bytes &size=10;
+};
+
+type OptionsQuoteMessage = unit {
+    source_time_ns: uint32;
+    series_index: uint32;
+    series_seq_num: uint32;
+    ask_price: int32;
+    ask_volume: uint32;
+    bid_price: int32;
+    bid_volume: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    reserved_1: bytes &size=1;
+    ask_customer_volume: uint32;
+    bid_customer_volume: uint32;
+};
+
+type OptionsTradeMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    series_index: uint32;
+    series_seq_num: uint32;
+    trade_id: uint32;
+    price: int32;
+    volume: uint32;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
+    trade_cond_2: uint8 &convert=TradeCond2($$);
+    reserved_1: bytes &size=1;
+    trade_cond_4: uint8 &convert=TradeCond4($$);
+};
+
+type OptionsTradeCancelMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    series_index: uint32;
+    series_seq_num: uint32;
+    original_trade_id: uint32;
+};
+
+type OptionsTradeCorrectionMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    series_index: uint32;
+    series_seq_num: uint32;
+    original_trade_id: uint32;
+    trade_id: uint32;
+    price: int32;
+    volume: uint32;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
+    reserved_1: bytes &size=1;
+    second_reserved_1: bytes &size=1;
+    third_reserved_1: bytes &size=1;
+};
+
+type OptionsImbalanceMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    series_index: uint32;
+    series_seq_num: uint32;
+    reserved_4: uint32;
+    paired_qty: uint32;
+    total_imbalance_qty: uint32;
+    market_imbalance_qty: uint32;
+    reserved_2: uint16;
+    auction_type: uint8 &convert=AuctionType($$);
+    imbalance_side: uint8 &convert=ImbalanceSide($$);
+    continuous_book_clearing_price: int32;
+    auction_interest_clearing_price: int32;
+    second_reserved_4: uint32;
+    indicative_match_price: int32;
+    upper_collar: int32;
+    lower_collar: int32;
+    auction_status: uint8 &convert=AuctionStatus($$);
+};
+
+type SeriesRfqMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    series_index: uint32;
+    series_seq_num: uint32;
+    side: uint8 &convert=Side($$);
+    type_field: uint8 &convert=Type($$);
+    capacity: uint8 &convert=Capacity($$);
+    total_quantity: uint32;
+    working_price: int32;
+    participant: uint32;
+    auction_id: uint64;
+    rfq_status: uint8 &convert=RfqStatus($$);
+};
+
+type OutrightSeriesSummaryMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    series_index: uint32;
+    high_price: int32;
+    low_price: int32;
+    open: int32;
+    close: int32;
+    total_volume: uint32;
+};
+
+type DeliveryFlag = enum {
+    Heartbeat = 1,
+    PillarFailover = 10,
+    OriginalMessage = 11,
+    SequenceNumberResetMessage = 12,
+    OneRetransmissionPacket = 13,
+    RetransmissionSequenceMessage = 15,
+    OneRefreshPacket = 17,
+    RefreshSequenceStart = 18,
+    RefreshSequenceMessage = 19,
+    RefreshSequenceEnd = 20,
+    MessageUnavailable = 21,
+};
+
+type MessageType = enum {
+    SequenceNumberResetMessage = 1,
+    SourceTimeReferenceMessage = 2,
+    SymbolIndexMappingMessage = 3,
+    SymbolClearMessage = 32,
+    SecurityStatusMessage = 34,
+    OutrightSeriesIndexMappingMessage = 50,
+    OptionsStatusMessage = 51,
+    ComplexSeriesIndexMappingMessage = 60,
+    RetransmissionRequestMessage = 10,
+    RefreshHeaderMessage = 35,
+    RefreshRequestMessage = 15,
+    SymbolIndexMappingRequestMessage = 13,
+    MessageUnavailableMessage = 31,
+    RequestResponseMessage = 11,
+    HeartbeatResponseMessage = 12,
+    OptionsQuoteMessage = 340,
+    OptionsTradeMessage = 320,
+    OptionsTradeCancelMessage = 321,
+    OptionsTradeCorrectionMessage = 322,
+    OptionsImbalanceMessage = 305,
+    SeriesRfqMessage = 307,
+    OutrightSeriesSummaryMessage = 323,
+};
+
+type MarketId = enum {
+    NyseEquities = 1,
+    NyseArcaEquities = 3,
+    NyseArcaOptions = 4,
+    NyseAmericanOptions = 8,
+    NyseAmericanEquities = 9,
+    NyseNationalEquities = 10,
+    NyseTexasEquities = 11,
+};
+
+type ExchangeCode = enum {
+    NyseAmerican = 0x41,
+    Ltse = 0x4c,
+    NyseTexas = 0x4d,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x51,
+    Iex = 0x56,
+    Cboe = 0x5a,
+    OtcOrIndexBasedProductSpaceOr0X20 = 0x20,
+};
+
+type PriceScaleCode = enum {
+    LowPricedSecurities = 6,
+    MediumPricedSecurities = 4,
+    HighPricedSecurities = 3,
+};
+
+type SecurityType = enum {
+    AmericanDepositaryReceipts = 0x41,
+    CommonStock = 0x43,
+    Debentures = 0x44,
+    ExchangeTradedFunds = 0x45,
+    Foreign = 0x46,
+    AmericanDepositaryShares = 0x48,
+    Units = 0x49,
+    IndexLinkedNotes = 0x4c,
+    OtherBlank = 0x4d,
+    OrdinaryShares = 0x4f,
+    PreferredStock = 0x50,
+    Rights = 0x52,
+    SharesOfBeneficialInterest = 0x53,
+    Test = 0x54,
+    ClosedEndFund = 0x55,
+    Warrants = 0x57,
+};
+
+type PriceResolution = enum {
+    AllPenny = 0,
+    PennyNickel = 1,
+    NickelDime = 5,
+};
+
+type RoundLot = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type SecurityStatus = enum {
+    TradingHalt = 0x34,
+    Resume = 0x35,
+    Suspend = 0x36,
+    ShortSaleRestrictionActivatedDay1 = 0x41,
+    ShortSaleRestrictionContinuedDay2 = 0x43,
+    ShortSaleRestrictionDeactivated = 0x44,
+    Preopening = 0x50,
+    BeginAcceptingOrders = 0x42,
+    EarlySession = 0x45,
+    CoreSession = 0x4f,
+    LateSession = 0x4c,
+    Closed = 0x58,
+    HaltResumePriceIndication = 0x49,
+    PreOpeningPriceIndication = 0x47,
+};
+
+type HaltCondition = enum {
+    SecurityNotDelayedhalted = 0x7e,
+    NewsReleased = 0x44,
+    OrderImbalance = 0x49,
+    NewsPending = 0x50,
+    LuldPause = 0x4d,
+    EquipmentChangeover = 0x58,
+    AdditionalInformationRequested = 0x41,
+    RegulatoryConcern = 0x43,
+    MergerEffective = 0x45,
+    EtfComponentPricesNotAvailable = 0x46,
+    CorporateAction = 0x4e,
+    NewSecurityOffering = 0x4f,
+    IntradayIndicativeValueNotAvailable = 0x56,
+    Suspend = 0x36,
+    MarketWideCircuitBreakerHaltLevel1 = 0x31,
+    MarketWideCircuitBreakerHaltLevel2 = 0x32,
+    MarketWideCircuitBreakerHaltLevel3 = 0x33,
+};
+
+type SsrTriggeringExchangeId = enum {
+    NaSpaceOr0X20 = 0x20,
+    NyseAmerican = 0x41,
+    NasdaqOmxBx = 0x42,
+    NyseNational = 0x43,
+    Finra = 0x44,
+    N24X = 0x47,
+    Ise = 0x49,
+    CboeEdga = 0x4a,
+    CboeEdgx = 0x4b,
+    Ltse = 0x4c,
+    NyseTexas = 0x4d,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x51,
+    Cts = 0x53,
+    NasdaqOmx = 0x54,
+    Iex = 0x56,
+    Cbsx = 0x57,
+    NasdaqOmxPsx = 0x58,
+    CboeByx = 0x59,
+    CboeBzx = 0x5a,
+    Miax = 0x48,
+    Memx = 0x55,
+};
+
+type SsrState = enum {
+    NoShortSaleRestrictionInEffect = 0x7e,
+    ShortSaleRestrictionInEffect = 0x45,
+};
+
+type MarketState = enum {
+    Preopening = 0x50,
+    EarlySession = 0x45,
+    CoreSession = 0x4f,
+    LateSessionNonNyseOnly = 0x4c,
+    Closed = 0x58,
+};
+
+type SeriesType = enum {
+    Standard = 0,
+    Flex = 1,
+    FlexPercentage = 2,
+};
+
+type PutOrCall = enum {
+    Put = 0,
+    Call = 1,
+};
+
+type ClosingOnlyIndicator = enum {
+    StandardSeries = 0x30,
+    ClosingOnlySeries = 0x31,
+};
+
+type SeriesStatus = enum {
+    TradingHalt = 0x34,
+    Resume = 0x35,
+    Suspend = 0x36,
+    Preopening = 0x50,
+    BeginAcceptingOrders = 0x42,
+    CoreSession = 0x4f,
+    Closed = 0x58,
+};
+
+type OptionsStatusHaltCondition = enum {
+    SeriesNotDelayedhalted = 0x7e,
+    OptionSeriesIsHalted = 0x68,
+};
+
+type LegSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type LegSecurityType = enum {
+    OptionsSeriesLeg = 0x4f,
+    EquityStockLeg = 0x45,
+    OptionsFlexLeg = 0x46,
+};
+
+type RetransmitMethod = enum {
+    DeliverViaUdp = 0,
+};
+
+type Status = enum {
+    MessageWasAccepted = 0x30,
+    RejectedDueToAnInvalidSourceId = 0x31,
+    RejectedDueToMaximumSequenceRange = 0x33,
+    RejectedDueToMaximumRequestInADay = 0x34,
+    RejectedDueToMaximumNumberOfRefreshRequestsInADay = 0x35,
+    RejectedRequestMessageSeqNumTtlIsTooOld = 0x36,
+    RejectedDueToAnInvalidChannelId = 0x37,
+    RejectedDueToAnInvalidProductId = 0x38,
+    RejectedDueToInvalidMsgTypeOrMismatchBetweenMsgTypeAndMsgSize = 0x39,
+};
+
+type QuoteCondition = enum {
+    RegularTrading = 0x31,
+    TradingHalted = 0x33,
+};
+
+type TradeCond1 = enum {
+    OutrightSeriesCubeOrderTrade = 0x61,
+    OutrightSeriesQccOrderOrCustomerToCustomerCrossOrder = 0x63,
+    OutrightSeriesFloorTrade = 0x65,
+    AllOutrightSeriesElectronicTrades = 0x49,
+    IntermarketSweepOrder = 0x53,
+    ComplexOrderTradesNotPartOfCubeqcCelectronicWithOutright = 0x66,
+    ComplexCubeOrderTrade = 0x67,
+    ComplexQccOrderOrCustomerToCustomerCrossOrder = 0x68,
+    ComplexOrderToComplexOrderFloorTrade = 0x69,
+    ComplexOrderTradingElectronicallyWithOutrightSeries = 0x6a,
+    ComplexOrderToOutrightSeriesOrderFloorTrade = 0x6d,
+    ComplexOrderWithStockToComplexOrderWithStockFloorTrade = 0x70,
+    ComplexOrderWithStockToOutrightSeriesOrderFloorTrade = 0x73,
+    LateReportOfOpeningTradeCorrectSequence = 0x48,
+    LateReportOfOpeningTradeOutOfSequence = 0x46,
+    TransactionReportedLateCorrectSequence = 0x44,
+    TransactionReportedLateOutOfSequence = 0x42,
+};
+
+type TradeCond2 = enum {
+    Na = 0x20,
+    MarketCenterOpeningTrade = 0x4f,
+    ReopeningTrade = 0x35,
+};
+
+type TradeCond4 = enum {
+    Na = 0x20,
+    OfficialOpenPrice = 0x51,
+};
+
+type AuctionType = enum {
+    CoreOpeningAuction = 0x4d,
+    ReopeningAuctionHaltResume = 0x48,
+};
+
+type ImbalanceSide = enum {
+    BuySide = 0x42,
+    SellSide = 0x53,
+    NoImbalance = 0x20,
+};
+
+type AuctionStatus = enum {
+    WillRunAsUsual = 0,
+    AuctionWillNotRunBecauseLegalWidthQuoteDoesNotExist = 4,
+    AuctionWillNotRunBecauseMarketMakerQuoteIsNotReceived = 5,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type Type = enum {
+    BoldOutrightOnly = 0x42,
+    CoaComplexOnly = 0x43,
+    FlexPriceImprovementCube = 0x46,
+    FlexAonSolicitationCube = 0x4c,
+    PriceImprovementCube = 0x50,
+    AonSolicitationCube = 0x53,
+};
+
+type Capacity = enum {
+    Na = 0x20,
+    Customer = 0x30,
+    Firm = 0x31,
+    BrokerDealer = 0x32,
+    MarketMaker = 0x33,
+    AwayMarketMaker = 0x35,
+    ProfessionalCustomer = 0x38,
+};
+
+type RfqStatus = enum {
+    StartOfRfqAuction = 0x4f,
+    EndOfRfqAuction = 0x51,
+};
+

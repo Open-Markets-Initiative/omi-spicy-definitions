@@ -1,0 +1,112 @@
+module CoinbaseCoinbasederivativesSessionTcpV12;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CoinbasederivativesSessionV12 = unit {
+    sbe_message: SbeMessage[] &eod;
+};
+
+type SbeMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::LogonMessage -> logon_message: LogonMessage;
+        TemplateId::LogonConfMessage -> logon_conf_message: LogonConfMessage;
+        TemplateId::LogoutMessage -> logout_message: LogoutMessage;
+        TemplateId::LoggedOutMessage -> logged_out_message: LoggedOutMessage;
+        TemplateId::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        TemplateId::TestRequestMessage -> test_request_message: TestRequestMessage;
+        TemplateId::ResendRequestMessage -> resend_request_message: ResendRequestMessage;
+        TemplateId::GapFillMessage -> gap_fill_message: GapFillMessage;
+        TemplateId::RejectMessage -> reject_message: RejectMessage;
+        * -> unknown: bytes &eod;
+    };
+    padding: uint32;
+};
+
+type MessageHeader = unit {
+    protocol_id: uint8;
+    flags: Flags;
+    message_length: uint16;
+    sequence_number: uint32;
+    last_processed_seq_no: uint32;
+    reserved: uint32;
+    send_time_epoch_nanos: int64;
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type Flags = unit {
+    is_resend: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type LogonMessage = unit {
+    username: bytes &size=16;
+    password: bytes &size=32;
+    reset_seq_num: int8 &convert=ResetSeqNum($$);
+};
+
+type LogonConfMessage = unit {
+    heartbeat_interval_seconds: int32;
+};
+
+type LogoutMessage = unit {
+    reason_string_64: bytes &size=64;
+};
+
+type LoggedOutMessage = unit {
+    reason_string_64: bytes &size=64;
+};
+
+type HeartbeatMessage = unit {
+    correlation_id: int64;
+};
+
+type TestRequestMessage = unit {
+    correlation_id: int64;
+};
+
+type ResendRequestMessage = unit {
+    from_sequence_number: uint32;
+    to_sequence_number: uint32;
+};
+
+type GapFillMessage = unit {
+    new_sequence_number: uint32;
+    padding: uint32;
+};
+
+type RejectMessage = unit {
+    ref_sequence_number: uint32;
+    reason_reject_reason: int32 &convert=ReasonRejectReason($$);
+    details: bytes &size=64;
+};
+
+type TemplateId = enum {
+    LogonMessage = 100,
+    LogonConfMessage = 200,
+    LogoutMessage = 101,
+    LoggedOutMessage = 201,
+    HeartbeatMessage = 10,
+    TestRequestMessage = 11,
+    ResendRequestMessage = 102,
+    GapFillMessage = 202,
+    RejectMessage = 210,
+};
+
+type ResetSeqNum = enum {
+    False = 0,
+    True = 1,
+};
+
+type ReasonRejectReason = enum {
+    InvalidSchemaId = 1,
+    InvalidTemplateId = 2,
+    InvalidBlockLength = 3,
+    InvalidFieldValue = 4,
+};
+

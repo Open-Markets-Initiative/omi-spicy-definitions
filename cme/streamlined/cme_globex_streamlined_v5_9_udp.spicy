@@ -1,0 +1,1015 @@
+module CmeGlobexStreamlinedSbeV59Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CmeGlobexStreamlinedV59 = unit {
+    binary_packet_header: BinaryPacketHeader;
+    message: Message[] &eod;
+};
+
+type BinaryPacketHeader = unit {
+    packet_sequence_number: uint32;
+    sending_time: uint64;
+};
+
+type Message = unit {
+    message_size: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::AdminLogin -> admin_login: AdminLogin;
+        TemplateId::AdminLogout -> admin_logout: AdminLogout;
+        TemplateId::MdIncrementalRefreshErisReferenceDataAndDailyStatistics -> md_incremental_refresh_eris_reference_data_and_daily_statistics: MdIncrementalRefreshErisReferenceDataAndDailyStatistics;
+        TemplateId::MdNewsIndices -> md_news_indices: MdNewsIndices;
+        TemplateId::MdIncrementalRefreshTradeBlocks340 -> md_incremental_refresh_trade_blocks_340: MdIncrementalRefreshTradeBlocks340;
+        TemplateId::QuoteRequest -> quote_request: QuoteRequest;
+        TemplateId::MdInstrumentDefinitionIndices -> md_instrument_definition_indices: MdInstrumentDefinitionIndices;
+        TemplateId::MdIncrementalRefreshIndices -> md_incremental_refresh_indices: MdIncrementalRefreshIndices;
+        TemplateId::MdIncrementalRefreshTradeBlocks349 -> md_incremental_refresh_trade_blocks_349: MdIncrementalRefreshTradeBlocks349;
+        TemplateId::MdIncrementalRefreshEris351 -> md_incremental_refresh_eris_351: MdIncrementalRefreshEris351;
+        TemplateId::MdIncrementalRefreshEris353 -> md_incremental_refresh_eris_353: MdIncrementalRefreshEris353;
+        TemplateId::MdIncrementalRefreshOtC356 -> md_incremental_refresh_ot_c_356: MdIncrementalRefreshOtC356;
+        TemplateId::MdInstrumentDefinitionEris -> md_instrument_definition_eris: MdInstrumentDefinitionEris;
+        TemplateId::MdIncrementalRefreshTradeBlocks365 -> md_incremental_refresh_trade_blocks_365: MdIncrementalRefreshTradeBlocks365;
+        TemplateId::MdIncrementalRefreshOtC366 -> md_incremental_refresh_ot_c_366: MdIncrementalRefreshOtC366;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type AdminLogin = unit {
+    heart_bt_int: int8;
+};
+
+type AdminLogout = unit {
+    text: bytes &size=180;
+};
+
+type MdIncrementalRefreshErisReferenceDataAndDailyStatistics = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages_optional: uint16;
+    eris_reference_data_groups: ErisReferenceDataGroups;
+};
+
+type MatchEventIndicator = unit {
+    last_trade_msg: bytes &size=1;
+    last_volume_msg: bytes &size=1;
+    last_quote_msg: bytes &size=1;
+    last_stats_msg: bytes &size=1;
+    last_implied_msg: bytes &size=1;
+    recovery_msg: bytes &size=1;
+    reserved: bytes &size=1;
+    end_of_event: bytes &size=1;
+};
+
+type ErisReferenceDataGroups = unit {
+    group_size: GroupSize;
+    eris_reference_data_group: ErisReferenceDataGroup[self.group_size.num_in_group_8];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group_8: uint8;
+};
+
+type ErisReferenceDataGroup = unit {
+    md_update_action_char: bytes &size=1;
+    md_entry_type: bytes &size=1;
+    rpt_seq: uint32;
+    md_entry_px_decimal_optional: MdEntryPxDecimalOptional;
+    open_close_settl_flag: int8;
+    settl_price_type: SettlPriceType;
+    cal_fut_px_optional: CalFutPxOptional;
+    reference_id_50: bytes &size=50;
+    md_entry_size_optional: uint64;
+    symbol: bytes &size=50;
+    security_group_26: bytes &size=26;
+    product_optional: uint8;
+    security_type: bytes &size=9;
+    security_exchange: bytes &size=4;
+    maturity_date: uint16;
+    coupon_rate_optional: CouponRateOptional;
+    trade_date: uint16;
+    fair_coupon_pct: FairCouponPct;
+    leg_purchase_rate: LegPurchaseRate;
+    fixed_npv: FixedNpv;
+    float_npv: FloatNpv;
+    npv: Npv;
+    accrued_coupons: AccruedCoupons;
+    daily_incremental_eris_pai: DailyIncrementalErisPai;
+    eris_pai: ErisPai;
+    fed_funds_rate: FedFundsRate;
+    min_price_increment_optional: MinPriceIncrementOptional;
+    fixed_payment: FixedPayment;
+    floating_payment: FloatingPayment;
+    next_fixed_payment_date: uint16;
+    next_fixed_payment_amount: NextFixedPaymentAmount;
+    next_floating_payment_amount: NextFloatingPaymentAmount;
+    trading_reference_date: uint16;
+    previous_eris_pai: PreviousErisPai;
+    fed_funds_date: uint16;
+    accrual_days: uint32;
+    nominal: uint64;
+    leg_credit_rating: bytes &size=6;
+    leg_contract_multiplier: LegContractMultiplier;
+    next_floating_payment_date: uint16;
+    p_v_01: PV01;
+    d_v_01: DV01;
+    settlement_npv: SettlementNpv;
+    final_settlement_futures_price: FinalSettlementFuturesPrice;
+    security_description: bytes &size=30;
+    eris_security_alt_id_groups: ErisSecurityAltIdGroups;
+    incremental_refresh_eris_related_instruments_groups: IncrementalRefreshErisRelatedInstrumentsGroups;
+    events_groups: EventsGroups;
+};
+
+type MdEntryPxDecimalOptional = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type SettlPriceType = unit {
+    final_daily: bytes &size=1;
+    actual: bytes &size=1;
+    rounded: bytes &size=1;
+    reserved_bits: bytes &size=1;
+    unused_settl_price_type_4: bytes &size=1;
+    unused_settl_price_type_5: bytes &size=1;
+    unused_settl_price_type_6: bytes &size=1;
+    null_value: bytes &size=1;
+};
+
+type CalFutPxOptional = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type CouponRateOptional = unit {
+    mantissa_32: int32;
+    exponent: int8;
+};
+
+type FairCouponPct = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type LegPurchaseRate = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type FixedNpv = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type FloatNpv = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type Npv = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type AccruedCoupons = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type DailyIncrementalErisPai = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type ErisPai = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type FedFundsRate = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type MinPriceIncrementOptional = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type FixedPayment = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type FloatingPayment = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type NextFixedPaymentAmount = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type NextFloatingPaymentAmount = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type PreviousErisPai = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type LegContractMultiplier = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type PV01 = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type DV01 = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type SettlementNpv = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type FinalSettlementFuturesPrice = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type ErisSecurityAltIdGroups = unit {
+    group_size: GroupSize;
+    eris_security_alt_id_group: ErisSecurityAltIdGroup[self.group_size.num_in_group_8];
+};
+
+type ErisSecurityAltIdGroup = unit {
+    security_alt_id_50: bytes &size=26;
+    security_alt_id_source_optional: bytes &size=1;
+};
+
+type IncrementalRefreshErisRelatedInstrumentsGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_eris_related_instruments_group: IncrementalRefreshErisRelatedInstrumentsGroup[self.group_size.num_in_group_8];
+};
+
+type IncrementalRefreshErisRelatedInstrumentsGroup = unit {
+    related_instrument_type: uint8;
+    related_symbol: bytes &size=50;
+    related_security_group: bytes &size=26;
+};
+
+type EventsGroups = unit {
+    group_size: GroupSize;
+    events_group: EventsGroup[self.group_size.num_in_group_8];
+};
+
+type EventsGroup = unit {
+    event_type_optional: uint8;
+    event_time_optional: uint64;
+};
+
+type MdNewsIndices = unit {
+    headline: bytes &size=50;
+    orig_time: uint64;
+    md_feed_type: bytes &size=2;
+    news_indices_related_sym_groups: NewsIndicesRelatedSymGroups;
+    lines_of_text_groups: LinesOfTextGroups;
+};
+
+type NewsIndicesRelatedSymGroups = unit {
+    group_size: GroupSize;
+    news_indices_related_sym_group: NewsIndicesRelatedSymGroup[self.group_size.num_in_group_8];
+};
+
+type NewsIndicesRelatedSymGroup = unit {
+    symbol: bytes &size=50;
+};
+
+type LinesOfTextGroups = unit {
+    group_size: GroupSize;
+    lines_of_text_group: LinesOfTextGroup[self.group_size.num_in_group_8];
+};
+
+type LinesOfTextGroup = unit {
+    text_500: bytes &size=500;
+};
+
+type MdIncrementalRefreshTradeBlocks340 = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages: uint16;
+    trade_blocks_original_groups: TradeBlocksOriginalGroups;
+};
+
+type TradeBlocksOriginalGroups = unit {
+    group_size: GroupSize;
+    trade_blocks_original_group: TradeBlocksOriginalGroup[self.group_size.num_in_group_8];
+};
+
+type TradeBlocksOriginalGroup = unit {
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    security_id: uint64;
+    rpt_seq: uint32;
+    md_entry_px_optional: int64;
+    md_entry_size_optional: uint64;
+    number_of_orders: int32;
+    trade_id: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    symbol: bytes &size=50;
+    security_group_12: bytes &size=12;
+    security_type: bytes &size=9;
+    security_sub_type: bytes &size=2;
+    maturity_month_year: MaturityMonthYear;
+    security_exchange_4: bytes &size=4;
+    maturity_date: uint16;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_currency_3: bytes &size=3;
+    unit_of_measure_qty_optional: int64;
+    coupon_rate: int32;
+    price_type: uint16;
+    trd_type: uint8;
+    md_entry_id: bytes &size=26;
+    put_or_call: uint8;
+    strike_price: int64;
+    restructuring_type: bytes &size=2;
+    seniority: bytes &size=2;
+    reference_id_100: bytes &size=100;
+    strategy_link_id: bytes &size=26;
+    leg_ref_id: bytes &size=17;
+    trade_blocks_underlyings_groups: TradeBlocksUnderlyingsGroups;
+    trade_blocks_party_ids_groups: TradeBlocksPartyIdsGroups;
+    trade_blocks_original_legs_groups: TradeBlocksOriginalLegsGroups;
+};
+
+type MaturityMonthYear = unit {
+    year: uint16;
+    month: uint8;
+    day: uint8;
+    week: uint8;
+};
+
+type TradeBlocksUnderlyingsGroups = unit {
+    group_size: GroupSize;
+    trade_blocks_underlyings_group: TradeBlocksUnderlyingsGroup[self.group_size.num_in_group_8];
+};
+
+type TradeBlocksUnderlyingsGroup = unit {
+    underlying_symbol: bytes &size=50;
+    underlying_maturity_month_year: UnderlyingMaturityMonthYear;
+    underlying_security_type: bytes &size=9;
+    underlying_security_exchange_string_4: bytes &size=4;
+};
+
+type UnderlyingMaturityMonthYear = unit {
+    year: uint16;
+    month: uint8;
+    day: uint8;
+    week: uint8;
+};
+
+type TradeBlocksPartyIdsGroups = unit {
+    group_size: GroupSize;
+    trade_blocks_party_ids_group: TradeBlocksPartyIdsGroup[self.group_size.num_in_group_8];
+};
+
+type TradeBlocksPartyIdsGroup = unit {
+    party_id: bytes &size=50;
+    party_role: bytes &size=2;
+};
+
+type TradeBlocksOriginalLegsGroups = unit {
+    group_size: GroupSize;
+    trade_blocks_original_legs_group: TradeBlocksOriginalLegsGroup[self.group_size.num_in_group_8];
+};
+
+type TradeBlocksOriginalLegsGroup = unit {
+    leg_symbol: bytes &size=50;
+    leg_security_id: uint64;
+    leg_security_group: bytes &size=12;
+    leg_id: bytes &size=17;
+    leg_security_type: bytes &size=9;
+    leg_maturity_month_year: LegMaturityMonthYear;
+    leg_maturity_date: uint16;
+    leg_strike_price_pricenull: int64;
+    leg_unit_of_measure: bytes &size=5;
+    leg_unit_of_measure_qty_pricenull: int64;
+    leg_security_exchange: bytes &size=4;
+    leg_ratio_qty_u_int_16_null: uint16;
+    leg_side: uint8;
+    leg_put_or_call: uint8;
+    leg_unit_of_measure_currency: bytes &size=3;
+};
+
+type LegMaturityMonthYear = unit {
+    year: uint16;
+    month: uint8;
+    day: uint8;
+    week: uint8;
+};
+
+type QuoteRequest = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    quote_req_id: bytes &size=26;
+    quote_request_related_sym_groups: QuoteRequestRelatedSymGroups;
+};
+
+type QuoteRequestRelatedSymGroups = unit {
+    group_size: GroupSize;
+    quote_request_related_sym_group: QuoteRequestRelatedSymGroup[self.group_size.num_in_group_8];
+};
+
+type QuoteRequestRelatedSymGroup = unit {
+    symbol: bytes &size=50;
+    coupon_rate: int32;
+    order_qty: uint64;
+    security_exchange: bytes &size=4;
+    product_optional: uint8;
+    security_group_26: bytes &size=26;
+    maturity_date: uint16;
+    security_type_4: bytes &size=4;
+    quote_type: uint8;
+    events_groups: EventsGroups;
+};
+
+type MdInstrumentDefinitionIndices = unit {
+    symbol: bytes &size=50;
+    product: int8;
+    security_exchange: bytes &size=4;
+    currency: bytes &size=3;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    md_feed_type: bytes &size=2;
+    appl_id: uint16;
+    inst_attrib_groups: InstAttribGroups;
+    events_groups: EventsGroups;
+};
+
+type InstAttribGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    inst_attrib_group: InstAttribGroup[self.group_size_encoding.num_in_group];
+};
+
+type GroupSizeEncoding = unit {
+    block_length: uint16;
+    num_in_group: uint16;
+};
+
+type InstAttribGroup = unit {
+    inst_attrib_type: uint8;
+    inst_attrib_value: bytes &size=100;
+};
+
+type MdIncrementalRefreshIndices = unit {
+    transact_time: uint64;
+    md_feed_type: bytes &size=2;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages_optional: uint16;
+    incremental_refresh_indices_groups: IncrementalRefreshIndicesGroups;
+};
+
+type IncrementalRefreshIndicesGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_indices_group: IncrementalRefreshIndicesGroup[self.group_size.num_in_group_8];
+};
+
+type IncrementalRefreshIndicesGroup = unit {
+    md_entry_type_indices: uint8 &convert=MdEntryTypeIndices($$);
+    rpt_seq: uint32;
+    md_entry_px_decimal: MdEntryPxDecimal;
+    md_entry_size_optional: uint64;
+    symbol: bytes &size=50;
+    open_close_settl_flag: int8;
+    yield_type: bytes &size=8;
+    yield: Yield;
+    net_chg_prev_day: NetChgPrevDay;
+    net_pct_chg: NetPctChg;
+    percent_trading: PercentTrading;
+    md_entry_code: uint8 &convert=MdEntryCode($$);
+    md_entry_date: int32;
+    md_entry_time: int32;
+    reference_id_50: bytes &size=50;
+};
+
+type MdEntryPxDecimal = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type Yield = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type NetChgPrevDay = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type NetPctChg = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type PercentTrading = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type MdIncrementalRefreshTradeBlocks349 = unit {
+    transact_time_optional: uint64;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages: uint16;
+    trade_date: uint16;
+    trade_blocks_legacy_groups: TradeBlocksLegacyGroups;
+};
+
+type TradeBlocksLegacyGroups = unit {
+    group_size: GroupSize;
+    trade_blocks_legacy_group: TradeBlocksLegacyGroup[self.group_size.num_in_group_8];
+};
+
+type TradeBlocksLegacyGroup = unit {
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    security_id: uint64;
+    rpt_seq: uint32;
+    md_entry_px_optional: int64;
+    md_entry_size: MdEntrySize;
+    number_of_orders: int32;
+    trade_id: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    symbol: bytes &size=50;
+    security_group_12: bytes &size=12;
+    security_type: bytes &size=9;
+    security_sub_type: bytes &size=2;
+    maturity_month_year: MaturityMonthYear;
+    security_exchange_4: bytes &size=4;
+    maturity_date: uint16;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_currency_3: bytes &size=3;
+    unit_of_measure_qty_optional: int64;
+    coupon_rate: int32;
+    price_type: uint16;
+    trd_type: uint8;
+    md_entry_id: bytes &size=26;
+    put_or_call: uint8;
+    strike_price: int64;
+    restructuring_type: bytes &size=2;
+    seniority: bytes &size=2;
+    reference_id_100: bytes &size=100;
+    strategy_link_id: bytes &size=26;
+    leg_ref_id: bytes &size=17;
+    trade_blocks_underlyings_groups: TradeBlocksUnderlyingsGroups;
+    trade_blocks_party_ids_groups: TradeBlocksPartyIdsGroups;
+    trade_blocks_original_legs_groups: TradeBlocksOriginalLegsGroups;
+};
+
+type MdEntrySize = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type MdIncrementalRefreshEris351 = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages_optional: uint16;
+    eris_original_groups: ErisOriginalGroups;
+};
+
+type ErisOriginalGroups = unit {
+    group_size: GroupSize;
+    eris_original_group: ErisOriginalGroup[self.group_size.num_in_group_8];
+};
+
+type ErisOriginalGroup = unit {
+    md_update_action_char: bytes &size=1;
+    md_entry_type: bytes &size=1;
+    rpt_seq: uint32;
+    md_entry_px_decimal: MdEntryPxDecimal;
+    md_entry_size_optional: uint64;
+    cal_fut_px: CalFutPx;
+    md_entry_position_no: int32;
+    number_of_orders: int32;
+    trade_id: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    symbol: bytes &size=50;
+    security_group_26: bytes &size=26;
+    security_type: bytes &size=9;
+    security_exchange: bytes &size=4;
+    product_optional: uint8;
+    maturity_date: uint16;
+    reference_id_50: bytes &size=50;
+    eris_security_alt_id_groups: ErisSecurityAltIdGroups;
+    events_groups: EventsGroups;
+};
+
+type CalFutPx = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type MdIncrementalRefreshEris353 = unit {
+    transact_time: uint64;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages_optional: uint16;
+    eris_groups: ErisGroups;
+};
+
+type ErisGroups = unit {
+    group_size: GroupSize;
+    eris_group: ErisGroup[self.group_size.num_in_group_8];
+};
+
+type ErisGroup = unit {
+    md_update_action_char: bytes &size=1;
+    md_entry_type: bytes &size=1;
+    rpt_seq: uint32;
+    md_entry_px_decimal: MdEntryPxDecimal;
+    md_entry_size_optional: uint64;
+    cal_fut_px: CalFutPx;
+    md_entry_position_no: int32;
+    number_of_orders: int32;
+    trade_id: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    symbol: bytes &size=50;
+    security_group_26: bytes &size=26;
+    security_type: bytes &size=9;
+    security_exchange: bytes &size=4;
+    product_optional: uint8;
+    maturity_date: uint16;
+    reference_id_50: bytes &size=50;
+    md_quote_type: uint8;
+    eris_security_alt_id_groups: ErisSecurityAltIdGroups;
+    events_groups: EventsGroups;
+};
+
+type MdIncrementalRefreshOtC356 = unit {
+    transact_time: uint64;
+    trade_date: uint16;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages_optional: uint16;
+    otc_original_groups: OtcOriginalGroups;
+};
+
+type OtcOriginalGroups = unit {
+    group_size: GroupSize;
+    otc_original_group: OtcOriginalGroup[self.group_size.num_in_group_8];
+};
+
+type OtcOriginalGroup = unit {
+    md_entry_type: bytes &size=1;
+    rpt_seq: uint32;
+    md_entry_px_optional: int64;
+    md_entry_size: MdEntrySize;
+    symbol: bytes &size=50;
+    security_group_12: bytes &size=12;
+    security_type: bytes &size=9;
+    maturity_month_year: MaturityMonthYear;
+    security_exchange: bytes &size=4;
+    product_optional: uint8;
+    maturity_date: uint16;
+    coupon_rate: int32;
+    restructuring_type: bytes &size=2;
+    seniority: bytes &size=2;
+    notional_percentage_outstanding: int32;
+    put_or_call: uint8;
+    strike_price_decimal: StrikePriceDecimal;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_currency: bytes &size=3;
+    unit_of_measure_qty_decimal: UnitOfMeasureQtyDecimal;
+    md_entry_date: int32;
+    open_close_settl_flag: int8;
+    price_type: uint16;
+    settl_date: uint16;
+    quote_condition: bytes &size=1;
+    market_sector: bytes &size=26;
+    sector_group: bytes &size=2;
+    sector_sub_group: bytes &size=26;
+    product_complex: bytes &size=26;
+    security_sub_type: bytes &size=2;
+    vol_type: uint16;
+    reference_id_100: bytes &size=100;
+    otc_underlyings_groups: OtcUnderlyingsGroups;
+    otc_security_alt_id_groups: OtcSecurityAltIdGroups;
+};
+
+type StrikePriceDecimal = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type UnitOfMeasureQtyDecimal = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type OtcUnderlyingsGroups = unit {
+    group_size: GroupSize;
+    otc_underlyings_group: OtcUnderlyingsGroup[self.group_size.num_in_group_8];
+};
+
+type OtcUnderlyingsGroup = unit {
+    underlying_symbol: bytes &size=50;
+    underlying_maturity_month_year: UnderlyingMaturityMonthYear;
+    underlying_security_type: bytes &size=9;
+    underlying_security_exchange_security_exchange: bytes &size=4;
+};
+
+type OtcSecurityAltIdGroups = unit {
+    group_size: GroupSize;
+    otc_security_alt_id_group: OtcSecurityAltIdGroup[self.group_size.num_in_group_8];
+};
+
+type OtcSecurityAltIdGroup = unit {
+    security_alt_i_d_string_length_50: bytes &size=50;
+    security_alt_id_source: bytes &size=1;
+};
+
+type MdInstrumentDefinitionEris = unit {
+    security_group_12: bytes &size=12;
+    symbol: bytes &size=50;
+    security_type_4: bytes &size=4;
+    product_optional: uint8;
+    security_exchange: bytes &size=4;
+    maturity_date: uint16;
+    currency: bytes &size=3;
+    min_price_increment: MinPriceIncrement;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    rate_type: bytes &size=2;
+    coupon_rate: int32;
+    user_defined_instrument: bytes &size=1;
+    appl_id: uint16;
+    eris_feed_types_groups: ErisFeedTypesGroups;
+    events_groups: EventsGroups;
+    eris_security_alt_id_groups: ErisSecurityAltIdGroups;
+    eris_legs_groups: ErisLegsGroups;
+};
+
+type MinPriceIncrement = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type ErisFeedTypesGroups = unit {
+    group_size: GroupSize;
+    eris_feed_types_group: ErisFeedTypesGroup[self.group_size.num_in_group_8];
+};
+
+type ErisFeedTypesGroup = unit {
+    md_feed_type_3: bytes &size=3;
+    market_depth: uint8;
+};
+
+type ErisLegsGroups = unit {
+    group_size: GroupSize;
+    eris_legs_group: ErisLegsGroup[self.group_size.num_in_group_8];
+};
+
+type ErisLegsGroup = unit {
+    leg_benchmark_curve_name: bytes &size=5;
+    rate_descriptor: bytes &size=8;
+    previous_fixing_date: uint16;
+    leg_pay_frequencey: bytes &size=3;
+    previous_fixing_rate: PreviousFixingRate;
+    leg_symbol: bytes &size=50;
+    leg_ratio_qty_int_32_null: int32;
+    leg_side: uint8;
+    leg_currency: bytes &size=3;
+    leg_security_type_4: bytes &size=8;
+    leg_security_group: bytes &size=12;
+    leg_date_offset: int8;
+    interpolation_factor: InterpolationFactor;
+    eris_security_alt_id_groups: ErisSecurityAltIdGroups;
+};
+
+type PreviousFixingRate = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type InterpolationFactor = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type MdIncrementalRefreshTradeBlocks365 = unit {
+    transact_time_optional: uint64;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages: uint16;
+    trade_date: uint16;
+    trade_blocks_groups: TradeBlocksGroups;
+};
+
+type TradeBlocksGroups = unit {
+    group_size: GroupSize;
+    trade_blocks_group: TradeBlocksGroup[self.group_size.num_in_group_8];
+};
+
+type TradeBlocksGroup = unit {
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    security_id: uint64;
+    rpt_seq: uint32;
+    md_entry_px: int64;
+    md_entry_size: MdEntrySize;
+    number_of_orders: int32;
+    trade_id: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    symbol: bytes &size=50;
+    security_group_12: bytes &size=12;
+    security_type: bytes &size=9;
+    security_sub_type: bytes &size=2;
+    maturity_month_year: MaturityMonthYear;
+    security_exchange_4: bytes &size=4;
+    maturity_date: uint16;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_currency_3: bytes &size=3;
+    unit_of_measure_qty_decimal_optional: UnitOfMeasureQtyDecimalOptional;
+    coupon_rate: int32;
+    price_type: uint16;
+    trd_type: uint8;
+    md_entry_id: bytes &size=26;
+    put_or_call: uint8;
+    strike_price_decimal_optional: StrikePriceDecimalOptional;
+    restructuring_type: bytes &size=2;
+    seniority: bytes &size=2;
+    reference_id_100: bytes &size=100;
+    strategy_link_id: bytes &size=26;
+    leg_ref_id: bytes &size=17;
+    trade_blocks_underlyings_groups: TradeBlocksUnderlyingsGroups;
+    trade_blocks_party_ids_groups: TradeBlocksPartyIdsGroups;
+    trade_blocks_legs_groups: TradeBlocksLegsGroups;
+};
+
+type UnitOfMeasureQtyDecimalOptional = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type StrikePriceDecimalOptional = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type TradeBlocksLegsGroups = unit {
+    group_size: GroupSize;
+    trade_blocks_legs_group: TradeBlocksLegsGroup[self.group_size.num_in_group_8];
+};
+
+type TradeBlocksLegsGroup = unit {
+    leg_symbol: bytes &size=50;
+    leg_security_id: uint64;
+    leg_security_group: bytes &size=12;
+    leg_id: bytes &size=17;
+    leg_security_type: bytes &size=9;
+    leg_maturity_month_year: LegMaturityMonthYear;
+    leg_maturity_date: uint16;
+    leg_strike_price_decimal_64_null: LegStrikePriceDecimal64Null;
+    leg_unit_of_measure: bytes &size=5;
+    leg_unit_of_measure_qty_decimal_64_null: LegUnitOfMeasureQtyDecimal64Null;
+    leg_security_exchange: bytes &size=4;
+    leg_ratio_qty_u_int_16_null: uint16;
+    leg_side: uint8;
+    leg_put_or_call: uint8;
+    leg_unit_of_measure_currency: bytes &size=3;
+};
+
+type LegStrikePriceDecimal64Null = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type LegUnitOfMeasureQtyDecimal64Null = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type MdIncrementalRefreshOtC366 = unit {
+    transact_time: uint64;
+    trade_date: uint16;
+    match_event_indicator: MatchEventIndicator;
+    batch_total_messages_optional: uint16;
+    otc_groups: OtcGroups;
+};
+
+type OtcGroups = unit {
+    group_size: GroupSize;
+    otc_group: OtcGroup[self.group_size.num_in_group_8];
+};
+
+type OtcGroup = unit {
+    md_entry_type: bytes &size=1;
+    rpt_seq: uint32;
+    md_entry_px: int64;
+    md_entry_size: MdEntrySize;
+    symbol: bytes &size=50;
+    security_group_12: bytes &size=12;
+    security_type: bytes &size=9;
+    maturity_month_year: MaturityMonthYear;
+    security_exchange: bytes &size=4;
+    product_optional: uint8;
+    maturity_date: uint16;
+    coupon_rate: int32;
+    restructuring_type: bytes &size=2;
+    seniority: bytes &size=2;
+    notional_percentage_outstanding: int32;
+    put_or_call: uint8;
+    strike_price_decimal_optional: StrikePriceDecimalOptional;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_currency: bytes &size=3;
+    unit_of_measure_qty_decimal_optional: UnitOfMeasureQtyDecimalOptional;
+    md_entry_date: int32;
+    open_close_settl_flag: int8;
+    price_type: uint16;
+    settl_date: uint16;
+    quote_condition: bytes &size=1;
+    market_sector: bytes &size=26;
+    sector_group: bytes &size=2;
+    sector_sub_group: bytes &size=26;
+    product_complex: bytes &size=26;
+    security_sub_type: bytes &size=2;
+    vol_type: uint16;
+    reference_id_100: bytes &size=100;
+    otc_underlyings_groups: OtcUnderlyingsGroups;
+    otc_security_alt_id_groups: OtcSecurityAltIdGroups;
+};
+
+type TemplateId = enum {
+    AdminHeartbeat = 312,
+    AdminLogin = 315,
+    AdminLogout = 316,
+    MdIncrementalRefreshErisReferenceDataAndDailyStatistics = 333,
+    MdNewsIndices = 339,
+    MdIncrementalRefreshTradeBlocks340 = 340,
+    QuoteRequest = 345,
+    MdInstrumentDefinitionIndices = 347,
+    MdIncrementalRefreshIndices = 348,
+    MdIncrementalRefreshTradeBlocks349 = 349,
+    MdIncrementalRefreshEris351 = 351,
+    MdIncrementalRefreshEris353 = 353,
+    MdIncrementalRefreshOtC356 = 356,
+    MdInstrumentDefinitionEris = 363,
+    MdIncrementalRefreshTradeBlocks365 = 365,
+    MdIncrementalRefreshOtC366 = 366,
+};
+
+type MdUpdateAction = enum {
+    New = 0,
+    Change = 1,
+    Delete = 2,
+    DeleteThru = 3,
+    DeleteFrom = 4,
+    Overlay = 5,
+};
+
+type AggressorSide = enum {
+    NoAggressor = 0,
+    Buy = 1,
+    Sell = 2,
+};
+
+type SecurityUpdateAction = enum {
+    Add = 0x41,
+    Delete = 0x44,
+    Modify = 0x4d,
+};
+
+type MdEntryTypeIndices = enum {
+    Bid = 0x30,
+    Offer = 0x31,
+    Trade = 0x32,
+    IndexValue = 0x33,
+    OpeningValue = 0x34,
+    ClosingPrice = 0x35,
+    SettlementPrice = 0x36,
+    SessionHighPrice = 0x37,
+    SessionLowPrice = 0x38,
+    TradeVolume = 0x65,
+};
+
+type MdEntryCode = enum {
+    Indicative = 1,
+    PreMarket = 2,
+    PreliminaryClose = 3,
+    SessionClose = 4,
+    Close = 5,
+};
+

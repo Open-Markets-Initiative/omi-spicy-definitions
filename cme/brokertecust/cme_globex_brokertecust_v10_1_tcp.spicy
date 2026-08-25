@@ -1,0 +1,97 @@
+module CmeGlobexBrokertecustSbeV101Tcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CmeGlobexBrokertecustV101 = unit {
+    technical_header: TechnicalHeader;
+    tcp_message: TcpMessage[] &eod;
+};
+
+type TechnicalHeader = unit {
+    encoding_type: uint16;
+    message_sequence_number: uint32;
+    tcp_sending_time: uint64;
+};
+
+type TcpMessage = unit {
+    tcp_message_size: uint16;
+    message_header: MessageHeader;
+    payload: MdIncrementalRefreshBtec;
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type MdIncrementalRefreshBtec = unit {
+    trade_date: uint16;
+    transact_time: uint64;
+    incremental_refresh_btec_groups: IncrementalRefreshBtecGroups;
+};
+
+type IncrementalRefreshBtecGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_btec_group: IncrementalRefreshBtecGroup[self.group_size.num_in_group];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type IncrementalRefreshBtecGroup = unit {
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type: uint8 &convert=MdEntryType($$);
+    md_entry_px: MdEntryPx;
+    md_entry_size: uint32;
+    md_price_level: uint8;
+    trade_volume: uint32;
+    symbol: bytes &size=20;
+    maturity_date: uint16;
+    security_alt_id: bytes &size=12;
+    security_alt_id_source: bytes &size=1;
+    coupon_rate: CouponRate;
+    trade_condition: bytes &size=1;
+    price_type: uint8;
+};
+
+type MdEntryPx = unit {
+    mantissa: int64;
+    exponent: int8;
+};
+
+type CouponRate = unit {
+    mantissa_32: int32;
+    exponent: int8;
+};
+
+type TemplateId = enum {
+    MdIncrementalRefreshBtec = 405,
+    AdminHeartbeat = 411,
+};
+
+type MdUpdateAction = enum {
+    New = 0,
+    Update = 1,
+    Delete = 2,
+};
+
+type MdEntryType = enum {
+    Bid = 0x30,
+    Offer = 0x31,
+    Trade = 0x32,
+    OpenPrice = 0x34,
+    ClosePrice = 0x35,
+    HighTradePrice = 0x37,
+    LowTradePrice = 0x38,
+    Vwap = 0x39,
+    ImpliedBid = 0x45,
+    ImpliedOffer = 0x46,
+    BookReset = 0x4a,
+};
+

@@ -1,0 +1,38 @@
+module NasdaqUtpSnapshotUtpV30Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NasdaqUtpSnapshotV30 = unit {
+    client_tcp_packet_header: ClientTcpPacketHeader;
+    switch ( self.client_tcp_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientTcpPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+

@@ -1,0 +1,365 @@
+module CoinbaseCoinbasederivativesMarketdataapiSbeV12;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CoinbasederivativesMarketdataapiV12 = unit {
+    packet_header: PacketHeader;
+    sbe_message: SbeMessage[] &eod;
+};
+
+type PacketHeader = unit {
+    sending_time: int64;
+    seq_num: int64;
+    channel_id: uint16;
+    packet_flags: PacketFlags;
+    message_count: uint8;
+    snapshot_instrument_id: int32;
+};
+
+type PacketFlags = unit {
+    incremental_update: bytes &size=1;
+    snapshot: bytes &size=1;
+    retransmit: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type SbeMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::OutrightInstrumentDefinitionMessage -> outright_instrument_definition_message: OutrightInstrumentDefinitionMessage;
+        TemplateId::SpreadInstrumentDefinitionMessage -> spread_instrument_definition_message: SpreadInstrumentDefinitionMessage;
+        TemplateId::TradingStatusUpdateMessage -> trading_status_update_message: TradingStatusUpdateMessage;
+        TemplateId::OrderPutMessage -> order_put_message: OrderPutMessage;
+        TemplateId::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        TemplateId::ImpliedOrderUpdateMessage -> implied_order_update_message: ImpliedOrderUpdateMessage;
+        TemplateId::TradeSummaryMessage -> trade_summary_message: TradeSummaryMessage;
+        TemplateId::TradeMessage -> trade_message: TradeMessage;
+        TemplateId::TradeAmendMessage -> trade_amend_message: TradeAmendMessage;
+        TemplateId::SpreadTradeAmendMessage -> spread_trade_amend_message: SpreadTradeAmendMessage;
+        TemplateId::TradeBustMessage -> trade_bust_message: TradeBustMessage;
+        TemplateId::MarketStatMessage -> market_stat_message: MarketStatMessage;
+        TemplateId::TradeSessionVolumeMessage -> trade_session_volume_message: TradeSessionVolumeMessage;
+        TemplateId::OpenInterestMessage -> open_interest_message: OpenInterestMessage;
+        TemplateId::StartOfOutrightInstrumentSnapshotMessage -> start_of_outright_instrument_snapshot_message: StartOfOutrightInstrumentSnapshotMessage;
+        TemplateId::StartOfSpreadInstrumentSnapshotMessage -> start_of_spread_instrument_snapshot_message: StartOfSpreadInstrumentSnapshotMessage;
+        TemplateId::OrderSnapshotMessage -> order_snapshot_message: OrderSnapshotMessage;
+        TemplateId::EndOfSnapshotMessage -> end_of_snapshot_message: EndOfSnapshotMessage;
+        TemplateId::RetransmitRequestMessage -> retransmit_request_message: RetransmitRequestMessage;
+        TemplateId::RetransmitRejectMessage -> retransmit_reject_message: RetransmitRejectMessage;
+        * -> unknown: bytes &eod;
+    };
+    : skip bytes &size=0;   # padding
+};
+
+type MessageHeader = unit {
+    frame_length: uint16;
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type OutrightInstrumentDefinitionMessage = unit {
+    instr_header: InstrHeader;
+    symbol: bytes &size=24;
+    product_code: bytes &size=8;
+    description: bytes &size=32;
+    price_increment: int64;
+    cfi_code: bytes &size=8;
+    currency: bytes &size=8;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    contract_size: int32;
+    prior_settlement_price: int64;
+    settlement_price: int64;
+    limit_down_price: int64;
+    limit_up_price: int64;
+    product_id: int32;
+    product_group: int8 &convert=ProductGroup($$);
+    trading_status: int8 &convert=TradingStatus($$);
+    definition_flags: DefinitionFlags;
+};
+
+type InstrHeader = unit {
+    instrument_flags: uint8;
+    instrument_side: int8;
+    instrument_id: int32;
+    instr_seq_num: uint32;
+    trading_session_date: uint16;
+    reserved: int16;
+    transact_time: int64;
+};
+
+type DefinitionFlags = unit {
+    is_prior_settlement_theoretical: bytes &size=1;
+    reserved_15: bytes &size=2;
+};
+
+type SpreadInstrumentDefinitionMessage = unit {
+    instr_header: InstrHeader;
+    symbol: bytes &size=24;
+    product_code: bytes &size=8;
+    description: bytes &size=32;
+    price_increment: int64;
+    cfi_code: bytes &size=8;
+    currency: bytes &size=8;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    contract_size: int32;
+    prior_settlement_price: int64;
+    settlement_price: int64;
+    limit_down_price: int64;
+    limit_up_price: int64;
+    product_id: int32;
+    product_group: int8 &convert=ProductGroup($$);
+    trading_status: int8 &convert=TradingStatus($$);
+    leg_1_instrument_id: int32;
+    leg_2_instrument_id: int32;
+    spread_buy_convention: int8 &convert=SpreadBuyConvention($$);
+    definition_flags: DefinitionFlags;
+};
+
+type TradingStatusUpdateMessage = unit {
+    instr_header: InstrHeader;
+    limit_down_price: int64;
+    limit_up_price: int64;
+    trading_status: int8 &convert=TradingStatus($$);
+};
+
+type OrderPutMessage = unit {
+    instr_header: InstrHeader;
+    order_id: int64;
+    price: int64;
+    quantity: int32;
+};
+
+type OrderDeleteMessage = unit {
+    instr_header: InstrHeader;
+    order_id: int64;
+};
+
+type ImpliedOrderUpdateMessage = unit {
+    instr_header: InstrHeader;
+    best_price: int64;
+    next_price: int64;
+    best_qty: int32;
+    next_qty: int32;
+};
+
+type TradeSummaryMessage = unit {
+    instr_header: InstrHeader;
+    aggressor_order_id: int64;
+    aggressor_receive_time: int64;
+    vwap_price: int64;
+    deepest_price: int64;
+    quantity: int32;
+};
+
+type TradeMessage = unit {
+    instr_header: InstrHeader;
+    match_id: int64;
+    buy_order_id: int64;
+    sell_order_id: int64;
+    price: int64;
+    quantity: int32;
+};
+
+type TradeAmendMessage = unit {
+    instr_header: InstrHeader;
+    match_id: int64;
+    buy_order_id: int64;
+    sell_order_id: int64;
+    old_price: int64;
+    new_price: int64;
+};
+
+type SpreadTradeAmendMessage = unit {
+    instr_header: InstrHeader;
+    match_id: int64;
+    buy_order_id: int64;
+    sell_order_id: int64;
+    old_price: int64;
+    new_price: int64;
+    old_leg_1_price: int64;
+    new_leg_1_price: int64;
+    old_leg_2_price: int64;
+    new_leg_2_price: int64;
+};
+
+type TradeBustMessage = unit {
+    instr_header: InstrHeader;
+    match_id: int64;
+    buy_order_id: int64;
+    sell_order_id: int64;
+};
+
+type MarketStatMessage = unit {
+    instr_header: InstrHeader;
+    price: int64;
+    stat_type: uint8 &convert=StatType($$);
+};
+
+type TradeSessionVolumeMessage = unit {
+    instr_header: InstrHeader;
+    vwap_price: int64;
+    trade_volume: int32;
+};
+
+type OpenInterestMessage = unit {
+    instr_header: InstrHeader;
+    quantity: int32;
+};
+
+type StartOfOutrightInstrumentSnapshotMessage = unit {
+    snapshot_seq_num: uint16;
+    last_instr_seq_num: uint32;
+    symbol: bytes &size=24;
+    product_code: bytes &size=8;
+    description: bytes &size=32;
+    price_increment: int64;
+    cfi_code: bytes &size=8;
+    currency: bytes &size=8;
+    product_id: int32;
+    contract_size: int32;
+    order_count: int32;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    trading_session_date: uint16;
+    product_group: int8 &convert=ProductGroup($$);
+    trading_status: int8 &convert=TradingStatus($$);
+};
+
+type StartOfSpreadInstrumentSnapshotMessage = unit {
+    snapshot_seq_num: uint16;
+    last_instr_seq_num: uint32;
+    symbol: bytes &size=24;
+    product_code: bytes &size=8;
+    description: bytes &size=32;
+    price_increment: int64;
+    cfi_code: bytes &size=8;
+    currency: bytes &size=8;
+    product_id: int32;
+    contract_size: int32;
+    order_count: int32;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    trading_session_date: uint16;
+    product_group: int8 &convert=ProductGroup($$);
+    trading_status: int8 &convert=TradingStatus($$);
+    leg_1_instrument_id: int32;
+    leg_2_instrument_id: int32;
+    spread_buy_convention: int8 &convert=SpreadBuyConvention($$);
+};
+
+type OrderSnapshotMessage = unit {
+    snapshot_seq_num: uint16;
+    quantity: int32;
+    transact_time: int64;
+    order_id: int64;
+    price: int64;
+};
+
+type EndOfSnapshotMessage = unit {
+    snapshot_seq_num: uint16;
+    trade_volume: int32;
+    indicative_open_price: int64;
+    day_open_price: int64;
+    close_price: int64;
+    low_price: int64;
+    high_price: int64;
+    vwap_price_optional: int64;
+    settlement_price: int64;
+    last_trade_price: int64;
+    last_trade_time: int64;
+    best_bid_implied_price: int64;
+    best_ask_implied_price: int64;
+    next_bid_implied_price: int64;
+    next_ask_implied_price: int64;
+    limit_down_price: int64;
+    limit_up_price: int64;
+    last_trade_qty: int32;
+    open_interest: int32;
+    best_bid_implied_qty: int32;
+    best_ask_implied_qty: int32;
+    next_bid_implied_qty: int32;
+    next_ask_implied_qty: int32;
+    prior_settlement_price: int64;
+    definition_flags: DefinitionFlags;
+};
+
+type RetransmitRequestMessage = unit {
+    begin_seq_num: int64;
+    message_count: uint8;
+};
+
+type RetransmitRejectMessage = unit {
+    retry_delay_nanos: int64;
+    details: bytes &size=40;
+    reason: int8 &convert=Reason($$);
+};
+
+type TemplateId = enum {
+    OutrightInstrumentDefinitionMessage = 10,
+    SpreadInstrumentDefinitionMessage = 11,
+    TradingStatusUpdateMessage = 17,
+    OrderPutMessage = 20,
+    OrderDeleteMessage = 21,
+    ImpliedOrderUpdateMessage = 22,
+    TradeSummaryMessage = 33,
+    TradeMessage = 30,
+    TradeAmendMessage = 31,
+    SpreadTradeAmendMessage = 34,
+    TradeBustMessage = 32,
+    MarketStatMessage = 40,
+    TradeSessionVolumeMessage = 41,
+    OpenInterestMessage = 42,
+    StartOfOutrightInstrumentSnapshotMessage = 110,
+    StartOfSpreadInstrumentSnapshotMessage = 111,
+    OrderSnapshotMessage = 120,
+    EndOfSnapshotMessage = 122,
+    RetransmitRequestMessage = 200,
+    RetransmitRejectMessage = 202,
+};
+
+type ProductGroup = enum {
+    Currency = 0,
+    Equity = 1,
+    Energy = 2,
+    Metals = 3,
+    InterestRate = 4,
+    Agriculture = 5,
+};
+
+type TradingStatus = enum {
+    PreOpen = 0,
+    Open = 1,
+    Halt = 2,
+    Pause = 3,
+    Close = 4,
+    PreOpenNoCancel = 5,
+    Expired = 6,
+};
+
+type SpreadBuyConvention = enum {
+    UseFarBid = 1,
+};
+
+type StatType = enum {
+    DayOpeningPrice = 0x34,
+    ClosingPrice = 0x35,
+    SettlementPrice = 0x36,
+    TradingSessionHighPrice = 0x37,
+    TradingSessionLowPrice = 0x38,
+    ReferencePrice = 0x46,
+    IndicativeOpeningPrice = 0x49,
+};
+
+type Reason = enum {
+    SeqTooLow = 1,
+    SeqTooHigh = 2,
+    RateLimitExceeded = 3,
+    OtherError = 4,
+};
+

@@ -1,0 +1,565 @@
+module NasdaqUtdfOutputUtpV15;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NasdaqUtdfOutputV15 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence: uint64;
+    count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        0x54 -> trade: Trade;
+        0x41 -> administrative: Administrative;
+        0x56 -> volume: Volume;
+        0x43 -> control: Control;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    version: uint8;
+    message_category: bytes &size=1;
+};
+
+type Trade = unit {
+    trade_message_type: uint8 &convert=TradeMessageType($$);
+    switch ( self.trade_message_type ) {
+        TradeMessageType::TradeReportMessageShortFormMessage -> trade_report_message_short_form_message: TradeReportMessageShortFormMessage;
+        TradeMessageType::TradeReportMessageLongFormMessage -> trade_report_message_long_form_message: TradeReportMessageLongFormMessage;
+        TradeMessageType::TradeCancelErrorMessage -> trade_cancel_error_message: TradeCancelErrorMessage;
+        TradeMessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        TradeMessageType::PriorDayAsOfTradeMessage -> prior_day_as_of_trade_message: PriorDayAsOfTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TradeReportMessageShortFormMessage = unit {
+    message_info: MessageInfo;
+    finra_timestamp: uint64;
+    symbol: bytes &size=5;
+    trade_id: uint64;
+    trade_price_short: uint16;
+    trade_volume_short: uint16;
+    sale_condition: SaleCondition;
+    trade_through_exempt_flag: bytes &size=1;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    participant_price_change_indicator: uint8 &convert=ParticipantPriceChangeIndicator($$);
+};
+
+type MessageInfo = unit {
+    market_center_originator_id: uint8 &convert=MarketCenterOriginatorId($$);
+    sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
+    sip_timestamp: uint64;
+    participant_timestamp: uint64;
+    participant_token: uint64;
+};
+
+type SaleCondition = unit {
+    level_1: uint8 &convert=Level1($$);
+    level_2: uint8 &convert=Level2($$);
+    level_3: uint8 &convert=Level3($$);
+    level_4: bytes &size=1;
+};
+
+type TradeReportMessageLongFormMessage = unit {
+    message_info: MessageInfo;
+    finra_timestamp: uint64;
+    symbol: bytes &size=5;
+    trade_id: uint64;
+    trade_price: uint64;
+    trade_volume: uint32;
+    sale_condition: SaleCondition;
+    trade_through_exempt_flag: bytes &size=1;
+    sellers_sale_days: uint16;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    participant_price_change_indicator: uint8 &convert=ParticipantPriceChangeIndicator($$);
+};
+
+type TradeCancelErrorMessage = unit {
+    message_info: MessageInfo;
+    finra_timestamp: uint64;
+    symbol: bytes &size=5;
+    trade_cancellation_type: bytes &size=1;
+    original_trade_id: uint64;
+    original_trade_price: uint64;
+    original_volume: uint32;
+    original_sale_condition: OriginalSaleCondition;
+    original_trade_through_exempt_flag: bytes &size=1;
+    original_sellers_sale_days: uint16;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_last_price: uint64;
+    consolidated_volume: uint64;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    market_center_originator_id: uint8 &convert=MarketCenterOriginatorId($$);
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+    market_participant_last_price: uint64;
+    market_participant_volume: uint64;
+};
+
+type OriginalSaleCondition = unit {
+    level_1: uint8 &convert=Level1($$);
+    level_2: uint8 &convert=Level2($$);
+    level_3: uint8 &convert=Level3($$);
+    level_4: bytes &size=1;
+};
+
+type TradeCorrectionMessage = unit {
+    message_info: MessageInfo;
+    finra_timestamp: uint64;
+    symbol: bytes &size=5;
+    original_trade_id: uint64;
+    original_trade_price: uint64;
+    original_volume: uint32;
+    original_sale_condition: OriginalSaleCondition;
+    original_trade_through_exempt_flag: bytes &size=1;
+    original_sellers_sale_days: uint16;
+    corrected_trade_id: uint64;
+    corrected_trade_price: uint64;
+    corrected_volume: uint32;
+    corrected_sale_condition: CorrectedSaleCondition;
+    corrected_trade_through_exempt_flag: bytes &size=1;
+    corrected_sellers_sale_days: uint16;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_last_price: uint64;
+    consolidated_volume: uint64;
+    consolidated_price_change_indicator: uint8 &convert=ConsolidatedPriceChangeIndicator($$);
+    market_center_originator_id: uint8 &convert=MarketCenterOriginatorId($$);
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+    market_participant_last_price: uint64;
+    market_participant_volume: uint64;
+};
+
+type CorrectedSaleCondition = unit {
+    level_1: uint8 &convert=Level1($$);
+    level_2: uint8 &convert=Level2($$);
+    level_3: uint8 &convert=Level3($$);
+    level_4: bytes &size=1;
+};
+
+type PriorDayAsOfTradeMessage = unit {
+    message_info: MessageInfo;
+    finra_timestamp: uint64;
+    symbol: bytes &size=5;
+    trade_id: uint64;
+    trade_price: uint64;
+    trade_volume: uint32;
+    sale_condition: SaleCondition;
+    trade_through_exempt_flag: bytes &size=1;
+    sellers_sale_days: uint16;
+    as_of_action: uint8 &convert=AsOfAction($$);
+    timestamp_of_trade: uint64;
+};
+
+type Administrative = unit {
+    administrative_message_type: uint8 &convert=AdministrativeMessageType($$);
+    switch ( self.administrative_message_type ) {
+        AdministrativeMessageType::GeneralAdministrativeMessage -> general_administrative_message: GeneralAdministrativeMessage;
+        AdministrativeMessageType::CrossSroTradingActionMessage -> cross_sro_trading_action_message: CrossSroTradingActionMessage;
+        AdministrativeMessageType::MarketCenterTradingActionMessage -> market_center_trading_action_message: MarketCenterTradingActionMessage;
+        AdministrativeMessageType::IssueSymbolDirectoryMessage -> issue_symbol_directory_message: IssueSymbolDirectoryMessage;
+        AdministrativeMessageType::RegulationShoShortSalePriceTestRestrictedIndicatorMessage -> regulation_sho_short_sale_price_test_restricted_indicator_message: RegulationShoShortSalePriceTestRestrictedIndicatorMessage;
+        AdministrativeMessageType::LimitUpLimitDownPriceBandMessage -> limit_up_limit_down_price_band_message: LimitUpLimitDownPriceBandMessage;
+        AdministrativeMessageType::MarketWideCircuitBreakerDeclineLevelMessage -> market_wide_circuit_breaker_decline_level_message: MarketWideCircuitBreakerDeclineLevelMessage;
+        AdministrativeMessageType::MarketWideCircuitBreakerStatusMessage -> market_wide_circuit_breaker_status_message: MarketWideCircuitBreakerStatusMessage;
+        AdministrativeMessageType::AuctionCollarMessage -> auction_collar_message: AuctionCollarMessage;
+        AdministrativeMessageType::ClosingTradeSummaryReportMessage -> closing_trade_summary_report_message: ClosingTradeSummaryReportMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type GeneralAdministrativeMessage = unit {
+    message_info: MessageInfo;
+    text_length: uint16;
+    text: bytes &size=self.text_length;
+};
+
+type CrossSroTradingActionMessage = unit {
+    message_info: MessageInfo;
+    symbol: bytes &size=5;
+    trading_action_code: uint8 &convert=TradingActionCode($$);
+    trading_action_sequence_number: uint32;
+    action_timestamp: uint64;
+    trading_action_reason: bytes &size=6;
+};
+
+type MarketCenterTradingActionMessage = unit {
+    message_info: MessageInfo;
+    symbol: bytes &size=5;
+    trading_action_code: uint8 &convert=TradingActionCode($$);
+    action_timestamp: uint64;
+    market_center_identifier: bytes &size=1;
+};
+
+type IssueSymbolDirectoryMessage = unit {
+    message_info: MessageInfo;
+    symbol: bytes &size=5;
+    old_symbol: bytes &size=11;
+    issue_name: bytes &size=30;
+    issue_type: uint8 &convert=IssueType($$);
+    issue_subtype: bytes &size=2;
+    market_tier: uint8 &convert=MarketTier($$);
+    authenticity: uint8 &convert=Authenticity($$);
+    short_sale_threshold_indicator: uint8 &convert=ShortSaleThresholdIndicator($$);
+    round_lot_size: uint16;
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+};
+
+type RegulationShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    message_info: MessageInfo;
+    symbol: bytes &size=5;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type LimitUpLimitDownPriceBandMessage = unit {
+    message_info: MessageInfo;
+    symbol: bytes &size=5;
+    luld_price_band_indicator: uint8 &convert=LuldPriceBandIndicator($$);
+    luld_timestamp: uint64;
+    limit_down_price: uint64;
+    limit_up_price: uint64;
+};
+
+type MarketWideCircuitBreakerDeclineLevelMessage = unit {
+    message_info: MessageInfo;
+    mwcb_level_1: uint64;
+    mwcb_level_2: uint64;
+    mwcb_level_3: uint64;
+};
+
+type MarketWideCircuitBreakerStatusMessage = unit {
+    message_info: MessageInfo;
+    mwcb_status_level_indicator: uint8 &convert=MwcbStatusLevelIndicator($$);
+};
+
+type AuctionCollarMessage = unit {
+    message_info: MessageInfo;
+    symbol: bytes &size=5;
+    trading_action_sequence_number: uint32;
+    collar_reference_price: uint64;
+    collar_up_price: uint64;
+    collar_down_price: uint64;
+    collar_extension_indicator: bytes &size=1;
+};
+
+type ClosingTradeSummaryReportMessage = unit {
+    message_info: MessageInfo;
+    symbol: bytes &size=5;
+    daily_consolidated_high_price: uint64;
+    daily_consolidated_low_price: uint64;
+    daily_consolidated_closing_price: uint64;
+    market_center_originator_id: uint8 &convert=MarketCenterOriginatorId($$);
+    consolidated_volume: uint64;
+    trading_action_indicator: uint8 &convert=TradingActionIndicator($$);
+    number_of_market_center_summaries: uint16;
+    market_center_closing_price_and_volume_summary: MarketCenterClosingPriceAndVolumeSummary[self.number_of_market_center_summaries];
+};
+
+type MarketCenterClosingPriceAndVolumeSummary = unit {
+    market_center_identifier: bytes &size=1;
+    market_center_closing_price: uint64;
+    market_center_volume: uint64;
+    market_center_close_indicator: uint8 &convert=MarketCenterCloseIndicator($$);
+    market_participant_high_price: uint64;
+    market_participant_low_price: uint64;
+};
+
+type Volume = unit {
+    volume_message_type: uint8 &convert=VolumeMessageType($$);
+    volume_payload: TotalConsolidatedAndMarketCenterVolumeMessage;
+};
+
+type TotalConsolidatedAndMarketCenterVolumeMessage = unit {
+    message_info: MessageInfo;
+    total_consolidated_volume: uint64;
+    number_of_market_center_volumes: uint16;
+    market_center_volume_attachment: MarketCenterVolumeAttachment[self.number_of_market_center_volumes];
+};
+
+type MarketCenterVolumeAttachment = unit {
+    market_center_identifier: bytes &size=1;
+    current_market_center_volume: uint64;
+};
+
+type Control = unit {
+    control_message_type: uint8 &convert=ControlMessageType($$);
+    switch ( self.control_message_type ) {
+        ControlMessageType::StartOfDayMessage -> start_of_day_message: StartOfDayMessage;
+        ControlMessageType::EndOfDayMessage -> end_of_day_message: EndOfDayMessage;
+        ControlMessageType::MarketSessionOpenMessage -> market_session_open_message: MarketSessionOpenMessage;
+        ControlMessageType::MarketSessionCloseMessage -> market_session_close_message: MarketSessionCloseMessage;
+        ControlMessageType::EndOfTransmissionsMessage -> end_of_transmissions_message: EndOfTransmissionsMessage;
+        ControlMessageType::EndOfTradeReportingMessage -> end_of_trade_reporting_message: EndOfTradeReportingMessage;
+        ControlMessageType::EndOfConsolidatedLastSaleEligibility -> end_of_consolidated_last_sale_eligibility: EndOfConsolidatedLastSaleEligibility;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type StartOfDayMessage = unit {
+    message_info: MessageInfo;
+};
+
+type EndOfDayMessage = unit {
+    message_info: MessageInfo;
+};
+
+type MarketSessionOpenMessage = unit {
+    message_info: MessageInfo;
+};
+
+type MarketSessionCloseMessage = unit {
+    message_info: MessageInfo;
+};
+
+type EndOfTransmissionsMessage = unit {
+    message_info: MessageInfo;
+};
+
+type EndOfTradeReportingMessage = unit {
+    message_info: MessageInfo;
+};
+
+type EndOfConsolidatedLastSaleEligibility = unit {
+    message_info: MessageInfo;
+};
+
+type TradeMessageType = enum {
+    TradeReportMessageShortFormMessage = 0x41,
+    TradeReportMessageLongFormMessage = 0x57,
+    TradeCancelErrorMessage = 0x5a,
+    TradeCorrectionMessage = 0x59,
+    PriorDayAsOfTradeMessage = 0x48,
+};
+
+type MarketCenterOriginatorId = enum {
+    Byx = 0x59,
+    Bzx = 0x5a,
+    Edga = 0x4a,
+    Edgx = 0x4b,
+    Cboe = 0x57,
+    Bx = 0x42,
+    Phlx = 0x58,
+    Nasdaq = 0x51,
+    Ise = 0x49,
+    Nyse = 0x4e,
+    Arca = 0x50,
+    American = 0x41,
+    National = 0x43,
+    Chicago = 0x4d,
+    Finra = 0x44,
+    Iex = 0x56,
+    Ltse = 0x4c,
+    Pearl = 0x48,
+    Memx = 0x55,
+    MarketIndependent = 0x45,
+};
+
+type SubMarketCenterId = enum {
+    NyseTrf = 0x4e,
+    NasdaqTrfCarteret = 0x51,
+    NasdaqTrfChicago = 0x42,
+    FinraAlternativeDisplayFacility = 0x20,
+};
+
+type Level1 = enum {
+    RegularTrade = 0x40,
+    Cash = 0x43,
+    NextDay = 0x4e,
+    Seller = 0x52,
+    YellowFlag = 0x59,
+    NotAvailable = 0x20,
+};
+
+type Level2 = enum {
+    IntermarketSweep = 0x46,
+    OpeningPrints = 0x4f,
+    DerivativelyPriced = 0x34,
+    ReOpeningPrints = 0x35,
+    ClosingPrints = 0x36,
+    QualifiedContingentTrade = 0x37,
+    PlaceholderFor611Exempt = 0x38,
+    CorrectedConsolidatedClose = 0x39,
+    NotAvailable = 0x20,
+};
+
+type Level3 = enum {
+    FormT = 0x54,
+    SoldLast = 0x4c,
+    SoldOutOfSequence = 0x5a,
+    ExtendedTradingHours = 0x55,
+    NotAvailable = 0x20,
+    StoppedStock = 0x31,
+    Acquisition = 0x41,
+    Bunched = 0x42,
+    Distribution = 0x44,
+    PlaceholderFuture = 0x45,
+    BunchedSoldTrade = 0x47,
+    PriceVariation = 0x48,
+    OddLotTrade = 0x49,
+    Rule155 = 0x4b,
+    MarketCenterOfficialClosePrice = 0x4d,
+    PriorReferencePrice = 0x50,
+    MarketCenterOfficialOpenPrice = 0x51,
+    SplitTrade = 0x53,
+    ContingentTrade = 0x56,
+    AveragePriceTrade = 0x57,
+    CrossTrade = 0x58,
+};
+
+type ConsolidatedPriceChangeIndicator = enum {
+    NoPricesChanged = 0x30,
+    ConsolidatedLastPriceChanged = 0x31,
+    ConsolidatedLowPriceChanged = 0x32,
+    ConsolidatedLastAndConsolidatedLowPricesChanged = 0x33,
+    ConsolidatedHighPriceChanged = 0x34,
+    ConsolidatedLastAndConsolidatedHighPricesChanged = 0x35,
+    ConsolidatedHighAndConsolidatedLowPricesChanged = 0x36,
+    AllConsolidatedPricesChanged = 0x37,
+};
+
+type ParticipantPriceChangeIndicator = enum {
+    NoPricesChanged = 0x30,
+    ParticipantLastPriceChanged = 0x31,
+    ParticipantLowPriceChanged = 0x32,
+    ParticipantLastAndLowPricesChanged = 0x33,
+    ParticipantHighPriceChanged = 0x34,
+    ParticipantLastAndHighPricesChanged = 0x35,
+    ParticipantHighAndLowPricesChanged = 0x36,
+    AllParticipantPricesChanged = 0x37,
+};
+
+type AsOfAction = enum {
+    TradeAddition = 0x41,
+    TradeCancel = 0x43,
+};
+
+type AdministrativeMessageType = enum {
+    GeneralAdministrativeMessage = 0x41,
+    CrossSroTradingActionMessage = 0x48,
+    MarketCenterTradingActionMessage = 0x4b,
+    IssueSymbolDirectoryMessage = 0x42,
+    RegulationShoShortSalePriceTestRestrictedIndicatorMessage = 0x56,
+    LimitUpLimitDownPriceBandMessage = 0x50,
+    MarketWideCircuitBreakerDeclineLevelMessage = 0x43,
+    MarketWideCircuitBreakerStatusMessage = 0x44,
+    AuctionCollarMessage = 0x45,
+    ClosingTradeSummaryReportMessage = 0x5a,
+};
+
+type TradingActionCode = enum {
+    TradingHalt = 0x48,
+    QuotationResumptionIncludingAfterEma = 0x51,
+    TradingResumption = 0x54,
+    VolatilityTradingPause = 0x50,
+};
+
+type IssueType = enum {
+    AmericanDepositoryReceipt = 0x41,
+    Bond = 0x42,
+    CommonStock = 0x43,
+    DepositoryReceipt = 0x46,
+    Rule144a = 0x49,
+    LimitedPartnership = 0x4c,
+    Note = 0x4e,
+    OrdinaryShares = 0x4f,
+    PreferredStock = 0x50,
+    OtherSecurities = 0x51,
+    Rights = 0x52,
+    SharesOfBeneficialInterest = 0x53,
+    ConvertibleDebenture = 0x54,
+    Unit = 0x55,
+    UnitsOfBeneficialInterest = 0x56,
+    Warrant = 0x57,
+};
+
+type MarketTier = enum {
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+};
+
+type Authenticity = enum {
+    Production = 0x50,
+    Test = 0x54,
+    Demo = 0x44,
+    Deleted = 0x58,
+};
+
+type ShortSaleThresholdIndicator = enum {
+    IssueIsRestricted = 0x59,
+    IssueIsNotRestricted = 0x4e,
+    NotAvailable = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    CreationsAndOrRedemptionsSuspended = 0x43,
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    Normal = 0x4e,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInEffect = 0x30,
+    RegShoInEffectDueToAnIntraDayPriceDrop = 0x31,
+    RegShoRestrictionRemainsInEffect = 0x32,
+};
+
+type LuldPriceBandIndicator = enum {
+    OpeningUpdate = 0x41,
+    IntraDayUpdate = 0x42,
+    RestatedValue = 0x43,
+    SuspendedDuringTradingHaltOrTradingPause = 0x44,
+    ReOpeningUpdate = 0x45,
+    OutsidePriceBandRuleHours = 0x46,
+    NoneProvided = 0x20,
+};
+
+type MwcbStatusLevelIndicator = enum {
+    Level1Breached = 0x31,
+    Level2Breached = 0x32,
+    Level3Breached = 0x33,
+};
+
+type TradingActionIndicator = enum {
+    TradingHalt = 0x48,
+    RegularTrading = 0x20,
+};
+
+type MarketCenterCloseIndicator = enum {
+    BasedOnMSaleCondition = 0x4d,
+    NotBasedOnMSaleCondition = 0x20,
+};
+
+type VolumeMessageType = enum {
+    TotalConsolidatedAndMarketCenterVolumeMessage = 0x4d,
+};
+
+type ControlMessageType = enum {
+    StartOfDayMessage = 0x49,
+    EndOfDayMessage = 0x4a,
+    MarketSessionOpenMessage = 0x4f,
+    MarketSessionCloseMessage = 0x43,
+    EndOfTransmissionsMessage = 0x5a,
+    EndOfTradeReportingMessage = 0x58,
+    EndOfConsolidatedLastSaleEligibility = 0x53,
+};
+

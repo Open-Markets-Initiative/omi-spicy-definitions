@@ -1,0 +1,493 @@
+module CoinbaseCoinbasederivativesOrdersapiSbeV13;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CoinbasederivativesOrdersapiV13 = unit {
+    sbe_message: SbeMessage[] &eod;
+};
+
+type SbeMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.schema_id ) {
+        SchemaId::Session -> session_message: SessionMessage;
+        SchemaId::Order -> order_message: OrderMessage;
+        * -> unknown: bytes &eod;
+    };
+    : skip bytes &size=0;   # padding
+};
+
+type MessageHeader = unit {
+    protocol_id: uint8;
+    flags: Flags;
+    message_length: uint16;
+    sequence_number: uint32;
+    last_processed_seq_no: uint32;
+    reserved: uint32;
+    send_time_epoch_nanos: int64;
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16 &convert=SchemaId($$);
+    version: uint16;
+};
+
+type Flags = unit {
+    is_resend: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type SessionMessage = unit {
+    switch ( self.packet.sbe_message.message_header.template_id ) {
+        TemplateId::SessionLogonMessage -> logon_message: LogonMessage;
+        TemplateId::SessionLogonConfMessage -> logon_conf_message: LogonConfMessage;
+        TemplateId::SessionLogoutMessage -> logout_message: LogoutMessage;
+        TemplateId::SessionLoggedOutMessage -> logged_out_message: LoggedOutMessage;
+        TemplateId::SessionHeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        TemplateId::SessionTestRequestMessage -> test_request_message: TestRequestMessage;
+        TemplateId::SessionResendRequestMessage -> resend_request_message: ResendRequestMessage;
+        TemplateId::SessionGapFillMessage -> gap_fill_message: GapFillMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type LogonMessage = unit {
+    username: bytes &size=16;
+    password: bytes &size=32;
+    reset_seq_num: int8 &convert=ResetSeqNum($$);
+};
+
+type LogonConfMessage = unit {
+    heartbeat_interval_seconds: int32;
+};
+
+type LogoutMessage = unit {
+    reason: bytes &size=64;
+};
+
+type LoggedOutMessage = unit {
+    reason: bytes &size=64;
+};
+
+type HeartbeatMessage = unit {
+    correlation_id: int64;
+};
+
+type TestRequestMessage = unit {
+    correlation_id: int64;
+};
+
+type ResendRequestMessage = unit {
+    from_sequence_number: uint32;
+    to_sequence_number: uint32;
+};
+
+type GapFillMessage = unit {
+    new_sequence_number: uint32;
+    gap_fill_padding: uint32;
+};
+
+type OrderMessage = unit {
+    switch ( self.packet.sbe_message.message_header.template_id ) {
+        TemplateId::SessionResendRequestMessage -> ping_message: PingMessage;
+        TemplateId::SessionGapFillMessage -> pong_message: PongMessage;
+        TemplateId::InstrumentInfoRequestMessage -> instrument_info_request_message: InstrumentInfoRequestMessage;
+        TemplateId::InstrumentInfoMessage -> instrument_info_message: InstrumentInfoMessage;
+        TemplateId::SetAccountMessage -> set_account_message: SetAccountMessage;
+        TemplateId::SetTraderMessage -> set_trader_message: SetTraderMessage;
+        TemplateId::SetAckMessage -> set_ack_message: SetAckMessage;
+        TemplateId::NewOrderMessage -> new_order_message: NewOrderMessage;
+        TemplateId::OrderEnteredMessage -> order_entered_message: OrderEnteredMessage;
+        TemplateId::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
+        TemplateId::StreamOrderMessage -> stream_order_message: StreamOrderMessage;
+        TemplateId::OrderRejectMessage -> order_reject_message: OrderRejectMessage;
+        TemplateId::OrderReplacedMessage -> order_replaced_message: OrderReplacedMessage;
+        TemplateId::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
+        TemplateId::OrderCanceledMessage -> order_canceled_message: OrderCanceledMessage;
+        TemplateId::CancelOrderRejectMessage -> cancel_order_reject_message: CancelOrderRejectMessage;
+        TemplateId::MassCancelOrderMessage -> mass_cancel_order_message: MassCancelOrderMessage;
+        TemplateId::MassCancelOrderAckMessage -> mass_cancel_order_ack_message: MassCancelOrderAckMessage;
+        TemplateId::MassCancelOrderRejectMessage -> mass_cancel_order_reject_message: MassCancelOrderRejectMessage;
+        TemplateId::UnlockTradingMessage -> unlock_trading_message: UnlockTradingMessage;
+        TemplateId::UnlockTradingAckMessage -> unlock_trading_ack_message: UnlockTradingAckMessage;
+        TemplateId::UnlockTradingRejectMessage -> unlock_trading_reject_message: UnlockTradingRejectMessage;
+        TemplateId::OrderFilledMessage -> order_filled_message: OrderFilledMessage;
+        TemplateId::SpreadOrderFilledMessage -> spread_order_filled_message: SpreadOrderFilledMessage;
+        TemplateId::LastExecIdRequestMessage -> last_exec_id_request_message: LastExecIdRequestMessage;
+        TemplateId::LastExecIdMessage -> last_exec_id_message: LastExecIdMessage;
+        TemplateId::EventResendRequestMessage -> event_resend_request_message: EventResendRequestMessage;
+        TemplateId::EventResendCompleteMessage -> event_resend_complete_message: EventResendCompleteMessage;
+        TemplateId::EventResendRejectMessage -> event_resend_reject_message: EventResendRejectMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PingMessage = unit {
+    correlation_id: int64;
+    request_time: int64;
+    data: Data;
+};
+
+type Data = unit {
+    data_length: uint8;
+    data_value: bytes &size=self.data_length;
+};
+
+type PongMessage = unit {
+    correlation_id: int64;
+    request_time: int64;
+    server_time: int64;
+    trading_instrument_status: int8 &convert=TradingInstrumentStatus($$);
+    data: Data;
+};
+
+type InstrumentInfoRequestMessage = unit {
+    correlation_id: int64;
+};
+
+type InstrumentInfoMessage = unit {
+    correlation_id: int64;
+    instrument_id: int32;
+    security_type: uint8 &convert=SecurityType($$);
+    instrument_status: uint8 &convert=InstrumentStatus($$);
+    is_last_message: int8 &convert=IsLastMessage($$);
+    reserved_byte: int8;
+    symbol: bytes &size=32;
+};
+
+type SetAccountMessage = unit {
+    correlation_id: int64;
+    account: bytes &size=16;
+};
+
+type SetTraderMessage = unit {
+    correlation_id: int64;
+    trader: bytes &size=16;
+};
+
+type SetAckMessage = unit {
+    correlation_id: int64;
+};
+
+type NewOrderMessage = unit {
+    client_order_id: int64;
+    correlation_id: int64;
+    limit_price: int64;
+    quantity: int32;
+    instrument_id: int32;
+    side: int8 &convert=Side($$);
+};
+
+type OrderEnteredMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    receive_time: int64;
+};
+
+type ReplaceOrderMessage = unit {
+    client_order_id: int64;
+    correlation_id: int64;
+    new_limit_price: int64;
+    new_quantity: int32;
+    instrument_id: int32;
+};
+
+type StreamOrderMessage = unit {
+    client_order_id: int64;
+    correlation_id: int64;
+    last_processed_fill_id: int64;
+    limit_price: int64;
+    quantity: int32;
+    instrument_id: int32;
+    side: int8 &convert=Side($$);
+};
+
+type OrderRejectMessage = unit {
+    timestamp: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id_optional: int64;
+    order_reject_reason: uint8 &convert=OrderRejectReason($$);
+    order_reject_details: bytes &size=47;
+};
+
+type OrderReplacedMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    receive_time: int64;
+    total_filled: int32;
+    available_qty: int32;
+    instrument_id: int32;
+};
+
+type CancelOrderMessage = unit {
+    client_order_id: int64;
+    correlation_id: int64;
+    instrument_id: int32;
+};
+
+type OrderCanceledMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    receive_time: int64;
+    total_filled: int32;
+    instrument_id: int32;
+    cancel_reason: uint8 &convert=CancelReason($$);
+};
+
+type CancelOrderRejectMessage = unit {
+    timestamp: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id_optional: int64;
+    cancel_order_reject_reason: uint8 &convert=CancelOrderRejectReason($$);
+    cancel_order_reject_details: bytes &size=31;
+};
+
+type MassCancelOrderMessage = unit {
+    correlation_id: int64;
+    limit_price: int64;
+    instrument_id: int32;
+    side: int8 &convert=Side($$);
+    current_session_only: int8 &convert=CurrentSessionOnly($$);
+    request_trading_lock: int8 &convert=RequestTradingLock($$);
+};
+
+type MassCancelOrderAckMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    correlation_id: int64;
+    canceled_count: int32;
+    only_current_session: int8 &convert=OnlyCurrentSession($$);
+    trading_lock_applied: int8 &convert=TradingLockApplied($$);
+};
+
+type MassCancelOrderRejectMessage = unit {
+    timestamp: int64;
+    correlation_id: int64;
+    error_message: bytes &size=32;
+};
+
+type UnlockTradingMessage = unit {
+    correlation_id: int64;
+    current_session_only: int8 &convert=CurrentSessionOnly($$);
+};
+
+type UnlockTradingAckMessage = unit {
+    timestamp: int64;
+    correlation_id: int64;
+    num_users_affected: int32;
+};
+
+type UnlockTradingRejectMessage = unit {
+    timestamp: int64;
+    correlation_id: int64;
+    error_message: bytes &size=32;
+};
+
+type OrderFilledMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    match_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    filled_vwap: int64;
+    total_filled: int32;
+    available_qty: int32;
+    fill_price: int64;
+    fill_qty: int32;
+    instrument_id: int32;
+    is_aggressor: int8 &convert=IsAggressor($$);
+};
+
+type SpreadOrderFilledMessage = unit {
+    timestamp: int64;
+    exec_id: int64;
+    match_id: int64;
+    client_order_id: int64;
+    correlation_id: int64;
+    order_id: int64;
+    filled_vwap: int64;
+    total_filled: int32;
+    available_qty: int32;
+    fill_price: int64;
+    leg_1_fill_price: int64;
+    leg_2_fill_price: int64;
+    fill_qty: int32;
+    instrument_id: int32;
+    is_aggressor: int8 &convert=IsAggressor($$);
+};
+
+type LastExecIdRequestMessage = unit {
+    correlation_id: int64;
+};
+
+type LastExecIdMessage = unit {
+    timestamp: int64;
+    last_exec_id: int64;
+    correlation_id: int64;
+};
+
+type EventResendRequestMessage = unit {
+    correlation_id: int64;
+    begin_exec_id: int64;
+    end_exec_id: int64;
+};
+
+type EventResendCompleteMessage = unit {
+    correlation_id: int64;
+    resent_event_count: int32;
+};
+
+type EventResendRejectMessage = unit {
+    correlation_id: int64;
+    resend_reject_reason: int8 &convert=ResendRejectReason($$);
+    event_resend_reject_details: bytes &size=23;
+};
+
+type TemplateId = enum {
+    SessionLogonMessage = 100,
+    SessionLogonConfMessage = 200,
+    SessionLogoutMessage = 101,
+    SessionLoggedOutMessage = 201,
+    SessionHeartbeatMessage = 10,
+    SessionTestRequestMessage = 11,
+    SessionResendRequestMessage = 102,
+    SessionGapFillMessage = 202,
+    InstrumentInfoRequestMessage = 103,
+    InstrumentInfoMessage = 203,
+    SetAccountMessage = 105,
+    SetTraderMessage = 106,
+    SetAckMessage = 205,
+    NewOrderMessage = 110,
+    OrderEnteredMessage = 210,
+    ReplaceOrderMessage = 120,
+    StreamOrderMessage = 121,
+    OrderRejectMessage = 221,
+    OrderReplacedMessage = 220,
+    CancelOrderMessage = 130,
+    OrderCanceledMessage = 230,
+    CancelOrderRejectMessage = 233,
+    MassCancelOrderMessage = 131,
+    MassCancelOrderAckMessage = 231,
+    MassCancelOrderRejectMessage = 232,
+    UnlockTradingMessage = 132,
+    UnlockTradingAckMessage = 234,
+    UnlockTradingRejectMessage = 235,
+    OrderFilledMessage = 240,
+    SpreadOrderFilledMessage = 241,
+    LastExecIdRequestMessage = 150,
+    LastExecIdMessage = 250,
+    EventResendRequestMessage = 152,
+    EventResendCompleteMessage = 252,
+    EventResendRejectMessage = 253,
+};
+
+type SchemaId = enum {
+    Session = 1100,
+    Order = 1101,
+};
+
+type ResetSeqNum = enum {
+    False = 0,
+    True = 1,
+};
+
+type TradingInstrumentStatus = enum {
+    Ok = 0,
+    TemporarilyUnavailable = 1,
+    BackPressured = 2,
+};
+
+type SecurityType = enum {
+    Futures = 0,
+    Options = 1,
+};
+
+type InstrumentStatus = enum {
+    PreOpen = 1,
+    PreOpenNoCancel = 2,
+    ReadyToTrade = 3,
+    TradingHalt = 4,
+    Close = 5,
+    PostClose = 6,
+};
+
+type IsLastMessage = enum {
+    False = 0,
+    True = 1,
+};
+
+type Side = enum {
+    Buy = 1,
+};
+
+type OrderRejectReason = enum {
+    Error = 1,
+    InvalidInstrument = 2,
+    ClOrdIdInUse = 3,
+    ValidationFailure = 8,
+    UnknownOrder = 9,
+};
+
+type CancelReason = enum {
+    Expired = 0,
+    CanceledByUser = 1,
+    SelfMatchPrevention = 2,
+    ClientDisconnect = 3,
+    PriceLimit = 4,
+    AdminCancel = 5,
+    MassCancel = 6,
+    StreamReplaced = 7,
+    ActiveLimitExceeded = 8,
+};
+
+type CancelOrderRejectReason = enum {
+    Error = 1,
+    UnknownOrder = 2,
+    OrderFilled = 3,
+};
+
+type CurrentSessionOnly = enum {
+    False = 0,
+    True = 1,
+};
+
+type RequestTradingLock = enum {
+    False = 0,
+    True = 1,
+};
+
+type OnlyCurrentSession = enum {
+    False = 0,
+    True = 1,
+};
+
+type TradingLockApplied = enum {
+    False = 0,
+    True = 1,
+};
+
+type IsAggressor = enum {
+    False = 0,
+    True = 1,
+};
+
+type ResendRejectReason = enum {
+    BeginExecIdTooSmall = 1,
+    EndExecIdTooLarge = 2,
+    ResendAlreadyInProgress = 3,
+    TooManyResendRequests = 4,
+    ServerError = 5,
+};
+

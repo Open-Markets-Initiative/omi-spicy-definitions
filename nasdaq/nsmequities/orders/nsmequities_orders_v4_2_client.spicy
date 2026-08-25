@@ -1,0 +1,158 @@
+module NasdaqNsmequitiesOrdersOuchV42Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesOrdersV42 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::EnterOrderMessage -> enter_order_message: EnterOrderMessage;
+        UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
+        UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
+        UnsequencedMessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        UnsequencedMessageType::TradeNowMessage -> trade_now_message: TradeNowMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type EnterOrderMessage = unit {
+    order_token: bytes &size=14;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: uint32;
+    stock: bytes &size=8;
+    price: uint32;
+    time_in_force: uint32;
+    firm: bytes &size=4;
+    display: uint8 &convert=Display($$);
+    capacity: uint8 &convert=Capacity($$);
+    intermarket_sweep_eligibility: uint8 &convert=IntermarketSweepEligibility($$);
+    minimum_quantity: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    customer_type: uint8 &convert=CustomerType($$);
+};
+
+type ReplaceOrderMessage = unit {
+    existing_order_token: bytes &size=14;
+    replacement_order_token_token_14: bytes &size=14;
+    shares: uint32;
+    price: uint32;
+    time_in_force: uint32;
+    display: uint8 &convert=Display($$);
+    intermarket_sweep_eligibility: uint8 &convert=IntermarketSweepEligibility($$);
+    minimum_quantity: uint32;
+};
+
+type CancelOrderMessage = unit {
+    order_token: bytes &size=14;
+    shares: uint32;
+};
+
+type ModifyOrderMessage = unit {
+    order_token: bytes &size=14;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: uint32;
+};
+
+type TradeNowMessage = unit {
+    order_token: bytes &size=14;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    EnterOrderMessage = 0x4f,
+    ReplaceOrderMessage = 0x55,
+    CancelOrderMessage = 0x58,
+    ModifyOrderMessage = 0x4d,
+    TradeNowMessage = 0x4e,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    SellShort = 0x54,
+    SellShortExempt = 0x45,
+};
+
+type Display = enum {
+    AttributablePrice = 0x41,
+    AnonymousPrice = 0x59,
+    NonDisplay = 0x4e,
+    PostOnly = 0x50,
+    ImbalanceOnly = 0x49,
+    MidPoint = 0x4d,
+    MidPoint_x57 = 0x57,
+    PostOnlyAndAttributable = 0x4c,
+    RetailOrder = 0x4f,
+    RetailOrder_x54 = 0x54,
+    RetailPrice = 0x51,
+    MidPoint_x6d = 0x6d,
+    NonDisplayAndMidPoint = 0x6e,
+};
+
+type Capacity = enum {
+    Other = 0x4f,
+    Agency = 0x41,
+    Principal = 0x50,
+    Riskless = 0x52,
+};
+
+type IntermarketSweepEligibility = enum {
+    Eligible = 0x59,
+    NotEligible = 0x4e,
+    Tradeat = 0x79,
+};
+
+type CrossType = enum {
+    NoCross = 0x4e,
+    Opening = 0x4f,
+    Closing = 0x43,
+    HaltIpoCross = 0x48,
+    Supplemental = 0x53,
+    Retail = 0x52,
+    Extended = 0x45,
+};
+
+type CustomerType = enum {
+    RetailDesignated = 0x52,
+    NotARetailDesignated = 0x4e,
+    Default = 0x20,
+};
+

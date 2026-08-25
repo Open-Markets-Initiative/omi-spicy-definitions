@@ -1,0 +1,293 @@
+module BistBorsaistanbulGeniuminetItchV2112;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BorsaistanbulGeniuminetV2112 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        MessageType::OrderBookDirectory -> order_book_directory: OrderBookDirectory;
+        MessageType::CombinationOrderBookLeg -> combination_order_book_leg: CombinationOrderBookLeg;
+        MessageType::TickSizeTableEntry -> tick_size_table_entry: TickSizeTableEntry;
+        MessageType::ShortSellStatus -> short_sell_status: ShortSellStatus;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::OrderBookStateMessage -> order_book_state_message: OrderBookStateMessage;
+        MessageType::AddOrderNoMpidAttribution -> add_order_no_mpid_attribution: AddOrderNoMpidAttribution;
+        MessageType::AddOrderWithMpidAttribution -> add_order_with_mpid_attribution: AddOrderWithMpidAttribution;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        MessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderBookFlushMessage -> order_book_flush_message: OrderBookFlushMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::EquilibriumPriceUpdate -> equilibrium_price_update: EquilibriumPriceUpdate;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type OrderBookDirectory = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    decimals_in_price: uint16;
+    decimals_in_nominal_value: uint16;
+    odd_lot_size: uint32;
+    round_lot_size: uint32;
+    block_lot_size: uint32;
+    nominal_value: uint64;
+    number_of_legs: uint8;
+    underlying_order_book_id: uint32;
+    strike_price: int32;
+    expiration_date: uint32;
+    decimals_in_strike_price: uint16;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    ranking_type: uint8 &convert=RankingType($$);
+};
+
+type CombinationOrderBookLeg = unit {
+    nanoseconds: uint32;
+    combination_order_book_id: uint32;
+    leg_order_book_id: uint32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type TickSizeTableEntry = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    tick_size: uint64;
+    price_from: int32;
+    price_to: int32;
+};
+
+type ShortSellStatus = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    short_sale_restriction: uint8 &convert=ShortSaleRestriction($$);
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type OrderBookStateMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    state_name: bytes &size=20;
+};
+
+type AddOrderNoMpidAttribution = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    ranking_sequence_number: uint32;
+    quantity: uint64;
+    price: int32;
+    order_attributes: OrderAttributes;
+    lot_type: uint8 &convert=LotType($$);
+    ranking_time: uint64;
+};
+
+type OrderAttributes = unit {
+    reserved_13: bytes &size=2;
+    bait_implied_order: bytes &size=1;
+    reserved_2: bytes &size=1;
+};
+
+type AddOrderWithMpidAttribution = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=4;   # padding
+    quantity: uint64;
+    price: int32;
+    order_attributes: OrderAttributes;
+    lot_type: uint8 &convert=LotType($$);
+    participant_id: bytes &size=7;
+};
+
+type OrderExecutedMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: uint64;
+    combo_group_id: uint32;
+    : skip bytes &size=14;   # padding
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: uint64;
+    combo_group_id: uint32;
+    : skip bytes &size=14;   # padding
+    trade_price: int32;
+    occurred_at_cross: uint8 &convert=OccurredAtCross($$);
+    printable: uint8 &convert=Printable($$);
+};
+
+type OrderReplaceMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    new_order_book_position: uint32;
+    quantity: uint64;
+    price: int32;
+    order_attributes: OrderAttributes;
+};
+
+type OrderDeleteMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+};
+
+type OrderBookFlushMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+};
+
+type TradeMessage = unit {
+    nanoseconds: uint32;
+    match_id: uint64;
+    combo_group_id: uint32;
+    side: uint8 &convert=Side($$);
+    quantity: uint64;
+    order_book_id: uint32;
+    trade_price: int32;
+    : skip bytes &size=14;   # padding
+    printable: uint8 &convert=Printable($$);
+    occurred_at_cross: uint8 &convert=OccurredAtCross($$);
+};
+
+type EquilibriumPriceUpdate = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    available_bid_quantity_at_equilibrium_price: uint64;
+    available_ask_quantity_at_equilibrium_price: uint64;
+    equilibrium_price: int32;
+    best_bid_price: int32;
+    best_ask_price: int32;
+    best_bid_quantity: uint64;
+    best_ask_quantity: uint64;
+};
+
+type MessageType = enum {
+    SecondsMessage = 0x54,
+    OrderBookDirectory = 0x52,
+    CombinationOrderBookLeg = 0x4d,
+    TickSizeTableEntry = 0x4c,
+    ShortSellStatus = 0x56,
+    SystemEventMessage = 0x53,
+    OrderBookStateMessage = 0x4f,
+    AddOrderNoMpidAttribution = 0x41,
+    AddOrderWithMpidAttribution = 0x46,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderReplaceMessage = 0x55,
+    OrderDeleteMessage = 0x44,
+    OrderBookFlushMessage = 0x59,
+    TradeMessage = 0x50,
+    EquilibriumPriceUpdate = 0x5a,
+};
+
+type FinancialProduct = enum {
+    Option = 1,
+    Forward = 2,
+    Future = 3,
+    Fra = 4,
+    Cash = 5,
+    Payment = 6,
+    ExchangeRate = 7,
+    InterestRateSwap = 8,
+    Repo = 9,
+    SyntheticBoxLegOrReference = 10,
+    StandardCombination = 11,
+    Guarantee = 12,
+    OtcGeneral = 13,
+    EquityWarrant = 14,
+    SecurityLending = 15,
+    Certificate = 18,
+};
+
+type PutOrCall = enum {
+    Undefined = 0,
+    Call = 1,
+    Put = 2,
+};
+
+type RankingType = enum {
+    PriceTime = 1,
+};
+
+type LegSide = enum {
+    AsDefined = 0x42,
+    Opposite = 0x43,
+};
+
+type ShortSaleRestriction = enum {
+    NoRestrictions = 0,
+    ShortSellingNotAllowed = 1,
+    ShortSellingAllowedWithUpTickRule = 2,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    EndOfMessages = 0x43,
+};
+
+type Side = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type LotType = enum {
+    RoundLot = 2,
+};
+
+type OccurredAtCross = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type Printable = enum {
+    NonPrintable = 0x4e,
+    Printable = 0x59,
+};
+

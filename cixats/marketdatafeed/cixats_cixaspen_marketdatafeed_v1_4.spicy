@@ -1,0 +1,186 @@
+module CixatsCixaspenMarketdatafeedAspenV14;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CixatsCixaspenMarketdatafeedV14 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.count];
+};
+
+type PacketHeader = unit {
+    market_day_identifier: bytes &size=9;
+    feed_identifier: uint8 &convert=FeedIdentifier($$);
+    sequence: uint64;
+    count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::MarketEventMessage -> market_event_message: MarketEventMessage;
+        MessageType::SymbolInformationMessage -> symbol_information_message: SymbolInformationMessage;
+        MessageType::SymbolStateMessage -> symbol_state_message: SymbolStateMessage;
+        MessageType::NewOrderAddMessage -> new_order_add_message: NewOrderAddMessage;
+        MessageType::OrderPartialCancelMessage -> order_partial_cancel_message: OrderPartialCancelMessage;
+        MessageType::OrderCancelAllMessage -> order_cancel_all_message: OrderCancelAllMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        MessageType::TradeCorrectMessage -> trade_correct_message: TradeCorrectMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type MarketEventMessage = unit {
+    reserved_2: bytes &size=2;
+    timestamp: uint64;
+    event: uint8 &convert=Event($$);
+};
+
+type SymbolInformationMessage = unit {
+    timestamp: uint64;
+    symbol_id: uint16;
+    symbol: bytes &size=11;
+    listing_market: uint8 &convert=ListingMarket($$);
+    board_lot_size: uint32;
+};
+
+type SymbolStateMessage = unit {
+    timestamp: uint64;
+    symbol_id: uint16;
+    symbol: bytes &size=11;
+    state: uint8 &convert=State($$);
+    reserved_1: bytes &size=1;
+    info: bytes &size=4;
+};
+
+type NewOrderAddMessage = unit {
+    timestamp: uint64;
+    symbol_id: uint16;
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint64;
+    symbol: bytes &size=11;
+    price: uint64;
+    broker: bytes &size=3;
+    reserved_1: bytes &size=1;
+};
+
+type OrderPartialCancelMessage = unit {
+    timestamp: uint64;
+    order_id: uint64;
+    quantity_canceled: uint64;
+};
+
+type OrderCancelAllMessage = unit {
+    timestamp: uint64;
+    order_id: uint64;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint64;
+    order_id: uint64;
+    quantity: uint64;
+    execution_id: uint64;
+    side: uint8 &convert=Side($$);
+    price: uint64;
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+};
+
+type TradeMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    reserved_8: uint64;
+    side: uint8 &convert=Side($$);
+    shares: uint64;
+    symbol: bytes &size=11;
+    price: uint64;
+    execution_id: uint64;
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+};
+
+type TradeCancelMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    reserved_8: uint64;
+    reserved_1: bytes &size=1;
+    shares: uint64;
+    symbol: bytes &size=11;
+    price: uint64;
+    execution_id: uint64;
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+};
+
+type TradeCorrectMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    reserved_8: uint64;
+    reserved_1: bytes &size=1;
+    symbol: bytes &size=11;
+    execution_id: uint64;
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+    original_execution_id: uint64;
+    original_trade_price: uint64;
+    original_trade_quantity: uint64;
+    corrected_trade_price: uint64;
+    corrected_trade_quantity: uint64;
+};
+
+type FeedIdentifier = enum {
+    Aspen = 0x41,
+    AspenVert = 0x56,
+    Midpoint = 0x4d,
+    AspenUat = 0x42,
+    AspenVertUat = 0x57,
+    MidpointUat = 0x4e,
+};
+
+type MessageType = enum {
+    MarketEventMessage = 0x41,
+    SymbolInformationMessage = 0x42,
+    SymbolStateMessage = 0x43,
+    NewOrderAddMessage = 0x44,
+    OrderPartialCancelMessage = 0x46,
+    OrderCancelAllMessage = 0x47,
+    OrderExecutedMessage = 0x4a,
+    TradeMessage = 0x4b,
+    TradeCancelMessage = 0x4c,
+    TradeCorrectMessage = 0x4d,
+};
+
+type Event = enum {
+    StartOfSession = 0x4f,
+    MarketAcceptingOrders = 0x53,
+    MarketOpenForTrading = 0x51,
+    MarketClosedForTrading = 0x45,
+    EndOfSession = 0x43,
+};
+
+type ListingMarket = enum {
+    Tsx = 0x54,
+    Venture = 0x56,
+    Cse = 0x43,
+    Neo = 0x4e,
+};
+
+type State = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

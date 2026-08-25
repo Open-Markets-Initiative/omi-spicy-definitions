@@ -1,0 +1,198 @@
+module NyseArcaequitiesArcabookPillarV21;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type ArcaequitiesArcabookV21 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msgs];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msgs: uint8;
+    seq_num: uint32;
+    send_time: SendTime;
+};
+
+type SendTime = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        MessageType::DeleteOrderMessage -> delete_order_message: DeleteOrderMessage;
+        MessageType::ExecutionMessage -> execution_message: ExecutionMessage;
+        MessageType::ImbalanceMessage -> imbalance_message: ImbalanceMessage;
+        MessageType::AddOrderRefreshMessage -> add_order_refresh_message: AddOrderRefreshMessage;
+        MessageType::AttributedAddOrderMessage -> attributed_add_order_message: AttributedAddOrderMessage;
+        MessageType::AttributedAddOrderRefreshMessage -> attributed_add_order_refresh_message: AttributedAddOrderRefreshMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type AddOrderMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint32;
+    price: int32;
+    volume: uint32;
+    side: uint8 &convert=Side($$);
+    order_idgtc_indicator: uint8 &convert=OrderIdgtcIndicator($$);
+    trade_session: uint8 &convert=TradeSession($$);
+};
+
+type ModifyOrderMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint32;
+    price: int32;
+    volume: uint32;
+    side: uint8 &convert=Side($$);
+    order_idgtc_indicator: uint8 &convert=OrderIdgtcIndicator($$);
+    reason_code: uint8;
+};
+
+type DeleteOrderMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_idgtc_indicator: uint8 &convert=OrderIdgtcIndicator($$);
+    reason_code: uint8;
+};
+
+type ExecutionMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint32;
+    price: int32;
+    volume: uint32;
+    order_idgtc_indicator: uint8 &convert=OrderIdgtcIndicator($$);
+    reason_code: uint8;
+    trade_id: uint32;
+};
+
+type ImbalanceMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    indicative_match_price: int32;
+    paired_qty: uint32;
+    total_imbalance_qty: uint32;
+    market_imbalance_qty: uint32;
+    auction_time: uint16;
+    auction_type: uint8 &convert=AuctionType($$);
+    imbalance_side: bytes &size=1;
+    continuous_book_clearing_price: int32;
+    closing_only_clearing_price: int32;
+    ssr_filing_price: int32;
+};
+
+type AddOrderRefreshMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint32;
+    price: int32;
+    volume: uint32;
+    side: uint8 &convert=Side($$);
+    order_idgtc_indicator: uint8 &convert=OrderIdgtcIndicator($$);
+    trade_session: uint8 &convert=TradeSession($$);
+};
+
+type AttributedAddOrderMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint32;
+    price: int32;
+    volume: uint32;
+    side: uint8 &convert=Side($$);
+    order_idgtc_indicator: uint8 &convert=OrderIdgtcIndicator($$);
+    trade_session: uint8 &convert=TradeSession($$);
+    firm_id: bytes &size=5;
+};
+
+type AttributedAddOrderRefreshMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint32;
+    price: int32;
+    volume: uint32;
+    side: uint8 &convert=Side($$);
+    order_idgtc_indicator: uint8 &convert=OrderIdgtcIndicator($$);
+    trade_session: uint8 &convert=TradeSession($$);
+    firm_id: bytes &size=5;
+};
+
+type DeliveryFlag = enum {
+    Heartbeat = 1,
+    XdpFailover = 10,
+    OriginalMessage = 11,
+    SequenceNumberResetMessage = 12,
+    OneRetransmissionPacket = 13,
+    RetransmissionSequenceMessage = 15,
+    OneRefreshPacket = 17,
+    RefreshSequenceStart = 18,
+    RefreshSequenceMessage = 19,
+    RefreshSequenceEnd = 20,
+    MessageUnavailable = 21,
+};
+
+type MessageType = enum {
+    AddOrderMessage = 100,
+    ModifyOrderMessage = 101,
+    DeleteOrderMessage = 102,
+    ExecutionMessage = 103,
+    ImbalanceMessage = 105,
+    AddOrderRefreshMessage = 106,
+    AttributedAddOrderMessage = 107,
+    AttributedAddOrderRefreshMessage = 108,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OrderIdgtcIndicator = enum {
+    DayOrder = 0,
+    GtcOrder = 1,
+};
+
+type TradeSession = enum {
+    OkForMorningHours = 1,
+    OkForNationalHoursCore = 2,
+    OkForMorningAndCore = 3,
+    OkForLateHours = 4,
+    OkForCoreAndLate = 6,
+    OkForMorningCoreAndLate = 7,
+};
+
+type AuctionType = enum {
+    EarlyOpeningAuction = 0x4f,
+    CoreOpeningAuction = 0x4d,
+    TradingHaltAuction = 0x48,
+    ClosingAuction = 0x43,
+};
+

@@ -1,0 +1,466 @@
+module EurexT7EobiFbeV50;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type EurexT7EobiV50 = unit {
+    packet_header: PacketHeader;
+    message: Message[] &eod;
+};
+
+type PacketHeader = unit {
+    eobi_header: EobiHeader;
+    appl_seq_num: uint64;
+    market_segment_id: int32;
+    partition_id: uint8;
+    completion_indicator: uint8 &convert=CompletionIndicator($$);
+    appl_seq_reset_indicator: uint8 &convert=ApplSeqResetIndicator($$);
+    : skip bytes &size=1;   # padding
+    transact_time: uint64;
+};
+
+type EobiHeader = unit {
+    body_len: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    msg_seq_num: uint32;
+};
+
+type Message = unit {
+    message_header_comp: MessageHeaderComp;
+    switch ( self.message_header_comp.template_id ) {
+        TemplateId::AddComplexInstrument -> add_complex_instrument: AddComplexInstrument;
+        TemplateId::AuctionBbo -> auction_bbo: AuctionBbo;
+        TemplateId::AuctionClearingPrice -> auction_clearing_price: AuctionClearingPrice;
+        TemplateId::CrossRequest -> cross_request: CrossRequest;
+        TemplateId::ExecutionSummary -> execution_summary: ExecutionSummary;
+        TemplateId::FullOrderExecution -> full_order_execution: FullOrderExecution;
+        TemplateId::Heartbeat -> heartbeat: Heartbeat;
+        TemplateId::InstrumentStateChange -> instrument_state_change: InstrumentStateChange;
+        TemplateId::InstrumentSummary -> instrument_summary: InstrumentSummary;
+        TemplateId::OrderAdd -> order_add: OrderAdd;
+        TemplateId::OrderDelete -> order_delete: OrderDelete;
+        TemplateId::OrderMassDelete -> order_mass_delete: OrderMassDelete;
+        TemplateId::OrderModify -> order_modify: OrderModify;
+        TemplateId::OrderModifySamePrio -> order_modify_same_prio: OrderModifySamePrio;
+        TemplateId::PartialOrderExecution -> partial_order_execution: PartialOrderExecution;
+        TemplateId::ProductStateChange -> product_state_change: ProductStateChange;
+        TemplateId::ProductSummary -> product_summary: ProductSummary;
+        TemplateId::QuoteRequest -> quote_request: QuoteRequest;
+        TemplateId::SnapshotOrder -> snapshot_order: SnapshotOrder;
+        TemplateId::TopOfBook -> top_of_book: TopOfBook;
+        TemplateId::TradeReport -> trade_report: TradeReport;
+        TemplateId::TradeReversal -> trade_reversal: TradeReversal;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeaderComp = unit {
+    body_len: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    msg_seq_num: uint32;
+};
+
+type AddComplexInstrument = unit {
+    security_id: int64;
+    transact_time: uint64;
+    security_sub_type: int32;
+    product_complex: uint8 &convert=ProductComplex($$);
+    implied_market_indicator: uint8 &convert=ImpliedMarketIndicator($$);
+    no_legs: uint8;
+    : skip bytes &size=1;   # padding
+    instrmt_leg_grp_comp: InstrmtLegGrpComp[self.no_legs];
+};
+
+type InstrmtLegGrpComp = unit {
+    leg_symbol: int32;
+    : skip bytes &size=4;   # padding
+    leg_security_id: int64;
+    leg_ratio_qty: int32;
+    leg_side: uint8 &convert=LegSide($$);
+    : skip bytes &size=3;   # padding
+};
+
+type AuctionBbo = unit {
+    transact_time: uint64;
+    security_id: int64;
+    bid_px: uint64;
+    offer_px: uint64;
+    bid_size: int32;
+    offer_size: int32;
+    potential_security_trading_event: uint8 &convert=PotentialSecurityTradingEvent($$);
+    : skip bytes &size=7;   # padding
+};
+
+type AuctionClearingPrice = unit {
+    transact_time: uint64;
+    security_id: int64;
+    last_px: uint64;
+    last_qty: int32;
+    imbalance_qty: int32;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    potential_security_trading_event: uint8 &convert=PotentialSecurityTradingEvent($$);
+    : skip bytes &size=6;   # padding
+};
+
+type CrossRequest = unit {
+    security_id: int64;
+    last_qty: int32;
+    : skip bytes &size=4;   # padding
+    transact_time: uint64;
+};
+
+type ExecutionSummary = unit {
+    security_id: int64;
+    aggressor_time: uint64;
+    request_time: uint64;
+    exec_id: uint64;
+    last_qty: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    trade_condition: uint8 &convert=TradeCondition($$);
+    : skip bytes &size=2;   # padding
+    last_px: uint64;
+    resting_hidden_qty: int32;
+    resting_cxl_qty: int32;
+};
+
+type FullOrderExecution = unit {
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    : skip bytes &size=6;   # padding
+    price: uint64;
+    trd_reg_ts_time_priority: uint64;
+    security_id: int64;
+    trd_match_id: uint32;
+    last_qty: int32;
+    last_px: uint64;
+};
+
+type Heartbeat = unit {
+    last_msg_seq_num_processed: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type InstrumentStateChange = unit {
+    security_id: int64;
+    security_status: uint8 &convert=SecurityStatus($$);
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    fast_market_indicator: uint8 &convert=FastMarketIndicator($$);
+    security_trading_event: uint8 &convert=SecurityTradingEvent($$);
+    : skip bytes &size=4;   # padding
+    transact_time: uint64;
+};
+
+type InstrumentSummary = unit {
+    security_id: int64;
+    last_update_time: uint64;
+    trd_reg_ts_execution_time: uint64;
+    tot_no_orders: uint16;
+    security_status: uint8 &convert=SecurityStatus($$);
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    fast_market_indicator: uint8 &convert=FastMarketIndicator($$);
+    security_trading_event: uint8 &convert=SecurityTradingEvent($$);
+    no_md_entries: uint8;
+    : skip bytes &size=1;   # padding
+    md_instrument_entry_grp_comp: MdInstrumentEntryGrpComp[self.no_md_entries];
+};
+
+type MdInstrumentEntryGrpComp = unit {
+    md_entry_px: uint64;
+    md_entry_size: int32;
+    md_entry_type: uint8 &convert=MdEntryType($$);
+    : skip bytes &size=3;   # padding
+};
+
+type OrderAdd = unit {
+    trd_reg_ts_time_in: uint64;
+    security_id: int64;
+    order_details_comp: OrderDetailsComp;
+};
+
+type OrderDetailsComp = unit {
+    trd_reg_ts_time_priority: uint64;
+    display_qty: int32;
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    : skip bytes &size=2;   # padding
+    price: uint64;
+};
+
+type OrderDelete = unit {
+    trd_reg_ts_time_in: uint64;
+    transact_time: uint64;
+    security_id: int64;
+    order_details_comp: OrderDetailsComp;
+};
+
+type OrderMassDelete = unit {
+    security_id: int64;
+    transact_time: uint64;
+};
+
+type OrderModify = unit {
+    trd_reg_ts_time_in: uint64;
+    trd_reg_ts_prev_time_priority: uint64;
+    prev_price: uint64;
+    prev_display_qty: int32;
+    : skip bytes &size=4;   # padding
+    security_id: int64;
+    order_details_comp: OrderDetailsComp;
+};
+
+type OrderModifySamePrio = unit {
+    trd_reg_ts_time_in: uint64;
+    transact_time: uint64;
+    prev_display_qty: int32;
+    : skip bytes &size=4;   # padding
+    security_id: int64;
+    order_details_comp: OrderDetailsComp;
+};
+
+type PartialOrderExecution = unit {
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    : skip bytes &size=6;   # padding
+    price: uint64;
+    trd_reg_ts_time_priority: uint64;
+    security_id: int64;
+    trd_match_id: uint32;
+    last_qty: int32;
+    last_px: uint64;
+};
+
+type ProductStateChange = unit {
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    trad_ses_status: uint8 &convert=TradSesStatus($$);
+    fast_market_indicator: uint8 &convert=FastMarketIndicator($$);
+    : skip bytes &size=4;   # padding
+    transact_time: uint64;
+};
+
+type ProductSummary = unit {
+    last_msg_seq_num_processed: uint32;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    trad_ses_status: uint8 &convert=TradSesStatus($$);
+    fast_market_indicator: uint8 &convert=FastMarketIndicator($$);
+};
+
+type QuoteRequest = unit {
+    security_id: int64;
+    last_qty: int32;
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=3;   # padding
+    transact_time: uint64;
+};
+
+type SnapshotOrder = unit {
+    order_details_comp: OrderDetailsComp;
+};
+
+type TopOfBook = unit {
+    transact_time: uint64;
+    security_id: int64;
+    bid_px: uint64;
+    offer_px: uint64;
+};
+
+type TradeReport = unit {
+    security_id: int64;
+    transact_time: uint64;
+    trd_match_id: uint32;
+    last_qty: int32;
+    last_px: uint64;
+    match_type: uint8 &convert=MatchType($$);
+    match_sub_type: uint8 &convert=MatchSubType($$);
+    : skip bytes &size=6;   # padding
+};
+
+type TradeReversal = unit {
+    security_id: int64;
+    transact_time: uint64;
+    trd_match_id: uint32;
+    last_qty: int32;
+    last_px: uint64;
+    trd_reg_ts_execution_time: uint64;
+    no_md_entries: uint8;
+    : skip bytes &size=7;   # padding
+    md_trade_entry_grp_comp: MdTradeEntryGrpComp[self.no_md_entries];
+};
+
+type MdTradeEntryGrpComp = unit {
+    md_entry_px: uint64;
+    md_entry_size: int32;
+    md_entry_type: uint8 &convert=MdEntryType($$);
+    : skip bytes &size=3;   # padding
+};
+
+type TemplateId = enum {
+    AddComplexInstrument = 13400,
+    AuctionBbo = 13500,
+    AuctionClearingPrice = 13501,
+    CrossRequest = 13502,
+    ExecutionSummary = 13202,
+    FullOrderExecution = 13104,
+    Heartbeat = 13001,
+    InstrumentStateChange = 13301,
+    InstrumentSummary = 13601,
+    OrderAdd = 13100,
+    OrderDelete = 13102,
+    OrderMassDelete = 13103,
+    OrderModify = 13101,
+    OrderModifySamePrio = 13106,
+    PacketHeader = 13000,
+    PartialOrderExecution = 13105,
+    ProductStateChange = 13300,
+    ProductSummary = 13600,
+    QuoteRequest = 13503,
+    SnapshotOrder = 13602,
+    TopOfBook = 13504,
+    TradeReport = 13201,
+    TradeReversal = 13200,
+};
+
+type CompletionIndicator = enum {
+    Incomplete = 0,
+    Complete = 1,
+};
+
+type ApplSeqResetIndicator = enum {
+    NoReset = 0,
+    Reset = 1,
+};
+
+type ProductComplex = enum {
+    StandardOptionStrategy = 2,
+    NonStandardOptionStrategy = 3,
+    VolatilityStrategy = 4,
+    FuturesSpread = 5,
+    InterProductSpread = 6,
+    StandardFuturesStrategy = 7,
+    PackAndBundle = 8,
+    Strip = 9,
+};
+
+type ImpliedMarketIndicator = enum {
+    NotImplied = 0,
+    ImpliedInOut = 3,
+};
+
+type LegSide = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type PotentialSecurityTradingEvent = enum {
+    None = 0,
+    PriceVolatilityAuctionIsExtended = 10,
+};
+
+type SecurityTradingStatus = enum {
+    TradingHalt = 2,
+    MarketImbalanceBuy = 7,
+    MarketImbalanceSell = 8,
+    Closed = 200,
+    Restricted = 201,
+    Book = 202,
+    Continuous = 203,
+    OpeningAuction = 204,
+    OpeningAuctionFreeze = 205,
+    IntradayAuction = 206,
+    IntradayAuctionFreeze = 207,
+    CircuitBreakerAuction = 208,
+    CircuitBreakerAuctionFreeze = 209,
+    ClosingAuction = 210,
+    ClosingAuctionFreeze = 211,
+    IpoAuction = 212,
+    IpoAuctionFreeze = 213,
+};
+
+type AggressorSide = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type TradeCondition = enum {
+    ImpliedTrade = 1,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type OrdType = enum {
+    Market = 1,
+};
+
+type SecurityStatus = enum {
+    Active = 1,
+    Inactive = 2,
+    Expired = 4,
+    Suspended = 9,
+};
+
+type FastMarketIndicator = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type SecurityTradingEvent = enum {
+    PriceVolatilityAuctionIsExtended = 10,
+    PriceVolatilityAuctionIsExtendedAgain = 11,
+};
+
+type MdEntryType = enum {
+    Trade = 2,
+    OpeningPrice = 4,
+    ClosingPrice = 5,
+    HighPrice = 7,
+    LowPrice = 8,
+    TradeVolume = 66,
+    PreviousClosingPrice = 101,
+    OpeningAuction = 200,
+    IntradayAuction = 201,
+    CircuitBreakerAuction = 202,
+    ClosingAuction = 203,
+    IpoAuction = 204,
+};
+
+type TradingSessionId = enum {
+    Day = 1,
+    Morning = 3,
+    Evening = 5,
+    AfterHours = 6,
+    Holiday = 7,
+};
+
+type TradingSessionSubId = enum {
+    PreTrading = 1,
+    Trading = 3,
+    Closing = 4,
+    PostTrading = 5,
+    Quiescent = 7,
+};
+
+type TradSesStatus = enum {
+    Halted = 1,
+    Open = 2,
+    Closed = 3,
+};
+
+type MatchType = enum {
+    ConfirmedTradeReport = 3,
+    CrossAuction = 5,
+    CallAuction = 7,
+};
+
+type MatchSubType = enum {
+    OpeningAuction = 1,
+    ClosingAuction = 2,
+    IntradayAuction = 3,
+    CircuitBreakerAuction = 4,
+    IpoAuction = 5,
+};
+

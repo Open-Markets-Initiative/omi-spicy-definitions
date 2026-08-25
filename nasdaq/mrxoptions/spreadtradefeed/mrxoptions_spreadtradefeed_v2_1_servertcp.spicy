@@ -1,0 +1,119 @@
+module NasdaqMrxoptionsSpreadtradefeedItchV21ServerTcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MrxoptionsSpreadtradefeedV21 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_tcp_packet_header: ServerTcpPacketHeader;
+    switch ( self.server_tcp_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerTcpPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::ComplexStrategyDirectoryMessage -> complex_strategy_directory_message: ComplexStrategyDirectoryMessage;
+        SequencedMessageType::StrategyTradingActionMessage -> strategy_trading_action_message: StrategyTradingActionMessage;
+        SequencedMessageType::ComplexStrategyTradeReport -> complex_strategy_trade_report: ComplexStrategyTradeReport;
+        SequencedMessageType::EndOfReplaySequenceMessage -> end_of_replay_sequence_message: EndOfReplaySequenceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    event_code: bytes &size=1;
+};
+
+type ComplexStrategyDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    strategy_type: bytes &size=1;
+    underlying_symbol: bytes &size=13;
+    reserved_16: bytes &size=16;
+    number_of_legs: uint8;
+    leg_information: LegInformation[self.number_of_legs];
+};
+
+type LegInformation = unit {
+    option_id: uint32;
+    security_symbol: bytes &size=8;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    explicit_strike_price: uint32;
+    option_type: bytes &size=1;
+    side: bytes &size=1;
+    leg_ratio: uint32;
+};
+
+type StrategyTradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    current_trading_state: bytes &size=1;
+};
+
+type ComplexStrategyTradeReport = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    strategy_id: uint32;
+    cross_id: uint32;
+    trade_condition: uint8;
+    price: uint32;
+    volume: uint32;
+    reserved_16: bytes &size=16;
+};
+
+type EndOfReplaySequenceMessage = unit {
+    end_of_replay_sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    ComplexStrategyDirectoryMessage = 0x73,
+    StrategyTradingActionMessage = 0x48,
+    ComplexStrategyTradeReport = 0x52,
+    EndOfReplaySequenceMessage = 0x4d,
+};
+

@@ -1,0 +1,201 @@
+module NasdaqIseoptionsTopcomboquotefeedItchV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type IseoptionsTopcomboquotefeedV10 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::ComplexStrategyDirectoryMessage -> complex_strategy_directory_message: ComplexStrategyDirectoryMessage;
+        MessageType::StrategyOpenClosedMessage -> strategy_open_closed_message: StrategyOpenClosedMessage;
+        MessageType::StrategyTradingActionMessage -> strategy_trading_action_message: StrategyTradingActionMessage;
+        MessageType::StrategyBestBidAndAskUpdate -> strategy_best_bid_and_ask_update: StrategyBestBidAndAskUpdate;
+        MessageType::StrategyBestBidUpdate -> strategy_best_bid_update: StrategyBestBidUpdate;
+        MessageType::StrategyBestAskUpdate -> strategy_best_ask_update: StrategyBestAskUpdate;
+        MessageType::ComplexStrategyTickerMessage -> complex_strategy_ticker_message: ComplexStrategyTickerMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    timestamp: bytes &size=6;
+    event_code: uint8 &convert=EventCode($$);
+    current_year: uint16;
+    current_month: uint8;
+    current_day: uint8;
+    version: uint8;
+    subversion: uint8;
+};
+
+type ComplexStrategyDirectoryMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    strategy_type: uint8 &convert=StrategyType($$);
+    source: uint8;
+    underlying_symbol: bytes &size=13;
+    number_of_legs: uint8;
+    leg_information: LegInformation[self.number_of_legs];
+};
+
+type LegInformation = unit {
+    option_id: uint32;
+    security_symbol: bytes &size=6;
+    leg_id: uint8;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    explicit_strike_price: int64;
+    option_type: uint8 &convert=OptionType($$);
+    side: uint8 &convert=Side($$);
+    leg_ratio: uint32;
+};
+
+type StrategyOpenClosedMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    open_state: uint8 &convert=OpenState($$);
+};
+
+type StrategyTradingActionMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type StrategyBestBidAndAskUpdate = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    bid_price: int32;
+    bid_size: uint32;
+    bid_cust_size: uint32;
+    bid_pro_cust_size: uint32;
+    bid_ntt_size: uint32;
+    bid_market_size: uint32;
+    bid_ntt_market_size: uint32;
+    ask_price: int32;
+    ask_size: uint32;
+    ask_cust_size: uint32;
+    ask_pro_cust_size: uint32;
+    ask_ntt_size: uint32;
+    ask_market_size: uint32;
+    ask_ntt_market_size: uint32;
+};
+
+type StrategyBestBidUpdate = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    price: int32;
+    size: uint32;
+    cust_size: uint32;
+    pro_cust_size: uint32;
+    ntt_size: uint32;
+    market_size: uint32;
+    ntt_market_size: uint32;
+};
+
+type StrategyBestAskUpdate = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    price: int32;
+    size: uint32;
+    cust_size: uint32;
+    pro_cust_size: uint32;
+    ntt_size: uint32;
+    market_size: uint32;
+    ntt_market_size: uint32;
+};
+
+type ComplexStrategyTickerMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    last_price: int64;
+    size: uint32;
+    volume: uint32;
+    high: uint64;
+    low: uint64;
+    first: uint64;
+    trade_condition: bytes &size=1;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    ComplexStrategyDirectoryMessage = 0x52,
+    StrategyOpenClosedMessage = 0x4f,
+    StrategyTradingActionMessage = 0x48,
+    StrategyBestBidAndAskUpdate = 0x43,
+    StrategyBestBidUpdate = 0x44,
+    StrategyBestAskUpdate = 0x45,
+    ComplexStrategyTickerMessage = 0x74,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    StartOfNormalHoursClosingProcess = 0x4e,
+    StartOfLateHoursClosingProcess = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    EndOfWcoEarlyClosing = 0x57,
+};
+
+type StrategyType = enum {
+    VerticalSpread = 0x56,
+    TimeSpread = 0x54,
+    DiagonalSpread = 0x44,
+    Straddle = 0x53,
+    Strangle = 0x47,
+    Combo = 0x43,
+    RiskReversal = 0x52,
+    RatioSpread = 0x41,
+    Custom = 0x55,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+    Na = 0x20,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    Hidden = 0x20,
+};
+
+type OpenState = enum {
+    Open = 0x59,
+    Closed = 0x4e,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    TradingResumed = 0x54,
+};
+
+type QuoteCondition = enum {
+    RegularQuote = 0x20,
+    Halted = 0x58,
+};
+
