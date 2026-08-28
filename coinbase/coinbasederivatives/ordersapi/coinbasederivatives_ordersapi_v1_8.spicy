@@ -47,6 +47,7 @@ type SessionMessage = unit {
         TemplateId::SessionTestRequestMessage -> test_request_message: TestRequestMessage;
         TemplateId::SessionResendRequestMessage -> resend_request_message: ResendRequestMessage;
         TemplateId::SessionGapFillMessage -> gap_fill_message: GapFillMessage;
+        TemplateId::RejectMessage -> reject_message: RejectMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -62,11 +63,11 @@ type LogonConfMessage = unit {
 };
 
 type LogoutMessage = unit {
-    reason: bytes &size=64;
+    reason_string_64: bytes &size=64;
 };
 
 type LoggedOutMessage = unit {
-    reason: bytes &size=64;
+    reason_string_64: bytes &size=64;
 };
 
 type HeartbeatMessage = unit {
@@ -87,6 +88,12 @@ type GapFillMessage = unit {
     gap_fill_padding: uint32;
 };
 
+type RejectMessage = unit {
+    ref_sequence_number: uint32;
+    reject_reason: int32 &convert=RejectReason($$);
+    details: bytes &size=64;
+};
+
 type OrderMessage = unit {
     switch ( self.packet.sbe_message.message_header.template_id ) {
         TemplateId::SessionResendRequestMessage -> ping_message: PingMessage;
@@ -98,7 +105,7 @@ type OrderMessage = unit {
         TemplateId::SetAckMessage -> set_ack_message: SetAckMessage;
         TemplateId::NewOrderMessage -> new_order_message: NewOrderMessage;
         TemplateId::NewIocOrderMessage -> new_ioc_order_message: NewIocOrderMessage;
-        TemplateId::OrderEnteredMessage -> order_entered_message: OrderEnteredMessage;
+        TemplateId::RejectMessage -> order_entered_message: OrderEnteredMessage;
         TemplateId::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
         TemplateId::ObsoleteStreamOrderMessage -> obsolete_stream_order_message: ObsoleteStreamOrderMessage;
         TemplateId::OrderRejectMessage -> order_reject_message: OrderRejectMessage;
@@ -399,6 +406,7 @@ type TemplateId = enum {
     SessionTestRequestMessage = 11,
     SessionResendRequestMessage = 102,
     SessionGapFillMessage = 202,
+    RejectMessage = 210,
     InstrumentInfoRequestMessage = 103,
     InstrumentInfoMessage = 203,
     SetAccountMessage = 105,
@@ -406,7 +414,6 @@ type TemplateId = enum {
     SetAckMessage = 205,
     NewOrderMessage = 110,
     NewIocOrderMessage = 111,
-    OrderEnteredMessage = 210,
     ReplaceOrderMessage = 120,
     ObsoleteStreamOrderMessage = 121,
     OrderRejectMessage = 221,
@@ -440,6 +447,13 @@ type SchemaId = enum {
 type ResetSeqNum = enum {
     False = 0,
     True = 1,
+};
+
+type RejectReason = enum {
+    InvalidSchemaId = 1,
+    InvalidTemplateId = 2,
+    InvalidBlockLength = 3,
+    InvalidFieldValue = 4,
 };
 
 type TradingInstrumentStatus = enum {
