@@ -15,4 +15,10 @@ jobs:
       - name: Compile Definitions
         run: docker run --rm -v "$PWD":/work -w /work zeek/zeek:latest bash -c 'set -e; echo "Compiling definitions"; find . -name "*.spicy" | while read module; do echo "  $module"; spicyc -c "$module" -o /tmp/module.cc; done'
 
+      - name: Clone Omi Data
+        run: git clone --depth=1 https://github.com/Open-Markets-Initiative/omi-data-packets.git
+
+      - name: Run Definition Tests
+        run: docker run --rm -v "$PWD":/work -w /work zeek/zeek:latest bash -c 'set -e; export DEBIAN_FRONTEND=noninteractive; apt-get update -qq; apt-get install -y -qq clang g++ python3-pip >/dev/null; pip3 install --quiet --break-system-packages dpkt >/dev/null; export SPICY_DRIVER=$(command -v spicy-driver); for test in .github/tests/test_*.py; do [ -e "$test" ] || continue; echo "$test"; python3 "$test"; done'
+
 

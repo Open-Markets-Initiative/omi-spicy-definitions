@@ -26,17 +26,9 @@ type Message = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
         MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
-        MessageType::SourceTimeReferenceMessage -> source_time_reference_message: SourceTimeReferenceMessage;
         MessageType::SymbolIndexMappingMessage -> symbol_index_mapping_message: SymbolIndexMappingMessage;
         MessageType::SymbolClearMessage -> symbol_clear_message: SymbolClearMessage;
         MessageType::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
-        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
-        MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
-        MessageType::RefreshRequestMessage -> refresh_request_message: RefreshRequestMessage;
-        MessageType::MessageUnavailableMessage -> message_unavailable_message: MessageUnavailableMessage;
-        MessageType::RefreshHeaderMessage -> refresh_header_message: RefreshHeaderMessage;
-        MessageType::RequestResponseMessage -> request_response_message: RequestResponseMessage;
-        MessageType::HeartbeatResponseMessage -> heartbeat_response_message: HeartbeatResponseMessage;
         MessageType::DeltaMessage -> delta_message: DeltaMessage;
         MessageType::ImbalanceMessage -> imbalance_message: ImbalanceMessage;
         * -> unknown: bytes &eod;
@@ -55,12 +47,6 @@ type SequenceNumberResetMessage = unit {
     channel_id: uint8;
 };
 
-type SourceTimeReferenceMessage = unit {
-    id: uint32;
-    symbol_seq_num: uint32;
-    source_time: uint32;
-};
-
 type SymbolIndexMappingMessage = unit {
     symbol_index: uint32;
     symbol: bytes &size=11;
@@ -71,7 +57,7 @@ type SymbolIndexMappingMessage = unit {
     price_scale_code: uint8;
     security_type: uint8 &convert=SecurityType($$);
     lot_size: uint16;
-    prev_close_price: int32;
+    prev_close_price: uint32;
     prev_close_volume: uint32;
     price_resolution: uint8 &convert=PriceResolution($$);
     round_lot: uint8 &convert=RoundLot($$);
@@ -97,65 +83,14 @@ type SecurityStatusMessage = unit {
     halt_condition: uint8 &convert=HaltCondition($$);
     market_id: uint16 &convert=MarketId($$);
     reserved_2: uint16;
-    price_1: int32;
-    price_2: int32;
+    price_1: uint32;
+    price_2: uint32;
     ssr_triggering_exchange_id: uint8 &convert=SsrTriggeringExchangeId($$);
     ssr_triggering_volume: uint32;
     time_field: uint32;
     ssr_state: uint8 &convert=SsrState($$);
     market_state: uint8 &convert=MarketState($$);
     session_state: bytes &size=1;
-};
-
-type RetransmissionRequestMessage = unit {
-    begin_seq_num: uint32;
-    end_seq_num: uint32;
-    source_id: bytes &size=10;
-    product_id: uint8;
-    channel_id: uint8;
-};
-
-type SymbolIndexMappingRequestMessage = unit {
-    symbol_index: uint32;
-    source_id: bytes &size=10;
-    product_id: uint8;
-    channel_id: uint8;
-    retransmit_method: uint8;
-};
-
-type RefreshRequestMessage = unit {
-    symbol_index: uint32;
-    source_id: bytes &size=10;
-    product_id: uint8;
-    channel_id: uint8;
-};
-
-type MessageUnavailableMessage = unit {
-    begin_seq_num: uint32;
-    end_seq_num: uint32;
-    product_id: uint8;
-    channel_id: uint8;
-};
-
-type RefreshHeaderMessage = unit {
-    current_refresh_pkt: uint16;
-    total_refresh_pkts: uint16;
-    last_seq_num: uint32;
-    last_symbol_seq_num: uint32;
-};
-
-type RequestResponseMessage = unit {
-    request_seq_num: uint32;
-    begin_seq_num: uint32;
-    end_seq_num: uint32;
-    source_id: bytes &size=10;
-    product_id: uint8;
-    channel_id: uint8;
-    status: uint8 &convert=Status($$);
-};
-
-type HeartbeatResponseMessage = unit {
-    source_id: bytes &size=10;
 };
 
 type DeltaMessage = unit {
@@ -223,17 +158,9 @@ type DeliveryFlag = enum {
 
 type MessageType = enum {
     SequenceNumberResetMessage = 1,
-    SourceTimeReferenceMessage = 2,
     SymbolIndexMappingMessage = 3,
     SymbolClearMessage = 32,
     SecurityStatusMessage = 34,
-    RetransmissionRequestMessage = 10,
-    SymbolIndexMappingRequestMessage = 13,
-    RefreshRequestMessage = 15,
-    MessageUnavailableMessage = 31,
-    RefreshHeaderMessage = 35,
-    RequestResponseMessage = 11,
-    HeartbeatResponseMessage = 12,
     DeltaMessage = 115,
     ImbalanceMessage = 105,
 };
@@ -241,15 +168,13 @@ type MessageType = enum {
 type MarketId = enum {
     Nyse = 1,
     NyseArca = 3,
-    NyseArcaOptions = 4,
-    NyseBonds = 5,
-    NyseAmericanOptions = 8,
     NyseAmerican = 9,
     NyseNational = 10,
     NyseTexas = 11,
 };
 
 type ExchangeCode = enum {
+    Txse = 0x46,
     NyseAmerican = 0x41,
     Ltse = 0x4c,
     NyseTexas = 0x4d,
@@ -261,22 +186,22 @@ type ExchangeCode = enum {
 };
 
 type SecurityType = enum {
-    Adr = 0x41,
+    AmericanDepositaryReceipts = 0x41,
     CommonStock = 0x43,
     Debentures = 0x44,
-    Etf = 0x45,
+    ExchangeTradedFunds = 0x45,
     Foreign = 0x46,
-    UsDepositaryShares = 0x48,
+    AmericanDepositaryShares = 0x48,
     Units = 0x49,
     IndexLinkedNotes = 0x4c,
-    MiscliquidTrust = 0x4d,
+    OtherBlank = 0x4d,
     OrdinaryShares = 0x4f,
     PreferredStock = 0x50,
     Rights = 0x52,
-    SharesOfBeneficiaryInterest = 0x53,
+    SharesOfBeneficialInterest = 0x53,
     Test = 0x54,
     ClosedEndFund = 0x55,
-    Warrant = 0x57,
+    Warrants = 0x57,
 };
 
 type PriceResolution = enum {
@@ -293,7 +218,7 @@ type RoundLot = enum {
 type SecurityStatus = enum {
     TradingHalt = 0x34,
     Resume = 0x35,
-    Suspend = 0x36,
+    SuspendOperationalHalt = 0x36,
     ShortSaleRestrictionActivatedDay1 = 0x41,
     ShortSaleRestrictionContinuedDay2 = 0x43,
     ShortSaleRestrictionDeactivated = 0x44,
@@ -314,14 +239,14 @@ type HaltCondition = enum {
     NewsPending = 0x50,
     LuldPause = 0x4d,
     EquipmentChangeover = 0x58,
-    AdditionalInformationRequested = 0x41,
+    SipOutageMaterialSipLatencyOrExtraordinaryMarketActivity = 0x41,
     RegulatoryConcern = 0x43,
     MergerEffective = 0x45,
-    EtfComponentPricesNotAvailable = 0x46,
+    EtfIivEtfComponentPricesNotAvailable = 0x46,
     CorporateAction = 0x4e,
     NewSecurityOffering = 0x4f,
-    IntradayIndicativeValueNotAvailable = 0x56,
-    Suspend = 0x36,
+    PrimaryListingExchangeDiscretionaryHalt = 0x56,
+    SuspendOperationalHalt = 0x36,
     MarketWideCircuitBreakerHaltLevel1 = 0x31,
     MarketWideCircuitBreakerHaltLevel2 = 0x32,
     MarketWideCircuitBreakerHaltLevel3 = 0x33,
@@ -329,7 +254,7 @@ type HaltCondition = enum {
 
 type SsrTriggeringExchangeId = enum {
     NyseAmerican = 0x41,
-    NasdaqOmxBx = 0x42,
+    NasdaqOmsTx = 0x42,
     NyseNational = 0x43,
     Finra = 0x44,
     N24X = 0x47,
@@ -362,18 +287,6 @@ type MarketState = enum {
     CoreSession = 0x4f,
     LateSessionNonNyseOnly = 0x4c,
     Closed = 0x58,
-};
-
-type Status = enum {
-    MessageWasAccepted = 0x30,
-    RejectedDueToAnInvalidSourceId = 0x31,
-    RejectedDueToMaximumSequenceRangeSeeThresholdLimits = 0x33,
-    RejectedDueToMaximumRequestInADay = 0x34,
-    RejectedDueToMaximumNumberOfRefreshRequestsInADay = 0x35,
-    RejectedRequestMessageSeqNumTtlTimeToLiveIsTooOldUseRefreshToRecoverCurrentStateIfNecessary = 0x36,
-    RejectedDueToAnInvalidChannelId = 0x37,
-    RejectedDueToAnInvalidProductId = 0x38,
-    RejectedDueTo1InvalidMsgTypeOr2MismatchBetweenMsgTypeAndMsgSize = 0x39,
 };
 
 type Side = enum {
