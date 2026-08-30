@@ -1,0 +1,240 @@
+module MemxMemxoptionsMemoirdepthSbeV16A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MemxoptionsMemoirdepthV16A = unit {
+    common_header: CommonHeader;
+    sequenced_messages: SequencedMessage;
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    header_length: uint8;
+    session_id: uint64;
+    sequence_number: uint64;
+};
+
+type SequencedMessage = unit {
+    message_count: uint16;
+    message: Message[self.message_count];
+};
+
+type Message = unit {
+    message_length: uint16;
+    sbe_message: SbeMessage;
+};
+
+type SbeMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::InstrumentDirectoryMessage -> instrument_directory_message: InstrumentDirectoryMessage;
+        TemplateId::OptionsInstrumentStatusMessage -> options_instrument_status_message: OptionsInstrumentStatusMessage;
+        TemplateId::UnderlierInstrumentStatusMessage -> underlier_instrument_status_message: UnderlierInstrumentStatusMessage;
+        TemplateId::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        TemplateId::CorrectedTradeMessage -> corrected_trade_message: CorrectedTradeMessage;
+        TemplateId::SnapshotCompleteMessage -> snapshot_complete_message: SnapshotCompleteMessage;
+        TemplateId::OrderAddedShortMessage -> order_added_short_message: OrderAddedShortMessage;
+        TemplateId::OrderAddedLongMessage -> order_added_long_message: OrderAddedLongMessage;
+        TemplateId::OrderAddedExtendedMessage -> order_added_extended_message: OrderAddedExtendedMessage;
+        TemplateId::OrderDeletedMessage -> order_deleted_message: OrderDeletedMessage;
+        TemplateId::OrderReducedMessage -> order_reduced_message: OrderReducedMessage;
+        TemplateId::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        TemplateId::ClearBookMessage -> clear_book_message: ClearBookMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint8 &convert=TemplateId($$);
+    schema_id: uint8;
+    version: uint16;
+};
+
+type InstrumentDirectoryMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    options_product_type: uint8 &convert=OptionsProductType($$);
+    underlier: bytes &size=6;
+    osi_root: bytes &size=6;
+    maturity_date: bytes &size=8;
+    strike_put_or_call: uint8 &convert=StrikePutOrCall($$);
+    strike_price: uint64;
+    closing_only: uint8 &convert=ClosingOnly($$);
+    closing_time: uint64;
+    is_test_symbol: uint8 &convert=IsTestSymbol($$);
+};
+
+type OptionsInstrumentStatusMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    instrument_trading_status_reason: uint8 &convert=InstrumentTradingStatusReason($$);
+    trading_session: uint8 &convert=TradingSession($$);
+};
+
+type UnderlierInstrumentStatusMessage = unit {
+    timestamp: uint64;
+    trading_session: uint8 &convert=TradingSession($$);
+    underlier: bytes &size=6;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: uint64;
+};
+
+type CorrectedTradeMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: uint64;
+    corrected_quantity: uint32;
+    corrected_price: uint64;
+};
+
+type SnapshotCompleteMessage = unit {
+    timestamp: uint64;
+    as_of_sequence_number: uint64;
+};
+
+type OrderAddedShortMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity_short: uint16;
+    price_short: uint16;
+};
+
+type OrderAddedLongMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: uint64;
+};
+
+type OrderAddedExtendedMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: uint64;
+};
+
+type OrderDeletedMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    order_id: uint64;
+};
+
+type OrderReducedMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: uint64;
+    quantity_reduced: uint32;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    trade_conditions: TradeConditions;
+    order_id: uint64;
+    trade_id: uint64;
+    quantity: uint32;
+    price: uint64;
+};
+
+type TradeConditions = unit {
+    intermarket_sweep: bytes &size=1;
+    reserved_7: bytes &size=1;
+};
+
+type ClearBookMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+};
+
+type MessageType = enum {
+    HeartbeatMessage = 0,
+    SessionShutdownMessage = 1,
+    SequencedMessage = 2,
+};
+
+type TemplateId = enum {
+    InstrumentDirectoryMessage = 1,
+    OptionsInstrumentStatusMessage = 2,
+    UnderlierInstrumentStatusMessage = 3,
+    BrokenTradeMessage = 5,
+    CorrectedTradeMessage = 6,
+    SnapshotCompleteMessage = 7,
+    OrderAddedShortMessage = 10,
+    OrderAddedLongMessage = 11,
+    OrderAddedExtendedMessage = 12,
+    OrderDeletedMessage = 13,
+    OrderReducedMessage = 14,
+    OrderExecutedMessage = 15,
+    ClearBookMessage = 18,
+};
+
+type OptionsProductType = enum {
+    EquityUnderlying = 0,
+    IndexUnderlying = 1,
+};
+
+type StrikePutOrCall = enum {
+    Put = 0,
+    Call = 1,
+};
+
+type ClosingOnly = enum {
+    False = 0,
+    True = 1,
+};
+
+type IsTestSymbol = enum {
+    False = 0,
+    True = 1,
+};
+
+type InstrumentTradingStatus = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type InstrumentTradingStatusReason = enum {
+    None = 0x58,
+    Administrative = 0x41,
+};
+
+type TradingSession = enum {
+    Open = 0x31,
+    Closed = 0x32,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OrderCapacity = enum {
+    Customer = 0x43,
+    NonCustomer = 0x4e,
+};
+

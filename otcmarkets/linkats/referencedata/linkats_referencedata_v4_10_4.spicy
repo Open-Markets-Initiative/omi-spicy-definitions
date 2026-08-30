@@ -1,0 +1,197 @@
+module OtcmarketsLinkatsReferencedataLinkV4104;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type LinkatsReferencedataV4104 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.messages];
+};
+
+type PacketHeader = unit {
+    packet_size: uint16;
+    seq_num: uint32;
+    packet_flag: PacketFlag;
+    messages: uint8;
+    packet_milli: uint32;
+};
+
+type PacketFlag = unit {
+    heartbeat: bytes &size=1;
+    seq_num_reset: bytes &size=1;
+    reserved_4: bytes &size=1;
+    replay: bytes &size=1;
+    test: bytes &size=1;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::StartOfSpinMessage -> start_of_spin_message: StartOfSpinMessage;
+        MessageType::EndOfSpinMessage -> end_of_spin_message: EndOfSpinMessage;
+        MessageType::MarketOpenMessage -> market_open_message: MarketOpenMessage;
+        MessageType::MarketCloseMessage -> market_close_message: MarketCloseMessage;
+        MessageType::ExtendedSecurityMessage -> extended_security_message: ExtendedSecurityMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type StartOfSpinMessage = unit {
+    channel_seq_num: uint32;
+    spin_type: uint8 &convert=SpinType($$);
+    spin_start_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type EndOfSpinMessage = unit {
+    channel_seq_num: uint32;
+    spin_type: uint8 &convert=SpinType($$);
+    spin_msg_ct: uint32;
+    spin_end_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type MarketOpenMessage = unit {
+    channel_seq_num: uint32;
+    market_open: uint64;
+    market_close: uint64;
+};
+
+type MarketCloseMessage = unit {
+    channel_seq_num: uint32;
+    market_close_time_milli: uint64;
+    market_msg_ct: uint32;
+};
+
+type ExtendedSecurityMessage = unit {
+    channel_seq_num: uint32;
+    symbol: bytes &size=10;
+    last_update_milli: uint64;
+    security_action: uint8 &convert=SecurityAction($$);
+    otc_issuer_id: uint32;
+    security_desc: bytes &size=25;
+    short_name: bytes &size=25;
+    asset_class: uint8 &convert=AssetClass($$);
+    security_type: bytes &size=5;
+    primary_market: bytes &size=3;
+    security_id: uint32;
+    extended_security_flags: ExtendedSecurityFlags;
+    tier: uint8 &convert=Tier($$);
+    reporting_status: uint8 &convert=ReportingStatus($$);
+    disclosure_status: uint8 &convert=DisclosureStatus($$);
+    security_status: uint8 &convert=SecurityStatus($$);
+    par_value: uint64;
+    coupon: uint64;
+    maturity_date_milli: uint64;
+    callable_date_milli: uint64;
+    adr_ratio: uint64;
+    adr_level: bytes &size=15;
+    security_detail: SecurityDetail;
+    issuer: Issuer;
+    cusip: bytes &size=9;
+};
+
+type ExtendedSecurityFlags = unit {
+    piggyback: bytes &size=1;
+    caveat_emptor_warning: bytes &size=1;
+    qualified_institutional_buyers_only: bytes &size=1;
+    unsolicited_only: bytes &size=1;
+    sponsored_status: bytes &size=1;
+    otc_link_ecn_eligible: bytes &size=1;
+    otc_link_messaging_disabled: bytes &size=1;
+    saturation_eligible: bytes &size=1;
+    investment_grade: bytes &size=1;
+    trading_flat: bytes &size=1;
+    callable: bytes &size=1;
+    reserved_5: bytes &size=1;
+};
+
+type SecurityDetail = unit {
+    security_detail_size: uint8;
+    security_detail_name: bytes &size=self.security_detail_size;
+};
+
+type Issuer = unit {
+    issuer_size: uint8;
+    issuer_name: bytes &size=self.issuer_size;
+};
+
+type MessageType = enum {
+    StartOfSpinMessage = 11,
+    EndOfSpinMessage = 12,
+    MarketOpenMessage = 13,
+    MarketCloseMessage = 14,
+    ExtendedSecurityMessage = 15,
+};
+
+type SpinType = enum {
+    Reference = 1,
+    MarketData = 2,
+    Opening = 3,
+};
+
+type SecurityAction = enum {
+    Update = 1,
+    Add = 2,
+    Delete = 3,
+    Spin = 4,
+};
+
+type AssetClass = enum {
+    Equity = 1,
+    FixedIncome = 2,
+};
+
+type Tier = enum {
+    NoTier = 0,
+    OtcqxusPremier = 1,
+    Otcqxus = 2,
+    OtcqxInternationalPremier = 5,
+    OtcqxInternational = 6,
+    Otcqb = 10,
+    OtcbbOnly = 11,
+    PinkCurrent = 20,
+    PinkLimited = 21,
+    PinkNoInformation = 22,
+    GreyMarket = 30,
+    ExpertMarket = 40,
+    OtcBonds = 50,
+};
+
+type ReportingStatus = enum {
+    AlternativeReporting = 0x41,
+    BankThrift = 0x42,
+    SecReportingRegCf = 0x43,
+    SecReporting = 0x46,
+    InternationalReporting = 0x47,
+    InsuranceCompany = 0x49,
+    NoReporting = 0x4e,
+    OtherReporting = 0x4f,
+    FinraReporting = 0x52,
+    SecInvestmentCompany = 0x56,
+    SecReportingRegA = 0x57,
+};
+
+type DisclosureStatus = enum {
+    NoDisclosure = 0,
+    CurrentInformation = 2,
+    LimitedInformation = 3,
+    NoInformation = 4,
+};
+
+type SecurityStatus = enum {
+    Active = 0x41,
+    QuoteOnly = 0x51,
+    Suspended = 0x53,
+    Halted = 0x48,
+    InternalHalt = 0x49,
+    Revoked = 0x52,
+    Deleted = 0x44,
+};
+

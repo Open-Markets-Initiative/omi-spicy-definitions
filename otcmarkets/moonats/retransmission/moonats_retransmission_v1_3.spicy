@@ -1,0 +1,335 @@
+module OtcmarketsMoonatsRetransmissionLinkV13;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MoonatsRetransmissionV13 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::StartOfSpinMessage -> start_of_spin_message: StartOfSpinMessage;
+        MessageType::EndOfSpinMessage -> end_of_spin_message: EndOfSpinMessage;
+        MessageType::TradingSessionMessage -> trading_session_message: TradingSessionMessage;
+        MessageType::SecurityMessage -> security_message: SecurityMessage;
+        MessageType::OrderAddMessage -> order_add_message: OrderAddMessage;
+        MessageType::OrderUpdateMessage -> order_update_message: OrderUpdateMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderExecutionMessage -> order_execution_message: OrderExecutionMessage;
+        MessageType::OrderExecutionWithPriceMessage -> order_execution_with_price_message: OrderExecutionWithPriceMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::TopOfBookMessage -> top_of_book_message: TopOfBookMessage;
+        MessageType::ImbalanceMessage -> imbalance_message: ImbalanceMessage;
+        MessageType::SystemRecoveryEventMessage -> system_recovery_event_message: SystemRecoveryEventMessage;
+        MessageType::LoginRequestMessage -> login_request_message: LoginRequestMessage;
+        MessageType::LoginResponseMessage -> login_response_message: LoginResponseMessage;
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::RetransmissionResponseMessage -> retransmission_response_message: RetransmissionResponseMessage;
+        MessageType::SpinRequestMessage -> spin_request_message: SpinRequestMessage;
+        MessageType::SpinResponseMessage -> spin_response_message: SpinResponseMessage;
+        MessageType::EnhancedSpinRequestMessage -> enhanced_spin_request_message: EnhancedSpinRequestMessage;
+        MessageType::EnhancedSpinResponseMessage -> enhanced_spin_response_message: EnhancedSpinResponseMessage;
+        MessageType::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type StartOfSpinMessage = unit {
+    spin_type: uint8 &convert=SpinType($$);
+    spin_start_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type EndOfSpinMessage = unit {
+    spin_type: uint8 &convert=SpinType($$);
+    spin_msg_ct: uint32;
+    spin_end_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type TradingSessionMessage = unit {
+    session_time: uint64;
+    trading_session: uint8 &convert=TradingSession($$);
+};
+
+type SecurityMessage = unit {
+    symbol: bytes &size=14;
+    last_update_milli: uint64;
+    security_action: uint8 &convert=SecurityAction($$);
+    asset_class: uint8 &convert=AssetClass($$);
+    security_id: uint32;
+    security_flags: SecurityFlags;
+    tier: uint8 &convert=Tier($$);
+    reporting_status: uint8 &convert=ReportingStatus($$);
+    security_status: uint8 &convert=SecurityStatus($$);
+};
+
+type SecurityFlags = unit {
+    piggyback_flag: bytes &size=1;
+    caveat_flag: bytes &size=1;
+    qib_only_144_a: bytes &size=1;
+    unsolicited_only_flag: bytes &size=1;
+    closing_cross_auction: bytes &size=1;
+    reserved_11: bytes &size=2;
+};
+
+type OrderAddMessage = unit {
+    time_field: uint32;
+    order_id: bytes &size=14;
+    side_indicator: uint8 &convert=SideIndicator($$);
+    quantity: uint32;
+    symbol: bytes &size=14;
+    price: uint64;
+    firm_id: bytes &size=4;
+    unsolicited: uint8 &convert=Unsolicited($$);
+    order_flags: uint16;
+};
+
+type OrderUpdateMessage = unit {
+    time_field: uint32;
+    order_id: bytes &size=14;
+    quantity: uint32;
+    price: uint64;
+    order_flags: uint16;
+};
+
+type OrderDeleteMessage = unit {
+    time_field: uint32;
+    order_id: bytes &size=14;
+};
+
+type OrderExecutionMessage = unit {
+    time_field: uint32;
+    order_id: bytes &size=14;
+    executed_quantity: uint32;
+    remaining_quantity: uint32;
+    execution_id: uint64;
+};
+
+type OrderExecutionWithPriceMessage = unit {
+    time_field: uint32;
+    order_id: bytes &size=14;
+    executed_quantity: uint32;
+    remaining_quantity: uint32;
+    execution_id: uint64;
+    price: uint64;
+};
+
+type TradeMessage = unit {
+    time_field: uint32;
+    side_indicator: uint8 &convert=SideIndicator($$);
+    quantity: uint32;
+    symbol: bytes &size=14;
+    price: uint64;
+    execution_id: uint64;
+    reserved_binary_long_8: uint64;
+};
+
+type TopOfBookMessage = unit {
+    time_field: uint32;
+    symbol: bytes &size=14;
+    ask_price: uint64;
+    ask_volume: uint32;
+    bid_price: uint64;
+    bid_volume: uint32;
+    unsolicited: uint8 &convert=Unsolicited($$);
+};
+
+type ImbalanceMessage = unit {
+    time_field: uint32;
+    symbol: bytes &size=14;
+    current_inside_paired_shares: uint32;
+    current_inside_closing_price: uint64;
+    current_inside_imbalance_quantity: uint32;
+    current_inside_imbalance_side: uint8 &convert=CurrentInsideImbalanceSide($$);
+    full_closing_price: uint64;
+    ocio_only_closing_price: uint64;
+    moc_shares_unmatched: uint8 &convert=MocSharesUnmatched($$);
+};
+
+type SystemRecoveryEventMessage = unit {
+    deprecated: uint32;
+    recovery_type: uint8 &convert=RecoveryType($$);
+    next_sequence_number: uint32;
+    recovery_start_time: uint64;
+};
+
+type LoginRequestMessage = unit {
+    user_id: bytes &size=16;
+    password: bytes &size=16;
+};
+
+type LoginResponseMessage = unit {
+    user_id: bytes &size=16;
+    login_status: uint8 &convert=LoginStatus($$);
+};
+
+type RetransmissionRequestMessage = unit {
+    start_sequence: uint32;
+    number_of_messages: uint32;
+    retran_via_tcp: uint8 &convert=RetranViaTcp($$);
+};
+
+type RetransmissionResponseMessage = unit {
+    start_sequence: uint32;
+    number_of_messages: uint32;
+    retransmission_status: uint8 &convert=RetransmissionStatus($$);
+};
+
+type SpinRequestMessage = unit {
+    client_identifier: uint32;
+};
+
+type SpinResponseMessage = unit {
+    client_identifier: uint32;
+    spin_status: uint8 &convert=SpinStatus($$);
+};
+
+type EnhancedSpinRequestMessage = unit {
+    client_identifier: uint32;
+};
+
+type EnhancedSpinResponseMessage = unit {
+    client_identifier: uint32;
+    enhanced_spin_status: uint8 &convert=EnhancedSpinStatus($$);
+    last_seq_num: uint32;
+};
+
+type HeartbeatMessage = unit {
+    client_identifier: uint32;
+};
+
+type MessageType = enum {
+    StartOfSpinMessage = 11,
+    EndOfSpinMessage = 12,
+    TradingSessionMessage = 20,
+    SecurityMessage = 9,
+    OrderAddMessage = 21,
+    OrderUpdateMessage = 22,
+    OrderDeleteMessage = 23,
+    OrderExecutionMessage = 24,
+    OrderExecutionWithPriceMessage = 25,
+    TradeMessage = 26,
+    TopOfBookMessage = 27,
+    ImbalanceMessage = 28,
+    SystemRecoveryEventMessage = 74,
+    LoginRequestMessage = 108,
+    LoginResponseMessage = 97,
+    RetransmissionRequestMessage = 114,
+    RetransmissionResponseMessage = 98,
+    SpinRequestMessage = 115,
+    SpinResponseMessage = 99,
+    EnhancedSpinRequestMessage = 116,
+    EnhancedSpinResponseMessage = 100,
+    HeartbeatMessage = 104,
+};
+
+type SpinType = enum {
+    Reference = 1,
+};
+
+type TradingSession = enum {
+    OrderAcceptance = 1,
+    MarketClose = 5,
+    Overnight = 6,
+};
+
+type SecurityAction = enum {
+    Update = 1,
+    Add = 2,
+    Delete = 3,
+    Spin = 4,
+};
+
+type AssetClass = enum {
+    Equity = 1,
+    FixedIncome = 2,
+};
+
+type Tier = enum {
+    NoTier = 0,
+};
+
+type ReportingStatus = enum {
+    AlternativeReportingStandard = 0x41,
+    BankThrift = 0x42,
+    SecReporting = 0x46,
+    InternationalReporting = 0x47,
+    InsuranceCompany = 0x49,
+    NoReporting = 0x4e,
+    OtherReportingStandard = 0x4f,
+    FinraReporting = 0x52,
+    SecReportingInvestmentCompany = 0x56,
+    SecReportingRegA = 0x57,
+};
+
+type SecurityStatus = enum {
+    Active = 0x41,
+    QuoteOnly = 0x51,
+    Suspended = 0x53,
+    Halted = 0x48,
+    InternalHalt = 0x49,
+    Revoked = 0x52,
+    Deleted = 0x44,
+    RemovedFromIdqs = 0x58,
+};
+
+type SideIndicator = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type Unsolicited = enum {
+    Unsolicited = 0x59,
+    NotUnsolicited = 0x4e,
+};
+
+type CurrentInsideImbalanceSide = enum {
+    BuySide = 0x42,
+    SellSide = 0x53,
+    NoImbalance = 0x4e,
+    NoMarketableOrders = 0x4f,
+};
+
+type MocSharesUnmatched = enum {
+    BuyMocNotMatched = 0x42,
+    SellMocNotMatched = 0x53,
+    NoMocUnmatched = 0x4f,
+};
+
+type RecoveryType = enum {
+    SchedulingStart = 83,
+    RecoveryBegins = 66,
+};
+
+type LoginStatus = enum {
+    Accepted = 89,
+};
+
+type RetranViaTcp = enum {
+    SameTcpChannel = 89,
+};
+
+type RetransmissionStatus = enum {
+    WillFollow = 89,
+    RequestIgnored = 78,
+};
+
+type SpinStatus = enum {
+    StartOfSpin = 83,
+    EndOfSpin = 69,
+};
+
+type EnhancedSpinStatus = enum {
+    StartOfSpin = 83,
+    EndOfSpin = 69,
+};
+

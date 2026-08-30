@@ -1,0 +1,191 @@
+module CmeGlobexMdp3SbeV113ClientTcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CmeGlobexMdp3V113 = unit {
+    client_technical_header: ClientTechnicalHeader;
+    client_tcp_message: ClientTcpMessage[] &eod;
+};
+
+type ClientTechnicalHeader = unit {
+    encoding_type: uint16;
+    message_sequence_number: uint32;
+    tcp_sending_time: uint64;
+};
+
+type ClientTcpMessage = unit {
+    tcp_message_size: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::Negotiate -> negotiate: Negotiate;
+        TemplateId::Terminate -> terminate: Terminate;
+        TemplateId::MarketDataRequest -> market_data_request: MarketDataRequest;
+        TemplateId::SecurityListRequest -> security_list_request: SecurityListRequest;
+        TemplateId::SecurityStatusRequest -> security_status_request: SecurityStatusRequest;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type Negotiate = unit {
+    hmac_signature: bytes &size=32;
+    access_key_id: bytes &size=20;
+    uuid: uint64;
+    request_timestamp: uint64;
+    session: bytes &size=5;
+    firm: bytes &size=5;
+};
+
+type Terminate = unit {
+    reason: bytes &size=48;
+    uuid: uint64;
+    request_timestamp: uint64;
+    error_codes: uint8 &convert=ErrorCodes($$);
+    : skip bytes &size=5;   # padding
+};
+
+type MarketDataRequest = unit {
+    md_req_id: uint32;
+    subscription_req_type: uint8 &convert=SubscriptionReqType($$);
+    market_data_request_security_groups: MarketDataRequestSecurityGroups;
+    market_data_request_related_symbol_groups: MarketDataRequestRelatedSymbolGroups;
+};
+
+type MarketDataRequestSecurityGroups = unit {
+    group_size: GroupSize;
+    market_data_request_security_group: MarketDataRequestSecurityGroup[self.group_size.num_in_group];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type MarketDataRequestSecurityGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type MarketDataRequestRelatedSymbolGroups = unit {
+    group_size: GroupSize;
+    market_data_request_related_symbol_group: MarketDataRequestRelatedSymbolGroup[self.group_size.num_in_group];
+};
+
+type MarketDataRequestRelatedSymbolGroup = unit {
+    security_id: int32;
+};
+
+type SecurityListRequest = unit {
+    md_req_id: uint32;
+    subscription_req_type: uint8 &convert=SubscriptionReqType($$);
+    security_list_request_security_groups: SecurityListRequestSecurityGroups;
+    security_list_request_related_symbol_groups: SecurityListRequestRelatedSymbolGroups;
+};
+
+type SecurityListRequestSecurityGroups = unit {
+    group_size: GroupSize;
+    security_list_request_security_group: SecurityListRequestSecurityGroup[self.group_size.num_in_group];
+};
+
+type SecurityListRequestSecurityGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type SecurityListRequestRelatedSymbolGroups = unit {
+    group_size: GroupSize;
+    security_list_request_related_symbol_group: SecurityListRequestRelatedSymbolGroup[self.group_size.num_in_group];
+};
+
+type SecurityListRequestRelatedSymbolGroup = unit {
+    security_id: int32;
+};
+
+type SecurityStatusRequest = unit {
+    md_req_id: uint32;
+    subscription_req_type: uint8 &convert=SubscriptionReqType($$);
+    security_status_request_security_groups: SecurityStatusRequestSecurityGroups;
+    security_status_request_related_symbol_groups: SecurityStatusRequestRelatedSymbolGroups;
+};
+
+type SecurityStatusRequestSecurityGroups = unit {
+    group_size: GroupSize;
+    security_status_request_security_group: SecurityStatusRequestSecurityGroup[self.group_size.num_in_group];
+};
+
+type SecurityStatusRequestSecurityGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type SecurityStatusRequestRelatedSymbolGroups = unit {
+    group_size: GroupSize;
+    security_status_request_related_symbol_group: SecurityStatusRequestRelatedSymbolGroup[self.group_size.num_in_group];
+};
+
+type SecurityStatusRequestRelatedSymbolGroup = unit {
+    security_id: int32;
+};
+
+type TemplateId = enum {
+    ChannelReset = 4,
+    AdminHeartbeat = 12,
+    AdminLogin = 15,
+    AdminLogout = 16,
+    SecurityStatus = 30,
+    MdIncrementalRefreshVolume = 37,
+    QuoteRequest = 39,
+    MdIncrementalRefreshBook = 46,
+    MdIncrementalRefreshOrderBook = 47,
+    MdIncrementalRefreshTradeSummary = 48,
+    MdIncrementalRefreshDailyStatistics = 49,
+    MdIncrementalRefreshLimitsBanding = 50,
+    MdIncrementalRefreshSessionStatistics = 51,
+    SnapshotFullRefresh = 52,
+    SnapshotFullRefreshOrderBook = 53,
+    MdInstrumentDefinitionFuture = 54,
+    MdInstrumentDefinitionOption = 55,
+    MdInstrumentDefinitionSpread = 56,
+    MdInstrumentDefinitionFixedIncome = 57,
+    MdInstrumentDefinitionRepo = 58,
+    SnapshotRefreshTopOrders = 59,
+    SecurityStatusWorkup = 60,
+    SnapshotFullRefreshTcp = 61,
+    CollateralMarketValue = 62,
+    MdInstrumentDefinitionFx = 63,
+    MdIncrementalRefreshBookLongQty = 64,
+    MdIncrementalRefreshTradeSummaryLongQty = 65,
+    MdIncrementalRefreshVolumeLongQty = 66,
+    MdIncrementalRefreshSessionStatisticsLongQty = 67,
+    SnapshotFullRefreshTcpLongQty = 68,
+    SnapshotFullRefreshLongQty = 69,
+    Negotiate = 200,
+    NegotiationReject = 201,
+    NegotiationResponse = 202,
+    Terminate = 203,
+    MarketDataRequest = 205,
+    RequestAck = 206,
+    RequestReject = 207,
+    SecurityListRequest = 208,
+    SecurityStatusRequest = 209,
+    SubscriberHeartbeat = 210,
+};
+
+type ErrorCodes = enum {
+    HmacReject = 0,
+    InvalidValue = 1,
+    SlowConnection = 2,
+    Other = 3,
+};
+
+type SubscriptionReqType = enum {
+    Snapshot = 0,
+    SnapshotAndUpdates = 1,
+    Unsubscribe = 2,
+};
+

@@ -1,0 +1,1188 @@
+module MemxMemxoptionsMemoSbeV16A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MemxoptionsMemoV16A = unit {
+    common_header: CommonHeader;
+    switch ( self.common_header.message_type ) {
+        MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
+        MessageType::ReplayRequest -> replay_request_message: ReplayRequestMessage;
+        MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
+        MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
+        MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
+        MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
+        MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
+        MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
+        MessageType::ReplayBegin -> replay_begin_message: ReplayBeginMessage;
+        MessageType::ReplayRejected -> replay_rejected_message: ReplayRejectedMessage;
+        MessageType::ReplayComplete -> replay_complete_message: ReplayCompleteMessage;
+        MessageType::StreamBegin -> stream_begin_message: StreamBeginMessage;
+        MessageType::StreamRejected -> stream_rejected_message: StreamRejectedMessage;
+        MessageType::StreamComplete -> stream_complete_message: StreamCompleteMessage;
+        MessageType::SequencedMessage -> sequenced_message: SequencedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    message_length: uint16;
+};
+
+type LoginRequestMessage = unit {
+    token_type: bytes &size=1;
+    token: bytes &size=1;
+};
+
+type ReplayRequestMessage = unit {
+    session_id: uint64;
+    next_sequence_number: uint64;
+    count: uint32;
+};
+
+type ReplayAllRequestMessage = unit {
+    session_id: uint64;
+};
+
+type StreamRequestMessage = unit {
+    session_id: uint64;
+    next_sequence_number: uint64;
+};
+
+type UnsequencedMessage = unit {
+    sbe_message: SbeMessage;
+};
+
+type SbeMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::NewOrderSingleMessage -> new_order_single_message: NewOrderSingleMessage;
+        TemplateId::ShortTwoSidedBulkQuoteMessage -> short_two_sided_bulk_quote_message: ShortTwoSidedBulkQuoteMessage;
+        TemplateId::LongTwoSidedBulkQuoteMessage -> long_two_sided_bulk_quote_message: LongTwoSidedBulkQuoteMessage;
+        TemplateId::ShortOneSidedBulkQuoteMessage -> short_one_sided_bulk_quote_message: ShortOneSidedBulkQuoteMessage;
+        TemplateId::LongOneSidedBulkQuoteMessage -> long_one_sided_bulk_quote_message: LongOneSidedBulkQuoteMessage;
+        TemplateId::OrderCancelReplaceRequestMessage -> order_cancel_replace_request_message: OrderCancelReplaceRequestMessage;
+        TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
+        TemplateId::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
+        TemplateId::MassCancelClearLockoutRequestMessage -> mass_cancel_clear_lockout_request_message: MassCancelClearLockoutRequestMessage;
+        TemplateId::AllocationInstructionMessage -> allocation_instruction_message: AllocationInstructionMessage;
+        TemplateId::ExecutionReportNewMessage -> execution_report_new_message: ExecutionReportNewMessage;
+        TemplateId::ExecutionReportBulkQuotePendingNewMessage -> execution_report_bulk_quote_pending_new_message: ExecutionReportBulkQuotePendingNewMessage;
+        TemplateId::ExecutionReportBulkQuoteComponentNewMessage -> execution_report_bulk_quote_component_new_message: ExecutionReportBulkQuoteComponentNewMessage;
+        TemplateId::ExecutionReportRejectedMessage -> execution_report_rejected_message: ExecutionReportRejectedMessage;
+        TemplateId::ExecutionReportTradeMessage -> execution_report_trade_message: ExecutionReportTradeMessage;
+        TemplateId::ExecutionReportPendingCancelMessage -> execution_report_pending_cancel_message: ExecutionReportPendingCancelMessage;
+        TemplateId::ExecutionReportCanceledMessage -> execution_report_canceled_message: ExecutionReportCanceledMessage;
+        TemplateId::ExecutionReportPendingReplaceMessage -> execution_report_pending_replace_message: ExecutionReportPendingReplaceMessage;
+        TemplateId::ExecutionReportReplacedMessage -> execution_report_replaced_message: ExecutionReportReplacedMessage;
+        TemplateId::ExecutionReportTradeCorrectionMessage -> execution_report_trade_correction_message: ExecutionReportTradeCorrectionMessage;
+        TemplateId::ExecutionReportTradeBreakMessage -> execution_report_trade_break_message: ExecutionReportTradeBreakMessage;
+        TemplateId::ExecutionReportRestatementMessage -> execution_report_restatement_message: ExecutionReportRestatementMessage;
+        TemplateId::PendingMassCancelMessage -> pending_mass_cancel_message: PendingMassCancelMessage;
+        TemplateId::MassCancelRejectMessage -> mass_cancel_reject_message: MassCancelRejectMessage;
+        TemplateId::MassCancelDoneMessage -> mass_cancel_done_message: MassCancelDoneMessage;
+        TemplateId::OrderCancelRejectMessage -> order_cancel_reject_message: OrderCancelRejectMessage;
+        TemplateId::AllocationInstructionAckMessage -> allocation_instruction_ack_message: AllocationInstructionAckMessage;
+        TemplateId::AllocationInstructionAlertMessage -> allocation_instruction_alert_message: AllocationInstructionAlertMessage;
+        TemplateId::UserNotificationMessage -> user_notification_message: UserNotificationMessage;
+        TemplateId::MassCancelClearLockoutRejectMessage -> mass_cancel_clear_lockout_reject_message: MassCancelClearLockoutRejectMessage;
+        TemplateId::MassCancelClearLockoutDoneMessage -> mass_cancel_clear_lockout_done_message: MassCancelClearLockoutDoneMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint8 &convert=TemplateId($$);
+    schema_id: uint8;
+    version: uint16;
+};
+
+type NewOrderSingleMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    order_qty: uint32;
+    ord_type: uint8 &convert=OrdType($$);
+    price_optional: uint64;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    position_effect_optional: uint8 &convert=PositionEffectOptional($$);
+    exec_inst: ExecInst;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    reprice_frequency: uint8 &convert=RepriceFrequency($$);
+    reprice_behavior: uint8 &convert=RepriceBehavior($$);
+    mtp_group_id: uint16;
+    match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
+    cancel_group_id: uint16;
+    risk_group_id: uint16;
+    parties_groups: PartiesGroups;
+};
+
+type ExecInst = unit {
+    participate_do_not_initiate: bytes &size=1;
+    intermarket_sweep: bytes &size=1;
+    external_routing_not_allowed: bytes &size=1;
+    reserved_13: bytes &size=2;
+};
+
+type PartiesGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    parties_group: PartiesGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type RepeatingGroupDimensions = unit {
+    block_length_short: uint8;
+    num_in_group: uint8;
+};
+
+type PartiesGroup = unit {
+    party_id: bytes &size=16;
+    party_id_source: bytes &size=1;
+    party_role: uint8 &convert=PartyRole($$);
+};
+
+type ShortTwoSidedBulkQuoteMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: ExecInst;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    mtp_group_id: uint16;
+    match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
+    cancel_group_id: uint16;
+    risk_group_id: uint16;
+    parties_groups: PartiesGroups;
+    two_sided_quotes_groups: TwoSidedQuotesGroups;
+};
+
+type TwoSidedQuotesGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    two_sided_quotes_group: TwoSidedQuotesGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type TwoSidedQuotesGroup = unit {
+    list_seq_no: uint8;
+    security_id: bytes &size=8;
+    bid_size: uint16;
+    bid_px: uint16;
+    offer_size: uint16;
+    offer_px: uint16;
+};
+
+type LongTwoSidedBulkQuoteMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: ExecInst;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    mtp_group_id: uint16;
+    match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
+    cancel_group_id: uint16;
+    risk_group_id: uint16;
+    parties_groups: PartiesGroups;
+    two_sided_quotes_groups: TwoSidedQuotesGroups;
+};
+
+type ShortOneSidedBulkQuoteMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: ExecInst;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    mtp_group_id: uint16;
+    match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
+    cancel_group_id: uint16;
+    risk_group_id: uint16;
+    parties_groups: PartiesGroups;
+    one_sided_quotes_groups: OneSidedQuotesGroups;
+};
+
+type OneSidedQuotesGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    one_sided_quotes_group: OneSidedQuotesGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type OneSidedQuotesGroup = unit {
+    list_seq_no: uint8;
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    quantity: uint16;
+    price_short: uint16;
+};
+
+type LongOneSidedBulkQuoteMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: ExecInst;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    mtp_group_id: uint16;
+    match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
+    cancel_group_id: uint16;
+    risk_group_id: uint16;
+    parties_groups: PartiesGroups;
+    one_sided_quotes_groups: OneSidedQuotesGroups;
+};
+
+type OrderCancelReplaceRequestMessage = unit {
+    sending_time: uint64;
+    order_id_optional: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    origclordid: bytes &size=20;
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    order_qty: uint32;
+    ord_type: uint8 &convert=OrdType($$);
+    price_optional: uint64;
+};
+
+type OrderCancelRequestMessage = unit {
+    sending_time: uint64;
+    order_id_optional: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    origclordid_optional: bytes &size=20;
+    security_id: bytes &size=8;
+    side_optional: uint8 &convert=SideOptional($$);
+};
+
+type MassCancelRequestMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    efid_optional: bytes &size=4;
+    underlying_or_series: uint8 &convert=UnderlyingOrSeries($$);
+    underlier_optional: bytes &size=6;
+    options_security_id_optional: bytes &size=8;
+    cancel_group_id: uint16;
+    mass_cancel_inst: MassCancelInst;
+};
+
+type MassCancelInst = unit {
+    lockout: bytes &size=1;
+    send_cancels: bytes &size=1;
+    cancel_orders_from_this_port_only: bytes &size=1;
+    reserved_5: bytes &size=1;
+};
+
+type MassCancelClearLockoutRequestMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    lockout_id: uint64;
+};
+
+type AllocationInstructionMessage = unit {
+    sending_time: uint64;
+    alloc_id: bytes &size=20;
+    alloc_type: uint8 &convert=AllocType($$);
+    alloc_trans_type: uint8 &convert=AllocTransType($$);
+    ref_alloc_id_optional: bytes &size=20;
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    execution_allocations_groups: ExecutionAllocationsGroups;
+    requested_allocations_groups: RequestedAllocationsGroups;
+};
+
+type ExecutionAllocationsGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    execution_allocations_group: ExecutionAllocationsGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type ExecutionAllocationsGroup = unit {
+    trade_id: uint64;
+    last_qty: uint32;
+    last_px: uint64;
+};
+
+type RequestedAllocationsGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    requested_allocations_group: RequestedAllocationsGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type RequestedAllocationsGroup = unit {
+    alloc_qty: uint32;
+    alloc_position_effect: uint8 &convert=AllocPositionEffect($$);
+    nested_parties_groups: NestedPartiesGroups;
+};
+
+type NestedPartiesGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    nested_parties_group: NestedPartiesGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type NestedPartiesGroup = unit {
+    nested_party_id: bytes &size=16;
+    nested_party_id_source: bytes &size=1;
+    nested_party_role: uint8 &convert=NestedPartyRole($$);
+};
+
+type ExecutionReportNewMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    order_qty: uint32;
+    ord_type: uint8 &convert=OrdType($$);
+    price_optional: uint64;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    position_effect_optional: uint8 &convert=PositionEffectOptional($$);
+    exec_inst: ExecInst;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    reprice_frequency: uint8 &convert=RepriceFrequency($$);
+    reprice_behavior: uint8 &convert=RepriceBehavior($$);
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+    transact_time: uint64;
+    mtp_group_id: uint16;
+    match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
+    cancel_group_id: uint16;
+    risk_group_id: uint16;
+    parties_groups: PartiesGroups;
+};
+
+type ExecutionReportBulkQuotePendingNewMessage = unit {
+    clordid: bytes &size=20;
+    symbol: bytes &size=6;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: ExecInst;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    sending_time: uint64;
+    transact_time: uint64;
+    mtp_group_id: uint16;
+    match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
+    cancel_group_id: uint16;
+    risk_group_id: uint16;
+    number_of_orders: uint8;
+    parties_groups: PartiesGroups;
+};
+
+type ExecutionReportBulkQuoteComponentNewMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    order_qty: uint32;
+    price_optional: uint64;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+    transact_time: uint64;
+};
+
+type ExecutionReportRejectedMessage = unit {
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    order_reject_reason: uint16 &convert=OrderRejectReason($$);
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+};
+
+type ExecutionReportTradeMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    trd_match_id: uint64;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    last_qty: uint32;
+    last_px: uint64;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+    transact_time: uint64;
+    last_liquidity_ind: uint8 &convert=LastLiquidityInd($$);
+    last_mkt: bytes &size=4;
+    position_effect: uint8 &convert=PositionEffect($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    contra_trading_capacity: uint8 &convert=ContraTradingCapacity($$);
+    parties_groups: PartiesGroups;
+};
+
+type ExecutionReportPendingCancelMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    origclordid: bytes &size=20;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    side_optional: uint8 &convert=SideOptional($$);
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+};
+
+type ExecutionReportCanceledMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    origclordid_optional: bytes &size=20;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    cancel_reason: uint8 &convert=CancelReason($$);
+    security_id: bytes &size=8;
+    side_optional: uint8 &convert=SideOptional($$);
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+    transact_time: uint64;
+    orig_list_seq_no: uint8;
+};
+
+type ExecutionReportPendingReplaceMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    origclordid: bytes &size=20;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    order_qty: uint32;
+    ord_type: uint8 &convert=OrdType($$);
+    price_optional: uint64;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+};
+
+type ExecutionReportReplacedMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    origclordid: bytes &size=20;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    order_qty: uint32;
+    ord_type: uint8 &convert=OrdType($$);
+    price_optional: uint64;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+    transact_time: uint64;
+    orig_list_seq_no: uint8;
+};
+
+type ExecutionReportTradeCorrectionMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    trd_match_id: uint64;
+    exec_id: uint64;
+    exec_ref_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    last_qty: uint32;
+    last_px: uint64;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+};
+
+type ExecutionReportTradeBreakMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    trd_match_id: uint64;
+    exec_id: uint64;
+    exec_ref_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+};
+
+type ExecutionReportRestatementMessage = unit {
+    order_id: uint64;
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    exec_id: uint64;
+    ord_status: uint8 &convert=OrdStatus($$);
+    security_id: bytes &size=8;
+    exec_restatement_reason: uint8 &convert=ExecRestatementReason($$);
+    extended_restatement_reason: uint8 &convert=ExtendedRestatementReason($$);
+    side: uint8 &convert=Side($$);
+    last_px: uint64;
+    last_qty_optional: uint32;
+    leaves_qty: uint32;
+    cum_qty: uint32;
+    sending_time: uint64;
+    transact_time: uint64;
+};
+
+type PendingMassCancelMessage = unit {
+    clordid: bytes &size=20;
+    mass_cancel_inst: MassCancelInst;
+    lockout_id: uint64;
+    efid_optional: bytes &size=4;
+    underlying_or_series: uint8 &convert=UnderlyingOrSeries($$);
+    underlier_optional: bytes &size=6;
+    options_security_id_optional: bytes &size=8;
+    cancel_group_id: uint16;
+    sending_time: uint64;
+};
+
+type MassCancelRejectMessage = unit {
+    clordid: bytes &size=20;
+    mass_cancel_reject_reason: uint16 &convert=MassCancelRejectReason($$);
+    efid_optional: bytes &size=4;
+    underlying_or_series: uint8 &convert=UnderlyingOrSeries($$);
+    underlier_optional: bytes &size=6;
+    options_security_id_optional: bytes &size=8;
+    cancel_group_id: uint16;
+    mass_cancel_inst: MassCancelInst;
+    sending_time: uint64;
+};
+
+type MassCancelDoneMessage = unit {
+    clordid: bytes &size=20;
+    total_affected_orders: uint32;
+    sending_time: uint64;
+};
+
+type OrderCancelRejectMessage = unit {
+    clordid: bytes &size=20;
+    list_seq_no: uint8;
+    cxl_rej_response_to: uint8 &convert=CxlRejResponseTo($$);
+    cxl_rej_reason: uint16 &convert=CxlRejReason($$);
+    options_security_id_optional: bytes &size=8;
+    side_optional: uint8 &convert=SideOptional($$);
+    sending_time: uint64;
+};
+
+type AllocationInstructionAckMessage = unit {
+    sending_time: uint64;
+    alloc_id: bytes &size=20;
+    alloc_type: uint8 &convert=AllocType($$);
+    alloc_trans_type: uint8 &convert=AllocTransType($$);
+    secondary_alloc_id: bytes &size=20;
+    ref_alloc_id_optional: bytes &size=20;
+    alloc_status: uint8 &convert=AllocStatus($$);
+    alloc_rej_code: uint16 &convert=AllocRejCode($$);
+    reported_allocations_groups: ReportedAllocationsGroups;
+};
+
+type ReportedAllocationsGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    reported_allocations_group: ReportedAllocationsGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type ReportedAllocationsGroup = unit {
+    alloc_qty: uint32;
+    alloc_position_effect: uint8 &convert=AllocPositionEffect($$);
+    alloc_id: bytes &size=20;
+    nested_parties_groups: NestedPartiesGroups;
+};
+
+type AllocationInstructionAlertMessage = unit {
+    sending_time: uint64;
+    alloc_id: bytes &size=20;
+    alloc_type: uint8 &convert=AllocType($$);
+    alloc_trans_type: uint8 &convert=AllocTransType($$);
+    ref_alloc_id_optional: bytes &size=20;
+    alloc_canc_replace_reason: uint16 &convert=AllocCancReplaceReason($$);
+    side: uint8 &convert=Side($$);
+    security_id: bytes &size=8;
+    trade_date: bytes &size=8;
+    execution_allocations_groups: ExecutionAllocationsGroups;
+    reported_allocations_groups: ReportedAllocationsGroups;
+};
+
+type UserNotificationMessage = unit {
+    sending_time: uint64;
+    user_status: uint8 &convert=UserStatus($$);
+};
+
+type MassCancelClearLockoutRejectMessage = unit {
+    clordid: bytes &size=20;
+    lockout_id: uint64;
+    rej_reason: uint16 &convert=RejReason($$);
+    sending_time: uint64;
+};
+
+type MassCancelClearLockoutDoneMessage = unit {
+    clordid: bytes &size=20;
+    lockout_id: uint64;
+    sending_time: uint64;
+};
+
+type LoginAcceptedMessage = unit {
+    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
+};
+
+type LoginRejectedMessage = unit {
+    login_reject_code: uint8 &convert=LoginRejectCode($$);
+};
+
+type StartOfSessionMessage = unit {
+    session_id: uint64;
+};
+
+type ReplayBeginMessage = unit {
+    next_sequence_number: uint64;
+    pending_message_count: uint32;
+};
+
+type ReplayRejectedMessage = unit {
+    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
+};
+
+type ReplayCompleteMessage = unit {
+    message_count: uint64;
+};
+
+type StreamBeginMessage = unit {
+    next_sequence_number: uint64;
+    max_sequence_number: uint64;
+};
+
+type StreamRejectedMessage = unit {
+    stream_reject_code: uint8 &convert=StreamRejectCode($$);
+};
+
+type StreamCompleteMessage = unit {
+    total_sequence_count: uint64;
+};
+
+type SequencedMessage = unit {
+    sbe_message: SbeMessage;
+};
+
+type MessageType = enum {
+    LoginRequest = 100,
+    ReplayRequest = 101,
+    ReplayAllRequest = 102,
+    StreamRequest = 103,
+    UnsequencedMessage = 104,
+    LoginAccepted = 1,
+    LoginRejected = 2,
+    StartOfSession = 3,
+    EndOfSession = 4,
+    ReplayBegin = 5,
+    ReplayRejected = 6,
+    ReplayComplete = 7,
+    StreamBegin = 8,
+    StreamRejected = 9,
+    StreamComplete = 10,
+    SequencedMessage = 11,
+};
+
+type TemplateId = enum {
+    NewOrderSingleMessage = 1,
+    ShortTwoSidedBulkQuoteMessage = 2,
+    LongTwoSidedBulkQuoteMessage = 3,
+    ShortOneSidedBulkQuoteMessage = 4,
+    LongOneSidedBulkQuoteMessage = 5,
+    OrderCancelReplaceRequestMessage = 6,
+    OrderCancelRequestMessage = 7,
+    MassCancelRequestMessage = 8,
+    MassCancelClearLockoutRequestMessage = 9,
+    AllocationInstructionMessage = 10,
+    ExecutionReportNewMessage = 11,
+    ExecutionReportBulkQuotePendingNewMessage = 12,
+    ExecutionReportBulkQuoteComponentNewMessage = 13,
+    ExecutionReportRejectedMessage = 14,
+    ExecutionReportTradeMessage = 15,
+    ExecutionReportPendingCancelMessage = 16,
+    ExecutionReportCanceledMessage = 17,
+    ExecutionReportPendingReplaceMessage = 18,
+    ExecutionReportReplacedMessage = 19,
+    ExecutionReportTradeCorrectionMessage = 20,
+    ExecutionReportTradeBreakMessage = 21,
+    ExecutionReportRestatementMessage = 22,
+    PendingMassCancelMessage = 23,
+    MassCancelRejectMessage = 24,
+    MassCancelDoneMessage = 25,
+    OrderCancelRejectMessage = 26,
+    AllocationInstructionAckMessage = 27,
+    AllocationInstructionAlertMessage = 28,
+    UserNotificationMessage = 29,
+    MassCancelClearLockoutRejectMessage = 30,
+    MassCancelClearLockoutDoneMessage = 31,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    AsDefined = 0x42,
+};
+
+type OrdType = enum {
+    Market = 0x31,
+    Limit = 0x32,
+};
+
+type TimeInForce = enum {
+    Day = 0x30,
+    ImmediateOrCancel = 0x33,
+};
+
+type PositionEffectOptional = enum {
+    Open = 0x4f,
+    Close = 0x43,
+};
+
+type TradingCapacity = enum {
+    Customer = 1,
+    ProfessionalCustomer = 2,
+    BrokerDealer = 3,
+    BrokerDealerCustomer = 4,
+    Firm = 5,
+    MarketMaker = 6,
+    AwayMarketMaker = 7,
+    NullValue = 255,
+};
+
+type RepriceFrequency = enum {
+    SingleReprice = 0,
+    ContinuousReprice = 1,
+    None = 2,
+    NullValue = 255,
+};
+
+type RepriceBehavior = enum {
+    RepriceLockCancelCross = 1,
+    RepriceLockRepriceCross = 2,
+    NullValue = 255,
+};
+
+type MatchTradePrevention = enum {
+    CancelNewest = 0,
+    CancelOldest = 1,
+    CancelBoth = 3,
+    NullValue = 255,
+};
+
+type PartyRole = enum {
+    ExecutingFirmId = 1,
+    ActionableIdentifier = 3,
+    GiveUpClearingFirm = 14,
+    ContraEfid = 17,
+    ContraGiveUp = 18,
+    OptionalOccData = 24,
+    ContraMmSubAccount = 37,
+    Cmta = 40,
+    ContraCmta = 41,
+    MarketMakerSubAccount = 66,
+};
+
+type SideOptional = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    AsDefined = 0x42,
+};
+
+type UnderlyingOrSeries = enum {
+    CancelAllOnUnderlying = 0,
+    CancelAllOnSeries = 1,
+    NullValue = 255,
+};
+
+type AllocType = enum {
+    PostTradeEdit = 100,
+    NullValue = 255,
+};
+
+type AllocTransType = enum {
+    New = 0,
+    Replace = 1,
+    Cancel = 2,
+    NullValue = 255,
+};
+
+type AllocPositionEffect = enum {
+    Open = 0x4f,
+    Close = 0x43,
+};
+
+type NestedPartyRole = enum {
+    ExecutingFirmId = 1,
+    ActionableIdentifier = 3,
+    GiveUpClearingFirm = 14,
+    ContraEfid = 17,
+    ContraGiveUp = 18,
+    OptionalOccData = 24,
+    ContraMmSubAccount = 37,
+    Cmta = 40,
+    ContraCmta = 41,
+    MarketMakerSubAccount = 66,
+};
+
+type OrdStatus = enum {
+    New = 0x30,
+    PartialFilled = 0x31,
+    Filled = 0x32,
+    Canceled = 0x34,
+    PendingCancel = 0x36,
+    Rejected = 0x38,
+    PendingReplace = 0x45,
+    Expired = 0x43,
+};
+
+type OrderRejectReason = enum {
+    UnknownSymbol = 1,
+    ExchangeClosed = 2,
+    DuplicateOrder = 6,
+    PriceExceedsCurrentPriceBand = 16,
+    InvalidPriceIncrement = 18,
+    MaxNotionalValuePerOrderRiskRuleBreach = 27,
+    Other = 99,
+    MissingSymbol = 100,
+    InvalidSymbol = 101,
+    MissingClOrdId = 102,
+    InvalidClOrdId = 103,
+    MissingSide = 104,
+    InvalidSide = 105,
+    MissingOrderQty = 106,
+    InvalidOrderQty = 107,
+    MissingOrderType = 108,
+    InvalidOrderType = 109,
+    MissingTimeInForce = 110,
+    InvalidTimeInForce = 111,
+    MissingTradingCapacity = 112,
+    InvalidTradingCapacity = 113,
+    MissingExecInst = 114,
+    InvalidExecInst = 115,
+    MissingLimitPrice = 118,
+    InvalidLimitPrice = 119,
+    MissingMatchTradePreventionType = 124,
+    InvalidMatchTradePreventionType = 125,
+    MissingCancelGroupId = 126,
+    InvalidCancelGroupId = 127,
+    MissingMtpGroupId = 128,
+    InvalidMtpGroupId = 129,
+    MissingRiskGroupId = 134,
+    InvalidRiskGroupId = 135,
+    MissingEfid = 136,
+    InvalidEfid = 137,
+    MissingListSeqNo = 138,
+    InvalidListSeqNo = 139,
+    QuotesHaveDifferentUnderliers = 140,
+    TwoSidedQuotesCross = 141,
+    MissingPositionEffect = 142,
+    InvalidPositionEffect = 143,
+    MissingRepriceBehaviorType = 144,
+    InvalidRepriceBehaviorType = 145,
+    MissingRepriceFrequencyType = 146,
+    InvalidRepriceFrequencyType = 147,
+    MissingPartyRoleType = 148,
+    InvalidPartyRoleType = 149,
+    MissingPartyId = 150,
+    InvalidPartyId = 151,
+    MissingPartyIdSource = 152,
+    InvalidPartyIdSource = 153,
+    UnderlyingSymbolNotOpen = 154,
+    MissingSendingTime = 155,
+    InvalidSendingTime = 156,
+    MissingSubAccount = 157,
+    InvalidSubAccount = 158,
+    MissingGiveUp = 159,
+    InvalidGiveUp = 160,
+    MissingCmta = 161,
+    InvalidCmta = 162,
+    MissingActionableId = 163,
+    InvalidActionableId = 164,
+    MissingOptionalOccData = 165,
+    InvalidOptionalOccData = 166,
+    Halted = 200,
+    FirmDisabled = 201,
+    EfidDisabled = 202,
+    AccountDisabled = 203,
+    InvalidModifierForOrderType = 204,
+    InvalidTimeInForceForOrderType = 205,
+    PostOnlyNotAllowed = 207,
+    QuoteModifyRejected = 208,
+    QuotingDisabled = 209,
+    InvalidQuoteComponentCount = 210,
+    NonTestSymbolsBlocked = 300,
+    NotionalValueExceedsThreshold = 301,
+    MaxNotionalValuePerOrderRiskRuleViolated = 302,
+    BlockNonTestSymbolRiskRuleViolated = 303,
+    MaxContractsPerOrderRiskRuleViolated = 304,
+    NbboWidthExceedsThreshold = 305,
+    ExchangePriceValueCollarRiskRuleViolated = 306,
+    ExecutionPriceHigherThanStrikePrice = 307,
+    MarketBuyWhenNboIsZero = 308,
+    MarketSellWhenNbbGreaterThanThreshold = 309,
+    QuotePriceOutsideExchangeThreshold = 310,
+    NumContractsExecutedExceedsThreshold = 312,
+    NotionalValueOfExecutionsExceedsThreshold = 313,
+    CountOfExecutionsExceedsThreshold = 314,
+    OutstandingPercentageThresholdExceeded = 315,
+    TripsThresholdExceeded = 316,
+    IsoOrdersNotAllowed = 317,
+    MarketIsCrossed = 318,
+    ActiveRiskBreach = 319,
+    ManualRiskBreach = 320,
+    GrossNotionalValueExceedsThreshold = 321,
+    NetNotionalValueExceedsThreshold = 322,
+    DuplicateOrderThresholdExceeded = 323,
+    OrderRateThresholdExceeded = 324,
+    MassCancelLockoutInEffect = 325,
+    MarketOrderGrossNotionalValueExceedsThreshold = 326,
+    MarketOrderNetNotionalValueExceedsThreshold = 327,
+    LimitOrderFatFingerCheck = 328,
+    BulkQuoteFatFingerCheck = 329,
+    NullValue = 65535,
+};
+
+type LastLiquidityInd = enum {
+    Added = 1,
+    Removed = 2,
+    NullValue = 255,
+};
+
+type PositionEffect = enum {
+    Open = 0x4f,
+    Close = 0x43,
+};
+
+type ContraTradingCapacity = enum {
+    Customer = 1,
+    ProfessionalCustomer = 2,
+    BrokerDealer = 3,
+    BrokerDealerCustomer = 4,
+    Firm = 5,
+    MarketMaker = 6,
+    AwayMarketMaker = 7,
+    NullValue = 255,
+};
+
+type CancelReason = enum {
+    Other = 0,
+    UserRequestedCancel = 1,
+    ExecutionPriceCollar = 5,
+    Halted = 6,
+    ExchangeSupervisory = 7,
+    OrderExpired = 8,
+    MatchTradePrevention = 10,
+    ParticipantDisconnect = 13,
+    OrderNotBookable = 14,
+    FirmDisabled = 17,
+    EfidDisabled = 18,
+    AccountDisabled = 19,
+    QuoteUpdateRejectedOrigQuoteCanceled = 22,
+    ActiveRiskBreach = 23,
+    ManualRiskBreach = 24,
+    NumContractsExecutedExceedsThreshold = 25,
+    NotionalValueOfExecutionsExceedsThreshold = 26,
+    CountOfExecutionsExceedsThreshold = 27,
+    OutstandingPercentageThresholdExceeded = 28,
+    TripsThresholdExceeded = 29,
+    GrossNotionalValueExceedsThreshold = 30,
+    NetNotionalValueExceedsThreshold = 31,
+    DuplicateOrderThresholdExceeded = 32,
+    OrderRateThresholdExceeded = 33,
+    MarketOrderGrossNotionalValueExceedsThreshold = 34,
+    MarketOrderNetNotionalValueExceedsThreshold = 35,
+    MarketOrderNbboWidthExceeded = 36,
+    MarketOrderNoNationalBestBid = 37,
+    MarketOrderNoNationalBestOffer = 38,
+    DrillThroughPriceExceeded = 39,
+    OrderWouldLockOrCross = 40,
+    MassCancelRequest = 41,
+    LockedOrCrossedMarket = 42,
+    NullValue = 255,
+};
+
+type ExecRestatementReason = enum {
+    OrderReprice = 3,
+    MatchTradePrevention = 5,
+    Other = 99,
+    NullValue = 255,
+};
+
+type ExtendedRestatementReason = enum {
+    None = 0,
+    MatchTradeCancelNewest = 3,
+    MatchTradeCancelOldest = 4,
+    MatchTradeCancelBoth = 6,
+    NullValue = 255,
+};
+
+type MassCancelRejectReason = enum {
+    Other = 0,
+    DuplicateClOrdId = 1,
+    MissingClOrdId = 2,
+    InvalidClOrdId = 3,
+    MissingEfid = 4,
+    InvalidEfid = 5,
+    MissingUnderlyingOrSeries = 6,
+    InvalidUnderlyingOrSeries = 7,
+    MissingUnderlier = 8,
+    InvalidUnderlier = 9,
+    MissingOptionsSecurityId = 10,
+    InvalidOptionsSecurityId = 11,
+    MissingCancelGroupId = 12,
+    InvalidCancelGroupId = 13,
+    MissingMassCancelInst = 14,
+    InvalidMassCancelInst = 15,
+    MassCancelInProgress = 17,
+    MissingSendingTime = 18,
+    InvalidSendingTime = 19,
+    NullValue = 65535,
+};
+
+type CxlRejResponseTo = enum {
+    OrderCancelRequest = 0x31,
+    OrderCancelReplaceRequest = 0x32,
+};
+
+type CxlRejReason = enum {
+    TooLateToCancel = 0,
+    UnknownOrder = 1,
+    OrderAlreadyPendingCancelOrReplace = 3,
+    DuplicateClOrdId = 6,
+    PriceExceedsCurrentPriceBand = 8,
+    InvalidPriceIncrement = 18,
+    Other = 99,
+    MissingSymbol = 100,
+    InvalidSymbol = 101,
+    MissingClOrdId = 102,
+    InvalidClOrdId = 103,
+    MissingSide = 104,
+    InvalidSide = 105,
+    MissingOrderQty = 106,
+    InvalidOrderQty = 107,
+    MissingOrderType = 108,
+    InvalidOrderType = 109,
+    MissingLimitPrice = 110,
+    InvalidLimitPrice = 111,
+    MissingListSeqNo = 114,
+    InvalidListSeqNo = 115,
+    MissingOrigClOrdId = 116,
+    InvalidOrigClOrdId = 117,
+    MissingOrderId = 118,
+    InvalidOrderId = 119,
+    MissingSendingTime = 120,
+    InvalidSendingTime = 121,
+    Halted = 200,
+    FirmDisabled = 201,
+    EfidDisabled = 202,
+    AccountDisabled = 203,
+    UnsupportedOrdTypeChange = 204,
+    UnsupportedSideChange = 205,
+    SymbolMismatch = 206,
+    OrigOrderIdMismatch = 207,
+    UnsupportedOrderPropertyChange = 208,
+    NonTestSymbolsBlocked = 300,
+    NotionalValueExceedsThreshold = 301,
+    MaxNotionalValuePerOrderRiskRuleViolated = 302,
+    BlockNonTestSymbolRiskRuleViolated = 303,
+    MaxContractsPerOrderRiskRuleViolated = 304,
+    NbboWidthExceedsThreshold = 305,
+    ExchangePriceValueCollarRiskRuleViolated = 306,
+    ExecutionPriceHigherThanStrikePrice = 307,
+    MarketBuyWhenNboIsZero = 308,
+    MarketSellWhenNbbGreaterThanThreshold = 309,
+    QuotePriceOutsideExchangeThreshold = 310,
+    NumContractsExecutedExceedsThreshold = 312,
+    NotionalValueOfExecutionsExceedsThreshold = 313,
+    CountOfExecutionsExceedsThreshold = 314,
+    OutstandingPercentageThresholdExceeded = 315,
+    TripsThresholdExceeded = 316,
+    IsoOrdersNotAllowed = 317,
+    MarketIsCrossed = 318,
+    ActiveRiskBreach = 319,
+    ManualRiskBreach = 320,
+    GrossNotionalValueExceedsThreshold = 321,
+    NetNotionalValueExceedsThreshold = 322,
+    DuplicateOrderThresholdExceeded = 323,
+    OrderRateThresholdExceeded = 324,
+    MassCancelLockoutInEffect = 325,
+    MarketOrderGrossNotionalValueExceedsThreshold = 326,
+    MarketOrderNetNotionalValueExceedsThreshold = 327,
+    LimitOrderFatFingerCheck = 328,
+    BulkQuoteFatFingerCheck = 329,
+    NullValue = 65535,
+};
+
+type AllocStatus = enum {
+    Accepted = 0,
+    BlockLevelReject = 1,
+    AccountLevelReject = 2,
+    NullValue = 255,
+};
+
+type AllocRejCode = enum {
+    IncorrectQuantity = 1,
+    IncorrectAllocatedQuantity = 8,
+    UnknownOrStaleExecId = 10,
+    MismatchedData = 11,
+    DuplicateOrMissingIndividualAllocId = 14,
+    TradeNotRecognized = 15,
+    DuplicateTrade = 16,
+    IncorrectOrMissingInstrument = 17,
+    UnknownOrMissingParty = 23,
+    IncorrectOrMissingSide = 24,
+    MissingPositionEffectType = 29,
+    InvalidPositionEffectType = 30,
+    Other = 99,
+    NullValue = 65535,
+};
+
+type AllocCancReplaceReason = enum {
+    ChangeInUnderlyingOrderDetails = 2,
+    NullValue = 65535,
+};
+
+type UserStatus = enum {
+    SessionShutdownWarning = 8,
+    EndOfEventsForSession = 100,
+    NullValue = 255,
+};
+
+type RejReason = enum {
+    Other = 0,
+    MissingClOrdId = 1,
+    InvalidClOrdId = 2,
+    MissingLockoutId = 3,
+    InvalidLockoutId = 4,
+    UnknownLockoutId = 5,
+    NoLockoutsActive = 6,
+    NullValue = 65535,
+};
+
+type SupportedRequestMode = enum {
+    Stream = 0x53,
+    Replay = 0x52,
+    SnapshotMode = 0x54,
+};
+
+type LoginRejectCode = enum {
+    MalformedToken = 0x54,
+    TokenTypeUnsupported = 0x55,
+    TokenTypeInvalid = 0x56,
+    AuthorizationFailed = 0x41,
+};
+
+type ReplayRejectCode = enum {
+    ReplayRequestsAreNotAllowed = 0x52,
+    ReplayAllRequestsAreNotAllowed = 0x41,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+
+type StreamRejectCode = enum {
+    StreamRequestsAreNotAllowed = 0x52,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+

@@ -1,0 +1,37 @@
+module OtcmarketsLinkatsHeadersLinkV1;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type LinkatsHeadersV1 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.messages];
+};
+
+type PacketHeader = unit {
+    packet_size: uint16;
+    seq_num: uint32;
+    packet_flag: PacketFlag;
+    messages: uint8;
+    packet_milli: uint32;
+};
+
+type PacketFlag = unit {
+    heartbeat: bytes &size=1;
+    seq_num_reset: bytes &size=1;
+    reserved_4: bytes &size=1;
+    replay: bytes &size=1;
+    test: bytes &size=1;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    payload: bytes &eod;
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint8;
+};
+

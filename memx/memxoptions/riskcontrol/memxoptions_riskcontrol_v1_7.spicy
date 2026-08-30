@@ -1,0 +1,888 @@
+module MemxMemxoptionsRiskcontrolSbeV17;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MemxoptionsRiskcontrolV17 = unit {
+    common_header: CommonHeader;
+    switch ( self.common_header.message_type ) {
+        MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
+        MessageType::ReplayRequest -> replay_request_message: ReplayRequestMessage;
+        MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
+        MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
+        MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
+        MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
+        MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
+        MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
+        MessageType::ReplayBegin -> replay_begin_message: ReplayBeginMessage;
+        MessageType::ReplayRejected -> replay_rejected_message: ReplayRejectedMessage;
+        MessageType::ReplayComplete -> replay_complete_message: ReplayCompleteMessage;
+        MessageType::StreamBegin -> stream_begin_message: StreamBeginMessage;
+        MessageType::StreamRejected -> stream_rejected_message: StreamRejectedMessage;
+        MessageType::StreamComplete -> stream_complete_message: StreamCompleteMessage;
+        MessageType::SequencedMessage -> sequenced_message: SequencedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    message_length: uint16;
+};
+
+type LoginRequestMessage = unit {
+    token_type: bytes &size=1;
+    token: bytes &size=1;
+};
+
+type ReplayRequestMessage = unit {
+    session_id: uint64;
+    next_sequence_number: uint64;
+    count: uint32;
+};
+
+type ReplayAllRequestMessage = unit {
+    session_id: uint64;
+};
+
+type StreamRequestMessage = unit {
+    session_id: uint64;
+    next_sequence_number: uint64;
+};
+
+type UnsequencedMessage = unit {
+    sbe_message: SbeMessage;
+};
+
+type SbeMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::RiskSettingsQueryMessage -> risk_settings_query_message: RiskSettingsQueryMessage;
+        TemplateId::ActiveRiskThresholdChangeRequestMessage -> active_risk_threshold_change_request_message: ActiveRiskThresholdChangeRequestMessage;
+        TemplateId::ActiveRiskAcknowledgementRequestMessage -> active_risk_acknowledgement_request_message: ActiveRiskAcknowledgementRequestMessage;
+        TemplateId::CpVolumeThresholdChangeRequestMessage -> cp_volume_threshold_change_request_message: CpVolumeThresholdChangeRequestMessage;
+        TemplateId::CpExecutedNotionalThresholdChangeRequestMessage -> cp_executed_notional_threshold_change_request_message: CpExecutedNotionalThresholdChangeRequestMessage;
+        TemplateId::CpTotalExecutionsThresholdChangeRequestMessage -> cp_total_executions_threshold_change_request_message: CpTotalExecutionsThresholdChangeRequestMessage;
+        TemplateId::CpPercentOutstandingContractsThresholdChangeRequestMessage -> cp_percent_outstanding_contracts_threshold_change_request_message: CpPercentOutstandingContractsThresholdChangeRequestMessage;
+        TemplateId::CpBreachCountThresholdChangeRequestMessage -> cp_breach_count_threshold_change_request_message: CpBreachCountThresholdChangeRequestMessage;
+        TemplateId::ManualCpBreachTriggerRequestMessage -> manual_cp_breach_trigger_request_message: ManualCpBreachTriggerRequestMessage;
+        TemplateId::CpClearBreachRequestMessage -> cp_clear_breach_request_message: CpClearBreachRequestMessage;
+        TemplateId::SingleOrderAllowIsoOrdersChangeRequestMessage -> single_order_allow_iso_orders_change_request_message: SingleOrderAllowIsoOrdersChangeRequestMessage;
+        TemplateId::SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage -> single_order_allow_orders_in_crossed_market_change_request_message: SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage;
+        TemplateId::SingleOrderMaxNotionalChangeRequestMessage -> single_order_max_notional_change_request_message: SingleOrderMaxNotionalChangeRequestMessage;
+        TemplateId::SingleOrderMaxContractsChangeRequestMessage -> single_order_max_contracts_change_request_message: SingleOrderMaxContractsChangeRequestMessage;
+        TemplateId::SingleOrderAllowMarketOrdersChangeRequestMessage -> single_order_allow_market_orders_change_request_message: SingleOrderAllowMarketOrdersChangeRequestMessage;
+        TemplateId::SingleOrderRestrictedUnderlierChangeRequestMessage -> single_order_restricted_underlier_change_request_message: SingleOrderRestrictedUnderlierChangeRequestMessage;
+        TemplateId::CpGrossNotionalThresholdChangeRequestMessage -> cp_gross_notional_threshold_change_request_message: CpGrossNotionalThresholdChangeRequestMessage;
+        TemplateId::CpMarketOrderGrossNotionalThresholdChangeRequestMessage -> cp_market_order_gross_notional_threshold_change_request_message: CpMarketOrderGrossNotionalThresholdChangeRequestMessage;
+        TemplateId::CpNetNotionalThresholdChangeRequestMessage -> cp_net_notional_threshold_change_request_message: CpNetNotionalThresholdChangeRequestMessage;
+        TemplateId::CpMarketOrderNetNotionalThresholdChangeRequestMessage -> cp_market_order_net_notional_threshold_change_request_message: CpMarketOrderNetNotionalThresholdChangeRequestMessage;
+        TemplateId::CpDuplicateOrderThresholdChangeRequestMessage -> cp_duplicate_order_threshold_change_request_message: CpDuplicateOrderThresholdChangeRequestMessage;
+        TemplateId::CpOrderRateThresholdChangeRequestMessage -> cp_order_rate_threshold_change_request_message: CpOrderRateThresholdChangeRequestMessage;
+        TemplateId::CpClearAllBreachesRequestMessage -> cp_clear_all_breaches_request_message: CpClearAllBreachesRequestMessage;
+        TemplateId::CpClearAllBreachesByEfidOrUnderlierRequestMessage -> cp_clear_all_breaches_by_efid_or_underlier_request_message: CpClearAllBreachesByEfidOrUnderlierRequestMessage;
+        TemplateId::ActiveRiskAcknowledgeAllRequestMessage -> active_risk_acknowledge_all_request_message: ActiveRiskAcknowledgeAllRequestMessage;
+        TemplateId::ActiveRiskThresholdStateMessage -> active_risk_threshold_state_message: ActiveRiskThresholdStateMessage;
+        TemplateId::ActiveRiskThresholdChangeRejectedMessage -> active_risk_threshold_change_rejected_message: ActiveRiskThresholdChangeRejectedMessage;
+        TemplateId::ActiveRiskAcknowledgedMessage -> active_risk_acknowledged_message: ActiveRiskAcknowledgedMessage;
+        TemplateId::ActiveRiskAcknowledgeRejectedMessage -> active_risk_acknowledge_rejected_message: ActiveRiskAcknowledgeRejectedMessage;
+        TemplateId::ActiveRiskQuantityUpdateNotificationMessage -> active_risk_quantity_update_notification_message: ActiveRiskQuantityUpdateNotificationMessage;
+        TemplateId::CpVolumeThresholdStateMessage -> cp_volume_threshold_state_message: CpVolumeThresholdStateMessage;
+        TemplateId::CpExecutedNotionalThresholdStateMessage -> cp_executed_notional_threshold_state_message: CpExecutedNotionalThresholdStateMessage;
+        TemplateId::CpTotalExecutionsThresholdStateMessage -> cp_total_executions_threshold_state_message: CpTotalExecutionsThresholdStateMessage;
+        TemplateId::CpPercentOutstandingContractsThresholdStateMessage -> cp_percent_outstanding_contracts_threshold_state_message: CpPercentOutstandingContractsThresholdStateMessage;
+        TemplateId::CpBreachCountThresholdStateMessage -> cp_breach_count_threshold_state_message: CpBreachCountThresholdStateMessage;
+        TemplateId::ManualCpBreachTriggerPendingMessage -> manual_cp_breach_trigger_pending_message: ManualCpBreachTriggerPendingMessage;
+        TemplateId::ManualCpBreachTriggerDoneMessage -> manual_cp_breach_trigger_done_message: ManualCpBreachTriggerDoneMessage;
+        TemplateId::RiskThresholdUpdateRejectedMessage -> risk_threshold_update_rejected_message: RiskThresholdUpdateRejectedMessage;
+        TemplateId::PassiveRiskThresholdNotificationMessage -> passive_risk_threshold_notification_message: PassiveRiskThresholdNotificationMessage;
+        TemplateId::SingleOrderAllowIsoOrdersStateMessage -> single_order_allow_iso_orders_state_message: SingleOrderAllowIsoOrdersStateMessage;
+        TemplateId::SingleOrderAllowOrdersInCrossedMarketStateMessage -> single_order_allow_orders_in_crossed_market_state_message: SingleOrderAllowOrdersInCrossedMarketStateMessage;
+        TemplateId::SingleOrderMaxNotionalThresholdStateMessage -> single_order_max_notional_threshold_state_message: SingleOrderMaxNotionalThresholdStateMessage;
+        TemplateId::SingleOrderMaxContractsThresholdStateMessage -> single_order_max_contracts_threshold_state_message: SingleOrderMaxContractsThresholdStateMessage;
+        TemplateId::SingleOrderAllowMarketOrdersStateMessage -> single_order_allow_market_orders_state_message: SingleOrderAllowMarketOrdersStateMessage;
+        TemplateId::SingleOrderRestrictedUnderlierStateMessage -> single_order_restricted_underlier_state_message: SingleOrderRestrictedUnderlierStateMessage;
+        TemplateId::RiskSettingsQueryDoneMessage -> risk_settings_query_done_message: RiskSettingsQueryDoneMessage;
+        TemplateId::RiskSettingsQueryRejectedMessage -> risk_settings_query_rejected_message: RiskSettingsQueryRejectedMessage;
+        TemplateId::ManualCpBreachTriggerRejectedMessage -> manual_cp_breach_trigger_rejected_message: ManualCpBreachTriggerRejectedMessage;
+        TemplateId::BreachClearRejectedMessage -> breach_clear_rejected_message: BreachClearRejectedMessage;
+        TemplateId::BreachClearedMessage -> breach_cleared_message: BreachClearedMessage;
+        TemplateId::BreachClearAllAcceptedMessage -> breach_clear_all_accepted_message: BreachClearAllAcceptedMessage;
+        TemplateId::BreachClearAllRejectedMessage -> breach_clear_all_rejected_message: BreachClearAllRejectedMessage;
+        TemplateId::BreachClearAllByEfidOrUnderlierAcceptedMessage -> breach_clear_all_by_efid_or_underlier_accepted_message: BreachClearAllByEfidOrUnderlierAcceptedMessage;
+        TemplateId::BreachClearAllByEfidOrUnderlierRejectedMessage -> breach_clear_all_by_efid_or_underlier_rejected_message: BreachClearAllByEfidOrUnderlierRejectedMessage;
+        TemplateId::CpGrossNotionalThresholdStateMessage -> cp_gross_notional_threshold_state_message: CpGrossNotionalThresholdStateMessage;
+        TemplateId::CpMarketOrderGrossNotionalThresholdStateMessage -> cp_market_order_gross_notional_threshold_state_message: CpMarketOrderGrossNotionalThresholdStateMessage;
+        TemplateId::CpNetNotionalThresholdStateMessage -> cp_net_notional_threshold_state_message: CpNetNotionalThresholdStateMessage;
+        TemplateId::CpMarketOrderNetNotionalThresholdStateMessage -> cp_market_order_net_notional_threshold_state_message: CpMarketOrderNetNotionalThresholdStateMessage;
+        TemplateId::CpDuplicateOrderThresholdStateMessage -> cp_duplicate_order_threshold_state_message: CpDuplicateOrderThresholdStateMessage;
+        TemplateId::CpOrderRateThresholdStateMessage -> cp_order_rate_threshold_state_message: CpOrderRateThresholdStateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint8 &convert=TemplateId($$);
+    schema_id: uint8;
+    version: uint16;
+};
+
+type RiskSettingsQueryMessage = unit {
+    clordid: bytes &size=20;
+};
+
+type ActiveRiskThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_active_risk_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_active_risk_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_active_risk_threshold_change_request_efi_d_optional: bytes &size=4;
+    threshold_quantity: uint32;
+};
+
+type ActiveRiskAcknowledgementRequestMessage = unit {
+    cl_ord_i_d_active_risk_acknowledgement_request_cl_ord_id: bytes &size=20;
+    underlier_active_risk_acknowledgement_request_underlier: bytes &size=6;
+    efi_d_active_risk_acknowledgement_request_efid: bytes &size=4;
+    quantity: uint32;
+};
+
+type CpVolumeThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_volume_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_volume_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_volume_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    volume: uint64;
+    period_in_milli_seconds: uint32;
+};
+
+type CpExecutedNotionalThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_executed_notional_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_executed_notional_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_executed_notional_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+    period_in_milli_seconds: uint32;
+};
+
+type CpTotalExecutionsThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_total_executions_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_total_executions_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_total_executions_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    total_executions: uint32;
+    period_in_milli_seconds: uint32;
+};
+
+type CpPercentOutstandingContractsThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_percent_outstanding_contracts_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_percent_outstanding_contracts_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_percent_outstanding_contracts_threshold_change_request_efi_d_optional: bytes &size=4;
+    percent: int32;
+    period_in_milli_seconds: uint32;
+};
+
+type CpBreachCountThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_breach_count_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_breach_count_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_breach_count_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    count: uint32;
+    period_in_milli_seconds: uint32;
+};
+
+type ManualCpBreachTriggerRequestMessage = unit {
+    cl_ord_i_d_manual_cp_breach_trigger_request_cl_ord_id: bytes &size=20;
+    underlier_manual_cp_breach_trigger_request_underlier_optional: bytes &size=6;
+    efi_d_manual_cp_breach_trigger_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    send_cancels: uint8 &convert=SendCancels($$);
+};
+
+type CpClearBreachRequestMessage = unit {
+    cl_ord_i_d_cp_clear_breach_request_cl_ord_id: bytes &size=20;
+    breach_id: uint64;
+};
+
+type SingleOrderAllowIsoOrdersChangeRequestMessage = unit {
+    cl_ord_i_d_single_order_allow_iso_orders_change_request_cl_ord_id: bytes &size=20;
+    underlier_single_order_allow_iso_orders_change_request_underlier_optional: bytes &size=6;
+    efi_d_single_order_allow_iso_orders_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    allow_iso_orders: uint8 &convert=AllowIsoOrders($$);
+};
+
+type SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage = unit {
+    cl_ord_i_d_single_order_allow_orders_in_crossed_market_change_request_cl_ord_id: bytes &size=20;
+    underlier_single_order_allow_orders_in_crossed_market_change_request_underlier_optional: bytes &size=6;
+    efi_d_single_order_allow_orders_in_crossed_market_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    allow_orders: uint8 &convert=AllowOrders($$);
+};
+
+type SingleOrderMaxNotionalChangeRequestMessage = unit {
+    cl_ord_i_d_single_order_max_notional_change_request_cl_ord_id: bytes &size=20;
+    underlier_single_order_max_notional_change_request_underlier_optional: bytes &size=6;
+    efi_d_single_order_max_notional_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_notional_in_dollars: uint64;
+};
+
+type SingleOrderMaxContractsChangeRequestMessage = unit {
+    cl_ord_i_d_single_order_max_contracts_change_request_cl_ord_id: bytes &size=20;
+    underlier_single_order_max_contracts_change_request_underlier_optional: bytes &size=6;
+    efi_d_single_order_max_contracts_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_contracts: uint32;
+};
+
+type SingleOrderAllowMarketOrdersChangeRequestMessage = unit {
+    cl_ord_i_d_single_order_allow_market_orders_change_request_cl_ord_id: bytes &size=20;
+    underlier_single_order_allow_market_orders_change_request_underlier_optional: bytes &size=6;
+    efi_d_single_order_allow_market_orders_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    allow_market_orders: uint8 &convert=AllowMarketOrders($$);
+};
+
+type SingleOrderRestrictedUnderlierChangeRequestMessage = unit {
+    cl_ord_i_d_single_order_restricted_underlier_change_request_cl_ord_id: bytes &size=20;
+    underlier_single_order_restricted_underlier_change_request_underlier: bytes &size=6;
+    efi_d_single_order_restricted_underlier_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    restricted: uint8 &convert=Restricted($$);
+};
+
+type CpGrossNotionalThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_gross_notional_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_gross_notional_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_gross_notional_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpMarketOrderGrossNotionalThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_market_order_gross_notional_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_market_order_gross_notional_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_market_order_gross_notional_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpNetNotionalThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_net_notional_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_net_notional_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_net_notional_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpMarketOrderNetNotionalThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_market_order_net_notional_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_market_order_net_notional_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_market_order_net_notional_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpDuplicateOrderThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_duplicate_order_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_duplicate_order_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_duplicate_order_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_dup_orders: uint32;
+    use_order_price_in_dup_check_optional: uint8 &convert=UseOrderPriceInDupCheckOptional($$);
+    period_in_milli_seconds: uint32;
+};
+
+type CpOrderRateThresholdChangeRequestMessage = unit {
+    cl_ord_i_d_cp_order_rate_threshold_change_request_cl_ord_id: bytes &size=20;
+    underlier_cp_order_rate_threshold_change_request_underlier_optional: bytes &size=6;
+    efi_d_cp_order_rate_threshold_change_request_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_order_msgs: uint32;
+    period_in_milli_seconds: uint32;
+};
+
+type CpClearAllBreachesRequestMessage = unit {
+    cl_ord_i_d_cp_clear_all_breaches_request_cl_ord_id: bytes &size=20;
+};
+
+type CpClearAllBreachesByEfidOrUnderlierRequestMessage = unit {
+    cl_ord_i_d_cp_clear_all_breaches_by_efid_or_underlier_request_cl_ord_id: bytes &size=20;
+    underlier_cp_clear_all_breaches_by_efid_or_underlier_request_underlier_optional: bytes &size=6;
+    efi_d_cp_clear_all_breaches_by_efid_or_underlier_request_efi_d_optional: bytes &size=4;
+};
+
+type ActiveRiskAcknowledgeAllRequestMessage = unit {
+    cl_ord_i_d_active_risk_acknowledge_all_request_cl_ord_id: bytes &size=20;
+    underlier_active_risk_acknowledge_all_request_underlier: bytes &size=6;
+    efi_d_active_risk_acknowledge_all_request_efid: bytes &size=4;
+};
+
+type ActiveRiskThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier: bytes &size=6;
+    efid: bytes &size=4;
+    threshold_quantity: uint32;
+    unacked_quantity: uint32;
+};
+
+type ActiveRiskThresholdChangeRejectedMessage = unit {
+    cl_ord_i_d_active_risk_threshold_change_rejected_cl_ord_id: bytes &size=20;
+    underlier_active_risk_threshold_change_rejected_underlier_optional: bytes &size=6;
+    efi_d_active_risk_threshold_change_rejected_efi_d_optional: bytes &size=4;
+    threshold_quantity: uint32;
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type ActiveRiskAcknowledgedMessage = unit {
+    clordid: bytes &size=20;
+    underlier: bytes &size=6;
+    efid: bytes &size=4;
+    quantity: uint32;
+    unacked_quantity: uint32;
+};
+
+type ActiveRiskAcknowledgeRejectedMessage = unit {
+    cl_ord_i_d_active_risk_acknowledge_rejected_cl_ord_id: bytes &size=20;
+    underlier_active_risk_acknowledge_rejected_underlier: bytes &size=6;
+    efi_d_active_risk_acknowledge_rejected_efid: bytes &size=4;
+    threshold_quantity: uint32;
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type ActiveRiskQuantityUpdateNotificationMessage = unit {
+    sending_time: uint64;
+    transact_time: uint64;
+    order_id: uint64;
+    trd_match_id: uint64;
+    efid: bytes &size=4;
+    underlier: bytes &size=6;
+    option_security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    last_px: uint64;
+    last_qty: uint32;
+    unacked_quantity: uint32;
+};
+
+type CpVolumeThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    volume: uint64;
+    period_in_milli_seconds: uint32;
+};
+
+type CpExecutedNotionalThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+    period_in_milli_seconds: uint32;
+};
+
+type CpTotalExecutionsThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    total_executions: uint32;
+    period_in_milli_seconds: uint32;
+};
+
+type CpPercentOutstandingContractsThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    percent: int32;
+    period_in_milli_seconds: uint32;
+};
+
+type CpBreachCountThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    count: uint32;
+    period_in_milli_seconds: uint32;
+};
+
+type ManualCpBreachTriggerPendingMessage = unit {
+    clordid: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+};
+
+type ManualCpBreachTriggerDoneMessage = unit {
+    clordid: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    breach_id: uint64;
+    total_affected_orders: uint32;
+};
+
+type RiskThresholdUpdateRejectedMessage = unit {
+    cl_ord_i_d_risk_threshold_update_rejected_cl_ord_id: bytes &size=20;
+    risk_type: uint8 &convert=RiskType($$);
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type PassiveRiskThresholdNotificationMessage = unit {
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    rule_type: uint8 &convert=RuleType($$);
+    latest_percentage: uint8;
+    breach_id_optional: uint64;
+    transact_time: uint64;
+};
+
+type SingleOrderAllowIsoOrdersStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    allow_iso_orders: uint8 &convert=AllowIsoOrders($$);
+};
+
+type SingleOrderAllowOrdersInCrossedMarketStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    allow_orders: uint8 &convert=AllowOrders($$);
+};
+
+type SingleOrderMaxNotionalThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_notional_in_dollars: uint64;
+};
+
+type SingleOrderMaxContractsThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_contracts: uint32;
+};
+
+type SingleOrderAllowMarketOrdersStateMessage = unit {
+    cl_ord_i_d_single_order_allow_market_orders_state_cl_ord_i_d_optional: bytes &size=20;
+    underlier_single_order_allow_market_orders_state_underlier_optional: bytes &size=6;
+    efi_d_single_order_allow_market_orders_state_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    market_orders: uint8 &convert=MarketOrders($$);
+};
+
+type SingleOrderRestrictedUnderlierStateMessage = unit {
+    cl_ord_i_d_single_order_restricted_underlier_state_cl_ord_i_d_optional: bytes &size=20;
+    underlier_single_order_restricted_underlier_state_underlier: bytes &size=6;
+    efi_d_single_order_restricted_underlier_state_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    restricted: uint8 &convert=Restricted($$);
+};
+
+type RiskSettingsQueryDoneMessage = unit {
+    clordid: bytes &size=20;
+    number_msgs_sent: uint32;
+};
+
+type RiskSettingsQueryRejectedMessage = unit {
+    cl_ord_i_d_risk_settings_query_rejected_cl_ord_id: bytes &size=20;
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type ManualCpBreachTriggerRejectedMessage = unit {
+    cl_ord_i_d_manual_cp_breach_trigger_rejected_cl_ord_id: bytes &size=20;
+    underlier_manual_cp_breach_trigger_rejected_underlier_optional: bytes &size=6;
+    efi_d_manual_cp_breach_trigger_rejected_efi_d_optional: bytes &size=4;
+    risk_group_id: uint16;
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type BreachClearRejectedMessage = unit {
+    cl_ord_i_d_breach_clear_rejected_cl_ord_id: bytes &size=20;
+    breach_id_optional: uint64;
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type BreachClearedMessage = unit {
+    clordid_optional: bytes &size=20;
+    breach_id_optional: uint64;
+};
+
+type BreachClearAllAcceptedMessage = unit {
+    cl_ord_i_d_breach_clear_all_accepted_cl_ord_id: bytes &size=20;
+};
+
+type BreachClearAllRejectedMessage = unit {
+    cl_ord_i_d_breach_clear_all_rejected_cl_ord_id: bytes &size=20;
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type BreachClearAllByEfidOrUnderlierAcceptedMessage = unit {
+    cl_ord_i_d_breach_clear_all_by_efid_or_underlier_accepted_cl_ord_id: bytes &size=20;
+    underlier_breach_clear_all_by_efid_or_underlier_accepted_underlier_optional: bytes &size=6;
+    efi_d_breach_clear_all_by_efid_or_underlier_accepted_efi_d_optional: bytes &size=4;
+};
+
+type BreachClearAllByEfidOrUnderlierRejectedMessage = unit {
+    cl_ord_i_d_breach_clear_all_by_efid_or_underlier_rejected_cl_ord_id: bytes &size=20;
+    underlier_breach_clear_all_by_efid_or_underlier_rejected_underlier_optional: bytes &size=6;
+    efi_d_breach_clear_all_by_efid_or_underlier_rejected_efi_d_optional: bytes &size=4;
+    reject_reason: uint16 &convert=RejectReason($$);
+};
+
+type CpGrossNotionalThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpMarketOrderGrossNotionalThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpNetNotionalThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpMarketOrderNetNotionalThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    price_in_dollars: uint64;
+};
+
+type CpDuplicateOrderThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_dup_orders: uint32;
+    use_order_price_in_dup_check: uint8 &convert=UseOrderPriceInDupCheck($$);
+    period_in_milli_seconds: uint32;
+};
+
+type CpOrderRateThresholdStateMessage = unit {
+    clordid_optional: bytes &size=20;
+    underlier_optional: bytes &size=6;
+    efid_optional: bytes &size=4;
+    risk_group_id: uint16;
+    max_order_msgs: uint32;
+    period_in_milli_seconds: uint32;
+};
+
+type LoginAcceptedMessage = unit {
+    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
+};
+
+type LoginRejectedMessage = unit {
+    login_reject_code: uint8 &convert=LoginRejectCode($$);
+};
+
+type StartOfSessionMessage = unit {
+    session_id: uint64;
+};
+
+type ReplayBeginMessage = unit {
+    next_sequence_number: uint64;
+    pending_message_count: uint32;
+};
+
+type ReplayRejectedMessage = unit {
+    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
+};
+
+type ReplayCompleteMessage = unit {
+    message_count: uint64;
+};
+
+type StreamBeginMessage = unit {
+    next_sequence_number: uint64;
+    max_sequence_number: uint64;
+};
+
+type StreamRejectedMessage = unit {
+    stream_reject_code: uint8 &convert=StreamRejectCode($$);
+};
+
+type StreamCompleteMessage = unit {
+    total_sequence_count: uint64;
+};
+
+type SequencedMessage = unit {
+    sbe_message: SbeMessage;
+};
+
+type MessageType = enum {
+    LoginRequest = 100,
+    ReplayRequest = 101,
+    ReplayAllRequest = 102,
+    StreamRequest = 103,
+    UnsequencedMessage = 104,
+    LoginAccepted = 1,
+    LoginRejected = 2,
+    StartOfSession = 3,
+    EndOfSession = 4,
+    ReplayBegin = 5,
+    ReplayRejected = 6,
+    ReplayComplete = 7,
+    StreamBegin = 8,
+    StreamRejected = 9,
+    StreamComplete = 10,
+    SequencedMessage = 11,
+};
+
+type TemplateId = enum {
+    RiskSettingsQueryMessage = 1,
+    ActiveRiskThresholdChangeRequestMessage = 2,
+    ActiveRiskAcknowledgementRequestMessage = 3,
+    CpVolumeThresholdChangeRequestMessage = 4,
+    CpExecutedNotionalThresholdChangeRequestMessage = 5,
+    CpTotalExecutionsThresholdChangeRequestMessage = 6,
+    CpPercentOutstandingContractsThresholdChangeRequestMessage = 7,
+    CpBreachCountThresholdChangeRequestMessage = 8,
+    ManualCpBreachTriggerRequestMessage = 9,
+    CpClearBreachRequestMessage = 10,
+    SingleOrderAllowIsoOrdersChangeRequestMessage = 11,
+    SingleOrderAllowOrdersInCrossedMarketChangeRequestMessage = 12,
+    SingleOrderMaxNotionalChangeRequestMessage = 13,
+    SingleOrderMaxContractsChangeRequestMessage = 14,
+    SingleOrderAllowMarketOrdersChangeRequestMessage = 15,
+    SingleOrderRestrictedUnderlierChangeRequestMessage = 16,
+    CpGrossNotionalThresholdChangeRequestMessage = 18,
+    CpMarketOrderGrossNotionalThresholdChangeRequestMessage = 19,
+    CpNetNotionalThresholdChangeRequestMessage = 20,
+    CpMarketOrderNetNotionalThresholdChangeRequestMessage = 21,
+    CpDuplicateOrderThresholdChangeRequestMessage = 22,
+    CpOrderRateThresholdChangeRequestMessage = 23,
+    CpClearAllBreachesRequestMessage = 24,
+    CpClearAllBreachesByEfidOrUnderlierRequestMessage = 25,
+    ActiveRiskAcknowledgeAllRequestMessage = 26,
+    ActiveRiskThresholdStateMessage = 30,
+    ActiveRiskThresholdChangeRejectedMessage = 31,
+    ActiveRiskAcknowledgedMessage = 32,
+    ActiveRiskAcknowledgeRejectedMessage = 33,
+    ActiveRiskQuantityUpdateNotificationMessage = 34,
+    CpVolumeThresholdStateMessage = 35,
+    CpExecutedNotionalThresholdStateMessage = 36,
+    CpTotalExecutionsThresholdStateMessage = 37,
+    CpPercentOutstandingContractsThresholdStateMessage = 38,
+    CpBreachCountThresholdStateMessage = 39,
+    ManualCpBreachTriggerPendingMessage = 40,
+    ManualCpBreachTriggerDoneMessage = 41,
+    RiskThresholdUpdateRejectedMessage = 42,
+    PassiveRiskThresholdNotificationMessage = 43,
+    SingleOrderAllowIsoOrdersStateMessage = 44,
+    SingleOrderAllowOrdersInCrossedMarketStateMessage = 45,
+    SingleOrderMaxNotionalThresholdStateMessage = 46,
+    SingleOrderMaxContractsThresholdStateMessage = 47,
+    SingleOrderAllowMarketOrdersStateMessage = 66,
+    SingleOrderRestrictedUnderlierStateMessage = 67,
+    RiskSettingsQueryDoneMessage = 48,
+    RiskSettingsQueryRejectedMessage = 49,
+    ManualCpBreachTriggerRejectedMessage = 50,
+    BreachClearRejectedMessage = 51,
+    BreachClearedMessage = 52,
+    BreachClearAllAcceptedMessage = 53,
+    BreachClearAllRejectedMessage = 69,
+    BreachClearAllByEfidOrUnderlierAcceptedMessage = 54,
+    BreachClearAllByEfidOrUnderlierRejectedMessage = 68,
+    CpGrossNotionalThresholdStateMessage = 60,
+    CpMarketOrderGrossNotionalThresholdStateMessage = 61,
+    CpNetNotionalThresholdStateMessage = 62,
+    CpMarketOrderNetNotionalThresholdStateMessage = 63,
+    CpDuplicateOrderThresholdStateMessage = 64,
+    CpOrderRateThresholdStateMessage = 65,
+};
+
+type SendCancels = enum {
+    False = 0,
+    True = 1,
+};
+
+type AllowIsoOrders = enum {
+    False = 0,
+    True = 1,
+};
+
+type AllowOrders = enum {
+    False = 0,
+    True = 1,
+};
+
+type AllowMarketOrders = enum {
+    False = 0,
+    True = 1,
+};
+
+type Restricted = enum {
+    False = 0,
+    True = 1,
+};
+
+type UseOrderPriceInDupCheckOptional = enum {
+    False = 0,
+    True = 1,
+};
+
+type RejectReason = enum {
+    Other = 0,
+    MissingClOrdId = 1,
+    InvalidClOrdId = 2,
+    DuplicateClOrdId = 3,
+    MissingTimePeriod = 4,
+    InvalidTimePeriod = 5,
+    MissingRiskGroupId = 6,
+    InvalidRiskGroupId = 7,
+    MissingUnderlier = 8,
+    InvalidUnderlier = 9,
+    MissingEfid = 10,
+    InvalidEfid = 11,
+    MissingThreshold = 12,
+    InvalidThreshold = 13,
+    MissingQuantity = 14,
+    InvalidQuantity = 15,
+    MissingBreachId = 16,
+    InvalidBreachId = 17,
+    MissingVolume = 18,
+    InvalidVolume = 19,
+    MissingPeriodInMilliSeconds = 20,
+    InvalidPeriodInMilliSeconds = 21,
+    MissingPriceInDollars = 22,
+    InvalidPriceInDollars = 23,
+    MissingTotalExecutions = 24,
+    InvalidTotalExecutions = 25,
+    MissingPercent = 26,
+    InvalidPercent = 27,
+    MissingCount = 28,
+    InvalidCount = 29,
+    MissingAllowIsoOrders = 30,
+    InvalidAllowIsoOrders = 31,
+    MissingAllowOrders = 32,
+    InvalidAllowOrders = 33,
+    MissingMaxNotionalInDollars = 34,
+    InvalidMaxNotionalInDollars = 35,
+    MissingMaxContracts = 36,
+    InvalidMaxContracts = 37,
+    OverConfirm = 38,
+    InvalidRiskCombination = 39,
+    UnknownRiskRule = 40,
+    MissingMaxDupOrders = 41,
+    InvalidMaxDupOrders = 42,
+    MissingMaxOrderMsgs = 43,
+    InvalidMaxOrderMsgs = 44,
+    BreachInProgress = 45,
+    NumberOfBreachesForbidClearing = 46,
+    NoActiveBreaches = 47,
+    MissingAllowMarketOrders = 48,
+    InvalidAllowMarketOrders = 49,
+    MissingRestricted = 50,
+    InvalidRestricted = 51,
+    MissingEfidOrUnderlier = 52,
+    ExchangeClosed = 100,
+    NullValue = 65535,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type RiskType = enum {
+    ContractVolume = 1,
+    NotionalExecuted = 2,
+    TotalTradesExecuted = 3,
+    PercentExecuted = 4,
+    NumberOfBreaches = 5,
+    AllowIsoOrders = 6,
+    AllowOrdersInCrossedMarket = 7,
+    MaxNotional = 8,
+    MaxContracts = 9,
+    GrossNotional = 10,
+    MarketOrderGrossNotional = 11,
+    NetNotional = 12,
+    MarketOrderNetNotional = 13,
+    DuplicateOrder = 14,
+    OrderRate = 15,
+    AllowMarketOrders = 16,
+    RestrictedUnderlier = 17,
+    TriggeredBreach = 254,
+};
+
+type RuleType = enum {
+    ContractVolume = 1,
+    NotionalExecuted = 2,
+    TotalTradesExecuted = 3,
+    PercentExecuted = 4,
+    NumberOfBreaches = 5,
+    AllowIsoOrders = 6,
+    AllowOrdersInCrossedMarket = 7,
+    MaxNotional = 8,
+    MaxContracts = 9,
+    GrossNotional = 10,
+    MarketOrderGrossNotional = 11,
+    NetNotional = 12,
+    MarketOrderNetNotional = 13,
+    DuplicateOrder = 14,
+    OrderRate = 15,
+    AllowMarketOrders = 16,
+    RestrictedUnderlier = 17,
+    TriggeredBreach = 254,
+};
+
+type MarketOrders = enum {
+    False = 0,
+    True = 1,
+};
+
+type UseOrderPriceInDupCheck = enum {
+    False = 0,
+    True = 1,
+};
+
+type SupportedRequestMode = enum {
+    Stream = 0x53,
+    Replay = 0x52,
+    SnapshotMode = 0x54,
+};
+
+type LoginRejectCode = enum {
+    MalformedToken = 0x54,
+    TokenTypeUnsupported = 0x55,
+    TokenTypeInvalid = 0x56,
+    AuthorizationFailed = 0x41,
+};
+
+type ReplayRejectCode = enum {
+    ReplayRequestsAreNotAllowed = 0x52,
+    ReplayAllRequestsAreNotAllowed = 0x41,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+
+type StreamRejectCode = enum {
+    StreamRequestsAreNotAllowed = 0x52,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+

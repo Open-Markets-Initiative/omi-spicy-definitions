@@ -1,0 +1,236 @@
+module MemxMemxoptionsMemoirtopSbeV13;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MemxoptionsMemoirtopV13 = unit {
+    common_header: CommonHeader;
+    sequenced_messages: SequencedMessage;
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    header_length: uint8;
+    session_id: uint64;
+    sequence_number: uint64;
+};
+
+type SequencedMessage = unit {
+    message_count: uint16;
+    message: Message[self.message_count];
+};
+
+type Message = unit {
+    message_length: uint16;
+    sbe_message: SbeMessage;
+};
+
+type SbeMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::InstrumentDirectoryMessage -> instrument_directory_message: InstrumentDirectoryMessage;
+        TemplateId::InstrumentTradingStatusMessage -> instrument_trading_status_message: InstrumentTradingStatusMessage;
+        TemplateId::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        TemplateId::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        TemplateId::CorrectedTradeMessage -> corrected_trade_message: CorrectedTradeMessage;
+        TemplateId::SnapshotCompleteMessage -> snapshot_complete_message: SnapshotCompleteMessage;
+        TemplateId::BestBidOfferMessage -> best_bid_offer_message: BestBidOfferMessage;
+        TemplateId::BestBidMessage -> best_bid_message: BestBidMessage;
+        TemplateId::BestOfferMessage -> best_offer_message: BestOfferMessage;
+        TemplateId::BestBidShortMessage -> best_bid_short_message: BestBidShortMessage;
+        TemplateId::BestOfferShortMessage -> best_offer_short_message: BestOfferShortMessage;
+        TemplateId::TradeMessage -> trade_message: TradeMessage;
+        TemplateId::ClearBookMessage -> clear_book_message: ClearBookMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint8 &convert=TemplateId($$);
+    schema_id: uint8;
+    version: uint16;
+};
+
+type InstrumentDirectoryMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    options_product_type: uint8 &convert=OptionsProductType($$);
+    underlier: bytes &size=6;
+    osi_root: bytes &size=6;
+    maturity_date: bytes &size=8;
+    strike_put_or_call: uint8 &convert=StrikePutOrCall($$);
+    strike_price: uint64;
+    closing_only: uint8 &convert=ClosingOnly($$);
+    closing_time: uint64;
+    is_test_symbol: uint8 &convert=IsTestSymbol($$);
+};
+
+type InstrumentTradingStatusMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    instrument_trading_status_reason: uint8 &convert=InstrumentTradingStatusReason($$);
+};
+
+type TradingSessionStatusMessage = unit {
+    timestamp: uint64;
+    trading_session: uint8 &convert=TradingSession($$);
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: uint64;
+};
+
+type CorrectedTradeMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: uint64;
+    corrected_quantity: uint32;
+    corrected_price: uint64;
+};
+
+type SnapshotCompleteMessage = unit {
+    timestamp: uint64;
+    as_of_sequence_number: uint64;
+};
+
+type BestBidOfferMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    total_bid_size: uint32;
+    cust_bid_size: uint32;
+    bid_price: uint64;
+    total_offer_size: uint32;
+    cust_offer_size: uint32;
+    offer_price: uint64;
+};
+
+type BestBidMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    total_bid_size: uint32;
+    cust_bid_size: uint32;
+    bid_price: uint64;
+};
+
+type BestOfferMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    total_offer_size: uint32;
+    cust_offer_size: uint32;
+    offer_price: uint64;
+};
+
+type BestBidShortMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    total_bid_size_short: uint16;
+    cust_bid_size_short: uint16;
+    bid_price_short: uint16;
+};
+
+type BestOfferShortMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    total_offer_size_short: uint16;
+    cust_offer_size_short: uint16;
+    offer_price_short: uint16;
+};
+
+type TradeMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+    trade_id: uint64;
+    trade_conditions: TradeConditions;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: uint64;
+    cust_quantity: uint32;
+    capacity: uint8 &convert=Capacity($$);
+};
+
+type TradeConditions = unit {
+    intermarket_sweep: bytes &size=1;
+    reserved_7: bytes &size=1;
+};
+
+type ClearBookMessage = unit {
+    timestamp: uint64;
+    symbol: bytes &size=8;
+};
+
+type MessageType = enum {
+    HeartbeatMessage = 0,
+    SessionShutdownMessage = 1,
+    SequencedMessage = 2,
+};
+
+type TemplateId = enum {
+    InstrumentDirectoryMessage = 1,
+    InstrumentTradingStatusMessage = 2,
+    TradingSessionStatusMessage = 3,
+    BrokenTradeMessage = 5,
+    CorrectedTradeMessage = 6,
+    SnapshotCompleteMessage = 7,
+    BestBidOfferMessage = 10,
+    BestBidMessage = 11,
+    BestOfferMessage = 12,
+    BestBidShortMessage = 13,
+    BestOfferShortMessage = 14,
+    TradeMessage = 15,
+    ClearBookMessage = 16,
+};
+
+type OptionsProductType = enum {
+    EquityUnderlying = 0,
+    IndexUnderlying = 1,
+};
+
+type StrikePutOrCall = enum {
+    Put = 0,
+    Call = 1,
+};
+
+type ClosingOnly = enum {
+    False = 0,
+    True = 1,
+};
+
+type IsTestSymbol = enum {
+    False = 0,
+    True = 1,
+};
+
+type InstrumentTradingStatus = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type InstrumentTradingStatusReason = enum {
+    None = 0x58,
+    Administrative = 0x41,
+};
+
+type TradingSession = enum {
+    Trading = 0x31,
+    Closed = 0x32,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type Capacity = enum {
+    Customer = 0x43,
+    NonCustomer = 0x4e,
+};
+

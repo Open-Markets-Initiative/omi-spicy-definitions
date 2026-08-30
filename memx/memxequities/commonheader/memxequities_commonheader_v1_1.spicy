@@ -1,0 +1,33 @@
+module MemxMemxequitiesCommonheaderUdpV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MemxequitiesCommonheaderV11 = unit {
+    common_header: CommonHeader;
+    sequenced_messages: SequencedMessage;
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    header_length: uint8;
+    session_id: uint64;
+    sequence_number: uint64;
+};
+
+type SequencedMessage = unit {
+    message_count: uint16;
+    message: Message[self.message_count];
+};
+
+type Message = unit {
+    message_length: uint16;
+};
+
+type MessageType = enum {
+    HeartbeatMessage = 0,
+    SessionShutdownMessage = 1,
+    SequencedMessage = 2,
+};
+

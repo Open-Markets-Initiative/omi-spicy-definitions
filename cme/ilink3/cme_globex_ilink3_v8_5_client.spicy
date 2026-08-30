@@ -1,0 +1,708 @@
+module CmeGlobexIlink3SbeV85Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type CmeGlobexIlink3V85 = unit {
+    client_simple_open_frame: ClientSimpleOpenFrame[] &eod;
+};
+
+type ClientSimpleOpenFrame = unit {
+    simple_open_framing_header: SimpleOpenFramingHeader;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::Negotiate -> negotiate: Negotiate;
+        TemplateId::Establish -> establish: Establish;
+        TemplateId::Sequence -> sequence: Sequence;
+        TemplateId::Terminate -> terminate: Terminate;
+        TemplateId::RetransmitRequest -> retransmit_request: RetransmitRequest;
+        TemplateId::NewOrderSingle -> new_order_single: NewOrderSingle;
+        TemplateId::OrderCancelReplaceRequest -> order_cancel_replace_request: OrderCancelReplaceRequest;
+        TemplateId::OrderCancelRequest -> order_cancel_request: OrderCancelRequest;
+        TemplateId::MassQuote -> mass_quote: MassQuote;
+        TemplateId::PartyDetailsDefinitionRequest -> party_details_definition_request: PartyDetailsDefinitionRequest;
+        TemplateId::QuoteCancel -> quote_cancel: QuoteCancel;
+        TemplateId::OrderMassActionRequest -> order_mass_action_request: OrderMassActionRequest;
+        TemplateId::OrderMassStatusRequest -> order_mass_status_request: OrderMassStatusRequest;
+        TemplateId::OrderStatusRequest -> order_status_request: OrderStatusRequest;
+        TemplateId::PartyDetailsListRequest -> party_details_list_request: PartyDetailsListRequest;
+        TemplateId::RequestForQuote -> request_for_quote: RequestForQuote;
+        TemplateId::NewOrderCross -> new_order_cross: NewOrderCross;
+        TemplateId::SecurityDefinitionRequest -> security_definition_request: SecurityDefinitionRequest;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SimpleOpenFramingHeader = unit {
+    message_length: uint16;
+    encoding_type: uint16;
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type Negotiate = unit {
+    hmac_signature: bytes &size=32;
+    access_key_id: bytes &size=20;
+    uuid: uint64;
+    request_timestamp: uint64;
+    session: bytes &size=3;
+    firm: bytes &size=5;
+    credentials: Credentials;
+};
+
+type Credentials = unit {
+    credentials_length: uint16;
+    credentials_data: bytes &size=self.credentials_length;
+};
+
+type Establish = unit {
+    hmac_signature: bytes &size=32;
+    access_key_id: bytes &size=20;
+    trading_system_name: bytes &size=30;
+    trading_system_version: bytes &size=10;
+    trading_system_vendor: bytes &size=10;
+    uuid: uint64;
+    request_timestamp: uint64;
+    next_seq_no: uint32;
+    session: bytes &size=3;
+    firm: bytes &size=5;
+    keep_alive_interval: uint16;
+    credentials: Credentials;
+};
+
+type Sequence = unit {
+    uuid: uint64;
+    next_seq_no: uint32;
+    fault_tolerance_indicator: uint8 &convert=FaultToleranceIndicator($$);
+    keep_alive_interval_lapsed: uint8 &convert=KeepAliveIntervalLapsed($$);
+};
+
+type Terminate = unit {
+    reason: bytes &size=48;
+    uuid: uint64;
+    request_timestamp: uint64;
+    error_codes: uint16;
+    split_msg: uint8 &convert=SplitMsg($$);
+};
+
+type RetransmitRequest = unit {
+    uuid: uint64;
+    last_uuid: uint64;
+    request_timestamp: uint64;
+    from_seq_no: uint32;
+    msg_count_16: uint16;
+};
+
+type NewOrderSingle = unit {
+    price_optional: int64;
+    order_qty: uint32;
+    security_id: int32;
+    side: uint8 &convert=Side($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    clordid: bytes &size=20;
+    party_details_list_req_id: uint64;
+    order_request_id: uint64;
+    sending_time_epoch: uint64;
+    stop_px: int64;
+    location: bytes &size=5;
+    min_qty: uint32;
+    display_qty: uint32;
+    expire_date: uint16;
+    ord_type: uint8 &convert=OrdType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    exec_inst: ExecInst;
+    execution_mode: uint8 &convert=ExecutionMode($$);
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    managed_order: uint8 &convert=ManagedOrder($$);
+    short_sale_type: uint8 &convert=ShortSaleType($$);
+};
+
+type ExecInst = unit {
+    aon: bytes &size=1;
+    ob: bytes &size=1;
+    nh: bytes &size=1;
+    reserved_1: bytes &size=1;
+    reserved_2: bytes &size=1;
+    reserved_3: bytes &size=1;
+    reserved_4: bytes &size=1;
+    reserved_5: bytes &size=1;
+};
+
+type OrderCancelReplaceRequest = unit {
+    price_optional: int64;
+    order_qty: uint32;
+    security_id: int32;
+    side: uint8 &convert=Side($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    clordid: bytes &size=20;
+    party_details_list_req_id: uint64;
+    order_id: uint64;
+    stop_px: int64;
+    order_request_id: uint64;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+    min_qty: uint32;
+    display_qty: uint32;
+    expire_date: uint16;
+    ord_type: uint8 &convert=OrdType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    ofm_override: uint8 &convert=OfmOverride($$);
+    exec_inst: ExecInst;
+    execution_mode: uint8 &convert=ExecutionMode($$);
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    managed_order: uint8 &convert=ManagedOrder($$);
+    short_sale_type: uint8 &convert=ShortSaleType($$);
+};
+
+type OrderCancelRequest = unit {
+    order_id: uint64;
+    party_details_list_req_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    clordid: bytes &size=20;
+    order_request_id: uint64;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+    security_id: int32;
+    side: uint8 &convert=Side($$);
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+};
+
+type MassQuote = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    quote_req_id_optional: uint64;
+    location: bytes &size=5;
+    quote_id: uint32;
+    tot_no_quote_entries: uint8;
+    mm_protection_reset: uint8 &convert=MmProtectionReset($$);
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    short_sale_type: uint8 &convert=ShortSaleType($$);
+    reserved: bytes &size=30;
+    quote_entries_groups: QuoteEntriesGroups;
+};
+
+type QuoteEntriesGroups = unit {
+    group_size: GroupSize;
+    quote_entries_group: QuoteEntriesGroup[self.group_size.num_in_group];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type QuoteEntriesGroup = unit {
+    bid_px: int64;
+    offer_px: int64;
+    quote_entry_id: uint32;
+    security_id: int32;
+    bid_size: uint32;
+    offer_size: uint32;
+    underlying_security_id: int32;
+    quote_set_id: uint16;
+};
+
+type PartyDetailsDefinitionRequest = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    list_update_action: uint8 &convert=ListUpdateAction($$);
+    seq_num: uint32;
+    memo: bytes &size=75;
+    avg_px_group_id: bytes &size=20;
+    self_match_prevention_id: uint64;
+    cmta_giveup_cd: uint8 &convert=CmtaGiveupCd($$);
+    cust_order_capacity: uint8 &convert=CustOrderCapacity($$);
+    clearing_account_type: uint8 &convert=ClearingAccountType($$);
+    self_match_prevention_instruction: uint8 &convert=SelfMatchPreventionInstruction($$);
+    avg_px_indicator: uint8 &convert=AvgPxIndicator($$);
+    clearing_trade_price_type: uint8 &convert=ClearingTradePriceType($$);
+    cust_order_handling_inst: uint8 &convert=CustOrderHandlingInst($$);
+    executor: uint64;
+    idm_short_code: uint64;
+    party_details_groups: PartyDetailsGroups;
+    trd_reg_publications_groups: TrdRegPublicationsGroups;
+};
+
+type PartyDetailsGroups = unit {
+    group_size: GroupSize;
+    party_details_group: PartyDetailsGroup[self.group_size.num_in_group];
+};
+
+type PartyDetailsGroup = unit {
+    party_detail_id: bytes &size=20;
+    party_detail_role: uint16 &convert=PartyDetailRole($$);
+};
+
+type TrdRegPublicationsGroups = unit {
+    group_size: GroupSize;
+    trd_reg_publications_group: TrdRegPublicationsGroup[self.group_size.num_in_group];
+};
+
+type TrdRegPublicationsGroup = unit {
+    trd_reg_publication_type: uint8;
+    trd_reg_publication_reason: uint8;
+};
+
+type QuoteCancel = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    location: bytes &size=5;
+    quote_id: uint32;
+    quote_cancel_type: uint8 &convert=QuoteCancelType($$);
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    quote_cancel_entries_groups: QuoteCancelEntriesGroups;
+    quote_cancel_sets_groups: QuoteCancelSetsGroups;
+};
+
+type QuoteCancelEntriesGroups = unit {
+    group_size: GroupSize;
+    quote_cancel_entries_group: QuoteCancelEntriesGroup[self.group_size.num_in_group];
+};
+
+type QuoteCancelEntriesGroup = unit {
+    security_group: bytes &size=6;
+    security_id_optional: int32;
+};
+
+type QuoteCancelSetsGroups = unit {
+    group_size: GroupSize;
+    quote_cancel_sets_group: QuoteCancelSetsGroup[self.group_size.num_in_group];
+};
+
+type QuoteCancelSetsGroup = unit {
+    bid_size: uint32;
+    offer_size: uint32;
+    quote_set_id: uint16;
+};
+
+type OrderMassActionRequest = unit {
+    party_details_list_req_id: uint64;
+    order_request_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    sending_time_epoch: uint64;
+    security_group: bytes &size=6;
+    location: bytes &size=5;
+    security_id_optional: int32;
+    mass_action_scope: uint8 &convert=MassActionScope($$);
+    market_segment_id: uint8;
+    mass_cancel_request_type: uint8 &convert=MassCancelRequestType($$);
+    side_optional: uint8 &convert=SideOptional($$);
+    mass_action_ord_typ: uint8 &convert=MassActionOrdTyp($$);
+    mass_cancel_tif: uint8 &convert=MassCancelTif($$);
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+};
+
+type OrderMassStatusRequest = unit {
+    party_details_list_req_id: uint64;
+    mass_status_req_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    sending_time_epoch: uint64;
+    security_group: bytes &size=6;
+    location: bytes &size=5;
+    security_id_optional: int32;
+    mass_status_req_type: uint8 &convert=MassStatusReqType($$);
+    ord_status_req_type: uint8 &convert=OrdStatusReqType($$);
+    mass_status_tif: uint8 &convert=MassStatusTif($$);
+    market_segment_id: uint8;
+};
+
+type OrderStatusRequest = unit {
+    party_details_list_req_id: uint64;
+    ord_status_req_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    order_id: uint64;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+};
+
+type PartyDetailsListRequest = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    seq_num: uint32;
+    requesting_party_ids_groups: RequestingPartyIdsGroups;
+    party_ids_groups: PartyIdsGroups;
+};
+
+type RequestingPartyIdsGroups = unit {
+    group_size: GroupSize;
+    requesting_party_ids_group: RequestingPartyIdsGroup[self.group_size.num_in_group];
+};
+
+type RequestingPartyIdsGroup = unit {
+    requesting_party_id: bytes &size=5;
+    requesting_party_id_source: bytes &size=1;
+    requesting_party_role: bytes &size=1;
+};
+
+type PartyIdsGroups = unit {
+    group_size: GroupSize;
+    party_ids_group: PartyIdsGroup[self.group_size.num_in_group];
+};
+
+type PartyIdsGroup = unit {
+    party_id: uint64;
+    party_id_source: bytes &size=1;
+    party_role: uint16;
+};
+
+type RequestForQuote = unit {
+    party_details_list_req_id: uint64;
+    quote_req_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+    quote_type: uint8 &convert=QuoteType($$);
+    related_sym_groups: RelatedSymGroups;
+};
+
+type RelatedSymGroups = unit {
+    group_size: GroupSize;
+    related_sym_group: RelatedSymGroup[self.group_size.num_in_group];
+};
+
+type RelatedSymGroup = unit {
+    security_id: int32;
+    order_qty_optional: uint32;
+    rfq_side: uint8 &convert=RfqSide($$);
+};
+
+type NewOrderCross = unit {
+    cross_id: uint64;
+    order_request_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    price: int64;
+    trans_bkd_time: uint64;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+    security_id: int32;
+    sides_groups: SidesGroups;
+};
+
+type SidesGroups = unit {
+    group_size: GroupSize;
+    sides_group: SidesGroup[self.group_size.num_in_group];
+};
+
+type SidesGroup = unit {
+    clordid: bytes &size=20;
+    party_details_list_req_id: uint64;
+    order_qty: uint32;
+    side: uint8 &convert=Side($$);
+    side_time_in_force: uint8 &convert=SideTimeInForce($$);
+};
+
+type SecurityDefinitionRequest = unit {
+    party_details_list_req_id: uint64;
+    security_req_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id_optional: bytes &size=20;
+    sending_time_epoch: uint64;
+    security_sub_type: bytes &size=8;
+    location: bytes &size=5;
+    start_date: uint16;
+    end_date: uint16;
+    max_no_of_substitutions: uint8;
+    source_repo_id: int32;
+    request_legs_groups: RequestLegsGroups;
+};
+
+type RequestLegsGroups = unit {
+    group_size: GroupSize;
+    request_legs_group: RequestLegsGroup[self.group_size.num_in_group];
+};
+
+type RequestLegsGroup = unit {
+    leg_price: int64;
+    leg_security_id: int32;
+    leg_option_delta: LegOptionDelta;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio_qty: uint8;
+};
+
+type LegOptionDelta = unit {
+    mantissa_32: int32;
+    exponent: int8;
+};
+
+type TemplateId = enum {
+    Negotiate = 500,
+    NegotiationResponse = 501,
+    NegotiationReject = 502,
+    Establish = 503,
+    EstablishmentAck = 504,
+    EstablishmentReject = 505,
+    Sequence = 506,
+    Terminate = 507,
+    RetransmitRequest = 508,
+    Retransmission = 509,
+    RetransmitReject = 510,
+    NotApplied = 513,
+    NewOrderSingle = 514,
+    OrderCancelReplaceRequest = 515,
+    OrderCancelRequest = 516,
+    MassQuote = 517,
+    PartyDetailsDefinitionRequest = 518,
+    PartyDetailsDefinitionRequestAck = 519,
+    BusinessReject = 521,
+    ExecutionReportNew = 522,
+    ExecutionReportReject = 523,
+    ExecutionReportElimination = 524,
+    ExecutionReportTradeOutright = 525,
+    ExecutionReportTradeSpread = 526,
+    ExecutionReportTradeSpreadLeg = 527,
+    QuoteCancel = 528,
+    OrderMassActionRequest = 529,
+    OrderMassStatusRequest = 530,
+    ExecutionReportModify = 531,
+    ExecutionReportStatus = 532,
+    OrderStatusRequest = 533,
+    ExecutionReportCancel = 534,
+    OrderCancelReject = 535,
+    OrderCancelReplaceReject = 536,
+    PartyDetailsListRequest = 537,
+    PartyDetailsListReport = 538,
+    ExecutionAck = 539,
+    RequestForQuote = 543,
+    NewOrderCross = 544,
+    MassQuoteAck = 545,
+    RequestForQuoteAck = 546,
+    ExecutionReportTradeAddendumOutright = 548,
+    ExecutionReportTradeAddendumSpread = 549,
+    ExecutionReportTradeAddendumSpreadLeg = 550,
+    SecurityDefinitionRequest = 560,
+    SecurityDefinitionResponse = 561,
+    OrderMassActionReport = 562,
+    QuoteCancelAck = 563,
+};
+
+type FaultToleranceIndicator = enum {
+    Backup = 0,
+    Primary = 1,
+};
+
+type KeepAliveIntervalLapsed = enum {
+    NotLapsed = 0,
+    Lapsed = 1,
+};
+
+type SplitMsg = enum {
+    SplitMessageDelayed = 0,
+    OutofOrderMessageDelayed = 1,
+    CompleteMessageDelayed = 2,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type OrdType = enum {
+    MarketwithProtection = 0x31,
+    Limit = 0x32,
+    StopwithProtection = 0x33,
+    StopLimitt = 0x34,
+    MarketWithLeftoverAsLimit = 0x4b,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    GoodTillCancel = 1,
+    FillAndKill = 3,
+    FillOrKill = 4,
+    GoodTillDate = 6,
+};
+
+type ManualOrderIndicator = enum {
+    Automated = 0,
+    Manual = 1,
+};
+
+type ExecutionMode = enum {
+    Aggressive = 0x41,
+    Passive = 0x50,
+};
+
+type LiquidityFlag = enum {
+    False = 0,
+    True = 1,
+};
+
+type ManagedOrder = enum {
+    False = 0,
+    True = 1,
+};
+
+type ShortSaleType = enum {
+    LongSell = 0,
+    ShortSaleWithNoExemptionSesh = 1,
+    ShortSaleWithExemptionSsex = 2,
+    UndisclosedSellInformationNotAvailableUndi = 3,
+};
+
+type OfmOverride = enum {
+    Disabled = 0,
+    Enabled = 1,
+};
+
+type MmProtectionReset = enum {
+    False = 0,
+    True = 1,
+};
+
+type ListUpdateAction = enum {
+    Add = 0x41,
+    Delete = 0x44,
+};
+
+type CmtaGiveupCd = enum {
+    GiveUp = 0x47,
+    SgXoffset = 0x53,
+};
+
+type CustOrderCapacity = enum {
+    Membertradingfortheirownaccount = 1,
+    Clearingfirmtradingforitsproprietaryaccount = 2,
+    Membertradingforanothermember = 3,
+    Allother = 4,
+};
+
+type ClearingAccountType = enum {
+    Customer = 0,
+    Firm = 1,
+};
+
+type SelfMatchPreventionInstruction = enum {
+    CancelNewest = 0x4e,
+    CancelOldest = 0x4f,
+};
+
+type AvgPxIndicator = enum {
+    NoAveragePricing = 0,
+    TradeispartofanAveragePriceGroupIdentifiedbytheAvgPxGrpId = 1,
+    TradeispartofaNotionalValueAveragePriceGroup = 3,
+};
+
+type ClearingTradePriceType = enum {
+    TradeClearingatExecutionPrice = 0,
+    TradeClearingatAlternateClearingPrice = 1,
+};
+
+type CustOrderHandlingInst = enum {
+    FcMprovidedscreen = 0x43,
+    Otherprovidedscreen = 0x44,
+    FcmapiCtaIx = 0x47,
+    AlgoEngine = 0x48,
+    DeskElectronic = 0x57,
+    ClientElectronic = 0x59,
+};
+
+type PartyDetailRole = enum {
+    ExecutingFirm = 1,
+    CustomerAccount = 24,
+    TakeUpFirm = 96,
+    Operator = 118,
+    TakeUpAccount = 1000,
+};
+
+type QuoteCancelType = enum {
+    CancelperInstrument = 1,
+    CancelperInstrumentgroup = 3,
+    Cancelallquotes = 4,
+    CancelperQuoteSet = 100,
+};
+
+type MassActionScope = enum {
+    Instrument = 1,
+    All = 7,
+    MarketSegmentId = 9,
+    InstrumentGroup = 10,
+    QuoteSetId = 100,
+};
+
+type MassCancelRequestType = enum {
+    SenderSubId = 100,
+    Account = 101,
+};
+
+type SideOptional = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type MassActionOrdTyp = enum {
+    Limit = 0x32,
+    StopLimit = 0x34,
+};
+
+type MassCancelTif = enum {
+    Day = 0,
+    GoodTillCancel = 1,
+    GoodTillDate = 6,
+};
+
+type MassStatusReqType = enum {
+    Instrument = 1,
+    InstrumentGroup = 3,
+    MarketSegment = 100,
+};
+
+type OrdStatusReqType = enum {
+    SenderSubId = 100,
+    Account = 101,
+};
+
+type MassStatusTif = enum {
+    Day = 0,
+    Gtc = 1,
+    Gtd = 6,
+};
+
+type QuoteType = enum {
+    Tradeable = 1,
+};
+
+type RfqSide = enum {
+    Buy = 1,
+    Sell = 2,
+    Cross = 8,
+};
+
+type SideTimeInForce = enum {
+    Day = 0,
+    Fak = 3,
+};
+
+type LegSide = enum {
+    Buy = 1,
+    Sell = 2,
+};
+

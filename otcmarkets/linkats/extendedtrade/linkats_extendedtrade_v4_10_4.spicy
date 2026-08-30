@@ -1,0 +1,108 @@
+module OtcmarketsLinkatsExtendedtradeLinkV4104;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type LinkatsExtendedtradeV4104 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.messages];
+};
+
+type PacketHeader = unit {
+    packet_size: uint16;
+    seq_num: uint32;
+    packet_flag: PacketFlag;
+    messages: uint8;
+    packet_milli: uint32;
+};
+
+type PacketFlag = unit {
+    heartbeat: bytes &size=1;
+    seq_num_reset: bytes &size=1;
+    reserved_4: bytes &size=1;
+    replay: bytes &size=1;
+    test: bytes &size=1;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::StartOfSpinMessage -> start_of_spin_message: StartOfSpinMessage;
+        MessageType::EndOfSpinMessage -> end_of_spin_message: EndOfSpinMessage;
+        MessageType::MarketOpenMessage -> market_open_message: MarketOpenMessage;
+        MessageType::MarketCloseMessage -> market_close_message: MarketCloseMessage;
+        MessageType::ExtendedTradeMessage -> extended_trade_message: ExtendedTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type StartOfSpinMessage = unit {
+    channel_seq_num: uint32;
+    spin_type: uint8 &convert=SpinType($$);
+    spin_start_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type EndOfSpinMessage = unit {
+    channel_seq_num: uint32;
+    spin_type: uint8 &convert=SpinType($$);
+    spin_msg_ct: uint32;
+    spin_end_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type MarketOpenMessage = unit {
+    channel_seq_num: uint32;
+    market_open: uint64;
+    market_close: uint64;
+};
+
+type MarketCloseMessage = unit {
+    channel_seq_num: uint32;
+    market_close_time_milli: uint64;
+    market_msg_ct: uint32;
+};
+
+type ExtendedTradeMessage = unit {
+    channel_seq_num: uint32;
+    trade_id: uint64;
+    trade_action: uint8 &convert=TradeAction($$);
+    trade_flags: uint8;
+    security_id: uint32;
+    trade_status: TradeStatus;
+    venue: bytes &size=3;
+    deprecated_utf_85: bytes &size=5;
+    trade_price: uint64;
+    trade_size: uint64;
+    trade_time_milli: uint64;
+};
+
+type TradeStatus = unit {
+    irregular: bytes &size=1;
+    reserved_7: bytes &size=1;
+};
+
+type MessageType = enum {
+    StartOfSpinMessage = 11,
+    EndOfSpinMessage = 12,
+    MarketOpenMessage = 13,
+    MarketCloseMessage = 14,
+    ExtendedTradeMessage = 18,
+};
+
+type SpinType = enum {
+    Reference = 1,
+    MarketData = 2,
+    Opening = 3,
+};
+
+type TradeAction = enum {
+    Add = 2,
+};
+

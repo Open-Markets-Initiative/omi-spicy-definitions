@@ -1,0 +1,215 @@
+module OtcmarketsLinkatsQuotebookLinkV4104;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type LinkatsQuotebookV4104 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.messages];
+};
+
+type PacketHeader = unit {
+    packet_size: uint16;
+    seq_num: uint32;
+    packet_flag: PacketFlag;
+    messages: uint8;
+    packet_milli: uint32;
+};
+
+type PacketFlag = unit {
+    heartbeat: bytes &size=1;
+    seq_num_reset: bytes &size=1;
+    reserved_4: bytes &size=1;
+    replay: bytes &size=1;
+    test: bytes &size=1;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::StartOfSpinMessage -> start_of_spin_message: StartOfSpinMessage;
+        MessageType::EndOfSpinMessage -> end_of_spin_message: EndOfSpinMessage;
+        MessageType::MarketOpenMessage -> market_open_message: MarketOpenMessage;
+        MessageType::MarketCloseMessage -> market_close_message: MarketCloseMessage;
+        MessageType::SecurityMessage -> security_message: SecurityMessage;
+        MessageType::QuoteMessage -> quote_message: QuoteMessage;
+        MessageType::QuoteUpdateMessage -> quote_update_message: QuoteUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type StartOfSpinMessage = unit {
+    channel_seq_num: uint32;
+    spin_type: uint8 &convert=SpinType($$);
+    spin_start_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type EndOfSpinMessage = unit {
+    channel_seq_num: uint32;
+    spin_type: uint8 &convert=SpinType($$);
+    spin_msg_ct: uint32;
+    spin_end_time_milli: uint64;
+    spin_last_seq_num: uint32;
+};
+
+type MarketOpenMessage = unit {
+    channel_seq_num: uint32;
+    market_open: uint64;
+    market_close: uint64;
+};
+
+type MarketCloseMessage = unit {
+    channel_seq_num: uint32;
+    market_close_time_milli: uint64;
+    market_msg_ct: uint32;
+};
+
+type SecurityMessage = unit {
+    channel_seq_num: uint32;
+    symbol: bytes &size=10;
+    last_update_milli: uint64;
+    security_action: uint8 &convert=SecurityAction($$);
+    asset_class: uint8 &convert=AssetClass($$);
+    security_id: uint32;
+    security_flags: SecurityFlags;
+    tier: uint8 &convert=Tier($$);
+    reporting_status: uint8 &convert=ReportingStatus($$);
+    security_status: uint8 &convert=SecurityStatus($$);
+};
+
+type SecurityFlags = unit {
+    proprietary_quote_eligible: bytes &size=1;
+    caveat_emptor_warning: bytes &size=1;
+    qualified_institutional_buyers_only: bytes &size=1;
+    unsolicited_only: bytes &size=1;
+    bb_quoted: bytes &size=1;
+    otc_link_ecn_eligible: bytes &size=1;
+    otc_link_messaging_disabled: bytes &size=1;
+    saturation_eligible: bytes &size=1;
+};
+
+type QuoteMessage = unit {
+    channel_seq_num: uint32;
+    quote_id: uint32;
+    quote_action: uint8;
+    quote_flags: QuoteFlags;
+    security_id: uint32;
+    mpid: bytes &size=4;
+    ask_price: uint64;
+    ask_size: uint32;
+    ask_qap: int8;
+    ask_time_milli: uint64;
+    bid_price: uint64;
+    bid_size: uint32;
+    bid_qap: int8;
+    bid_time_milli: uint64;
+    quote_reference_id: uint16;
+    extended_quote_flags: ExtendedQuoteFlags;
+};
+
+type QuoteFlags = unit {
+    update_side: bytes &size=1;
+    state: bytes &size=1;
+    ask_unsolicited: bytes &size=1;
+    ask_priced: bytes &size=1;
+    ask_bid_wanted: bytes &size=1;
+    bid_unsolicited: bytes &size=1;
+    bid_priced: bytes &size=1;
+    bid_ask_wanted: bytes &size=1;
+};
+
+type ExtendedQuoteFlags = unit {
+    quote_saturated: bytes &size=1;
+    bid_auto_ex: bytes &size=1;
+    offer_auto_ex: bytes &size=1;
+    nms_conditional_quote: bytes &size=1;
+    reserved_4: bytes &size=1;
+};
+
+type QuoteUpdateMessage = unit {
+    channel_seq_num: uint32;
+    quote_id: uint32;
+    quote_flags: QuoteFlags;
+    price: uint64;
+    size: uint32;
+    qap: int8;
+    quote_time_milli: uint64;
+    quote_reference_id: uint16;
+    extended_quote_flags: ExtendedQuoteFlags;
+};
+
+type MessageType = enum {
+    StartOfSpinMessage = 11,
+    EndOfSpinMessage = 12,
+    MarketOpenMessage = 13,
+    MarketCloseMessage = 14,
+    SecurityMessage = 9,
+    QuoteMessage = 1,
+    QuoteUpdateMessage = 2,
+};
+
+type SpinType = enum {
+    Reference = 1,
+    MarketData = 2,
+    Opening = 3,
+};
+
+type SecurityAction = enum {
+    Update = 1,
+    Add = 2,
+    Delete = 3,
+    Spin = 4,
+};
+
+type AssetClass = enum {
+    Equity = 1,
+    FixedIncome = 2,
+};
+
+type Tier = enum {
+    NoTier = 0,
+    OtcqxusPremier = 1,
+    Otcqxus = 2,
+    OtcqxInternationalPremier = 5,
+    OtcqxInternational = 6,
+    Otcqb = 10,
+    OtcbbOnly = 11,
+    PinkCurrent = 20,
+    PinkLimited = 21,
+    PinkNoInformation = 22,
+    GreyMarket = 30,
+    ExpertMarket = 40,
+    OtcBonds = 50,
+};
+
+type ReportingStatus = enum {
+    AlternativeReporting = 0x41,
+    BankThrift = 0x42,
+    SecReportingRegCf = 0x43,
+    SecReporting = 0x46,
+    InternationalReporting = 0x47,
+    InsuranceCompany = 0x49,
+    NoReporting = 0x4e,
+    OtherReporting = 0x4f,
+    FinraReporting = 0x52,
+    SecInvestmentCompany = 0x56,
+    SecReportingRegA = 0x57,
+};
+
+type SecurityStatus = enum {
+    Active = 0x41,
+    QuoteOnly = 0x51,
+    Suspended = 0x53,
+    Halted = 0x48,
+    InternalHalt = 0x49,
+    Revoked = 0x52,
+    Deleted = 0x44,
+};
+

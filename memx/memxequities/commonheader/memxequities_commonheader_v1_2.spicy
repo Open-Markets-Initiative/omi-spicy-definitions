@@ -1,0 +1,142 @@
+module MemxMemxequitiesCommonheaderTcpV12;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MemxequitiesCommonheaderV12 = unit {
+    common_header: CommonHeader;
+    switch ( self.common_header.message_type ) {
+        MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
+        MessageType::ReplayRequest -> replay_request_message: ReplayRequestMessage;
+        MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
+        MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
+        MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
+        MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
+        MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
+        MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
+        MessageType::ReplayBegin -> replay_begin_message: ReplayBeginMessage;
+        MessageType::ReplayRejected -> replay_rejected_message: ReplayRejectedMessage;
+        MessageType::ReplayComplete -> replay_complete_message: ReplayCompleteMessage;
+        MessageType::StreamBegin -> stream_begin_message: StreamBeginMessage;
+        MessageType::StreamRejected -> stream_rejected_message: StreamRejectedMessage;
+        MessageType::StreamComplete -> stream_complete_message: StreamCompleteMessage;
+        MessageType::SequencedMessage -> sequenced_message: SequencedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    message_length: uint16;
+};
+
+type LoginRequestMessage = unit {
+    token_type: bytes &size=1;
+    token: bytes &size=1;
+};
+
+type ReplayRequestMessage = unit {
+    session_id: uint64;
+    next_sequence_number: uint64;
+    count: uint32;
+};
+
+type ReplayAllRequestMessage = unit {
+    session_id: uint64;
+};
+
+type StreamRequestMessage = unit {
+    session_id: uint64;
+    next_sequence_number: uint64;
+};
+
+type UnsequencedMessage = unit {
+};
+
+type LoginAcceptedMessage = unit {
+    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
+};
+
+type LoginRejectedMessage = unit {
+    login_reject_code: uint8 &convert=LoginRejectCode($$);
+};
+
+type StartOfSessionMessage = unit {
+    session_id: uint64;
+};
+
+type ReplayBeginMessage = unit {
+    next_sequence_number: uint64;
+    pending_message_count: uint32;
+};
+
+type ReplayRejectedMessage = unit {
+    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
+};
+
+type ReplayCompleteMessage = unit {
+    message_count: uint64;
+};
+
+type StreamBeginMessage = unit {
+    next_sequence_number: uint64;
+    max_sequence_number: uint64;
+};
+
+type StreamRejectedMessage = unit {
+    stream_reject_code: uint8 &convert=StreamRejectCode($$);
+};
+
+type StreamCompleteMessage = unit {
+    total_sequence_count: uint64;
+};
+
+type SequencedMessage = unit {
+};
+
+type MessageType = enum {
+    LoginRequest = 100,
+    ReplayRequest = 101,
+    ReplayAllRequest = 102,
+    StreamRequest = 103,
+    UnsequencedMessage = 104,
+    LoginAccepted = 1,
+    LoginRejected = 2,
+    StartOfSession = 3,
+    EndOfSession = 4,
+    ReplayBegin = 5,
+    ReplayRejected = 6,
+    ReplayComplete = 7,
+    StreamBegin = 8,
+    StreamRejected = 9,
+    StreamComplete = 10,
+    SequencedMessage = 11,
+};
+
+type SupportedRequestMode = enum {
+    Stream = 0x53,
+    Replay = 0x52,
+    SnapshotMode = 0x54,
+};
+
+type LoginRejectCode = enum {
+    MalformedToken = 0x54,
+    TokenTypeUnsupported = 0x55,
+    TokenTypeInvalid = 0x56,
+    AuthorizationFailed = 0x41,
+};
+
+type ReplayRejectCode = enum {
+    ReplayRequestsAreNotAllowed = 0x52,
+    ReplayAllRequestsAreNotAllowed = 0x41,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+
+type StreamRejectCode = enum {
+    StreamRequestsAreNotAllowed = 0x52,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+
