@@ -1,10 +1,10 @@
-module MemxMemxequitiesMemoSbeV12;
+module MemxMemxequitiesMemoSbeV11Client;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type MemxequitiesMemoV12 = unit {
+public type MemxequitiesMemoV11 = unit {
     common_header: CommonHeader;
     switch ( self.common_header.message_type ) {
         MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
@@ -12,16 +12,6 @@ public type MemxequitiesMemoV12 = unit {
         MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
         MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
         MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
-        MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
-        MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
-        MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
-        MessageType::ReplayBegin -> replay_begin_message: ReplayBeginMessage;
-        MessageType::ReplayRejected -> replay_rejected_message: ReplayRejectedMessage;
-        MessageType::ReplayComplete -> replay_complete_message: ReplayCompleteMessage;
-        MessageType::StreamBegin -> stream_begin_message: StreamBeginMessage;
-        MessageType::StreamRejected -> stream_rejected_message: StreamRejectedMessage;
-        MessageType::StreamComplete -> stream_complete_message: StreamCompleteMessage;
-        MessageType::SequencedMessage -> sequenced_message: SequencedMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -150,7 +140,7 @@ type MassCancelRequestMessage = unit {
     clordid: bytes &size=16;
     symbol: bytes &size=6;
     symbol_sfx: bytes &size=6;
-    side_optional: uint8 &convert=SideOptional($$);
+    side: uint8 &convert=Side($$);
     lower_than_price: int64;
     higher_than_price: int64;
     cancel_group_id: uint16;
@@ -275,7 +265,7 @@ type PendingMassCancelMessage = unit {
     clordid: bytes &size=16;
     symbol: bytes &size=6;
     symbol_sfx: bytes &size=6;
-    side_optional: uint8 &convert=SideOptional($$);
+    side: uint8 &convert=Side($$);
     lower_than_price: int64;
     higher_than_price: int64;
     cancel_group_id: uint16;
@@ -390,56 +380,15 @@ type MassCancelRejectMessage = unit {
     clordid: bytes &size=16;
     symbol: bytes &size=6;
     symbol_sfx: bytes &size=6;
-    side_optional: uint8 &convert=SideOptional($$);
+    side: uint8 &convert=Side($$);
     lower_than_price: int64;
     higher_than_price: int64;
     cancel_group_id: uint16;
     mass_cancel_reject_reason: uint8 &convert=MassCancelRejectReason($$);
 };
 
-type LoginAcceptedMessage = unit {
-    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
-};
-
-type LoginRejectedMessage = unit {
-    login_reject_code: uint8 &convert=LoginRejectCode($$);
-};
-
-type StartOfSessionMessage = unit {
-    session_id: uint64;
-};
-
-type ReplayBeginMessage = unit {
-    next_sequence_number: uint64;
-    pending_message_count: uint32;
-};
-
-type ReplayRejectedMessage = unit {
-    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
-};
-
-type ReplayCompleteMessage = unit {
-    message_count: uint64;
-};
-
-type StreamBeginMessage = unit {
-    next_sequence_number: uint64;
-    max_sequence_number: uint64;
-};
-
-type StreamRejectedMessage = unit {
-    stream_reject_code: uint8 &convert=StreamRejectCode($$);
-};
-
-type StreamCompleteMessage = unit {
-    total_sequence_count: uint64;
-};
-
-type SequencedMessage = unit {
-    sbe_message: SbeMessage;
-};
-
 type MessageType = enum {
+    Heartbeat = 0,
     LoginRequest = 100,
     ReplayRequest = 101,
     ReplayAllRequest = 102,
@@ -557,14 +506,6 @@ type SelfTradePrevention = enum {
     NullValue = 255,
 };
 
-type SideOptional = enum {
-    Buy = 1,
-    Sell = 2,
-    SellShort = 3,
-    SellShortExempt = 4,
-    NullValue = 255,
-};
-
 type OrdStatus = enum {
     New = 1,
     PartialFilled = 2,
@@ -661,9 +602,6 @@ type OrderRejectReason = enum {
     DailyMarketOrderGrossNotionalExposureRiskRuleBreach = 79,
     DailyMarketOrderNetNotionalExposureRiskRuleBreach = 80,
     MissingDispMethodType = 81,
-    MissingFirmRiskSetting = 82,
-    InvalidAccountMpidToFirm = 83,
-    InvalidPegOffsetValue = 84,
     NullValue = 255,
 };
 
@@ -753,15 +691,6 @@ type CxlRejReason = enum {
     UnsupportedSideChange = 20,
     UnsupportedQuantityChange = 21,
     OrderInPendingState = 22,
-    BlockSessionRiskRuleViolated = 23,
-    BlockSellShortRiskRuleViolated = 24,
-    MaxSharesPerOrderRiskRuleBreach = 25,
-    NoNbboAvailable = 26,
-    MaxNotionalValuePerOrderRiskRuleBreach = 27,
-    MaxAdvPercentPerOrderRiskRuleBreach = 28,
-    PricePercentCollarRiskRuleViolated = 29,
-    PriceValueCollarRiskRuleViolated = 30,
-    HardToBorrowSecurityRiskRuleViolated = 31,
     NullValue = 255,
 };
 
@@ -775,30 +704,5 @@ type MassCancelRejectReason = enum {
     DuplicateClOrdId = 6,
     MalformedRequestMissingClOrdIdField = 7,
     NullValue = 255,
-};
-
-type SupportedRequestMode = enum {
-    Stream = 0x53,
-    Replay = 0x52,
-};
-
-type LoginRejectCode = enum {
-    MalformedToken = 0x54,
-    TokenTypeUnsupported = 0x55,
-    TokenTypeInvalid = 0x56,
-    AuthorizationFailed = 0x41,
-};
-
-type ReplayRejectCode = enum {
-    ReplayRequestsAreNotAllowed = 0x52,
-    ReplayAllRequestsAreNotAllowed = 0x41,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
-};
-
-type StreamRejectCode = enum {
-    StreamRequestsAreNotAllowed = 0x52,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
 };
 

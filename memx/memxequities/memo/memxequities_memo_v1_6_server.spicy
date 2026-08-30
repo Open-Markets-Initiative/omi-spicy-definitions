@@ -1,4 +1,4 @@
-module MemxMemxequitiesMemoSbeV16;
+module MemxMemxequitiesMemoSbeV16Server;
 
 import spicy;
 
@@ -7,11 +7,6 @@ import spicy;
 public type MemxequitiesMemoV16 = unit {
     common_header: CommonHeader;
     switch ( self.common_header.message_type ) {
-        MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
-        MessageType::ReplayRequest -> replay_request_message: ReplayRequestMessage;
-        MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
-        MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
-        MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
         MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
         MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
         MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
@@ -31,27 +26,45 @@ type CommonHeader = unit {
     message_length: uint16;
 };
 
-type LoginRequestMessage = unit {
-    token_type: bytes &size=1;
-    token: bytes &size=1;
+type LoginAcceptedMessage = unit {
+    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
 };
 
-type ReplayRequestMessage = unit {
+type LoginRejectedMessage = unit {
+    login_reject_code: uint8 &convert=LoginRejectCode($$);
+};
+
+type StartOfSessionMessage = unit {
     session_id: uint64;
+};
+
+type ReplayBeginMessage = unit {
     next_sequence_number: uint64;
-    count: uint32;
+    pending_message_count: uint32;
 };
 
-type ReplayAllRequestMessage = unit {
-    session_id: uint64;
+type ReplayRejectedMessage = unit {
+    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
 };
 
-type StreamRequestMessage = unit {
-    session_id: uint64;
+type ReplayCompleteMessage = unit {
+    message_count: uint64;
+};
+
+type StreamBeginMessage = unit {
     next_sequence_number: uint64;
+    max_sequence_number: uint64;
 };
 
-type UnsequencedMessage = unit {
+type StreamRejectedMessage = unit {
+    stream_reject_code: uint8 &convert=StreamRejectCode($$);
+};
+
+type StreamCompleteMessage = unit {
+    total_sequence_count: uint64;
+};
+
+type SequencedMessage = unit {
     sbe_message: SbeMessage;
 };
 
@@ -397,49 +410,8 @@ type MassCancelRejectMessage = unit {
     mass_cancel_reject_reason: uint8 &convert=MassCancelRejectReason($$);
 };
 
-type LoginAcceptedMessage = unit {
-    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
-};
-
-type LoginRejectedMessage = unit {
-    login_reject_code: uint8 &convert=LoginRejectCode($$);
-};
-
-type StartOfSessionMessage = unit {
-    session_id: uint64;
-};
-
-type ReplayBeginMessage = unit {
-    next_sequence_number: uint64;
-    pending_message_count: uint32;
-};
-
-type ReplayRejectedMessage = unit {
-    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
-};
-
-type ReplayCompleteMessage = unit {
-    message_count: uint64;
-};
-
-type StreamBeginMessage = unit {
-    next_sequence_number: uint64;
-    max_sequence_number: uint64;
-};
-
-type StreamRejectedMessage = unit {
-    stream_reject_code: uint8 &convert=StreamRejectCode($$);
-};
-
-type StreamCompleteMessage = unit {
-    total_sequence_count: uint64;
-};
-
-type SequencedMessage = unit {
-    sbe_message: SbeMessage;
-};
-
 type MessageType = enum {
+    Heartbeat = 0,
     LoginRequest = 100,
     ReplayRequest = 101,
     ReplayAllRequest = 102,
@@ -456,6 +428,32 @@ type MessageType = enum {
     StreamRejected = 9,
     StreamComplete = 10,
     SequencedMessage = 11,
+};
+
+type SupportedRequestMode = enum {
+    Stream = 0x53,
+    Replay = 0x52,
+    SnapshotMode = 0x54,
+};
+
+type LoginRejectCode = enum {
+    MalformedToken = 0x54,
+    TokenTypeUnsupported = 0x55,
+    TokenTypeInvalid = 0x56,
+    AuthorizationFailed = 0x41,
+};
+
+type ReplayRejectCode = enum {
+    ReplayRequestsAreNotAllowed = 0x52,
+    ReplayAllRequestsAreNotAllowed = 0x41,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+
+type StreamRejectCode = enum {
+    StreamRequestsAreNotAllowed = 0x52,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
 };
 
 type TemplateId = enum {
@@ -797,31 +795,5 @@ type MassCancelRejectReason = enum {
     MalformedRequestMissingClOrdIdField = 7,
     InvalidCancelGroupId = 8,
     NullValue = 255,
-};
-
-type SupportedRequestMode = enum {
-    Stream = 0x53,
-    Replay = 0x52,
-    SnapshotMode = 0x54,
-};
-
-type LoginRejectCode = enum {
-    MalformedToken = 0x54,
-    TokenTypeUnsupported = 0x55,
-    TokenTypeInvalid = 0x56,
-    AuthorizationFailed = 0x41,
-};
-
-type ReplayRejectCode = enum {
-    ReplayRequestsAreNotAllowed = 0x52,
-    ReplayAllRequestsAreNotAllowed = 0x41,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
-};
-
-type StreamRejectCode = enum {
-    StreamRequestsAreNotAllowed = 0x52,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
 };
 

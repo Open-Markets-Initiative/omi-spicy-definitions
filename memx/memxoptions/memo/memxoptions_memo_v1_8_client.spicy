@@ -1,10 +1,10 @@
-module MemxMemxoptionsMemoSbeV17;
+module MemxMemxoptionsMemoSbeV18Client;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type MemxoptionsMemoV17 = unit {
+public type MemxoptionsMemoV18 = unit {
     common_header: CommonHeader;
     switch ( self.common_header.message_type ) {
         MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
@@ -12,16 +12,6 @@ public type MemxoptionsMemoV17 = unit {
         MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
         MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
         MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
-        MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
-        MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
-        MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
-        MessageType::ReplayBegin -> replay_begin_message: ReplayBeginMessage;
-        MessageType::ReplayRejected -> replay_rejected_message: ReplayRejectedMessage;
-        MessageType::ReplayComplete -> replay_complete_message: ReplayCompleteMessage;
-        MessageType::StreamBegin -> stream_begin_message: StreamBeginMessage;
-        MessageType::StreamRejected -> stream_rejected_message: StreamRejectedMessage;
-        MessageType::StreamComplete -> stream_complete_message: StreamCompleteMessage;
-        MessageType::SequencedMessage -> sequenced_message: SequencedMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -655,49 +645,8 @@ type MassCancelBulkClearLockoutAcceptedMessage = unit {
     sending_time: uint64;
 };
 
-type LoginAcceptedMessage = unit {
-    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
-};
-
-type LoginRejectedMessage = unit {
-    login_reject_code: uint8 &convert=LoginRejectCode($$);
-};
-
-type StartOfSessionMessage = unit {
-    session_id: uint64;
-};
-
-type ReplayBeginMessage = unit {
-    next_sequence_number: uint64;
-    pending_message_count: uint32;
-};
-
-type ReplayRejectedMessage = unit {
-    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
-};
-
-type ReplayCompleteMessage = unit {
-    message_count: uint64;
-};
-
-type StreamBeginMessage = unit {
-    next_sequence_number: uint64;
-    max_sequence_number: uint64;
-};
-
-type StreamRejectedMessage = unit {
-    stream_reject_code: uint8 &convert=StreamRejectCode($$);
-};
-
-type StreamCompleteMessage = unit {
-    total_sequence_count: uint64;
-};
-
-type SequencedMessage = unit {
-    sbe_message: SbeMessage;
-};
-
 type MessageType = enum {
+    Heartbeat = 0,
     LoginRequest = 100,
     ReplayRequest = 101,
     ReplayAllRequest = 102,
@@ -809,9 +758,10 @@ type MatchTradePrevention = enum {
 type PartyRole = enum {
     ExecutingFirmId = 1,
     ActionableIdentifier = 3,
+    ClearingFirm = 4,
     GiveUpClearingFirm = 14,
     ContraEfid = 17,
-    ContraGiveUp = 18,
+    ContraClearingFirm = 18,
     OptionalOccData = 24,
     ContraMmSubAccount = 37,
     Cmta = 40,
@@ -851,9 +801,10 @@ type AllocPositionEffect = enum {
 type NestedPartyRole = enum {
     ExecutingFirmId = 1,
     ActionableIdentifier = 3,
+    ClearingFirm = 4,
     GiveUpClearingFirm = 14,
     ContraEfid = 17,
-    ContraGiveUp = 18,
+    ContraClearingFirm = 18,
     OptionalOccData = 24,
     ContraMmSubAccount = 37,
     Cmta = 40,
@@ -976,6 +927,8 @@ type OrderRejectReason = enum {
     MarketOrderNetNotionalValueExceedsThreshold = 327,
     LimitOrderFatFingerCheck = 328,
     BulkQuoteFatFingerCheck = 329,
+    MarketOrdersNotAllowed = 330,
+    UnderlierOnRestrictedList = 331,
     NullValue = 65535,
 };
 
@@ -1207,31 +1160,5 @@ type RejReason = enum {
     MissingEfidOrUnderlier = 11,
     InvalidUnderlierForLockoutId = 12,
     NullValue = 65535,
-};
-
-type SupportedRequestMode = enum {
-    Stream = 0x53,
-    Replay = 0x52,
-    SnapshotMode = 0x54,
-};
-
-type LoginRejectCode = enum {
-    MalformedToken = 0x54,
-    TokenTypeUnsupported = 0x55,
-    TokenTypeInvalid = 0x56,
-    AuthorizationFailed = 0x41,
-};
-
-type ReplayRejectCode = enum {
-    ReplayRequestsAreNotAllowed = 0x52,
-    ReplayAllRequestsAreNotAllowed = 0x41,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
-};
-
-type StreamRejectCode = enum {
-    StreamRequestsAreNotAllowed = 0x52,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
 };
 

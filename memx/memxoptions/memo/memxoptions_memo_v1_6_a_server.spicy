@@ -1,17 +1,12 @@
-module MemxMemxoptionsMemoSbeV110;
+module MemxMemxoptionsMemoSbeV16AServer;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type MemxoptionsMemoV110 = unit {
+public type MemxoptionsMemoV16A = unit {
     common_header: CommonHeader;
     switch ( self.common_header.message_type ) {
-        MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
-        MessageType::ReplayRequest -> replay_request_message: ReplayRequestMessage;
-        MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
-        MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
-        MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
         MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
         MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
         MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
@@ -31,27 +26,45 @@ type CommonHeader = unit {
     message_length: uint16;
 };
 
-type LoginRequestMessage = unit {
-    token_type: bytes &size=1;
-    token: bytes &size=1;
+type LoginAcceptedMessage = unit {
+    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
 };
 
-type ReplayRequestMessage = unit {
+type LoginRejectedMessage = unit {
+    login_reject_code: uint8 &convert=LoginRejectCode($$);
+};
+
+type StartOfSessionMessage = unit {
     session_id: uint64;
+};
+
+type ReplayBeginMessage = unit {
     next_sequence_number: uint64;
-    count: uint32;
+    pending_message_count: uint32;
 };
 
-type ReplayAllRequestMessage = unit {
-    session_id: uint64;
+type ReplayRejectedMessage = unit {
+    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
 };
 
-type StreamRequestMessage = unit {
-    session_id: uint64;
+type ReplayCompleteMessage = unit {
+    message_count: uint64;
+};
+
+type StreamBeginMessage = unit {
     next_sequence_number: uint64;
+    max_sequence_number: uint64;
 };
 
-type UnsequencedMessage = unit {
+type StreamRejectedMessage = unit {
+    stream_reject_code: uint8 &convert=StreamRejectCode($$);
+};
+
+type StreamCompleteMessage = unit {
+    total_sequence_count: uint64;
+};
+
+type SequencedMessage = unit {
     sbe_message: SbeMessage;
 };
 
@@ -67,8 +80,6 @@ type SbeMessage = unit {
         TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
         TemplateId::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
         TemplateId::MassCancelClearLockoutRequestMessage -> mass_cancel_clear_lockout_request_message: MassCancelClearLockoutRequestMessage;
-        TemplateId::MassCancelBulkClearAllLockoutsRequestMessage -> mass_cancel_bulk_clear_all_lockouts_request_message: MassCancelBulkClearAllLockoutsRequestMessage;
-        TemplateId::MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage -> mass_cancel_bulk_clear_lockouts_by_efid_or_underlier_request_message: MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage;
         TemplateId::AllocationInstructionMessage -> allocation_instruction_message: AllocationInstructionMessage;
         TemplateId::ExecutionReportNewMessage -> execution_report_new_message: ExecutionReportNewMessage;
         TemplateId::ExecutionReportBulkQuotePendingNewMessage -> execution_report_bulk_quote_pending_new_message: ExecutionReportBulkQuotePendingNewMessage;
@@ -91,8 +102,6 @@ type SbeMessage = unit {
         TemplateId::UserNotificationMessage -> user_notification_message: UserNotificationMessage;
         TemplateId::MassCancelClearLockoutRejectMessage -> mass_cancel_clear_lockout_reject_message: MassCancelClearLockoutRejectMessage;
         TemplateId::MassCancelClearLockoutDoneMessage -> mass_cancel_clear_lockout_done_message: MassCancelClearLockoutDoneMessage;
-        TemplateId::MassCancelBulkClearLockoutRejectMessage -> mass_cancel_bulk_clear_lockout_reject_message: MassCancelBulkClearLockoutRejectMessage;
-        TemplateId::MassCancelBulkClearLockoutAcceptedMessage -> mass_cancel_bulk_clear_lockout_accepted_message: MassCancelBulkClearLockoutAcceptedMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -259,7 +268,7 @@ type MassCancelRequestMessage = unit {
     clordid: bytes &size=20;
     efid_optional: bytes &size=4;
     underlying_or_series: uint8 &convert=UnderlyingOrSeries($$);
-    underlier: bytes &size=6;
+    underlier_optional: bytes &size=6;
     options_security_id_optional: bytes &size=8;
     cancel_group_id: uint16;
     mass_cancel_inst: MassCancelInst;
@@ -275,20 +284,7 @@ type MassCancelInst = unit {
 type MassCancelClearLockoutRequestMessage = unit {
     sending_time: uint64;
     clordid: bytes &size=20;
-    underlier: bytes &size=6;
     lockout_id: uint64;
-};
-
-type MassCancelBulkClearAllLockoutsRequestMessage = unit {
-    sending_time: uint64;
-    clordid: bytes &size=20;
-};
-
-type MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage = unit {
-    sending_time: uint64;
-    clordid: bytes &size=20;
-    efid_optional: bytes &size=4;
-    underlier_optional: bytes &size=6;
 };
 
 type AllocationInstructionMessage = unit {
@@ -322,7 +318,6 @@ type RequestedAllocationsGroups = unit {
 type RequestedAllocationsGroup = unit {
     alloc_qty: uint32;
     alloc_position_effect: uint8 &convert=AllocPositionEffect($$);
-    trading_capacity_optional: uint8 &convert=TradingCapacityOptional($$);
     nested_parties_groups: NestedPartiesGroups;
 };
 
@@ -502,13 +497,11 @@ type ExecutionReportReplacedMessage = unit {
 type ExecutionReportTradeCorrectionMessage = unit {
     order_id: uint64;
     clordid: bytes &size=20;
-    list_seq_no: uint8;
     trd_match_id: uint64;
     exec_id: uint64;
     exec_ref_id: uint64;
     ord_status: uint8 &convert=OrdStatus($$);
     security_id: bytes &size=8;
-    side: uint8 &convert=Side($$);
     last_qty: uint32;
     last_px: uint64;
     leaves_qty: uint32;
@@ -519,13 +512,11 @@ type ExecutionReportTradeCorrectionMessage = unit {
 type ExecutionReportTradeBreakMessage = unit {
     order_id: uint64;
     clordid: bytes &size=20;
-    list_seq_no: uint8;
     trd_match_id: uint64;
     exec_id: uint64;
     exec_ref_id: uint64;
     ord_status: uint8 &convert=OrdStatus($$);
     security_id: bytes &size=8;
-    side: uint8 &convert=Side($$);
     leaves_qty: uint32;
     cum_qty: uint32;
     sending_time: uint64;
@@ -552,10 +543,10 @@ type ExecutionReportRestatementMessage = unit {
 type PendingMassCancelMessage = unit {
     clordid: bytes &size=20;
     mass_cancel_inst: MassCancelInst;
-    lockout_id_optional: uint64;
+    lockout_id: uint64;
     efid_optional: bytes &size=4;
     underlying_or_series: uint8 &convert=UnderlyingOrSeries($$);
-    underlier: bytes &size=6;
+    underlier_optional: bytes &size=6;
     options_security_id_optional: bytes &size=8;
     cancel_group_id: uint16;
     sending_time: uint64;
@@ -565,7 +556,7 @@ type MassCancelRejectMessage = unit {
     clordid: bytes &size=20;
     mass_cancel_reject_reason: uint16 &convert=MassCancelRejectReason($$);
     efid_optional: bytes &size=4;
-    underlying_or_series_optional: uint8 &convert=UnderlyingOrSeriesOptional($$);
+    underlying_or_series: uint8 &convert=UnderlyingOrSeries($$);
     underlier_optional: bytes &size=6;
     options_security_id_optional: bytes &size=8;
     cancel_group_id: uint16;
@@ -577,7 +568,6 @@ type MassCancelDoneMessage = unit {
     clordid: bytes &size=20;
     total_affected_orders: uint32;
     sending_time: uint64;
-    transact_time: uint64;
 };
 
 type OrderCancelRejectMessage = unit {
@@ -610,7 +600,6 @@ type ReportedAllocationsGroups = unit {
 type ReportedAllocationsGroup = unit {
     alloc_qty: uint32;
     alloc_position_effect: uint8 &convert=AllocPositionEffect($$);
-    trading_capacity_optional: uint8 &convert=TradingCapacityOptional($$);
     alloc_id: bytes &size=20;
     nested_parties_groups: NestedPartiesGroups;
 };
@@ -636,7 +625,6 @@ type UserNotificationMessage = unit {
 
 type MassCancelClearLockoutRejectMessage = unit {
     clordid: bytes &size=20;
-    underlier: bytes &size=6;
     lockout_id: uint64;
     rej_reason: uint16 &convert=RejReason($$);
     sending_time: uint64;
@@ -644,66 +632,12 @@ type MassCancelClearLockoutRejectMessage = unit {
 
 type MassCancelClearLockoutDoneMessage = unit {
     clordid: bytes &size=20;
-    underlier: bytes &size=6;
     lockout_id: uint64;
     sending_time: uint64;
-    transact_time: uint64;
-};
-
-type MassCancelBulkClearLockoutRejectMessage = unit {
-    clordid: bytes &size=20;
-    rej_reason: uint16 &convert=RejReason($$);
-    sending_time: uint64;
-};
-
-type MassCancelBulkClearLockoutAcceptedMessage = unit {
-    clordid: bytes &size=20;
-    sending_time: uint64;
-};
-
-type LoginAcceptedMessage = unit {
-    supported_request_mode: uint8 &convert=SupportedRequestMode($$);
-};
-
-type LoginRejectedMessage = unit {
-    login_reject_code: uint8 &convert=LoginRejectCode($$);
-};
-
-type StartOfSessionMessage = unit {
-    session_id: uint64;
-};
-
-type ReplayBeginMessage = unit {
-    next_sequence_number: uint64;
-    pending_message_count: uint32;
-};
-
-type ReplayRejectedMessage = unit {
-    replay_reject_code: uint8 &convert=ReplayRejectCode($$);
-};
-
-type ReplayCompleteMessage = unit {
-    message_count: uint64;
-};
-
-type StreamBeginMessage = unit {
-    next_sequence_number: uint64;
-    max_sequence_number: uint64;
-};
-
-type StreamRejectedMessage = unit {
-    stream_reject_code: uint8 &convert=StreamRejectCode($$);
-};
-
-type StreamCompleteMessage = unit {
-    total_sequence_count: uint64;
-};
-
-type SequencedMessage = unit {
-    sbe_message: SbeMessage;
 };
 
 type MessageType = enum {
+    Heartbeat = 0,
     LoginRequest = 100,
     ReplayRequest = 101,
     ReplayAllRequest = 102,
@@ -722,6 +656,32 @@ type MessageType = enum {
     SequencedMessage = 11,
 };
 
+type SupportedRequestMode = enum {
+    Stream = 0x53,
+    Replay = 0x52,
+    SnapshotMode = 0x54,
+};
+
+type LoginRejectCode = enum {
+    MalformedToken = 0x54,
+    TokenTypeUnsupported = 0x55,
+    TokenTypeInvalid = 0x56,
+    AuthorizationFailed = 0x41,
+};
+
+type ReplayRejectCode = enum {
+    ReplayRequestsAreNotAllowed = 0x52,
+    ReplayAllRequestsAreNotAllowed = 0x41,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+
+type StreamRejectCode = enum {
+    StreamRequestsAreNotAllowed = 0x52,
+    NotTheActiveSession = 0x50,
+    SequenceNumberOutOfRange = 0x53,
+};
+
 type TemplateId = enum {
     NewOrderSingleMessage = 1,
     ShortTwoSidedBulkQuoteMessage = 2,
@@ -732,8 +692,6 @@ type TemplateId = enum {
     OrderCancelRequestMessage = 7,
     MassCancelRequestMessage = 8,
     MassCancelClearLockoutRequestMessage = 9,
-    MassCancelBulkClearAllLockoutsRequestMessage = 32,
-    MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage = 33,
     AllocationInstructionMessage = 10,
     ExecutionReportNewMessage = 11,
     ExecutionReportBulkQuotePendingNewMessage = 12,
@@ -756,8 +714,6 @@ type TemplateId = enum {
     UserNotificationMessage = 29,
     MassCancelClearLockoutRejectMessage = 30,
     MassCancelClearLockoutDoneMessage = 31,
-    MassCancelBulkClearLockoutRejectMessage = 35,
-    MassCancelBulkClearLockoutAcceptedMessage = 36,
 };
 
 type Side = enum {
@@ -815,10 +771,9 @@ type MatchTradePrevention = enum {
 type PartyRole = enum {
     ExecutingFirmId = 1,
     ActionableIdentifier = 3,
-    ClearingFirm = 4,
     GiveUpClearingFirm = 14,
     ContraEfid = 17,
-    ContraClearingFirm = 18,
+    ContraGiveUp = 18,
     OptionalOccData = 24,
     ContraMmSubAccount = 37,
     Cmta = 40,
@@ -855,24 +810,12 @@ type AllocPositionEffect = enum {
     Close = 0x43,
 };
 
-type TradingCapacityOptional = enum {
-    Customer = 1,
-    ProfessionalCustomer = 2,
-    BrokerDealer = 3,
-    BrokerDealerCustomer = 4,
-    Firm = 5,
-    MarketMaker = 6,
-    AwayMarketMaker = 7,
-    NullValue = 255,
-};
-
 type NestedPartyRole = enum {
     ExecutingFirmId = 1,
     ActionableIdentifier = 3,
-    ClearingFirm = 4,
     GiveUpClearingFirm = 14,
     ContraEfid = 17,
-    ContraClearingFirm = 18,
+    ContraGiveUp = 18,
     OptionalOccData = 24,
     ContraMmSubAccount = 37,
     Cmta = 40,
@@ -962,7 +905,6 @@ type OrderRejectReason = enum {
     AccountDisabled = 203,
     InvalidModifierForOrderType = 204,
     InvalidTimeInForceForOrderType = 205,
-    InvalidModifiersCombination = 206,
     PostOnlyNotAllowed = 207,
     QuoteModifyRejected = 208,
     QuotingDisabled = 209,
@@ -996,15 +938,12 @@ type OrderRejectReason = enum {
     MarketOrderNetNotionalValueExceedsThreshold = 327,
     LimitOrderFatFingerCheck = 328,
     BulkQuoteFatFingerCheck = 329,
-    MarketOrdersNotAllowed = 330,
-    UnderlierOnRestrictedList = 331,
     NullValue = 65535,
 };
 
 type LastLiquidityInd = enum {
     Added = 1,
     Removed = 2,
-    Routed = 3,
     NullValue = 255,
 };
 
@@ -1034,7 +973,6 @@ type CancelReason = enum {
     MatchTradePrevention = 10,
     ParticipantDisconnect = 13,
     OrderNotBookable = 14,
-    UnableToRoute = 16,
     FirmDisabled = 17,
     EfidDisabled = 18,
     AccountDisabled = 19,
@@ -1097,14 +1035,7 @@ type MassCancelRejectReason = enum {
     MassCancelInProgress = 17,
     MissingSendingTime = 18,
     InvalidSendingTime = 19,
-    InvalidOptionsSecurityIdForUnderlier = 20,
     NullValue = 65535,
-};
-
-type UnderlyingOrSeriesOptional = enum {
-    CancelAllOnUnderlying = 0,
-    CancelAllOnSeries = 1,
-    NullValue = 255,
 };
 
 type CxlRejResponseTo = enum {
@@ -1201,8 +1132,6 @@ type AllocRejCode = enum {
     IncorrectOrMissingSide = 24,
     MissingPositionEffectType = 29,
     InvalidPositionEffectType = 30,
-    InvalidTradingCapacity = 113,
-    MissingPartyId = 150,
     Other = 99,
     NullValue = 65535,
 };
@@ -1226,38 +1155,6 @@ type RejReason = enum {
     InvalidLockoutId = 4,
     UnknownLockoutId = 5,
     NoLockoutsActive = 6,
-    MissingEfid = 7,
-    InvalidEfid = 8,
-    MissingUnderlier = 9,
-    InvalidUnderlier = 10,
-    MissingEfidOrUnderlier = 11,
-    InvalidUnderlierForLockoutId = 12,
     NullValue = 65535,
-};
-
-type SupportedRequestMode = enum {
-    Stream = 0x53,
-    Replay = 0x52,
-    SnapshotMode = 0x54,
-};
-
-type LoginRejectCode = enum {
-    MalformedToken = 0x54,
-    TokenTypeUnsupported = 0x55,
-    TokenTypeInvalid = 0x56,
-    AuthorizationFailed = 0x41,
-};
-
-type ReplayRejectCode = enum {
-    ReplayRequestsAreNotAllowed = 0x52,
-    ReplayAllRequestsAreNotAllowed = 0x41,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
-};
-
-type StreamRejectCode = enum {
-    StreamRequestsAreNotAllowed = 0x52,
-    NotTheActiveSession = 0x50,
-    SequenceNumberOutOfRange = 0x53,
 };
 

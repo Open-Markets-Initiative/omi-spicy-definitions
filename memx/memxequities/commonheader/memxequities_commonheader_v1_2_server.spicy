@@ -1,4 +1,4 @@
-module MemxMemxequitiesCommonheaderTcpV12;
+module MemxMemxequitiesCommonheaderTcpV12Server;
 
 import spicy;
 
@@ -7,11 +7,6 @@ import spicy;
 public type MemxequitiesCommonheaderV12 = unit {
     common_header: CommonHeader;
     switch ( self.common_header.message_type ) {
-        MessageType::LoginRequest -> login_request_message: LoginRequestMessage;
-        MessageType::ReplayRequest -> replay_request_message: ReplayRequestMessage;
-        MessageType::ReplayAllRequest -> replay_all_request_message: ReplayAllRequestMessage;
-        MessageType::StreamRequest -> stream_request_message: StreamRequestMessage;
-        MessageType::UnsequencedMessage -> unsequenced_message: UnsequencedMessage;
         MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
         MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
         MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
@@ -29,29 +24,6 @@ public type MemxequitiesCommonheaderV12 = unit {
 type CommonHeader = unit {
     message_type: uint8 &convert=MessageType($$);
     message_length: uint16;
-};
-
-type LoginRequestMessage = unit {
-    token_type: bytes &size=1;
-    token: bytes &size=1;
-};
-
-type ReplayRequestMessage = unit {
-    session_id: uint64;
-    next_sequence_number: uint64;
-    count: uint32;
-};
-
-type ReplayAllRequestMessage = unit {
-    session_id: uint64;
-};
-
-type StreamRequestMessage = unit {
-    session_id: uint64;
-    next_sequence_number: uint64;
-};
-
-type UnsequencedMessage = unit {
 };
 
 type LoginAcceptedMessage = unit {
@@ -96,6 +68,7 @@ type SequencedMessage = unit {
 };
 
 type MessageType = enum {
+    Heartbeat = 0,
     LoginRequest = 100,
     ReplayRequest = 101,
     ReplayAllRequest = 102,
