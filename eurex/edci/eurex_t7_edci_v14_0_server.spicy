@@ -1,0 +1,402 @@
+module EurexT7EdciFbeV140Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type EurexT7EdciV140 = unit {
+    server_message: ServerMessage[] &eod;
+};
+
+type ServerMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::DeleteOrderBroadcast -> delete_order_broadcast: DeleteOrderBroadcast;
+        TemplateId::ForcedLogoutNotification -> forced_logout_notification: ForcedLogoutNotification;
+        TemplateId::HeartbeatNotification -> heartbeat_notification: HeartbeatNotification;
+        TemplateId::LogonResponse -> logon_response: LogonResponse;
+        TemplateId::LogoutResponse -> logout_response: LogoutResponse;
+        TemplateId::OrderExecReportBroadcast -> order_exec_report_broadcast: OrderExecReportBroadcast;
+        TemplateId::PartitionListNotification -> partition_list_notification: PartitionListNotification;
+        TemplateId::Reject -> reject: Reject;
+        TemplateId::SessionListNotification -> session_list_notification: SessionListNotification;
+        TemplateId::SessionStatusBroadcast -> session_status_broadcast: SessionStatusBroadcast;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    body_len: uint32;
+    template_id: uint16 &convert=TemplateId($$);
+};
+
+type DeleteOrderBroadcast = unit {
+    : skip bytes &size=2;   # padding
+    rbc_header_comp: RbcHeaderComp;
+    exec_id: uint64;
+    market_segment_id: int32;
+    no_affected_orders: uint16;
+    : skip bytes &size=2;   # padding
+    affected_ord_grp_comp: AffectedOrdGrpComp[self.no_affected_orders];
+};
+
+type RbcHeaderComp = unit {
+    sending_time: uint64;
+    party_id_executing_unit: uint32;
+    partition_id: uint16;
+    appl_id: uint8 &convert=ApplId($$);
+    last_fragment: uint8 &convert=LastFragment($$);
+};
+
+type AffectedOrdGrpComp = unit {
+    affected_order_id: uint64;
+    affected_cl_ord_id: uint64;
+    affected_orig_cl_ord_id: uint64;
+    security_id: int64;
+    party_id_session_id: uint32;
+    party_id_executing_trader: uint32;
+    ord_status: uint8 &convert=OrdStatus($$);
+    exec_type: uint8 &convert=ExecType($$);
+    affected_fix_cl_ord_id: bytes &size=20;
+    affected_fix_orig_cl_ord_id: bytes &size=20;
+    : skip bytes &size=6;   # padding
+};
+
+type ForcedLogoutNotification = unit {
+    : skip bytes &size=2;   # padding
+    notif_header_comp: NotifHeaderComp;
+    var_text_len: uint16;
+    var_text: bytes &size=self.var_text_len;
+    : skip bytes &size=0;   # padding
+};
+
+type NotifHeaderComp = unit {
+    sending_time: uint64;
+};
+
+type HeartbeatNotification = unit {
+    : skip bytes &size=2;   # padding
+    notif_header_comp: NotifHeaderComp;
+};
+
+type LogonResponse = unit {
+    : skip bytes &size=2;   # padding
+    response_header_comp: ResponseHeaderComp;
+    heart_bt_int: uint32;
+    session_instance_id: uint32;
+    market_id: uint16 &convert=MarketId($$);
+    trad_ses_mode: uint8 &convert=TradSesMode($$);
+    default_cstm_appl_ver_id: bytes &size=30;
+    default_cstm_appl_ver_sub_id: bytes &size=5;
+    : skip bytes &size=2;   # padding
+};
+
+type ResponseHeaderComp = unit {
+    request_time: uint64;
+    sending_time: uint64;
+    msg_seq_num: uint32;
+    last_fragment: uint8 &convert=LastFragment($$);
+    : skip bytes &size=3;   # padding
+};
+
+type LogoutResponse = unit {
+    : skip bytes &size=2;   # padding
+    response_header_comp: ResponseHeaderComp;
+};
+
+type OrderExecReportBroadcast = unit {
+    : skip bytes &size=2;   # padding
+    rbc_header_comp: RbcHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    security_id: int64;
+    exec_id: uint64;
+    price: uint64;
+    stop_px: uint64;
+    leaves_qty: uint64;
+    cum_qty: uint64;
+    cxl_qty: uint64;
+    order_qty: uint64;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    expire_date: uint32;
+    party_id_session_id: uint32;
+    party_id_executing_trader: uint32;
+    product_complex: uint8 &convert=ProductComplex($$);
+    ord_status: uint8 &convert=OrdStatus($$);
+    exec_type: uint8 &convert=ExecType($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    match_type: uint8 &convert=MatchType($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    triggered: uint8 &convert=Triggered($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    no_fills: uint8;
+    crossed_indicator: uint8 &convert=CrossedIndicator($$);
+    cust_order_handling_inst: uint8 &convert=CustOrderHandlingInst($$);
+    free_text_1: bytes &size=12;
+    free_text_2: bytes &size=12;
+    free_text_3: bytes &size=12;
+    fix_cl_ord_id: bytes &size=20;
+    fix_orig_cl_ord_id: bytes &size=20;
+    party_end_client_identification: bytes &size=20;
+    : skip bytes &size=7;   # padding
+    fills_grp_comp: FillsGrpComp[self.no_fills];
+};
+
+type FillsGrpComp = unit {
+    fill_px: uint64;
+    fill_qty: uint64;
+    fill_match_id: uint32;
+    fill_exec_id: int32;
+};
+
+type PartitionListNotification = unit {
+    : skip bytes &size=2;   # padding
+    notif_header_comp: NotifHeaderComp;
+    no_partitions: uint8;
+    : skip bytes &size=7;   # padding
+    partition_grp_comp: PartitionGrpComp[self.no_partitions];
+};
+
+type PartitionGrpComp = unit {
+    partition_id: uint16;
+    : skip bytes &size=6;   # padding
+};
+
+type Reject = unit {
+    : skip bytes &size=2;   # padding
+    response_header_comp: ResponseHeaderComp;
+    session_reject_reason: uint32 &convert=SessionRejectReason($$);
+    var_text_len: uint16;
+    session_status: uint8 &convert=SessionStatus($$);
+    var_text: bytes &size=self.var_text_len;
+    : skip bytes &size=0;   # padding
+};
+
+type SessionListNotification = unit {
+    : skip bytes &size=2;   # padding
+    notif_header_comp: NotifHeaderComp;
+    no_sessions: uint16;
+    : skip bytes &size=6;   # padding
+    sessions_grp_comp: SessionsGrpComp[self.no_sessions];
+};
+
+type SessionsGrpComp = unit {
+    party_id_session_id: uint32;
+    party_id_executing_unit: uint32;
+    party_id_sponsored_access_unit: uint32;
+    session_mode: uint8 &convert=SessionMode($$);
+    party_executing_firm: bytes &size=5;
+    party_sponsored_access_unit: bytes &size=30;
+};
+
+type SessionStatusBroadcast = unit {
+    : skip bytes &size=2;   # padding
+    rbc_header_comp: RbcHeaderComp;
+    trade_date: uint32;
+    market_segment_id: int32;
+    trad_ses_event: uint8 &convert=TradSesEvent($$);
+    : skip bytes &size=7;   # padding
+};
+
+type TemplateId = enum {
+    DeleteOrderBroadcast = 10902,
+    ForcedLogoutNotification = 10012,
+    Heartbeat = 10011,
+    HeartbeatNotification = 10023,
+    LogonRequest = 10000,
+    LogonResponse = 10001,
+    LogoutRequest = 10002,
+    LogoutResponse = 10003,
+    OrderExecReportBroadcast = 10901,
+    PartitionListNotification = 10037,
+    Reject = 10010,
+    SessionListNotification = 10036,
+    SessionStatusBroadcast = 10903,
+};
+
+type ApplId = enum {
+    OrderDropCopy = 12,
+};
+
+type LastFragment = enum {
+    NotLastMessage = 0,
+    LastMessage = 1,
+};
+
+type OrdStatus = enum {
+    New = 0x30,
+    Partiallyfilled = 0x31,
+    Filled = 0x32,
+    Canceled = 0x34,
+    PendingCancel = 0x36,
+    Suspended = 0x39,
+};
+
+type ExecType = enum {
+    New = 0x30,
+    Canceled = 0x34,
+    Replaced = 0x35,
+    PendingCancele = 0x36,
+    Suspended = 0x39,
+    Restated = 0x44,
+    Triggered = 0x4c,
+    Trade = 0x46,
+};
+
+type MarketId = enum {
+    Xeur = 1,
+    Xeee = 2,
+};
+
+type TradSesMode = enum {
+    Testing = 1,
+    Simulated = 2,
+    Production = 3,
+    Acceptance = 4,
+    DisasterRecovery = 5,
+};
+
+type ProductComplex = enum {
+    Simpleinstrument = 1,
+    Standardoptionstrategy = 2,
+    Nonstandardoptionstrategy = 3,
+    Volatilitystrategy = 4,
+    FuturesSpread = 5,
+    Interproductspread = 6,
+    Standardfuturestrategy = 7,
+    Packandbundle = 8,
+    Strip = 9,
+    Nonstandardvolatilitystrategy = 13,
+    Totalreturnfuturestrategy = 14,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type OrdType = enum {
+    Market = 1,
+    Limit = 2,
+    Stop = 3,
+    StopLimit = 4,
+};
+
+type MatchType = enum {
+    Automatchincoming = 4,
+    CrossAuction = 5,
+    CallAuction = 7,
+    Automatchresting = 11,
+    LiquidityImprovementCross = 13,
+};
+
+type TradingCapacity = enum {
+    Customer = 1,
+    Principal = 5,
+    MarketMaker = 6,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    Gtc = 1,
+    Ioc = 3,
+    Fok = 4,
+    Gtd = 6,
+};
+
+type ExecInst = enum {
+    H = 1,
+    Q = 2,
+    H6 = 5,
+    Q6 = 6,
+};
+
+type Triggered = enum {
+    Nottriggered = 0,
+    TriggeredStop = 1,
+    TriggeredOco = 2,
+};
+
+type TradingSessionSubId = enum {
+    Openingauction = 2,
+    Closingauction = 4,
+    AnyAuction = 8,
+};
+
+type ApplSeqIndicator = enum {
+    NoRecoveryRequired = 0,
+    RecoveryRequired = 1,
+};
+
+type PartyIdInvestmentDecisionMakerQualifier = enum {
+    Algo = 22,
+    Human = 24,
+};
+
+type ExecutingTraderQualifier = enum {
+    Algo = 22,
+    Human = 24,
+};
+
+type CrossedIndicator = enum {
+    Nocrossing = 0,
+    Crossrejected = 1,
+};
+
+type CustOrderHandlingInst = enum {
+    W = 0x57,
+    Y = 0x59,
+    C = 0x43,
+    G = 0x47,
+    H = 0x48,
+    D = 0x44,
+};
+
+type SessionRejectReason = enum {
+    RequiredTagMissing = 1,
+    Valueisincorrect = 5,
+    Decryptionproblem = 7,
+    InvalidMsgId = 11,
+    IncorrectNumInGroupcount = 16,
+    Other = 99,
+    ExposureLimitExceeded = 101,
+    ServiceNotAvailable = 103,
+    Outboundconversionerror = 105,
+    HeartbeatViolation = 152,
+    Internaltechnicalerror = 200,
+    ValidationError = 210,
+    SessionLoginLimitReached = 217,
+    OutstandingLoginsBuLimitReached = 226,
+    OutstandingLoginsSessionLimitReached = 227,
+};
+
+type SessionStatus = enum {
+    Active = 0,
+    Logout = 4,
+};
+
+type SessionMode = enum {
+    Etihf = 1,
+    Etilf = 2,
+    Gui = 3,
+    Fixlf = 4,
+};
+
+type TradSesEvent = enum {
+    EndofRestatement = 103,
+    EndofDayService = 104,
+    EndofOrderbooksynch = 107,
+    StartofOrderbooksynch = 108,
+    Orderbookreset = 109,
+};
+

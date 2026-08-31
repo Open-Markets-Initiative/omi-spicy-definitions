@@ -1,0 +1,145 @@
+module EurexT7EdciFbeV150Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type EurexT7EdciV150 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::Heartbeat -> heartbeat: Heartbeat;
+        TemplateId::LogonRequest -> logon_request: LogonRequest;
+        TemplateId::LogoutRequest -> logout_request: LogoutRequest;
+        TemplateId::RetransmitRequest -> retransmit_request: RetransmitRequest;
+        TemplateId::TradingActionRequest -> trading_action_request: TradingActionRequest;
+        TemplateId::UserLoginRequest -> user_login_request: UserLoginRequest;
+        TemplateId::UserLogoutRequest -> user_logout_request: UserLogoutRequest;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    body_len: uint32;
+    template_id: uint16 &convert=TemplateId($$);
+};
+
+type Heartbeat = unit {
+    : skip bytes &size=2;   # padding
+};
+
+type LogonRequest = unit {
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    heart_bt_int: uint32;
+    party_id_session_id: uint32;
+    default_cstm_appl_ver_id: bytes &size=30;
+    password: bytes &size=32;
+    : skip bytes &size=2;   # padding
+};
+
+type RequestHeaderComp = unit {
+    msg_seq_num: uint32;
+    sender_sub_id: uint32;
+};
+
+type LogoutRequest = unit {
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+};
+
+type RetransmitRequest = unit {
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    appl_beg_seq_num: uint64;
+    appl_end_seq_num: uint64;
+    party_id_group: uint32;
+    partition_id: uint16;
+    ref_appl_id: uint8 &convert=RefApplId($$);
+    : skip bytes &size=1;   # padding
+};
+
+type TradingActionRequest = unit {
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    risk_limit_platform: uint8 &convert=RiskLimitPlatform($$);
+    order_deletion_instruction: uint8 &convert=OrderDeletionInstruction($$);
+    party_action_type: uint8 &convert=PartyActionType($$);
+    : skip bytes &size=1;   # padding
+    party_id_executing_unit: uint32;
+    target_party_id_executing_unit: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type UserLoginRequest = unit {
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    username: uint32;
+    password: bytes &size=32;
+    : skip bytes &size=4;   # padding
+};
+
+type UserLogoutRequest = unit {
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    username: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type TemplateId = enum {
+    CrossRequestNotification = 10907,
+    DeleteOrderBroadcast = 10902,
+    EnterClipRequestNotification = 10906,
+    ForcedLogoutNotification = 10012,
+    Heartbeat = 10011,
+    HeartbeatNotification = 10023,
+    LegalNotificationBroadcast = 10035,
+    LogonRequest = 10000,
+    LogonResponse = 10001,
+    LogoutRequest = 10002,
+    LogoutResponse = 10003,
+    OrderExecReportBroadcast = 10901,
+    OrderRejectNotification = 10014,
+    PartitionListNotification = 10037,
+    PartyActionReport = 10038,
+    PartyEntitlementsUpdateReport = 10034,
+    Reject = 10010,
+    RetransmitRequest = 10008,
+    RetransmitResponse = 10009,
+    RfqNotification = 10905,
+    RiskNotificationBroadcast = 10033,
+    ServiceAvailabilityMarketBroadcast = 10044,
+    SessionListNotification = 10036,
+    SessionStatusBroadcast = 10903,
+    StatusBroadcast = 10045,
+    TradingActionRequest = 10908,
+    TradingActionResponse = 10909,
+    UserLoginRequest = 10018,
+    UserLoginResponse = 10019,
+    UserLogoutRequest = 10029,
+    UserLogoutResponse = 10024,
+};
+
+type RefApplId = enum {
+    RiskControl = 6,
+    OrderDropCopy = 12,
+};
+
+type RiskLimitPlatform = enum {
+    OnBook = 0,
+    OffBook = 1,
+};
+
+type OrderDeletionInstruction = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type PartyActionType = enum {
+    HaltTrading = 1,
+    Reinstate = 2,
+};
+

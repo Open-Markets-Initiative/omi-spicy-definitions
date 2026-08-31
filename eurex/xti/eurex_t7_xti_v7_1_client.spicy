@@ -1,0 +1,1011 @@
+module EurexT7XtiFbeV71Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type EurexT7XtiV71 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::ApproveTesTradeRequest -> approve_tes_trade_request: ApproveTesTradeRequest;
+        TemplateId::CrossRequest -> cross_request: CrossRequest;
+        TemplateId::DeleteAllOrderRequest -> delete_all_order_request: DeleteAllOrderRequest;
+        TemplateId::DeleteAllQuoteRequest -> delete_all_quote_request: DeleteAllQuoteRequest;
+        TemplateId::DeleteOrderSingleRequest -> delete_order_single_request: DeleteOrderSingleRequest;
+        TemplateId::DeleteTesTradeRequest -> delete_tes_trade_request: DeleteTesTradeRequest;
+        TemplateId::EnterBestQuoteRequest -> enter_best_quote_request: EnterBestQuoteRequest;
+        TemplateId::EnterTesTradeRequest -> enter_tes_trade_request: EnterTesTradeRequest;
+        TemplateId::Heartbeat -> heartbeat: Heartbeat;
+        TemplateId::InquireEnrichmentRuleIdListRequest -> inquire_enrichment_rule_id_list_request: InquireEnrichmentRuleIdListRequest;
+        TemplateId::InquireSessionListRequest -> inquire_session_list_request: InquireSessionListRequest;
+        TemplateId::InquireUserRequest -> inquire_user_request: InquireUserRequest;
+        TemplateId::IssuerSecurityStateChangeRequest -> issuer_security_state_change_request: IssuerSecurityStateChangeRequest;
+        TemplateId::LogonRequest -> logon_request: LogonRequest;
+        TemplateId::LogoutRequest -> logout_request: LogoutRequest;
+        TemplateId::MassQuoteRequest -> mass_quote_request: MassQuoteRequest;
+        TemplateId::ModifyOrderSingleRequest -> modify_order_single_request: ModifyOrderSingleRequest;
+        TemplateId::ModifyOrderSingleShortRequest -> modify_order_single_short_request: ModifyOrderSingleShortRequest;
+        TemplateId::ModifyTesTradeRequest -> modify_tes_trade_request: ModifyTesTradeRequest;
+        TemplateId::NewOrderSingleRequest -> new_order_single_request: NewOrderSingleRequest;
+        TemplateId::NewOrderSingleShortRequest -> new_order_single_short_request: NewOrderSingleShortRequest;
+        TemplateId::QuoteActivationRequest -> quote_activation_request: QuoteActivationRequest;
+        TemplateId::RfqRequest -> rfq_request: RfqRequest;
+        TemplateId::RetransmitMeMessageRequest -> retransmit_me_message_request: RetransmitMeMessageRequest;
+        TemplateId::RetransmitRequest -> retransmit_request: RetransmitRequest;
+        TemplateId::SubscribeRequest -> subscribe_request: SubscribeRequest;
+        TemplateId::UnsubscribeRequest -> unsubscribe_request: UnsubscribeRequest;
+        TemplateId::UserLoginRequest -> user_login_request: UserLoginRequest;
+        TemplateId::UserLogoutRequest -> user_logout_request: UserLogoutRequest;
+        TemplateId::XetraEnLightEnterQuoteRequest -> xetra_en_light_enter_quote_request: XetraEnLightEnterQuoteRequest;
+        TemplateId::XetraEnLightHitQuoteRequest -> xetra_en_light_hit_quote_request: XetraEnLightHitQuoteRequest;
+        TemplateId::XetraEnLightOpenNegotiationRequest -> xetra_en_light_open_negotiation_request: XetraEnLightOpenNegotiationRequest;
+        TemplateId::XetraEnLightQuotingStatusRequest -> xetra_en_light_quoting_status_request: XetraEnLightQuotingStatusRequest;
+        TemplateId::XetraEnLightUpdateNegotiationRequest -> xetra_en_light_update_negotiation_request: XetraEnLightUpdateNegotiationRequest;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    body_len: uint32;
+    template_id: uint16 &convert=TemplateId($$);
+};
+
+type ApproveTesTradeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    alloc_qty: uint64;
+    package_id: uint32;
+    alloc_id: uint32;
+    tes_exec_id: uint32;
+    market_segment_id: int32;
+    trd_type: uint16 &convert=TrdType($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    trade_report_type: uint8 &convert=TradeReportType($$);
+    side: uint8 &convert=Side($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    trade_report_id: bytes &size=20;
+    party_executing_firm: bytes &size=5;
+    party_executing_trader: bytes &size=6;
+    free_text_1: bytes &size=12;
+    free_text_2: bytes &size=12;
+    free_text_4: bytes &size=16;
+    : skip bytes &size=7;   # padding
+};
+
+type RequestHeaderComp = unit {
+    msg_seq_num: uint32;
+    sender_sub_id: uint32;
+};
+
+type CrossRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    order_qty: uint64;
+    market_segment_id: int32;
+    : skip bytes &size=4;   # padding
+};
+
+type DeleteAllOrderRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    price: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    target_party_id_session_id: uint32;
+    target_party_id_executing_trader: uint32;
+    side: uint8 &convert=Side($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    : skip bytes &size=1;   # padding
+};
+
+type DeleteAllQuoteRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    target_party_id_session_id: uint32;
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    : skip bytes &size=6;   # padding
+};
+
+type DeleteOrderSingleRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    security_id: int64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    target_party_id_session_id: uint32;
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    fix_cl_ord_id: bytes &size=20;
+    : skip bytes &size=2;   # padding
+};
+
+type DeleteTesTradeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    package_id: uint32;
+    market_segment_id: int32;
+    tes_exec_id: uint32;
+    trd_type: uint16 &convert=TrdType($$);
+    trade_report_type: uint8 &convert=TradeReportType($$);
+    trade_report_id: bytes &size=20;
+    : skip bytes &size=5;   # padding
+};
+
+type EnterBestQuoteRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    quote_id: uint64;
+    security_id: int64;
+    bid_px: uint64;
+    bid_size: uint64;
+    reserved_bid_size: uint64;
+    offer_px: uint64;
+    offer_size: uint64;
+    reserved_offer_size: uint64;
+    peg_offset_value_bid_px: uint64;
+    peg_offset_value_offer_px: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    enrichment_rule_id: uint16;
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    : skip bytes &size=6;   # padding
+};
+
+type EnterTesTradeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    last_px: uint64;
+    trans_bkd_time: uint64;
+    settl_curr_fx_rate: uint64;
+    market_segment_id: int32;
+    settl_date: uint32;
+    trd_type: uint16 &convert=TrdType($$);
+    trade_report_type: uint8 &convert=TradeReportType($$);
+    no_side_allocs: uint8;
+    trade_report_text: bytes &size=20;
+    trade_report_id: bytes &size=20;
+    : skip bytes &size=4;   # padding
+    side_alloc_grp_comp: SideAllocGrpComp[self.no_side_allocs];
+};
+
+type SideAllocGrpComp = unit {
+    alloc_qty: uint64;
+    individual_alloc_id: uint32;
+    side: uint8 &convert=Side($$);
+    party_executing_firm: bytes &size=5;
+    party_executing_trader: bytes &size=6;
+};
+
+type Heartbeat = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+};
+
+type InquireEnrichmentRuleIdListRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    last_entity_processed: bytes &size=16;
+};
+
+type InquireSessionListRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+};
+
+type InquireUserRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    last_entity_processed: bytes &size=16;
+};
+
+type IssuerSecurityStateChangeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    transact_time: uint64;
+    market_segment_id: int32;
+    no_events: uint8;
+    security_status: uint8 &convert=SecurityStatus($$);
+    sold_out_indicator: uint8 &convert=SoldOutIndicator($$);
+    : skip bytes &size=1;   # padding
+    security_status_event_grp_comp: SecurityStatusEventGrpComp[self.no_events];
+};
+
+type SecurityStatusEventGrpComp = unit {
+    event_px: uint64;
+    event_date: uint32;
+    event_type: uint8 &convert=EventType($$);
+    : skip bytes &size=3;   # padding
+};
+
+type LogonRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    heart_bt_int: uint32;
+    party_id_session_id: uint32;
+    default_cstm_appl_ver_id: bytes &size=30;
+    password: bytes &size=32;
+    appl_usage_orders: uint8 &convert=ApplUsageOrders($$);
+    appl_usage_quotes: uint8 &convert=ApplUsageQuotes($$);
+    order_routing_indicator: uint8 &convert=OrderRoutingIndicator($$);
+    fix_engine_name: bytes &size=30;
+    fix_engine_version: bytes &size=30;
+    fix_engine_vendor: bytes &size=30;
+    application_system_name: bytes &size=30;
+    application_system_version: bytes &size=30;
+    application_system_vendor: bytes &size=30;
+    : skip bytes &size=3;   # padding
+};
+
+type LogoutRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+};
+
+type MassQuoteRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    quote_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    match_inst_cross_id: uint32;
+    enrichment_rule_id: uint16;
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    quote_size_type: uint8 &convert=QuoteSizeType($$);
+    quote_type: uint8 &convert=QuoteType($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    no_quote_entries: uint8;
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    : skip bytes &size=5;   # padding
+    quote_entry_grp_comp: QuoteEntryGrpComp[self.no_quote_entries];
+};
+
+type QuoteEntryGrpComp = unit {
+    security_id: int64;
+    bid_px: uint64;
+    bid_size: uint64;
+    offer_px: uint64;
+    offer_size: uint64;
+};
+
+type ModifyOrderSingleRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    security_id: int64;
+    price: uint64;
+    order_qty: uint64;
+    display_qty: uint64;
+    display_low_qty: uint64;
+    display_high_qty: uint64;
+    stop_px: uint64;
+    volume_discovery_price: uint64;
+    peg_offset_value_abs: uint64;
+    peg_offset_value_pct: uint64;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    expire_date: uint32;
+    market_segment_id: int32;
+    match_inst_cross_id: uint32;
+    target_party_id_session_id: uint32;
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    stop_px_indicator: uint8 &convert=StopPxIndicator($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    ex_destination_type: uint8 &convert=ExDestinationType($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    ownership_indicator: uint8 &convert=OwnershipIndicator($$);
+    free_text_1: bytes &size=12;
+    free_text_2: bytes &size=12;
+    free_text_4: bytes &size=16;
+    fix_cl_ord_id: bytes &size=20;
+    : skip bytes &size=4;   # padding
+};
+
+type ModifyOrderSingleShortRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    security_id: int64;
+    price: uint64;
+    order_qty: uint64;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    match_inst_cross_id: uint32;
+    enrichment_rule_id: uint16;
+    side: uint8 &convert=Side($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    ex_destination_type: uint8 &convert=ExDestinationType($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    : skip bytes &size=6;   # padding
+};
+
+type ModifyTesTradeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    last_px: uint64;
+    trans_bkd_time: uint64;
+    market_segment_id: int32;
+    package_id: uint32;
+    tes_exec_id: uint32;
+    settl_date: uint32;
+    trd_type: uint16 &convert=TrdType($$);
+    trade_report_type: uint8 &convert=TradeReportType($$);
+    no_side_allocs: uint8;
+    trade_report_text: bytes &size=20;
+    trade_report_id: bytes &size=20;
+    : skip bytes &size=4;   # padding
+    side_alloc_grp_comp: SideAllocGrpComp[self.no_side_allocs];
+};
+
+type NewOrderSingleRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    price: uint64;
+    order_qty: uint64;
+    display_qty: uint64;
+    display_low_qty: uint64;
+    display_high_qty: uint64;
+    stop_px: uint64;
+    volume_discovery_price: uint64;
+    peg_offset_value_abs: uint64;
+    peg_offset_value_pct: uint64;
+    cl_ord_id: uint64;
+    security_id: int64;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    expire_date: uint32;
+    market_segment_id: int32;
+    match_inst_cross_id: uint32;
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    ex_destination_type: uint8 &convert=ExDestinationType($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    free_text_1: bytes &size=12;
+    free_text_2: bytes &size=12;
+    free_text_4: bytes &size=16;
+    fix_cl_ord_id: bytes &size=20;
+    : skip bytes &size=2;   # padding
+};
+
+type NewOrderSingleShortRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    price: uint64;
+    order_qty: uint64;
+    cl_ord_id: uint64;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    match_inst_cross_id: uint32;
+    enrichment_rule_id: uint16;
+    side: uint8 &convert=Side($$);
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    ex_destination_type: uint8 &convert=ExDestinationType($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    : skip bytes &size=6;   # padding
+};
+
+type QuoteActivationRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    target_party_id_session_id: uint32;
+    mass_action_type: uint8 &convert=MassActionType($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    : skip bytes &size=5;   # padding
+};
+
+type RfqRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    order_qty: uint64;
+    market_segment_id: int32;
+    rfq_publish_indicator: uint8 &convert=RfqPublishIndicator($$);
+    rfq_requester_disclosure_instruction: uint8 &convert=RfqRequesterDisclosureInstruction($$);
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=1;   # padding
+};
+
+type RetransmitMeMessageRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    subscription_scope: uint32;
+    partition_id: uint16;
+    ref_appl_id: uint8 &convert=RefApplId($$);
+    appl_beg_msg_id: bytes &size=16;
+    appl_end_msg_id: bytes &size=16;
+    : skip bytes &size=1;   # padding
+};
+
+type RetransmitRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    appl_beg_seq_num: uint64;
+    appl_end_seq_num: uint64;
+    partition_id: uint16;
+    ref_appl_id: uint8 &convert=RefApplId($$);
+    : skip bytes &size=5;   # padding
+};
+
+type SubscribeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    subscription_scope: uint32;
+    ref_appl_id: uint8 &convert=RefApplId($$);
+    : skip bytes &size=3;   # padding
+};
+
+type UnsubscribeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    ref_appl_sub_id: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type UserLoginRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    username: uint32;
+    password: bytes &size=32;
+    : skip bytes &size=4;   # padding
+};
+
+type UserLogoutRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    username: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type XetraEnLightEnterQuoteRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    bid_px: uint64;
+    offer_px: uint64;
+    bid_size: uint64;
+    offer_size: uint64;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    negotiation_id: uint32;
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    party_executing_firm: bytes &size=5;
+    party_executing_trader: bytes &size=6;
+    free_text_1: bytes &size=12;
+    free_text_2: bytes &size=12;
+    free_text_4: bytes &size=16;
+    : skip bytes &size=7;   # padding
+};
+
+type XetraEnLightHitQuoteRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    quote_id: uint64;
+    order_qty: uint64;
+    price: uint64;
+    party_id_client_id: uint64;
+    party_id_investment_decision_maker: uint64;
+    executing_trader: uint64;
+    market_segment_id: int32;
+    negotiation_id: uint32;
+    side: uint8 &convert=Side($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    order_attribute_liquidity_provision: uint8 &convert=OrderAttributeLiquidityProvision($$);
+    executing_trader_qualifier: uint8 &convert=ExecutingTraderQualifier($$);
+    alloc_method: uint8 &convert=AllocMethod($$);
+    party_id_investment_decision_maker_qualifier: uint8 &convert=PartyIdInvestmentDecisionMakerQualifier($$);
+    party_executing_firm: bytes &size=5;
+    party_executing_trader: bytes &size=6;
+    firm_trade_id: bytes &size=20;
+    free_text_1: bytes &size=12;
+    free_text_2: bytes &size=12;
+    free_text_4: bytes &size=16;
+    : skip bytes &size=1;   # padding
+};
+
+type XetraEnLightOpenNegotiationRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    bid_px: uint64;
+    offer_px: uint64;
+    order_qty: uint64;
+    valid_until_time: uint64;
+    market_segment_id: int32;
+    settl_date: uint32;
+    no_target_party_i_ds: uint8;
+    number_of_resp_disclosure_instruction: uint8 &convert=NumberOfRespDisclosureInstruction($$);
+    side: uint8 &convert=Side($$);
+    value_check_type_value: uint8 &convert=ValueCheckTypeValue($$);
+    value_check_type_quantity: uint8 &convert=ValueCheckTypeQuantity($$);
+    respondent_type: uint8 &convert=RespondentType($$);
+    party_executing_firm: bytes &size=5;
+    party_executing_trader: bytes &size=6;
+    free_text_5: bytes &size=132;
+    quote_req_id: bytes &size=20;
+    : skip bytes &size=7;   # padding
+    xetra_en_light_target_parties_comp: XetraEnLightTargetPartiesComp[self.no_target_party_i_ds];
+};
+
+type XetraEnLightTargetPartiesComp = unit {
+    target_party_id_executing_trader: uint32;
+    target_party_executing_firm: bytes &size=5;
+    target_party_executing_trader: bytes &size=6;
+    : skip bytes &size=1;   # padding
+};
+
+type XetraEnLightQuotingStatusRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    market_segment_id: int32;
+    negotiation_id: uint32;
+    quoting_status: uint8 &convert=QuotingStatus($$);
+    party_executing_firm: bytes &size=5;
+    party_executing_trader: bytes &size=6;
+    : skip bytes &size=4;   # padding
+};
+
+type XetraEnLightUpdateNegotiationRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    bid_px: uint64;
+    offer_px: uint64;
+    order_qty: uint64;
+    market_segment_id: int32;
+    negotiation_id: uint32;
+    settl_date: uint32;
+    no_target_party_i_ds: uint8;
+    number_of_resp_disclosure_instruction: uint8 &convert=NumberOfRespDisclosureInstruction($$);
+    side: uint8 &convert=Side($$);
+    quote_cancel_type: uint8 &convert=QuoteCancelType($$);
+    party_executing_firm: bytes &size=5;
+    party_executing_trader: bytes &size=6;
+    free_text_5: bytes &size=132;
+    : skip bytes &size=1;   # padding
+    xetra_en_light_target_parties_comp: XetraEnLightTargetPartiesComp[self.no_target_party_i_ds];
+};
+
+type TemplateId = enum {
+    ApproveTesTradeRequest = 10603,
+    BestQuoteExecutionReport = 10414,
+    BestQuoteResponse = 10413,
+    BroadcastErrorNotification = 10032,
+    CrossRequest = 10118,
+    CrossRequestResponse = 10119,
+    DeleteAllOrderBroadcast = 10122,
+    DeleteAllOrderNrResponse = 10124,
+    DeleteAllOrderQuoteEventBroadcast = 10308,
+    DeleteAllOrderRequest = 10120,
+    DeleteAllOrderResponse = 10121,
+    DeleteAllQuoteBroadcast = 10410,
+    DeleteAllQuoteRequest = 10408,
+    DeleteAllQuoteResponse = 10409,
+    DeleteOrderBroadcast = 10112,
+    DeleteOrderNrResponse = 10111,
+    DeleteOrderResponse = 10110,
+    DeleteOrderSingleRequest = 10109,
+    DeleteTesTradeRequest = 10602,
+    EnterBestQuoteRequest = 10412,
+    EnterTesTradeRequest = 10600,
+    ExtendedDeletionReport = 10128,
+    ForcedLogoutNotification = 10012,
+    ForcedUserLogoutNotification = 10043,
+    Heartbeat = 10011,
+    HeartbeatNotification = 10023,
+    InquireEnrichmentRuleIdListRequest = 10040,
+    InquireEnrichmentRuleIdListResponse = 10041,
+    InquireSessionListRequest = 10035,
+    InquireSessionListResponse = 10036,
+    InquireUserRequest = 10038,
+    InquireUserResponse = 10039,
+    IssuerNotification = 10316,
+    IssuerSecurityStateChangeRequest = 10314,
+    IssuerSecurityStateChangeResponse = 10315,
+    LegalNotificationBroadcast = 10037,
+    LogonRequest = 10000,
+    LogonResponse = 10001,
+    LogoutRequest = 10002,
+    LogoutResponse = 10003,
+    MassQuoteRequest = 10405,
+    MassQuoteResponse = 10406,
+    ModifyOrderNrResponse = 10108,
+    ModifyOrderResponse = 10107,
+    ModifyOrderSingleRequest = 10106,
+    ModifyOrderSingleShortRequest = 10126,
+    ModifyTesTradeRequest = 10601,
+    NewOrderNrResponse = 10102,
+    NewOrderResponse = 10101,
+    NewOrderSingleRequest = 10100,
+    NewOrderSingleShortRequest = 10125,
+    NewsBroadcast = 10031,
+    OrderExecNotification = 10104,
+    OrderExecReportBroadcast = 10117,
+    OrderExecResponse = 10103,
+    PartyActionReport = 10042,
+    PartyEntitlementsUpdateReport = 10034,
+    QuoteActivationNotification = 10411,
+    QuoteActivationRequest = 10403,
+    QuoteActivationResponse = 10404,
+    QuoteExecutionReport = 10407,
+    RfqBroadcast = 10415,
+    RfqRequest = 10401,
+    RfqResponse = 10402,
+    Reject = 10010,
+    RetransmitMeMessageRequest = 10026,
+    RetransmitMeMessageResponse = 10027,
+    RetransmitRequest = 10008,
+    RetransmitResponse = 10009,
+    ServiceAvailabilityBroadcast = 10030,
+    ServiceAvailabilityMarketBroadcast = 10044,
+    SubscribeRequest = 10025,
+    SubscribeResponse = 10005,
+    TesApproveBroadcast = 10607,
+    TesBroadcast = 10604,
+    TesDeleteBroadcast = 10606,
+    TesExecutionBroadcast = 10610,
+    TesResponse = 10611,
+    TesTradeBroadcast = 10614,
+    TesTradingSessionStatusBroadcast = 10615,
+    TmTradingSessionStatusBroadcast = 10501,
+    ThrottleUpdateNotification = 10028,
+    TradeBroadcast = 10500,
+    TradingSessionStatusBroadcast = 10307,
+    TrailingStopUpdateNotification = 10127,
+    UnsubscribeRequest = 10006,
+    UnsubscribeResponse = 10007,
+    UserLoginRequest = 10018,
+    UserLoginResponse = 10019,
+    UserLogoutRequest = 10029,
+    UserLogoutResponse = 10024,
+    XetraEnLightCreateDealNotification = 10808,
+    XetraEnLightDealResponse = 10805,
+    XetraEnLightEnterQuoteRequest = 10802,
+    XetraEnLightHitQuoteRequest = 10804,
+    XetraEnLightNegotiationNotification = 10813,
+    XetraEnLightNegotiationRequesterNotification = 10812,
+    XetraEnLightNegotiationStatusNotification = 10815,
+    XetraEnLightOpenNegotiationNotification = 10811,
+    XetraEnLightOpenNegotiationRequest = 10800,
+    XetraEnLightOpenNegotiationRequesterNotification = 10810,
+    XetraEnLightQuoteNotification = 10807,
+    XetraEnLightQuoteRequesterNotification = 10816,
+    XetraEnLightQuoteResponse = 10803,
+    XetraEnLightQuotingStatusRequest = 10817,
+    XetraEnLightStatusBroadcast = 10814,
+    XetraEnLightUpdateNegotiationRequest = 10801,
+};
+
+type TrdType = enum {
+    Otc = 54,
+    Lis = 1005,
+    Enlight = 1006,
+};
+
+type TradingCapacity = enum {
+    Customer = 1,
+    Principal = 5,
+    MarketMaker = 6,
+    SystematicInternaliser = 8,
+    RisklessPrincipal = 9,
+};
+
+type TradeReportType = enum {
+    Submit = 0,
+    Accept = 2,
+    Decline = 3,
+    NoWasReplaced = 5,
+    TradeReportCancel = 6,
+    TradeBreak = 7,
+    AllegedNew = 11,
+    AllegedNoWas = 13,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type ValueCheckTypeValue = enum {
+    Donotcheck = 0,
+    Check = 1,
+};
+
+type ValueCheckTypeQuantity = enum {
+    Donotcheck = 0,
+    Check = 1,
+};
+
+type OrderAttributeLiquidityProvision = enum {
+    Y = 1,
+    N = 0,
+};
+
+type PartyIdInvestmentDecisionMakerQualifier = enum {
+    Algo = 22,
+    Human = 24,
+};
+
+type ExecutingTraderQualifier = enum {
+    Algo = 22,
+    Human = 24,
+};
+
+type SecurityStatus = enum {
+    Knockedout = 6,
+    Knockoutrevoked = 7,
+    Knockedoutandsuspend = 12,
+};
+
+type SoldOutIndicator = enum {
+    Revertsoldout = 0,
+    Soldout = 1,
+};
+
+type EventType = enum {
+    Redemption = 26,
+    Delisting = 100,
+};
+
+type ApplUsageOrders = enum {
+    Automated = 0x41,
+    Manual = 0x4d,
+    AutoSelect = 0x42,
+    None_x4e = 0x4e,
+};
+
+type ApplUsageQuotes = enum {
+    Automated = 0x41,
+    Manual = 0x4d,
+    AutoSelect = 0x42,
+    None_x4e = 0x4e,
+};
+
+type OrderRoutingIndicator = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type PriceValidityCheckType = enum {
+    None_0 = 0,
+    Mandatory = 2,
+};
+
+type QuoteSizeType = enum {
+    TotalSize = 1,
+    OpenSize = 2,
+};
+
+type QuoteType = enum {
+    Tradeable = 1,
+    TradeableMatching = 101,
+    TradeablePwt = 102,
+};
+
+type ApplSeqIndicator = enum {
+    NoRecoveryRequired = 0,
+    RecoveryRequired = 1,
+};
+
+type OrdType = enum {
+    Market = 1,
+    Limit = 2,
+    Stop = 3,
+    StopLimit = 4,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    Gtc = 1,
+    Ioc = 3,
+    Fok = 4,
+    Gtx = 5,
+    Gtd = 6,
+};
+
+type ExecInst = enum {
+    H = 1,
+    Q = 2,
+    Hq = 3,
+    H6 = 5,
+    Q6 = 6,
+};
+
+type TradingSessionSubId = enum {
+    Openingauction = 2,
+    Closingauction = 4,
+    IntradayAuction = 6,
+    AnyAuction = 8,
+};
+
+type StopPxIndicator = enum {
+    Donotoverwrite = 0,
+    Overwrite = 1,
+};
+
+type ExDestinationType = enum {
+    TradeonexchangeorSi = 3,
+};
+
+type OwnershipIndicator = enum {
+    NoChangeofOwnership = 0,
+    ChangetoExecutingTrader = 1,
+};
+
+type MassActionType = enum {
+    Suspendquotes = 1,
+    Releasequotes = 2,
+};
+
+type RfqPublishIndicator = enum {
+    MarketData = 1,
+    DesignatedSponsor = 2,
+    MarketDataandDesignatedSponsor = 3,
+    MarketMakerandDesignatedSponsor = 4,
+    MarketDataandMarketMakerandDesignatedSponsor = 5,
+};
+
+type RfqRequesterDisclosureInstruction = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type RefApplId = enum {
+    Trade = 1,
+    News = 2,
+    Serviceavailability = 3,
+    Sessiondata = 4,
+    Listenerdata = 5,
+    RiskControl = 6,
+    TesMaintenance = 7,
+    TesTrade = 8,
+    SrqsMaintenance = 9,
+    ServiceAvailabilityMarket = 10,
+};
+
+type AllocMethod = enum {
+    AutomaticRandom = 1,
+    Manual = 3,
+};
+
+type NumberOfRespDisclosureInstruction = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type RespondentType = enum {
+    Specifiedmarketparticipants = 2,
+    SpecifiedandSmartRfQselectedparticipants = 100,
+    SmartRfQselectedparticipants = 101,
+};
+
+type QuotingStatus = enum {
+    OpenActive = 1,
+    OpenIdle = 2,
+    ClosedInactive = 3,
+    OpenNotResponded = 4,
+};
+
+type QuoteCancelType = enum {
+    CancelAllQuotes = 4,
+};
+
