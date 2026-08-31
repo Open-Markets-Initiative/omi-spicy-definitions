@@ -60,16 +60,12 @@ type StreamCompleteMessage = unit {
 };
 
 type SequencedMessage = unit {
-    sbe_message: SbeMessage;
+    server_sbe_message: ServerSbeMessage;
 };
 
-type SbeMessage = unit {
+type ServerSbeMessage = unit {
     sbe_header: SbeHeader;
     switch ( self.sbe_header.template_id ) {
-        TemplateId::NewOrderSingleMessage -> new_order_single_message: NewOrderSingleMessage;
-        TemplateId::OrderCancelReplaceRequestMessage -> order_cancel_replace_request_message: OrderCancelReplaceRequestMessage;
-        TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
-        TemplateId::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
         TemplateId::ExecutionReportPendingNewMessage -> execution_report_pending_new_message: ExecutionReportPendingNewMessage;
         TemplateId::ExecutionReportNewMessage -> execution_report_new_message: ExecutionReportNewMessage;
         TemplateId::ExecutionReportRejectedMessage -> execution_report_rejected_message: ExecutionReportRejectedMessage;
@@ -94,74 +90,6 @@ type SbeHeader = unit {
     template_id: uint8 &convert=TemplateId($$);
     schema_id: uint8;
     version: uint16;
-};
-
-type NewOrderSingleMessage = unit {
-    clordid: bytes &size=16;
-    mpid: bytes &size=4;
-    symbol: bytes &size=6;
-    symbol_sfx: bytes &size=6;
-    side: uint8 &convert=Side($$);
-    order_qty: uint32;
-    ord_type: uint8 &convert=OrdType($$);
-    price: int64;
-    time_in_force: uint8 &convert=TimeInForce($$);
-    order_capacity: uint8 &convert=OrderCapacity($$);
-    cust_order_capacity: uint8 &convert=CustOrderCapacity($$);
-    exec_inst: ExecInst;
-    peg_offset_value: int64;
-    peg_price_type: uint8 &convert=PegPriceType($$);
-    expire_time: uint64;
-    min_qty: uint32;
-    display_qty: uint32;
-    display_method: uint8 &convert=DisplayMethod($$);
-    reserve_replenish_timing: uint8 &convert=ReserveReplenishTiming($$);
-    display_min_incr: uint32;
-    locate_reqd: bytes &size=1;
-    reprice_frequency: uint8 &convert=RepriceFrequency($$);
-    reprice_behavior: uint8 &convert=RepriceBehavior($$);
-    cancel_group_id: uint16;
-    stp_group_id: uint16;
-    self_trade_prevention: uint8 &convert=SelfTradePrevention($$);
-    risk_group_id: uint16;
-};
-
-type ExecInst = unit {
-    participate_do_not_initiate: bytes &size=1;
-    intermarket_sweep: bytes &size=1;
-    external_routing_not_allowed: bytes &size=1;
-    reserved_13: bytes &size=2;
-};
-
-type OrderCancelReplaceRequestMessage = unit {
-    origclordid: bytes &size=16;
-    clordid: bytes &size=16;
-    symbol: bytes &size=6;
-    symbol_sfx: bytes &size=6;
-    side: uint8 &convert=Side($$);
-    order_qty: uint32;
-    ord_type: uint8 &convert=OrdType($$);
-    price: int64;
-    display_qty: uint32;
-    locate_reqd: bytes &size=1;
-};
-
-type OrderCancelRequestMessage = unit {
-    origclordid: bytes &size=16;
-    order_id_optional: uint64;
-    clordid: bytes &size=16;
-    symbol: bytes &size=6;
-    symbol_sfx: bytes &size=6;
-};
-
-type MassCancelRequestMessage = unit {
-    clordid: bytes &size=16;
-    symbol: bytes &size=6;
-    symbol_sfx: bytes &size=6;
-    side: uint8 &convert=Side($$);
-    lower_than_price: int64;
-    higher_than_price: int64;
-    cancel_group_id: uint16;
 };
 
 type ExecutionReportPendingNewMessage = unit {
@@ -198,6 +126,13 @@ type ExecutionReportPendingNewMessage = unit {
     risk_group_id: uint16;
     leaves_qty: uint32;
     cum_qty: uint32;
+};
+
+type ExecInst = unit {
+    participate_do_not_initiate: bytes &size=1;
+    intermarket_sweep: bytes &size=1;
+    external_routing_not_allowed: bytes &size=1;
+    reserved_13: bytes &size=2;
 };
 
 type ExecutionReportNewMessage = unit {
@@ -473,6 +408,19 @@ type TemplateId = enum {
     MassCancelRejectMessage = 20,
 };
 
+type OrdStatus = enum {
+    New = 1,
+    PartialFilled = 2,
+    Filled = 3,
+    Canceled = 4,
+    PendingCancel = 5,
+    Rejected = 6,
+    PendingNew = 7,
+    PendingReplace = 8,
+    Expired = 9,
+    NullValue = 255,
+};
+
 type Side = enum {
     Buy = 1,
     Sell = 2,
@@ -531,7 +479,7 @@ type ReserveReplenishTiming = enum {
 type RepriceFrequency = enum {
     SingleReprice = 1,
     ContinuousReprice = 2,
-    None = 3,
+    None_3 = 3,
     NullValue = 255,
 };
 
@@ -547,19 +495,6 @@ type SelfTradePrevention = enum {
     DecrementAndCancel = 3,
     CancelBoth = 4,
     CancelSmallest = 5,
-    NullValue = 255,
-};
-
-type OrdStatus = enum {
-    New = 1,
-    PartialFilled = 2,
-    Filled = 3,
-    Canceled = 4,
-    PendingCancel = 5,
-    Rejected = 6,
-    PendingNew = 7,
-    PendingReplace = 8,
-    Expired = 9,
     NullValue = 255,
 };
 

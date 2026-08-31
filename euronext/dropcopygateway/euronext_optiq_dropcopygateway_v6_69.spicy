@@ -1,10 +1,10 @@
-module EuronextOptiqDropcopygatewaySbeV536;
+module EuronextOptiqDropcopygatewaySbeV669;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Little;
 
-public type EuronextOptiqDropcopygatewayV536 = unit {
+public type EuronextOptiqDropcopygatewayV669 = unit {
     message: Message[] &eod;
 };
 
@@ -195,7 +195,9 @@ type DarkExecutionInstruction = unit {
     displayed_order_interaction: bytes &size=1;
     sweep_order_indicator: bytes &size=1;
     minimum_quantity_type: bytes &size=1;
-    reserved_3: bytes &size=1;
+    dark_stp_indicator: bytes &size=1;
+    dark_passive_order_indicator: bytes &size=1;
+    unused_dark_execution_instructionset_7: bytes &size=1;
 };
 
 type ExecutionInstructionExecutionInstructionset = unit {
@@ -1033,8 +1035,10 @@ type DcQuoteRequestMessage = unit {
     symbol_index: uint32;
     min_order_qty: uint64;
     sequence_time: uint64;
+    rfq_type: uint8 &convert=RfqType($$);
     d_c_quote_request_message_non_modifiable_short_codes_groups: DCQuoteRequestMessageNonModifiableShortCodesGroups;
     d_c_quote_request_message_short_codes_details_non_modifiable_groups: DCQuoteRequestMessageShortCodesDetailsNonModifiableGroups;
+    d_c_quote_request_message_rf_q_optional_fields_groups: DCQuoteRequestMessageRfQOptionalFieldsGroups;
 };
 
 type DCQuoteRequestMessageNonModifiableShortCodesGroups = unit {
@@ -1060,6 +1064,17 @@ type DCQuoteRequestMessageShortCodesDetailsNonModifiableGroup = unit {
     short_code_role_qualifier: uint8 &convert=ShortCodeRoleQualifier($$);
 };
 
+type DCQuoteRequestMessageRfQOptionalFieldsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    d_c_quote_request_message_rf_q_optional_fields_group: DCQuoteRequestMessageRfQOptionalFieldsGroup[self.group_size_encoding.num_in_group];
+};
+
+type DCQuoteRequestMessageRfQOptionalFieldsGroup = unit {
+    limit_matching_price: int64;
+    minimum_number_of_l_ps: uint8;
+    expiration_delay: uint16;
+};
+
 type DcClearBookMessage = unit {
     produce_time: uint64;
     consume_time: uint64;
@@ -1067,6 +1082,7 @@ type DcClearBookMessage = unit {
     book_in_time: uint64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
+    clear_book_origin: uint8 &convert=ClearBookOrigin($$);
 };
 
 type TemplateId = enum {
@@ -1143,6 +1159,11 @@ type InstrumentState = enum {
     ReservedWaitingforValidAssignedBrokerPrice = 20,
     ReservedFutureLimitInterruptionProtection = 21,
     SuspendedWaitingForMarketOperations = 22,
+    TradingEnded = 23,
+    ReservedWaitingforAssignedBroker = 24,
+    ReservedWaitingNumberofSecuritiesisFulfilled = 25,
+    SuspendedduetoFailover = 26,
+    ClosedduetoRestrictedSession = 27,
 };
 
 type ChangeType = enum {
@@ -1245,6 +1266,11 @@ type ScheduledEvent = enum {
     CollarsWide = 14,
     PreExpiry = 15,
     ClosingPrice = 16,
+    EndofTrading = 17,
+    OrderEntryCancelModifyEnabled = 18,
+    OrderEntryCancelModifyDisabled = 19,
+    OrderCancelOnly = 20,
+    RestrictedTrading = 21,
 };
 
 type TradingGroupOrderEntryQualifier = enum {
@@ -1298,6 +1324,8 @@ type PriceType = enum {
     DailyHighestPrice = 37,
     BreachedDynamicCollar = 38,
     BreachedStaticCollar = 39,
+    LifeTimeContractHighestPrice = 41,
+    LifeTimeContractLowestPrice = 42,
 };
 
 type ImbalanceQtySide = enum {
@@ -1328,6 +1356,7 @@ type OrderEventType = enum {
     RoutedFill = 21,
     RoutedCancel = 22,
     MoveDarktoCob = 23,
+    Parked = 24,
 };
 
 type AccountTypeInternalAccountTypeInternalenum = enum {
@@ -1357,6 +1386,7 @@ type AckPhase = enum {
     Reserved = 6,
     Suspended = 7,
     RandomUncrossingPhase = 8,
+    UncrossingPhase = 9,
 };
 
 type AckType = enum {
@@ -1383,6 +1413,9 @@ type AckType = enum {
     CrossOrderAck = 22,
     MoveDarktoCoBasLimit = 23,
     MoveDarktoCoBasMarket = 24,
+    ParkedduetoendofSession = 25,
+    AutoRfqConfirmationAck = 26,
+    AvdTriggeredAck = 27,
 };
 
 type LpRoleLpRoleenumOptional = enum {
@@ -1410,6 +1443,7 @@ type OrderType = enum {
     Iceberg = 10,
     Implied = 12,
     PosttradeImplied = 13,
+    AuctionVolumeDiscovery = 14,
 };
 
 type TimeInForceTimeInForceenum = enum {
@@ -1484,6 +1518,11 @@ type TradeType = enum {
     LargeinScaleLiSPackageTradeProvisionalprice = 102,
     IssuingOrTenderOfferTrade = 103,
     RfqTrade = 104,
+    AvdTrade = 105,
+    StrategyLegConventionalTradeProvisionalprice = 106,
+    BlockStandardTrade = 107,
+    BlockNfcAuctionTrade = 108,
+    BlockHistoricalTrade = 109,
 };
 
 type KillReason = enum {
@@ -1527,11 +1566,17 @@ type KillReason = enum {
     OrdercancelledduetoExecutionPreventionAcrossAllFirms = 42,
     CancelledduetoBreachofMePsetbyaclearingriskmanager = 43,
     CancelledduetoBreachofMePsetbyamemberriskmanager = 44,
+    AutoRfQfullymatchedwithothercounterparts = 45,
+    OrderCancelledduetoincompatibilitywithUncrossingPrice = 46,
+    OrderCancelledduetoRemainingNonAllocatedQuantity = 47,
+    OrderCancelledbyMarketOperationsduetoCsdUnavailability = 48,
 };
 
 type CollarRejType = enum {
     Lowdynamiccollar = 1,
     Highdynamiccollar = 2,
+    Lowstaticcollar = 3,
+    Highstaticcollar = 4,
 };
 
 type CounterpartyReasonType = enum {
@@ -1548,10 +1593,15 @@ type WholesaleTradeType = enum {
     LargeinScaleTradeFormerlyBlockTrade = 0,
     AgainstActual = 1,
     ExchangeForSwaps = 2,
+    BlockStandard = 3,
+    BlockNfcAuction = 4,
+    BlockHistorical = 5,
 };
 
 type OrderSweepReason = enum {
     DvcBreached = 1,
+    InstrumentnoteligibleforDark = 2,
+    NofullexecutiononDob = 3,
 };
 
 type StopTriggeredTimeInForce = enum {
@@ -1698,6 +1748,7 @@ type UpdateType = enum {
     NewOfferRlp = 17,
     UpdatedBidRlp = 18,
     UpdatedOfferRlp = 19,
+    AvdTrade = 20,
     ConventionalTrade = 24,
     RequestforCrossRfcQueued = 25,
     RequestforCrossRfc = 26,
@@ -1774,6 +1825,11 @@ type UpdateType = enum {
     RfqTrade = 105,
     FlipSpread = 106,
     FlipReferencePrice = 107,
+    StrategyLegConventionalTradeProvisionalprice = 108,
+    BlockStandardTrade = 109,
+    BlockNfcAuctionTrade = 110,
+    BlockHistoricalTrade = 111,
+    LargeinScalePackageTrade = 112,
     StaticCollarReferencePrice = 252,
     DynamicCollarReferencePrice = 253,
     ClearBook = 254,
@@ -1972,5 +2028,16 @@ type RfqStatus = enum {
     Confirmed = 1,
     Canceled = 2,
     Expired = 3,
+    AutomaticallyConfirmed = 4,
+};
+
+type RfqType = enum {
+    ManualRfq = 1,
+    AutoRfq = 2,
+};
+
+type ClearBookOrigin = enum {
+    Failover = 0,
+    ColdRestart = 1,
 };
 
