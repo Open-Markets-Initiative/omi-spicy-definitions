@@ -14,7 +14,7 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class ArcaoptionsTopfeedV12CTests(unittest.TestCase):
 
-    def test_message(self):
+    def test_heartbeat(self):
         module = "nyse/arcaoptions/topfeed/arcaoptions_topfeed_v1_2_c.spicy"
         for payload in payloads.of("omi-data-packets/Nyse/ArcaOptions.TopFeed.Pillar.v1.2.c/HeartBeat.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)

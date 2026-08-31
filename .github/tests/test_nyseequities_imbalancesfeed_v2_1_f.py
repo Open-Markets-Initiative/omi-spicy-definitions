@@ -20,7 +20,7 @@ class NyseequitiesImbalancesfeedV21FTests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_message(self):
+    def test_sequenceresetmessage(self):
         module = "nyse/nyseequities/imbalancesfeed/nyseequities_imbalancesfeed_v2_1_f.spicy"
         for payload in payloads.of("omi-data-packets/Nyse/NyseEquities.ImbalancesFeed.Xdp.v2.1.f/SequenceResetMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)

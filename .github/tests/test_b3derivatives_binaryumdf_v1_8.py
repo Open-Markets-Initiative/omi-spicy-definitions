@@ -20,7 +20,7 @@ class B3derivativesBinaryumdfV18Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_sequencemessage(self):
+    def test_sequence(self):
         module = "b3/binaryumdf/b3derivatives_binaryumdf_v1_8.spicy"
         for payload in payloads.of("omi-data-packets/B3/B3Derivatives.BinaryUmdf.Sbe.v1.8/Sequence.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)

@@ -86,6 +86,12 @@ class DeribitOrdersapiV01Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_starbaseorderentry(self):
+        module = "coinbase/deribit/ordersapi/deribit_ordersapi_v0_1.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/Deribit.OrdersApi.Sbe.v0.1/StarbaseOrderEntry.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
 
 if __name__ == "__main__":
     unittest.main()
