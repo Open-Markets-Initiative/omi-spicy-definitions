@@ -15,61 +15,61 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 class CmeGlobexMdp3V112Tests(unittest.TestCase):
 
     def test_marketdatarequesttcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/MarketDataRequest.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_mdincrementalrefreshbooklongqty(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/MdIncrementalRefreshBookLongQty.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_mdincrementalrefreshtradesummarylongqty(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/MdIncrementalRefreshTradeSummaryLongQty.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_mdinstrumentdefinitionfxtcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/MdInstrumentDefinitionFx.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_requestacktcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/RequestAck.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_securitylistrequesttcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/SecurityListRequest.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_securitystatustcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/SecurityStatus.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_securitystatusrequesttcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/SecurityStatusRequest.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_snapshotfullrefreshtcplongqtytcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/SnapshotFullRefreshTcpLongQty.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_subscriberheartbeattcp(self):
-        module = "cme/mdp3/cme_globex_mdp3_v1_12_udp.spicy"
+        module = "cme/mdp3/cme_globex_mdp3_v1_12_clienttcp.spicy"
         for payload in payloads.of("omi-data-packets/Cme/Globex.Mdp3.Sbe.v1.12/SubscriberHeartbeat.Tcp.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
