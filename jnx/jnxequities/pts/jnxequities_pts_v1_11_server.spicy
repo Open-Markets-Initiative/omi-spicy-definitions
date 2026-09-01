@@ -1,0 +1,235 @@
+module JnxJnxequitiesPtsOuchV111Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type JnxequitiesPtsV111 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::OrderAcceptedMessage -> order_accepted_message: OrderAcceptedMessage;
+        SequencedMessageType::OrderReplacedMessage -> order_replaced_message: OrderReplacedMessage;
+        SequencedMessageType::OrderCanceledMessage -> order_canceled_message: OrderCanceledMessage;
+        SequencedMessageType::OrderAiqCanceledMessage -> order_aiq_canceled_message: OrderAiqCanceledMessage;
+        SequencedMessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        SequencedMessageType::OrderRejectedMessage -> order_rejected_message: OrderRejectedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64;
+    system_event: uint8 &convert=SystemEvent($$);
+};
+
+type OrderAcceptedMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    client_reference: bytes &size=10;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    orderbook_id: uint32;
+    group: bytes &size=4;
+    price: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
+    firm_id: uint32;
+    display: uint8 &convert=Display($$);
+    capacity: uint8 &convert=Capacity($$);
+    order_number: uint64;
+    minimum_quantity: uint32;
+    order_state: uint8 &convert=OrderState($$);
+    order_classification: uint8 &convert=OrderClassification($$);
+    cash_margin_type: uint8 &convert=CashMarginType($$);
+};
+
+type OrderReplacedMessage = unit {
+    timestamp: uint64;
+    replacement_order_token: uint32;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    orderbook_id: uint32;
+    group: bytes &size=4;
+    price: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
+    display: uint8 &convert=Display($$);
+    order_number: uint64;
+    minimum_quantity: uint32;
+    order_state: uint8 &convert=OrderState($$);
+    previous_order_token: uint32;
+};
+
+type OrderCanceledMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    decrement_quantity: uint32;
+    order_canceled_reason: uint8 &convert=OrderCanceledReason($$);
+};
+
+type OrderAiqCanceledMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    decrement_quantity: uint32;
+    order_canceled_reason: uint8 &convert=OrderCanceledReason($$);
+    quantity_prevented_from_trading: uint32;
+    execution_price: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    executed_quantity: uint32;
+    execution_price: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    match_number: uint64;
+};
+
+type OrderRejectedMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    order_rejected_reason: uint8 &convert=OrderRejectedReason($$);
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    OrderAcceptedMessage = 0x41,
+    OrderReplacedMessage = 0x55,
+    OrderCanceledMessage = 0x43,
+    OrderAiqCanceledMessage = 0x44,
+    OrderExecutedMessage = 0x45,
+    OrderRejectedMessage = 0x4a,
+};
+
+type SystemEvent = enum {
+    StartOfDay = 0x53,
+    EndOfDay = 0x45,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    ShortSell = 0x54,
+    ShortSellExempt = 0x45,
+};
+
+type TimeInForce = enum {
+    Immediate = 0,
+    Day = 99999,
+};
+
+type Display = enum {
+    Unused = 0x20,
+    Postonly = 0x50,
+};
+
+type Capacity = enum {
+    Agency = 0x41,
+    Principal = 0x50,
+};
+
+type OrderState = enum {
+    Live = 0x4c,
+    Dead = 0x44,
+};
+
+type OrderClassification = enum {
+    NonHft = 0x31,
+    HftMarketMakingStrategy = 0x33,
+    HftArbitrageStrategy = 0x34,
+    HftDirectionalStrategy = 0x35,
+    HftOtherStrategy = 0x36,
+};
+
+type CashMarginType = enum {
+    Cash = 0x31,
+    MarginOpenNegotiable = 0x32,
+    MarginCloseNegotiable = 0x33,
+    MarginOpenStandardized = 0x34,
+    MarginCloseStandardized = 0x35,
+};
+
+type OrderCanceledReason = enum {
+    UserRequestedCancel = 0x55,
+    UserLoggedOff = 0x4c,
+    CanceledBySupervisoryTerminal = 0x53,
+    ImmediateOrderRemainingQuantityCanceled = 0x49,
+    OrderExpiredDuringMatching = 0x4d,
+    InvalidPrice = 0x58,
+    InvalidQuantity = 0x5a,
+    InvalidMinimumQuantity = 0x4e,
+    InvalidOrderType = 0x59,
+    InvalidDisplayType = 0x44,
+    ExceededOrderValueLimit = 0x56,
+    ShortSellOrderRestriction = 0x69,
+    OrderNotAllowedAtThisTime = 0x52,
+    FlowControlThrottled = 0x46,
+    MarginOrderCanceledDueToMarginRestriction = 0x47,
+    Other = 0x4f,
+};
+
+type LiquidityIndicator = enum {
+    Added = 0x41,
+    Removed = 0x52,
+};
+
+type OrderRejectedReason = enum {
+    TradingHalt = 0x48,
+    InvalidOrderBookIdentifier = 0x53,
+    InvalidPrice = 0x58,
+    InvalidQuantity = 0x5a,
+    InvalidMinimumQuantity = 0x4e,
+    InvalidOrderType = 0x59,
+    InvalidDisplayType = 0x44,
+    ExceededOrderValueLimit = 0x56,
+    ShortSellOrderRestriction = 0x69,
+    OrderNotAllowedAtThisTime = 0x52,
+    FlowControlThrottled = 0x46,
+    InvalidMarginSpecification = 0x47,
+    MpidNotAllowedForThisPort = 0x4c,
+    NoPermissionToEnterOrderOnGivenBoard = 0x63,
+    Other = 0x4f,
+};
+

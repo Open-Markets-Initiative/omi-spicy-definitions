@@ -1,0 +1,126 @@
+module JnxJnxbondsPtsItchV12;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type JnxbondsPtsV12 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::PriceTickSizeMessage -> price_tick_size_message: PriceTickSizeMessage;
+        MessageType::OrderbookDirectoryMessage -> orderbook_directory_message: OrderbookDirectoryMessage;
+        MessageType::TradingStateMessage -> trading_state_message: TradingStateMessage;
+        MessageType::OrderAddedMessage -> order_added_message: OrderAddedMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderDeletedMessage -> order_deleted_message: OrderDeletedMessage;
+        MessageType::OrderReplacedMessage -> order_replaced_message: OrderReplacedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SecondsMessage = unit {
+    seconds: uint32;
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    group: bytes &size=4;
+    system_event: bytes &size=1;
+};
+
+type PriceTickSizeMessage = unit {
+    nanoseconds: uint32;
+    price_tick_size_table_id: uint32;
+    price_tick_size: uint32;
+    price_start: int32;
+};
+
+type OrderbookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    orderbook_id: uint32;
+    orderbook_code: bytes &size=12;
+    group: bytes &size=4;
+    round_lot_size: uint32;
+    price_tick_size_table_id: uint32;
+    price_decimals: uint32;
+    upper_price_limit: int32;
+    lower_price_limit: int32;
+};
+
+type TradingStateMessage = unit {
+    nanoseconds: uint32;
+    orderbook_id: uint32;
+    group: bytes &size=4;
+    trading_state: uint8 &convert=TradingState($$);
+};
+
+type OrderAddedMessage = unit {
+    nanoseconds: uint32;
+    order_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    orderbook_id: uint32;
+    group: bytes &size=4;
+    price: int32;
+};
+
+type OrderExecutedMessage = unit {
+    nanoseconds: uint32;
+    order_number: uint64;
+    executed_quantity: uint32;
+    match_number: uint64;
+};
+
+type OrderDeletedMessage = unit {
+    nanoseconds: uint32;
+    order_number: uint64;
+};
+
+type OrderReplacedMessage = unit {
+    nanoseconds: uint32;
+    original_order_number: uint64;
+    new_order_number: uint64;
+    quantity: uint32;
+    price: int32;
+};
+
+type MessageType = enum {
+    SecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    PriceTickSizeMessage = 0x4c,
+    OrderbookDirectoryMessage = 0x52,
+    TradingStateMessage = 0x48,
+    OrderAddedMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderDeletedMessage = 0x44,
+    OrderReplacedMessage = 0x55,
+};
+
+type TradingState = enum {
+    Trading = 0x54,
+    Suspended = 0x56,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

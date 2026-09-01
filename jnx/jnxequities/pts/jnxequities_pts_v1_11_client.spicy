@@ -1,0 +1,130 @@
+module JnxJnxequitiesPtsOuchV111Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type JnxequitiesPtsV111 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::EnterOrderMessage -> enter_order_message: EnterOrderMessage;
+        UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
+        UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type EnterOrderMessage = unit {
+    order_token: uint32;
+    client_reference: bytes &size=10;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    orderbook_id: uint32;
+    group: bytes &size=4;
+    price: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
+    firm_id: uint32;
+    display: uint8 &convert=Display($$);
+    capacity: uint8 &convert=Capacity($$);
+    minimum_quantity: uint32;
+    order_classification: uint8 &convert=OrderClassification($$);
+    cash_margin_type: uint8 &convert=CashMarginType($$);
+};
+
+type ReplaceOrderMessage = unit {
+    existing_order_token: uint32;
+    replacement_order_token: uint32;
+    quantity: uint32;
+    price: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
+    display: uint8 &convert=Display($$);
+    minimum_quantity: uint32;
+};
+
+type CancelOrderMessage = unit {
+    order_token: uint32;
+    quantity: uint32;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    EnterOrderMessage = 0x4f,
+    ReplaceOrderMessage = 0x55,
+    CancelOrderMessage = 0x58,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    ShortSell = 0x54,
+    ShortSellExempt = 0x45,
+};
+
+type TimeInForce = enum {
+    Immediate = 0,
+    Day = 99999,
+};
+
+type Display = enum {
+    Unused = 0x20,
+    Postonly = 0x50,
+};
+
+type Capacity = enum {
+    Agency = 0x41,
+    Principal = 0x50,
+};
+
+type OrderClassification = enum {
+    NonHft = 0x31,
+    HftMarketMakingStrategy = 0x33,
+    HftArbitrageStrategy = 0x34,
+    HftDirectionalStrategy = 0x35,
+    HftOtherStrategy = 0x36,
+};
+
+type CashMarginType = enum {
+    Cash = 0x31,
+    MarginOpenNegotiable = 0x32,
+    MarginCloseNegotiable = 0x33,
+    MarginOpenStandardized = 0x34,
+    MarginCloseStandardized = 0x35,
+};
+
