@@ -41,6 +41,7 @@ type UnsequencedDataPacket = unit {
         UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
         UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
         UnsequencedMessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        UnsequencedMessageType::AccountQueryMessage -> account_query_message: AccountQueryMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -95,6 +96,17 @@ type ModifyOrderMessage = unit {
     user_ref_num: uint32;
     side: uint8 &convert=Side($$);
     quantity: uint32;
+};
+
+type AccountQueryMessage = unit {
+    appendage_length: uint16;
+    account_query_appendage: AccountQueryAppendage[] &eod;
+};
+
+type AccountQueryAppendage = unit {
+    optional_field_length: int8;
+    account_query_optional_field: int8 &convert=AccountQueryOptionalField($$);
+    account_query_optional_value: bytes &size=1;
 };
 
 type ClientPacketType = enum {
@@ -183,5 +195,9 @@ type ReplaceOrderOptionalField = enum {
     Expiretime = 15,
     Tradenow = 16,
     Handleinst = 17,
+};
+
+type AccountQueryOptionalField = enum {
+    Userrefidx = 28,
 };
 

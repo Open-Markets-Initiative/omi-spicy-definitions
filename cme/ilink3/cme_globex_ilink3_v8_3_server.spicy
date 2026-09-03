@@ -988,7 +988,22 @@ type ExecutionReportTradeAddendumSpreadLeg = unit {
     manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
     poss_retrans_flag: uint8 &convert=PossRetransFlag($$);
     fills_groups: FillsGroups;
-    spread_trade_events_groups: SpreadTradeEventsGroups;
+    spread_leg_trade_events_groups: SpreadLegTradeEventsGroups;
+};
+
+type SpreadLegTradeEventsGroups = unit {
+    group_size: GroupSize;
+    spread_leg_trade_events_group: SpreadLegTradeEventsGroup[self.group_size.num_in_group];
+};
+
+type SpreadLegTradeEventsGroup = unit {
+    order_event_px: int64;
+    order_event_text: bytes &size=5;
+    order_event_exec_id: uint32;
+    order_event_qty: uint32;
+    trade_addendum: uint8 &convert=TradeAddendum($$);
+    order_event_reason: uint8;
+    original_order_event_exec_id: uint32;
 };
 
 type OrderMassActionReport = unit {
