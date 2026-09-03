@@ -14,15 +14,27 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class NtxequitiesTotalviewV50Tests(unittest.TestCase):
 
-    def test_addordermpidattributionmessage(self):
+    def test_addordernompidattributionmessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/AddOrderMpidAttributionMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/AddOrderNoMpidAttributionMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_addordernompidattributionmessage(self):
+    def test_orderdeletemessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/AddOrderNoMpidAttributionMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/OrderDeleteMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_orderreplacemessage(self):
+        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/OrderReplaceMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_addordermpidattributionmessage(self):
+        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/AddOrderMpidAttributionMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -38,12 +50,6 @@ class NtxequitiesTotalviewV50Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_orderdeletemessage(self):
-        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/OrderDeleteMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_orderexecutedmessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/OrderExecutedMessage.pcap"):
@@ -53,12 +59,6 @@ class NtxequitiesTotalviewV50Tests(unittest.TestCase):
     def test_orderexecutedwithpricemessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/OrderExecutedWithPriceMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
-    def test_orderreplacemessage(self):
-        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/OrderReplaceMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

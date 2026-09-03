@@ -44,6 +44,30 @@ class JnxequitiesPtsV111Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_cancelordermessage(self):
+        module = "jnx/jnxequities/pts/jnxequities_pts_v1_11_server.spicy"
+        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Ouch.v1.12/CancelOrderMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_ordercanceledmessage(self):
+        module = "jnx/jnxequities/pts/jnxequities_pts_v1_11_server.spicy"
+        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Ouch.v1.12/OrderCanceledMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_orderexecutedmessage(self):
+        module = "jnx/jnxequities/pts/jnxequities_pts_v1_11_server.spicy"
+        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Ouch.v1.12/OrderExecutedMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_orderrejectedmessage(self):
+        module = "jnx/jnxequities/pts/jnxequities_pts_v1_11_server.spicy"
+        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Ouch.v1.12/OrderRejectedMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
 
 if __name__ == "__main__":
     unittest.main()
