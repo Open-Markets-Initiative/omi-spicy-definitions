@@ -16,8 +16,8 @@ public type NyseequitiesOpenbookV21K = unit {
         MessageType::ExtendedBookRefreshRequestMessage -> extended_book_refresh_request_message: ExtendedBookRefreshRequestMessage;
         MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
         MessageType::SymbolIndexMappingResponseMessage -> symbol_index_mapping_response_message: SymbolIndexMappingResponseMessage;
-        MessageType::FullUpdateMessage -> full_update_message: FullUpdateMessage;
-        MessageType::DeltaUpdateMessage -> delta_update_message: DeltaUpdateMessage;
+        MessageType::FullUpdateMessage -> full_update_messages: FullUpdateMessages;
+        MessageType::DeltaUpdateMessage -> delta_update_messages: DeltaUpdateMessages;
         * -> unknown: bytes &eod;
     };
 };
@@ -34,25 +34,25 @@ type PacketHeader = unit {
 };
 
 type SequenceNumberResetMessage = unit {
-    next_seq_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    next_seq_number: int32;
 };
 
 type UnavailableMessage = unit {
-    begin_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
-    end_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    begin_seq_num: int32;
+    end_seq_num: int32;
 };
 
 type RequestResponseMessage = unit {
-    source_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_seq_num: int32;
     source_id: bytes &size=20;
     status: uint8 &convert=Status($$);
     reject_reason: uint8 &convert=RejectReason($$);
-    filler_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
 };
 
 type RetransmissionRequestMessage = unit {
-    begin_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
-    end_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    begin_seq_num: int32;
+    end_seq_num: int32;
     source_id: bytes &size=20;
 };
 
@@ -67,68 +67,84 @@ type HeartbeatResponseMessage = unit {
 
 type ExtendedBookRefreshRequestMessage = unit {
     source_id: bytes &size=20;
-    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
-    msg_type: uint16 &byte-order=spicy::ByteOrder::Little;
+    symbol_index: int32;
+    msg_type: int16;
 };
 
 type SymbolIndexMappingRequestMessage = unit {
     source_id: bytes &size=20;
-    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    symbol_index: int32;
 };
 
 type SymbolIndexMappingResponseMessage = unit {
     symbol_11: bytes &size=11;
-    filler_1: uint8;
-    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    symbol_index: int32;
+};
+
+type FullUpdateMessages = unit {
+    full_update_message: FullUpdateMessage[] &eod;
 };
 
 type FullUpdateMessage = unit {
-    update_size: uint16 &byte-order=spicy::ByteOrder::Little;
-    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
-    source_time: uint32 &byte-order=spicy::ByteOrder::Little;
-    source_time_micro_secs: uint16 &byte-order=spicy::ByteOrder::Little;
-    symbol_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
-    source_session_id: uint8;
+    update_size: int16;
+    full_update_message_body: FullUpdateMessageBody;
+};
+
+type FullUpdateMessageBody = unit {
+    symbol_index: int32;
+    source_time: int32;
+    source_time_micro_secs: int16;
+    symbol_seq_num: int32;
+    source_session_id: int8;
     symbol_11: bytes &size=11;
     price_scale_code: int8;
     quote_condition: uint8 &convert=QuoteCondition($$);
     trading_status: uint8 &convert=TradingStatus($$);
-    filler_1: uint8;
-    mpv: uint16 &byte-order=spicy::ByteOrder::Little;
-    full_price_point: FullPricePoint[self.update_size];
+    : skip bytes &size=1;   # padding
+    mpv: int16;
+    full_price_point: FullPricePoint[] &eod;
 };
 
 type FullPricePoint = unit {
-    price_numerator: int32 &byte-order=spicy::ByteOrder::Little;
-    volume: uint32 &byte-order=spicy::ByteOrder::Little;
-    num_orders: uint16 &byte-order=spicy::ByteOrder::Little;
+    price_numerator: int32;
+    volume: int32;
+    num_orders: int16;
     side: uint8 &convert=Side($$);
-    filler_1: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type DeltaUpdateMessages = unit {
+    delta_update_message: DeltaUpdateMessage[] &eod;
 };
 
 type DeltaUpdateMessage = unit {
-    delta_size: uint16 &byte-order=spicy::ByteOrder::Little;
-    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
-    source_time: uint32 &byte-order=spicy::ByteOrder::Little;
-    source_time_micro_secs: uint16 &byte-order=spicy::ByteOrder::Little;
-    source_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
-    source_session_id: uint8;
+    delta_size: int16;
+    delta_update_message_body: DeltaUpdateMessageBody;
+};
+
+type DeltaUpdateMessageBody = unit {
+    symbol_index: int32;
+    source_time: int32;
+    source_time_micro_secs: int16;
+    source_seq_num: int32;
+    source_session_id: int8;
     quote_condition: uint8 &convert=QuoteCondition($$);
     trading_status: uint8 &convert=TradingStatus($$);
     price_scale_code: int8;
-    delta_price_point: DeltaPricePoint[self.delta_size];
+    delta_price_point: DeltaPricePoint[] &eod;
 };
 
 type DeltaPricePoint = unit {
-    price_numerator: int32 &byte-order=spicy::ByteOrder::Little;
-    volume: uint32 &byte-order=spicy::ByteOrder::Little;
-    chg_qty: uint32 &byte-order=spicy::ByteOrder::Little;
-    num_orders: uint16 &byte-order=spicy::ByteOrder::Little;
+    price_numerator: int32;
+    volume: int32;
+    chg_qty: int32;
+    num_orders: int16;
     side: uint8 &convert=Side($$);
     reason_code: uint8 &convert=ReasonCode($$);
-    link_id_1: uint32 &byte-order=spicy::ByteOrder::Little;
-    link_id_2: uint32 &byte-order=spicy::ByteOrder::Little;
-    link_id_3: uint32 &byte-order=spicy::ByteOrder::Little;
+    link_id_1: int32;
+    link_id_2: int32;
+    link_id_3: int32;
 };
 
 type MessageType = enum {
@@ -185,7 +201,7 @@ type TradingStatus = enum {
     EarlySession = 0x45,
     CoreSession = 0x4f,
     LateSession = 0x4c,
-    Closed = 0x43,
+    Closed = 0x58,
     Halted = 0x48,
     Suspended = 0x36,
 };

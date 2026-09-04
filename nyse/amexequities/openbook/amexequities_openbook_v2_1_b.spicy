@@ -7,9 +7,17 @@ import spicy;
 public type AmexequitiesOpenbookV21B = unit {
     packet_header: PacketHeader;
     switch ( self.packet_header.message_type ) {
+        MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
+        MessageType::UnavailableMessage -> unavailable_message: UnavailableMessage;
+        MessageType::RequestResponseMessage -> request_response_message: RequestResponseMessage;
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::BookRefreshRequestMessage -> book_refresh_request_message: BookRefreshRequestMessage;
+        MessageType::HeartbeatResponseMessage -> heartbeat_response_message: HeartbeatResponseMessage;
+        MessageType::ExtendedBookRefreshRequestMessage -> extended_book_refresh_request_message: ExtendedBookRefreshRequestMessage;
+        MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
+        MessageType::SymbolIndexMappingResponseMessage -> symbol_index_mapping_response_message: SymbolIndexMappingResponseMessage;
         MessageType::FullUpdateMessage -> full_update_messages: FullUpdateMessages;
         MessageType::DeltaUpdateMessage -> delta_update_messages: DeltaUpdateMessages;
-        MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -23,6 +31,55 @@ type PacketHeader = unit {
     retransmission_flag: uint8;
     message_count: uint8;
     link_flag: uint8;
+};
+
+type SequenceNumberResetMessage = unit {
+    next_sequence_number: int32;
+};
+
+type UnavailableMessage = unit {
+    begin_seq_num: int32;
+    end_seq_num: int32;
+};
+
+type RequestResponseMessage = unit {
+    source_seq_num: int32;
+    source_id: bytes &size=20;
+    status: uint8 &convert=Status($$);
+    reject_reason: uint8 &convert=RejectReason($$);
+    : skip bytes &size=2;   # padding
+};
+
+type RetransmissionRequestMessage = unit {
+    begin_seq_num: int32;
+    end_seq_num: int32;
+    source_id: bytes &size=20;
+};
+
+type BookRefreshRequestMessage = unit {
+    symbol_16: bytes &size=16;
+    source_id: bytes &size=20;
+};
+
+type HeartbeatResponseMessage = unit {
+    source_id: bytes &size=20;
+};
+
+type ExtendedBookRefreshRequestMessage = unit {
+    source_id: bytes &size=20;
+    symbol_index: int32;
+    msg_type: int16;
+};
+
+type SymbolIndexMappingRequestMessage = unit {
+    source_id: bytes &size=20;
+    symbol_index: int32;
+};
+
+type SymbolIndexMappingResponseMessage = unit {
+    symbol_11: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    symbol_index: int32;
 };
 
 type FullUpdateMessages = unit {
@@ -40,7 +97,7 @@ type FullUpdateMessageBody = unit {
     source_time_micro_secs: int16;
     symbol_seq_num: int32;
     source_session_id: int8;
-    symbol: bytes &size=11;
+    symbol_11: bytes &size=11;
     price_scale_code: int8;
     quote_condition: uint8 &convert=QuoteCondition($$);
     trading_status: uint8 &convert=TradingStatus($$);
@@ -90,15 +147,35 @@ type DeltaPricePoint = unit {
     link_id_3: int32;
 };
 
-type SequenceNumberResetMessage = unit {
-    next_sequence_number: int32;
-};
-
 type MessageType = enum {
-    FullUpdateMessage = 230,
-    DeltaUpdateMessage = 231,
     SequenceNumberResetMessage = 1,
     HeartbeatMessage = 2,
+    UnavailableMessage = 5,
+    RequestResponseMessage = 10,
+    HeartbeatSubscriptionMessage = 19,
+    RetransmissionRequestMessage = 20,
+    BookRefreshRequestMessage = 22,
+    HeartbeatResponseMessage = 24,
+    ExtendedBookRefreshRequestMessage = 27,
+    SymbolIndexMappingRequestMessage = 34,
+    SymbolIndexMappingResponseMessage = 35,
+    FullUpdateMessage = 230,
+    DeltaUpdateMessage = 231,
+};
+
+type Status = enum {
+    Accepted = 0x41,
+    Rejected = 0x52,
+};
+
+type RejectReason = enum {
+    RequestAccepted = 0x30,
+    RejectedDueToPermissions = 0x31,
+    InvalidSequenceRangeEgLowHigh = 0x32,
+    ExceededMaxSequenceRange1000 = 0x33,
+    ExceededMaxRetransRequestsInADay = 0x34,
+    ExceededMaxRefreshRequestsInADay = 0x35,
+    RejectedRequestedSeqnum1000000PacketsInThePastUseRefreshToRecoverCurrentStateIfNecessary = 0x36,
 };
 
 type QuoteCondition = enum {
@@ -109,10 +186,12 @@ type QuoteCondition = enum {
 type TradingStatus = enum {
     PreOpening = 0x50,
     EarlySession = 0x45,
+    BeginAcceptingOrders = 0x42,
     CoreSession = 0x4f,
     LateSession = 0x4c,
     Closed = 0x58,
     Halted = 0x48,
+    Suspended = 0x36,
 };
 
 type Side = enum {
