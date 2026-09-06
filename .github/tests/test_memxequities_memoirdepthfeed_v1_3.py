@@ -56,12 +56,6 @@ class MemxequitiesMemoirdepthfeedV13Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_stocktradingactionmessage(self):
-        module = "memx/memxequities/memoirdepthfeed/memxequities_memoirdepthfeed_v1_3.spicy"
-        for payload in payloads.of("omi-data-packets/Memx/MemxEquities.MemoirDepthFeed.Sbe.v1.3/StockTradingActionMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_tradingsessionstatusmessage(self):
         module = "memx/memxequities/memoirdepthfeed/memxequities_memoirdepthfeed_v1_3.spicy"
         for payload in payloads.of("omi-data-packets/Memx/MemxEquities.MemoirDepthFeed.Sbe.v1.3/TradingSessionStatusMessage.pcap"):

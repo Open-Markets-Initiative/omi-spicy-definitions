@@ -1,0 +1,731 @@
+module BseBseindiaEtiFbeV1614Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type BseindiaEtiV1614 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::DebtInquiryRequest -> debt_inquiry_request: DebtInquiryRequest;
+        TemplateId::DeleteAllOrderRequest -> delete_all_order_request: DeleteAllOrderRequest;
+        TemplateId::DeleteAllQuoteRequest -> delete_all_quote_request: DeleteAllQuoteRequest;
+        TemplateId::DeleteOrderComplexRequest -> delete_order_complex_request: DeleteOrderComplexRequest;
+        TemplateId::DeleteOrderSingleRequest -> delete_order_single_request: DeleteOrderSingleRequest;
+        TemplateId::GatewayRequest -> gateway_request: GatewayRequest;
+        TemplateId::Heartbeat -> heartbeat: Heartbeat;
+        TemplateId::InquireSessionListRequest -> inquire_session_list_request: InquireSessionListRequest;
+        TemplateId::LogonRequest -> logon_request: LogonRequest;
+        TemplateId::LogoutRequest -> logout_request: LogoutRequest;
+        TemplateId::MassQuoteRequest -> mass_quote_request: MassQuoteRequest;
+        TemplateId::ModifyOrderComplexRequest -> modify_order_complex_request: ModifyOrderComplexRequest;
+        TemplateId::ModifyOrderSingleRequest -> modify_order_single_request: ModifyOrderSingleRequest;
+        TemplateId::ModifyOrderSingleShortRequest -> modify_order_single_short_request: ModifyOrderSingleShortRequest;
+        TemplateId::MultiLegOrderRequest -> multi_leg_order_request: MultiLegOrderRequest;
+        TemplateId::NewOrderComplexRequest -> new_order_complex_request: NewOrderComplexRequest;
+        TemplateId::NewOrderSingleRequest -> new_order_single_request: NewOrderSingleRequest;
+        TemplateId::NewOrderSingleShortRequest -> new_order_single_short_request: NewOrderSingleShortRequest;
+        TemplateId::RetransmitMeMessageRequest -> retransmit_me_message_request: RetransmitMeMessageRequest;
+        TemplateId::RetransmitRequest -> retransmit_request: RetransmitRequest;
+        TemplateId::SessionPasswordChangeRequest -> session_password_change_request: SessionPasswordChangeRequest;
+        TemplateId::SessionRegistrationRequest -> session_registration_request: SessionRegistrationRequest;
+        TemplateId::SubscribeRequest -> subscribe_request: SubscribeRequest;
+        TemplateId::UnsubscribeRequest -> unsubscribe_request: UnsubscribeRequest;
+        TemplateId::UserLoginRequest -> user_login_request: UserLoginRequest;
+        TemplateId::UserLogoutRequest -> user_logout_request: UserLogoutRequest;
+        TemplateId::UserPasswordChangeRequest -> user_password_change_request: UserPasswordChangeRequest;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    body_len: uint32;
+    template_id: uint16 &convert=TemplateId($$);
+};
+
+type DebtInquiryRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    underlying_px: uint64;
+    yield: uint64;
+    security_id: int64;
+    order_qty: int32;
+    : skip bytes &size=4;   # padding
+};
+
+type RequestHeaderComp = unit {
+    msg_seq_num: uint32;
+    sender_sub_id: uint32;
+};
+
+type DeleteAllOrderRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    security_id: int64;
+    market_segment_id: int32;
+    regulatory_id: uint32;
+    algo_id: bytes &size=16;
+    target_party_id_session_id: uint32;
+    target_party_id_executing_trader: uint32;
+};
+
+type DeleteAllQuoteRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    market_segment_id: int32;
+    target_party_id_session_id: uint32;
+    algo_id: bytes &size=16;
+    regulatory_id: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type DeleteOrderComplexRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    security_id: int64;
+    : skip bytes &size=8;   # padding
+    message_tag: int32;
+    market_segment_id: int32;
+    target_party_id_session_id: uint32;
+    regulatory_id: uint32;
+    algo_id: bytes &size=16;
+};
+
+type DeleteOrderSingleRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    : skip bytes &size=8;   # padding
+    message_tag: int32;
+    market_segment_id: int32;
+    simple_security_id: uint32;
+    target_party_id_session_id: uint32;
+    regulatory_id: uint32;
+    algo_id: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type GatewayRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    party_id_session_id: uint32;
+    default_cstm_appl_ver_id: bytes &size=30;
+    password: bytes &size=32;
+    : skip bytes &size=6;   # padding
+};
+
+type Heartbeat = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+};
+
+type InquireSessionListRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+};
+
+type LogonRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    heart_bt_int: uint32;
+    party_id_session_id: uint32;
+    default_cstm_appl_ver_id: bytes &size=30;
+    password: bytes &size=32;
+    appl_usage_orders: uint8 &convert=ApplUsageOrders($$);
+    appl_usage_quotes: uint8 &convert=ApplUsageQuotes($$);
+    order_routing_indicator: uint8 &convert=OrderRoutingIndicator($$);
+    fix_engine_name: bytes &size=30;
+    fix_engine_version: bytes &size=30;
+    fix_engine_vendor: bytes &size=30;
+    application_system_name: bytes &size=30;
+    application_system_version: bytes &size=30;
+    application_system_vendor: bytes &size=30;
+    : skip bytes &size=3;   # padding
+};
+
+type LogoutRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+};
+
+type MassQuoteRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    sender_location_id: uint64;
+    quote_id: uint64;
+    market_segment_id: int32;
+    regulatory_id: uint32;
+    enrichment_rule_id: uint16;
+    account_type: uint8 &convert=AccountType($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    quote_size_type: uint8 &convert=QuoteSizeType($$);
+    stpc_flag: uint8 &convert=StpcFlag($$);
+    no_quote_entries: uint8;
+    algo_id: bytes &size=16;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    quote_entry_grp_comp: QuoteEntryGrpComp[self.no_quote_entries];
+};
+
+type QuoteEntryGrpComp = unit {
+    security_id: int64;
+    bid_px: uint64;
+    offer_px: uint64;
+    bid_size: int32;
+    offer_size: int32;
+    message_tag: int32;
+    : skip bytes &size=4;   # padding
+};
+
+type ModifyOrderComplexRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    security_id: int64;
+    price: uint64;
+    max_price_percentage: uint64;
+    sender_location_id: uint64;
+    activity_time: uint64;
+    : skip bytes &size=8;   # padding
+    : skip bytes &size=4;   # padding
+    market_segment_id: int32;
+    message_tag: int32;
+    order_qty: int32;
+    max_show: int32;
+    expire_date: uint32;
+    target_party_id_session_id: uint32;
+    regulatory_id: uint32;
+    : skip bytes &size=2;   # padding
+    party_id_take_up_trading_firm: bytes &size=5;
+    party_id_order_origination_firm: bytes &size=7;
+    party_id_beneficiary: bytes &size=9;
+    account_type: uint8 &convert=AccountType($$);
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    product_complex: uint8 &convert=ProductComplex($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    rollover_flag: uint8;
+    trading_capacity: uint8;
+    delta_qty_flag: bytes &size=1;
+    party_id_location_id: bytes &size=2;
+    cust_order_handling_inst: bytes &size=1;
+    regulatory_text: bytes &size=20;
+    algo_id: bytes &size=16;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+    free_text_3: bytes &size=12;
+    no_legs: uint8;
+    : skip bytes &size=2;   # padding
+    leg_ord_grp_comp: LegOrdGrpComp[self.no_legs];
+};
+
+type LegOrdGrpComp = unit {
+    leg_account: bytes &size=2;
+    leg_position_effect: bytes &size=1;
+    : skip bytes &size=5;   # padding
+};
+
+type ModifyOrderSingleRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    price: uint64;
+    stop_px: uint64;
+    max_price_percentage: uint64;
+    sender_location_id: uint64;
+    activity_time: uint64;
+    : skip bytes &size=8;   # padding
+    : skip bytes &size=4;   # padding
+    message_tag: int32;
+    order_qty: int32;
+    max_show: int32;
+    expire_date: uint32;
+    market_segment_id: int32;
+    simple_security_id: uint32;
+    target_party_id_session_id: uint32;
+    regulatory_id: uint32;
+    : skip bytes &size=2;   # padding
+    party_id_take_up_trading_firm: bytes &size=5;
+    party_id_order_origination_firm: bytes &size=7;
+    party_id_beneficiary: bytes &size=9;
+    account_type: uint8 &convert=AccountType($$);
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    rollover_flag: uint8;
+    trading_session_sub_id: uint8;
+    trading_capacity: uint8;
+    delta_qty_flag: bytes &size=1;
+    account: bytes &size=2;
+    position_effect: bytes &size=1;
+    party_id_location_id: bytes &size=2;
+    cust_order_handling_inst: bytes &size=1;
+    regulatory_text: bytes &size=20;
+    algo_id: bytes &size=16;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+    free_text_3: bytes &size=12;
+    : skip bytes &size=4;   # padding
+};
+
+type ModifyOrderSingleShortRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    order_id: uint64;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    price: uint64;
+    sender_location_id: uint64;
+    activity_time: uint64;
+    order_qty: int32;
+    max_show: int32;
+    simple_security_id: uint32;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=2;   # padding
+    account_type: uint8 &convert=AccountType($$);
+    side: uint8 &convert=Side($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    algo_id: bytes &size=16;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+    : skip bytes &size=1;   # padding
+};
+
+type MultiLegOrderRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    sender_location_id: uint64;
+    cl_ord_id: uint64;
+    account_type: uint8 &convert=AccountType($$);
+    all_or_none_flag: uint8 &convert=AllOrNoneFlag($$);
+    no_of_multi_leg: uint8;
+    algo_id: bytes &size=16;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+    : skip bytes &size=5;   # padding
+    multi_leg_ord_grp_comp: MultiLegOrdGrpComp[self.no_of_multi_leg];
+};
+
+type MultiLegOrdGrpComp = unit {
+    security_id: int64;
+    price: uint64;
+    max_price_percentage: uint64;
+    message_tag: int32;
+    market_segment_id: int32;
+    order_qty: int32;
+    product_complex: uint8 &convert=ProductComplex($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    : skip bytes &size=1;   # padding
+};
+
+type NewOrderComplexRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    cl_ord_id: uint64;
+    security_id: int64;
+    max_price_percentage: uint64;
+    sender_location_id: uint64;
+    price: uint64;
+    : skip bytes &size=8;   # padding
+    : skip bytes &size=4;   # padding
+    message_tag: int32;
+    market_segment_id: int32;
+    order_qty: int32;
+    max_show: int32;
+    expire_date: uint32;
+    regulatory_id: uint32;
+    : skip bytes &size=2;   # padding
+    party_id_take_up_trading_firm: bytes &size=5;
+    party_id_order_origination_firm: bytes &size=7;
+    party_id_beneficiary: bytes &size=9;
+    account_type: uint8 &convert=AccountType($$);
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    product_complex: uint8 &convert=ProductComplex($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    stpc_flag: uint8 &convert=StpcFlag($$);
+    rollover_flag: uint8;
+    trading_capacity: uint8;
+    party_id_location_id: bytes &size=2;
+    regulatory_text: bytes &size=20;
+    algo_id: bytes &size=16;
+    cust_order_handling_inst: bytes &size=1;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+    free_text_3: bytes &size=12;
+    no_legs: uint8;
+    : skip bytes &size=6;   # padding
+    leg_ord_grp_comp: LegOrdGrpComp[self.no_legs];
+};
+
+type NewOrderSingleRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    price: uint64;
+    stop_px: uint64;
+    max_price_percentage: uint64;
+    sender_location_id: uint64;
+    cl_ord_id: uint64;
+    : skip bytes &size=8;   # padding
+    : skip bytes &size=4;   # padding
+    message_tag: int32;
+    order_qty: int32;
+    max_show: int32;
+    expire_date: uint32;
+    market_segment_id: int32;
+    simple_security_id: uint32;
+    regulatory_id: uint32;
+    : skip bytes &size=2;   # padding
+    party_id_take_up_trading_firm: bytes &size=5;
+    party_id_order_origination_firm: bytes &size=7;
+    party_id_beneficiary: bytes &size=9;
+    account_type: uint8 &convert=AccountType($$);
+    appl_seq_indicator: uint8 &convert=ApplSeqIndicator($$);
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    stpc_flag: uint8 &convert=StpcFlag($$);
+    rollover_flag: uint8;
+    trading_session_sub_id: uint8;
+    trading_capacity: uint8;
+    account: bytes &size=2;
+    position_effect: bytes &size=1;
+    party_id_location_id: bytes &size=2;
+    cust_order_handling_inst: bytes &size=1;
+    regulatory_text: bytes &size=20;
+    algo_id: bytes &size=16;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+    free_text_3: bytes &size=12;
+};
+
+type NewOrderSingleShortRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    price: uint64;
+    sender_location_id: uint64;
+    cl_ord_id: uint64;
+    order_qty: int32;
+    max_show: int32;
+    simple_security_id: uint32;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=2;   # padding
+    account_type: uint8 &convert=AccountType($$);
+    side: uint8 &convert=Side($$);
+    price_validity_check_type: uint8 &convert=PriceValidityCheckType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    stpc_flag: uint8 &convert=StpcFlag($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    algo_id: bytes &size=16;
+    client_code: bytes &size=12;
+    cp_code: bytes &size=12;
+};
+
+type RetransmitMeMessageRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    subscription_scope: uint32;
+    partition_id: uint16;
+    ref_appl_id: uint8 &convert=RefApplId($$);
+    appl_beg_msg_id: bytes &size=16;
+    appl_end_msg_id: bytes &size=16;
+    : skip bytes &size=1;   # padding
+};
+
+type RetransmitRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    appl_beg_seq_num: uint64;
+    appl_end_seq_num: uint64;
+    subscription_scope: uint32;
+    partition_id: uint16;
+    ref_appl_id: uint8 &convert=RefApplId($$);
+    : skip bytes &size=1;   # padding
+};
+
+type SessionPasswordChangeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    party_id_session_id: uint32;
+    password: bytes &size=32;
+    new_password: bytes &size=32;
+    : skip bytes &size=4;   # padding
+};
+
+type SessionRegistrationRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    party_id_session_id: uint32;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=8;   # padding
+};
+
+type SubscribeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    subscription_scope: uint32;
+    ref_appl_id: uint8 &convert=RefApplId($$);
+    : skip bytes &size=3;   # padding
+};
+
+type UnsubscribeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    ref_appl_sub_id: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type UserLoginRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    username: uint32;
+    password: bytes &size=32;
+    : skip bytes &size=4;   # padding
+};
+
+type UserLogoutRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    username: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type UserPasswordChangeRequest = unit {
+    network_msg_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    request_header_comp: RequestHeaderComp;
+    username: uint32;
+    password: bytes &size=32;
+    new_password: bytes &size=32;
+    : skip bytes &size=4;   # padding
+};
+
+type TemplateId = enum {
+    BroadcastErrorNotification = 10032,
+    DebtInquiryRequest = 10390,
+    DebtInquiryResponse = 10391,
+    DeleteAllOrderBroadcast = 10122,
+    DeleteAllOrderNrResponse = 10124,
+    DeleteAllOrderQuoteEventBroadcast = 10308,
+    DeleteAllOrderRequest = 10120,
+    DeleteAllOrderResponse = 10121,
+    DeleteAllQuoteBroadcast = 10410,
+    DeleteAllQuoteRequest = 10408,
+    DeleteAllQuoteResponse = 10409,
+    DeleteOrderBroadcast = 10112,
+    DeleteOrderComplexRequest = 10123,
+    DeleteOrderNrResponse = 10111,
+    DeleteOrderResponse = 10110,
+    DeleteOrderSingleRequest = 10109,
+    ForcedLogoutNotification = 10012,
+    GatewayRequest = 10020,
+    GatewayResponse = 10022,
+    GwOrderAcknowledgement = 10990,
+    Heartbeat = 10011,
+    HeartbeatNotification = 10023,
+    InquireSessionListRequest = 10035,
+    InquireSessionListResponse = 10036,
+    LogonRequest = 10000,
+    LogonResponse = 10001,
+    LogoutRequest = 10002,
+    LogoutResponse = 10003,
+    MassQuoteRequest = 10405,
+    MassQuoteResponse = 10406,
+    ModifyOrderComplexRequest = 10114,
+    ModifyOrderNrResponse = 10108,
+    ModifyOrderResponse = 10107,
+    ModifyOrderSingleRequest = 10106,
+    ModifyOrderSingleShortRequest = 10126,
+    MultiLegExecReportBroadcast = 10994,
+    MultiLegExecResponse = 10993,
+    MultiLegOrderReject = 10992,
+    MultiLegOrderRequest = 10991,
+    NewOrderComplexRequest = 10113,
+    NewOrderNrResponse = 10102,
+    NewOrderResponse = 10101,
+    NewOrderSingleRequest = 10100,
+    NewOrderSingleShortRequest = 10125,
+    NewsBroadcast = 10031,
+    OrderExecNotification = 10104,
+    OrderExecReportBroadcast = 10117,
+    OrderExecResponse = 10103,
+    QuoteExecReportBroadcast = 10412,
+    QuoteExecutionReport = 10407,
+    Reject = 10010,
+    RetransmitMeMessageRequest = 10026,
+    RetransmitMeMessageResponse = 10027,
+    RetransmitRequest = 10008,
+    RetransmitResponse = 10009,
+    RiskCollateralAlertAdminBroadcast = 10048,
+    RiskCollateralAlertBroadcast = 10049,
+    RiskNotificationBroadcast = 10033,
+    ServiceAvailabilityBroadcast = 10030,
+    SessionPasswordChangeRequest = 10997,
+    SessionPasswordChangeResponse = 10995,
+    SessionRegistrationRequest = 10053,
+    SessionRegistrationResponse = 10054,
+    SubscribeRequest = 10025,
+    SubscribeResponse = 10005,
+    TmTradingSessionStatusBroadcast = 10501,
+    ThrottleUpdateNotification = 10028,
+    TradeBroadcast = 10500,
+    TradeEnhancementBroadcast = 10989,
+    TradingSessionStatusBroadcast = 10307,
+    UnsubscribeRequest = 10006,
+    UnsubscribeResponse = 10007,
+    UserLoginRequest = 10018,
+    UserLoginResponse = 10019,
+    UserLogoutRequest = 10029,
+    UserLogoutResponse = 10024,
+    UserPasswordChangeRequest = 10996,
+    UserPasswordChangeResponse = 10043,
+};
+
+type ApplUsageOrders = enum {
+    Automated = 0x41,
+    Manual = 0x4d,
+    AutoSelect = 0x42,
+    None_x4e = 0x4e,
+};
+
+type ApplUsageQuotes = enum {
+    Automated = 0x41,
+    Manual = 0x4d,
+    AutoSelect = 0x42,
+    None_x4e = 0x4e,
+};
+
+type OrderRoutingIndicator = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type AccountType = enum {
+    Own = 20,
+    Client = 30,
+};
+
+type PriceValidityCheckType = enum {
+    None_0 = 0,
+};
+
+type QuoteSizeType = enum {
+    TotalSize = 1,
+    OpenSize = 2,
+};
+
+type StpcFlag = enum {
+    Passive = 0,
+    Active = 1,
+};
+
+type ApplSeqIndicator = enum {
+    NoRecoveryRequired = 0,
+    RecoveryRequired = 1,
+};
+
+type ProductComplex = enum {
+    Simpleinstrument = 1,
+    Standardoptionstrategy = 2,
+    FuturesSpread = 5,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+    Recall = 3,
+    Earlyreturn = 4,
+};
+
+type OrdType = enum {
+    Limit = 2,
+    Stop = 3,
+    StopLimit = 4,
+    MarkettoLimit = 5,
+    BlockDeal = 6,
+    Quote = 7,
+};
+
+type ExecInst = enum {
+    H = 1,
+    Q = 2,
+    Hq = 3,
+    H6 = 5,
+    Q6 = 6,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    Ioc = 3,
+    Gtcl = 7,
+};
+
+type AllOrNoneFlag = enum {
+    UseAllOrNone = 0x59,
+    UseAllOrNoneNot = 0x4e,
+};
+
+type RefApplId = enum {
+    TradeEnhancement = 0,
+    Trade = 1,
+    News = 2,
+    Serviceavailability = 3,
+    Sessiondata = 4,
+    Listenerdata = 5,
+    RiskControl = 6,
+    RiskAdmin = 8,
+};
+

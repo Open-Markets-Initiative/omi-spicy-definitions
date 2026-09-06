@@ -1,0 +1,250 @@
+module NseNsefoOrderentryNnftrimmedV950;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsefoOrderentryV950 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    switch ( self.transaction_code ) {
+        TransactionCode::BoardLotInTrimmedMessage -> board_lot_in_trimmed_message: BoardLotInTrimmedMessage;
+        TransactionCode::BoardLotInTrimmedMessage_20400 -> board_lot_in_trimmed_message: BoardLotInTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20060 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20070 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20402 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20404 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderConfirmationTrimmedMessage -> order_confirmation_trimmed_message: OrderConfirmationTrimmedMessage;
+        TransactionCode::OrderConfirmationTrimmedMessage_20074 -> order_confirmation_trimmed_message: OrderConfirmationTrimmedMessage;
+        TransactionCode::OrderConfirmationTrimmedMessage_20075 -> order_confirmation_trimmed_message: OrderConfirmationTrimmedMessage;
+        TransactionCode::TradeConfirmationTrimmedMessage -> trade_confirmation_trimmed_message: TradeConfirmationTrimmedMessage;
+        TransactionCode::QuickAcknowledgementMessage -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20403 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20405 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20407 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20409 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20411 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20413 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20415 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20417 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type BoardLotInTrimmedMessage = unit {
+    user_id: int32;
+    reason_code: int16;
+    token_no: int32;
+    contract_desc_tr: ContractDescTr;
+    account_number: bytes &size=10;
+    book_type: int16;
+    buy_sell_indicator: int16;
+    disclosed_volume: int32;
+    volume: int32;
+    price: int32;
+    good_till_date: int32;
+    st_order_flags: StOrderFlags;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    additional_order_flags: AdditionalOrderFlags;
+    reserved_1: bytes &size=1;
+    filler: int32;
+    nnf_field: bytes &size=8;
+    pan: bytes &size=10;
+    algo_id: int32;
+    reserved_2: int16;
+    reserved_32: bytes &size=32;
+};
+
+type ContractDescTr = unit {
+    instrument_name: bytes &size=6;
+    symbol: bytes &size=10;
+    expiry_date: int32;
+    strike_price: int32;
+    option_type: bytes &size=2;
+};
+
+type StOrderFlags = unit {
+    reserved_12: bytes &size=1;
+    order_pre_open: bytes &size=1;
+    frozen: bytes &size=1;
+    modified: bytes &size=1;
+    traded: bytes &size=1;
+    matched_ind: bytes &size=1;
+    mf: bytes &size=1;
+    aon: bytes &size=1;
+    ioc: bytes &size=1;
+    gtc: bytes &size=1;
+    day: bytes &size=1;
+    mit: bytes &size=1;
+    sl: bytes &size=1;
+    market: bytes &size=1;
+    ato: bytes &size=1;
+};
+
+type AdditionalOrderFlags = unit {
+    boc: bytes &size=1;
+    col: bytes &size=1;
+    reserved_34: bytes &size=1;
+    stpc: bytes &size=1;
+    reserved_68: bytes &size=1;
+};
+
+type OrderModifyCancelTrimmedMessage = unit {
+    user_id: int32;
+    modified_cancelled_by: bytes &size=1;
+    reserved_1: bytes &size=1;
+    token_no: int32;
+    contract_desc_tr: ContractDescTr;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type: int16;
+    buy_sell_indicator: int16;
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    good_till_date: int32;
+    entry_date_time: int32;
+    last_modified: int32;
+    st_order_flags: StOrderFlags;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    additional_order_flags: AdditionalOrderFlags;
+    second_reserved_1: bytes &size=1;
+    filler: int32;
+    nnf_field: bytes &size=8;
+    pan: bytes &size=10;
+    algo_id: int32;
+    reserved_2: int16;
+    last_activity_reference: int64;
+    reserved_24: bytes &size=24;
+};
+
+type OrderConfirmationTrimmedMessage = unit {
+    log_time: int32;
+    user_id: int32;
+    error_code: int16;
+    time_stamp_1: int64;
+    time_stamp_2: bytes &size=1;
+    modified_cancelled_by: bytes &size=1;
+    reason_code: int16;
+    token_no: int32;
+    contract_desc_tr: ContractDescTr;
+    closeout_flag: bytes &size=1;
+    reserved_1: bytes &size=1;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type: int16;
+    buy_sell_indicator: int16;
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    good_till_date: int32;
+    entry_date_time: int32;
+    last_modified: int32;
+    st_order_flags: StOrderFlags;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    additional_order_flags: AdditionalOrderFlags;
+    second_reserved_1: bytes &size=1;
+    filler: int32;
+    nnf_field: bytes &size=8;
+    time_stamp: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    reserved_2: int16;
+    last_activity_reference: int64;
+    reserved_52: bytes &size=52;
+};
+
+type TradeConfirmationTrimmedMessage = unit {
+    log_time: int32;
+    trader_id: int32;
+    time_stamp: int64;
+    time_stamp_1: int64;
+    time_stamp_2: bytes &size=1;
+    response_order_number: bytes &size=8;
+    broker_id: bytes &size=5;
+    reserved_1: bytes &size=1;
+    account_number: bytes &size=10;
+    buy_sell_indicator: int16;
+    original_volume: int32;
+    disclosed_volume: int32;
+    remaining_volume: int32;
+    disclosed_volume_remaining: int32;
+    price: int32;
+    st_order_flags: StOrderFlags;
+    good_till_date: int32;
+    fill_number: int32;
+    fill_quantity: int32;
+    fill_price: int32;
+    volume_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32;
+    token: int32;
+    contract_desc_tr: ContractDescTr;
+    open_close: bytes &size=1;
+    trade_book_type: bytes &size=1;
+    participant: bytes &size=12;
+    additional_order_flags: AdditionalOrderFlags;
+    pan: bytes &size=10;
+    second_reserved_1: bytes &size=1;
+    algo_id: int32;
+    reserved_2: int16;
+    last_activity_reference: int64;
+    reserved_52: bytes &size=52;
+};
+
+type QuickAcknowledgementMessage = unit {
+    trader_id: int32;
+    time_stamp: int64;
+    reference: int32;
+    error_code: int16;
+    message_length: int16;
+};
+
+type TransactionCode = enum {
+    BoardLotInTrimmedMessage = 20000,
+    BoardLotInTrimmedMessage_20400 = 20400,
+    OrderModifyCancelTrimmedMessage = 20040,
+    OrderModifyCancelTrimmedMessage_20060 = 20060,
+    OrderModifyCancelTrimmedMessage_20070 = 20070,
+    OrderModifyCancelTrimmedMessage_20402 = 20402,
+    OrderModifyCancelTrimmedMessage_20404 = 20404,
+    OrderConfirmationTrimmedMessage = 20073,
+    OrderConfirmationTrimmedMessage_20074 = 20074,
+    OrderConfirmationTrimmedMessage_20075 = 20075,
+    TradeConfirmationTrimmedMessage = 20222,
+    QuickAcknowledgementMessage = 20401,
+    QuickAcknowledgementMessage_20403 = 20403,
+    QuickAcknowledgementMessage_20405 = 20405,
+    QuickAcknowledgementMessage_20407 = 20407,
+    QuickAcknowledgementMessage_20409 = 20409,
+    QuickAcknowledgementMessage_20411 = 20411,
+    QuickAcknowledgementMessage_20413 = 20413,
+    QuickAcknowledgementMessage_20415 = 20415,
+    QuickAcknowledgementMessage_20417 = 20417,
+};
+

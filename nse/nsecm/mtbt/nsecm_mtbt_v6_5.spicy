@@ -1,0 +1,101 @@
+module NseNsecmMtbtBinaryV65;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NsecmMtbtV65 = unit {
+    stream_header: StreamHeader;
+    message: Message;
+};
+
+type StreamHeader = unit {
+    message_length: int16;
+    stream_id: int16;
+    sequence_number: uint32;
+};
+
+type Message = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::OrderMessage -> order_message: OrderMessage;
+        MessageType::OrderMessage_x4d -> order_message: OrderMessage;
+        MessageType::OrderMessage_x58 -> order_message: OrderMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::SpreadOrderMessage -> spread_order_message: SpreadOrderMessage;
+        MessageType::SpreadOrderMessage_x48 -> spread_order_message: SpreadOrderMessage;
+        MessageType::SpreadOrderMessage_x4a -> spread_order_message: SpreadOrderMessage;
+        MessageType::SpreadTradeMessage -> spread_trade_message: SpreadTradeMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        MessageType::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type OrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type TradeMessage = unit {
+    timestamp: int64;
+    buy_order_id: bytes &size=8;
+    sell_order_id: bytes &size=8;
+    token: int32;
+    trade_price: int32;
+    trade_quantity: int32;
+};
+
+type SpreadOrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadTradeMessage = unit {
+    timestamp: int64;
+    buy_order_id: bytes &size=8;
+    sell_order_id: bytes &size=8;
+    token: int32;
+    trade_price: int32;
+    quantity: int32;
+};
+
+type TradeCancelMessage = unit {
+    timestamp: int64;
+    buy_order_id: bytes &size=8;
+    sell_order_id: bytes &size=8;
+    token: int32;
+    trade_price: int32;
+    trade_quantity: int32;
+};
+
+type HeartbeatMessage = unit {
+    last_sequence_no: int32;
+};
+
+type MessageType = enum {
+    OrderMessage = 0x4e,
+    OrderMessage_x4d = 0x4d,
+    OrderMessage_x58 = 0x58,
+    TradeMessage = 0x54,
+    SpreadOrderMessage = 0x47,
+    SpreadOrderMessage_x48 = 0x48,
+    SpreadOrderMessage_x4a = 0x4a,
+    SpreadTradeMessage = 0x4b,
+    TradeCancelMessage = 0x43,
+    HeartbeatMessage = 0x5a,
+};
+
+type OrderType = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
