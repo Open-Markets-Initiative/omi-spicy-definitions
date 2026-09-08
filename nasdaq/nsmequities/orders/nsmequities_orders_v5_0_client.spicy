@@ -42,6 +42,9 @@ type UnsequencedDataPacket = unit {
         UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
         UnsequencedMessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
         UnsequencedMessageType::AccountQueryMessage -> account_query_message: AccountQueryMessage;
+        UnsequencedMessageType::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
+        UnsequencedMessageType::DisableOrderEntryRequestMessage -> disable_order_entry_request_message: DisableOrderEntryRequestMessage;
+        UnsequencedMessageType::EnableOrderEntryRequestMessage -> enable_order_entry_request_message: EnableOrderEntryRequestMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -109,6 +112,46 @@ type AccountQueryAppendage = unit {
     account_query_optional_value: bytes &size=1;
 };
 
+type MassCancelRequestMessage = unit {
+    user_ref_num: uint32;
+    firm: bytes &size=4;
+    symbol: bytes &size=8;
+    appendage_length: uint16;
+    mass_cancel_request_appendage: MassCancelRequestAppendage[] &eod;
+};
+
+type MassCancelRequestAppendage = unit {
+    optional_field_length: int8;
+    mass_cancel_request_optional_field: int8 &convert=MassCancelRequestOptionalField($$);
+    mass_cancel_request_optional_value: bytes &size=4;
+};
+
+type DisableOrderEntryRequestMessage = unit {
+    user_ref_num: uint32;
+    firm: bytes &size=4;
+    appendage_length: uint16;
+    disable_order_entry_request_appendage: DisableOrderEntryRequestAppendage[] &eod;
+};
+
+type DisableOrderEntryRequestAppendage = unit {
+    optional_field_length: int8;
+    disable_order_entry_request_optional_field: int8 &convert=DisableOrderEntryRequestOptionalField($$);
+    disable_order_entry_request_optional_value: bytes &size=1;
+};
+
+type EnableOrderEntryRequestMessage = unit {
+    user_ref_num: uint32;
+    firm: bytes &size=4;
+    appendage_length: uint16;
+    enable_order_entry_request_appendage: EnableOrderEntryRequestAppendage[] &eod;
+};
+
+type EnableOrderEntryRequestAppendage = unit {
+    optional_field_length: int8;
+    enable_order_entry_request_optional_field: int8 &convert=EnableOrderEntryRequestOptionalField($$);
+    enable_order_entry_request_optional_value: bytes &size=1;
+};
+
 type ClientPacketType = enum {
     DebugPacket = 0x2b,
     LoginRequestPacket = 0x4c,
@@ -123,6 +166,9 @@ type UnsequencedMessageType = enum {
     CancelOrderMessage = 0x58,
     ModifyOrderMessage = 0x4d,
     AccountQueryMessage = 0x51,
+    MassCancelRequestMessage = 0x43,
+    DisableOrderEntryRequestMessage = 0x44,
+    EnableOrderEntryRequestMessage = 0x45,
 };
 
 type Side = enum {
@@ -198,6 +244,20 @@ type ReplaceOrderOptionalField = enum {
 };
 
 type AccountQueryOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type MassCancelRequestOptionalField = enum {
+    Side = 27,
+    GroupId = 24,
+    Userrefidx = 28,
+};
+
+type DisableOrderEntryRequestOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type EnableOrderEntryRequestOptionalField = enum {
     Userrefidx = 28,
 };
 

@@ -55,6 +55,9 @@ type SequencedDataPacket = unit {
         SequencedMessageType::OrderModifiedMessage -> order_modified_message: OrderModifiedMessage;
         SequencedMessageType::OrderRestatedMessage -> order_restated_message: OrderRestatedMessage;
         SequencedMessageType::AccountQueryResponseMessage -> account_query_response_message: AccountQueryResponseMessage;
+        SequencedMessageType::MassCancelResponseMessage -> mass_cancel_response_message: MassCancelResponseMessage;
+        SequencedMessageType::DisableOrderEntryResponseMessage -> disable_order_entry_response_message: DisableOrderEntryResponseMessage;
+        SequencedMessageType::EnableOrderEntryResponseMessage -> enable_order_entry_response_message: EnableOrderEntryResponseMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -219,6 +222,49 @@ type AccountQueryResponseMessage = unit {
     next_user_ref_num: uint32;
 };
 
+type MassCancelResponseMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    firm: bytes &size=4;
+    symbol: bytes &size=8;
+    appendage_length: uint16;
+    mass_cancel_response_appendage: MassCancelResponseAppendage[] &eod;
+};
+
+type MassCancelResponseAppendage = unit {
+    optional_field_length: int8;
+    mass_cancel_response_optional_field: int8 &convert=MassCancelResponseOptionalField($$);
+    mass_cancel_response_optional_value: bytes &size=4;
+};
+
+type DisableOrderEntryResponseMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    firm: bytes &size=4;
+    appendage_length: uint16;
+    disable_order_entry_response_appendage: DisableOrderEntryResponseAppendage[] &eod;
+};
+
+type DisableOrderEntryResponseAppendage = unit {
+    optional_field_length: int8;
+    disable_order_entry_response_optional_field: int8 &convert=DisableOrderEntryResponseOptionalField($$);
+    disable_order_entry_response_optional_value: bytes &size=1;
+};
+
+type EnableOrderEntryResponseMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    firm: bytes &size=4;
+    appendage_length: uint16;
+    enable_order_entry_response_appendage: EnableOrderEntryResponseAppendage[] &eod;
+};
+
+type EnableOrderEntryResponseAppendage = unit {
+    optional_field_length: int8;
+    enable_order_entry_response_optional_field: int8 &convert=EnableOrderEntryResponseOptionalField($$);
+    enable_order_entry_response_optional_value: bytes &size=1;
+};
+
 type ServerPacketType = enum {
     DebugPacket = 0x2b,
     LoginAcceptedPacket = 0x41,
@@ -244,6 +290,9 @@ type SequencedMessageType = enum {
     OrderModifiedMessage = 0x4d,
     OrderRestatedMessage = 0x52,
     AccountQueryResponseMessage = 0x51,
+    MassCancelResponseMessage = 0x58,
+    DisableOrderEntryResponseMessage = 0x47,
+    EnableOrderEntryResponseMessage = 0x4b,
 };
 
 type EventCode = enum {
@@ -443,5 +492,19 @@ type OrderRestatedOptionalField = enum {
     DisplayQuantity = 22,
     DisplayPrice = 23,
     Secondaryordrefnum = 1,
+};
+
+type MassCancelResponseOptionalField = enum {
+    Side = 27,
+    GroupId = 24,
+    Userrefidx = 28,
+};
+
+type DisableOrderEntryResponseOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type EnableOrderEntryResponseOptionalField = enum {
+    Userrefidx = 28,
 };
 
