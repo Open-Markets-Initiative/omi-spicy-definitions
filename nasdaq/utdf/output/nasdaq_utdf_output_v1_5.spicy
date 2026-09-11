@@ -18,10 +18,10 @@ type PacketHeader = unit {
 type Message = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_category ) {
-        0x54 -> trade: Trade;
-        0x41 -> administrative: Administrative;
-        0x56 -> volume: Volume;
-        0x43 -> control: Control;
+        0x54 -> trade_message: TradeMessage;
+        0x41 -> administrative_message: AdministrativeMessage;
+        0x56 -> volume_message: VolumeMessage;
+        0x43 -> control_message: ControlMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -32,14 +32,14 @@ type MessageHeader = unit {
     message_category: uint8;
 };
 
-type Trade = unit {
-    trade_message_type: uint8 &convert=TradeMessageType($$);
+type TradeMessage = unit {
+    trade_message_type: uint8;
     switch ( self.trade_message_type ) {
-        TradeMessageType::TradeReportMessageShortFormMessage -> trade_report_message_short_form_message: TradeReportMessageShortFormMessage;
-        TradeMessageType::TradeReportMessageLongFormMessage -> trade_report_message_long_form_message: TradeReportMessageLongFormMessage;
-        TradeMessageType::TradeCancelErrorMessage -> trade_cancel_error_message: TradeCancelErrorMessage;
-        TradeMessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
-        TradeMessageType::PriorDayAsOfTradeMessage -> prior_day_as_of_trade_message: PriorDayAsOfTradeMessage;
+        0x41 -> trade_report_message_short_form_message: TradeReportMessageShortFormMessage;
+        0x57 -> trade_report_message_long_form_message: TradeReportMessageLongFormMessage;
+        0x5a -> trade_cancel_error_message: TradeCancelErrorMessage;
+        0x59 -> trade_correction_message: TradeCorrectionMessage;
+        0x48 -> prior_day_as_of_trade_message: PriorDayAsOfTradeMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -47,7 +47,7 @@ type Trade = unit {
 type TradeReportMessageShortFormMessage = unit {
     message_info: MessageInfo;
     finra_timestamp: uint64;
-    symbol: bytes &size=5;
+    symbol_short: bytes &size=5;
     trade_id: uint64;
     trade_price_short: uint16;
     trade_volume_short: uint16;
@@ -75,7 +75,7 @@ type SaleCondition = unit {
 type TradeReportMessageLongFormMessage = unit {
     message_info: MessageInfo;
     finra_timestamp: uint64;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     trade_id: uint64;
     trade_price: uint64;
     trade_volume: uint32;
@@ -89,7 +89,7 @@ type TradeReportMessageLongFormMessage = unit {
 type TradeCancelErrorMessage = unit {
     message_info: MessageInfo;
     finra_timestamp: uint64;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     trade_cancellation_type: bytes &size=1;
     original_trade_id: uint64;
     original_trade_price: uint64;
@@ -119,7 +119,7 @@ type OriginalSaleCondition = unit {
 type TradeCorrectionMessage = unit {
     message_info: MessageInfo;
     finra_timestamp: uint64;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     original_trade_id: uint64;
     original_trade_price: uint64;
     original_volume: uint32;
@@ -154,7 +154,7 @@ type CorrectedSaleCondition = unit {
 type PriorDayAsOfTradeMessage = unit {
     message_info: MessageInfo;
     finra_timestamp: uint64;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     trade_id: uint64;
     trade_price: uint64;
     trade_volume: uint32;
@@ -165,19 +165,19 @@ type PriorDayAsOfTradeMessage = unit {
     timestamp_of_trade: uint64;
 };
 
-type Administrative = unit {
-    administrative_message_type: uint8 &convert=AdministrativeMessageType($$);
+type AdministrativeMessage = unit {
+    administrative_message_type: uint8;
     switch ( self.administrative_message_type ) {
-        AdministrativeMessageType::GeneralAdministrativeMessage -> general_administrative_message: GeneralAdministrativeMessage;
-        AdministrativeMessageType::CrossSroTradingActionMessage -> cross_sro_trading_action_message: CrossSroTradingActionMessage;
-        AdministrativeMessageType::MarketCenterTradingActionMessage -> market_center_trading_action_message: MarketCenterTradingActionMessage;
-        AdministrativeMessageType::IssueSymbolDirectoryMessage -> issue_symbol_directory_message: IssueSymbolDirectoryMessage;
-        AdministrativeMessageType::RegulationShoShortSalePriceTestRestrictedIndicatorMessage -> regulation_sho_short_sale_price_test_restricted_indicator_message: RegulationShoShortSalePriceTestRestrictedIndicatorMessage;
-        AdministrativeMessageType::LimitUpLimitDownPriceBandMessage -> limit_up_limit_down_price_band_message: LimitUpLimitDownPriceBandMessage;
-        AdministrativeMessageType::MarketWideCircuitBreakerDeclineLevelMessage -> market_wide_circuit_breaker_decline_level_message: MarketWideCircuitBreakerDeclineLevelMessage;
-        AdministrativeMessageType::MarketWideCircuitBreakerStatusMessage -> market_wide_circuit_breaker_status_message: MarketWideCircuitBreakerStatusMessage;
-        AdministrativeMessageType::AuctionCollarMessage -> auction_collar_message: AuctionCollarMessage;
-        AdministrativeMessageType::ClosingTradeSummaryReportMessage -> closing_trade_summary_report_message: ClosingTradeSummaryReportMessage;
+        0x41 -> general_administrative_message: GeneralAdministrativeMessage;
+        0x48 -> cross_sro_trading_action_message: CrossSroTradingActionMessage;
+        0x4b -> market_center_trading_action_message: MarketCenterTradingActionMessage;
+        0x42 -> issue_symbol_directory_message: IssueSymbolDirectoryMessage;
+        0x56 -> regulation_sho_short_sale_price_test_restricted_indicator_message: RegulationShoShortSalePriceTestRestrictedIndicatorMessage;
+        0x50 -> limit_up_limit_down_price_band_message: LimitUpLimitDownPriceBandMessage;
+        0x43 -> market_wide_circuit_breaker_decline_level_message: MarketWideCircuitBreakerDeclineLevelMessage;
+        0x44 -> market_wide_circuit_breaker_status_message: MarketWideCircuitBreakerStatusMessage;
+        0x45 -> auction_collar_message: AuctionCollarMessage;
+        0x5a -> closing_trade_summary_report_message: ClosingTradeSummaryReportMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -190,7 +190,7 @@ type GeneralAdministrativeMessage = unit {
 
 type CrossSroTradingActionMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     trading_action_code: uint8 &convert=TradingActionCode($$);
     trading_action_sequence_number: uint32;
     action_timestamp: uint64;
@@ -199,7 +199,7 @@ type CrossSroTradingActionMessage = unit {
 
 type MarketCenterTradingActionMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     trading_action_code: uint8 &convert=TradingActionCode($$);
     action_timestamp: uint64;
     market_center_identifier: bytes &size=1;
@@ -207,7 +207,7 @@ type MarketCenterTradingActionMessage = unit {
 
 type IssueSymbolDirectoryMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     old_symbol: bytes &size=11;
     issue_name: bytes &size=30;
     issue_type: uint8 &convert=IssueType($$);
@@ -221,13 +221,13 @@ type IssueSymbolDirectoryMessage = unit {
 
 type RegulationShoShortSalePriceTestRestrictedIndicatorMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=5;
+    symbol_short: bytes &size=5;
     reg_sho_action: uint8 &convert=RegShoAction($$);
 };
 
 type LimitUpLimitDownPriceBandMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     luld_price_band_indicator: uint8 &convert=LuldPriceBandIndicator($$);
     luld_timestamp: uint64;
     limit_down_price: uint64;
@@ -248,7 +248,7 @@ type MarketWideCircuitBreakerStatusMessage = unit {
 
 type AuctionCollarMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     trading_action_sequence_number: uint32;
     collar_reference_price: uint64;
     collar_up_price: uint64;
@@ -258,7 +258,7 @@ type AuctionCollarMessage = unit {
 
 type ClosingTradeSummaryReportMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=5;
+    symbol_long: bytes &size=11;
     daily_consolidated_high_price: uint64;
     daily_consolidated_low_price: uint64;
     daily_consolidated_closing_price: uint64;
@@ -278,9 +278,9 @@ type MarketCenterClosingPriceAndVolumeSummary = unit {
     market_participant_low_price: uint64;
 };
 
-type Volume = unit {
-    volume_message_type: uint8 &convert=VolumeMessageType($$);
-    volume_payload: TotalConsolidatedAndMarketCenterVolumeMessage;
+type VolumeMessage = unit {
+    volume_message_type: uint8;
+    volume_message_payload: TotalConsolidatedAndMarketCenterVolumeMessage;
 };
 
 type TotalConsolidatedAndMarketCenterVolumeMessage = unit {
@@ -295,16 +295,16 @@ type MarketCenterVolumeAttachment = unit {
     current_market_center_volume: uint64;
 };
 
-type Control = unit {
-    control_message_type: uint8 &convert=ControlMessageType($$);
+type ControlMessage = unit {
+    control_message_type: uint8;
     switch ( self.control_message_type ) {
-        ControlMessageType::StartOfDayMessage -> start_of_day_message: StartOfDayMessage;
-        ControlMessageType::EndOfDayMessage -> end_of_day_message: EndOfDayMessage;
-        ControlMessageType::MarketSessionOpenMessage -> market_session_open_message: MarketSessionOpenMessage;
-        ControlMessageType::MarketSessionCloseMessage -> market_session_close_message: MarketSessionCloseMessage;
-        ControlMessageType::EndOfTransmissionsMessage -> end_of_transmissions_message: EndOfTransmissionsMessage;
-        ControlMessageType::EndOfTradeReportingMessage -> end_of_trade_reporting_message: EndOfTradeReportingMessage;
-        ControlMessageType::EndOfConsolidatedLastSaleEligibility -> end_of_consolidated_last_sale_eligibility: EndOfConsolidatedLastSaleEligibility;
+        0x49 -> start_of_day_message: StartOfDayMessage;
+        0x4a -> end_of_day_message: EndOfDayMessage;
+        0x4f -> market_session_open_message: MarketSessionOpenMessage;
+        0x43 -> market_session_close_message: MarketSessionCloseMessage;
+        0x5a -> end_of_transmissions_message: EndOfTransmissionsMessage;
+        0x58 -> end_of_trade_reporting_message: EndOfTradeReportingMessage;
+        0x53 -> end_of_consolidated_last_sale_eligibility: EndOfConsolidatedLastSaleEligibility;
         * -> unknown: bytes &eod;
     };
 };
@@ -335,14 +335,6 @@ type EndOfTradeReportingMessage = unit {
 
 type EndOfConsolidatedLastSaleEligibility = unit {
     message_info: MessageInfo;
-};
-
-type TradeMessageType = enum {
-    TradeReportMessageShortFormMessage = 0x41,
-    TradeReportMessageLongFormMessage = 0x57,
-    TradeCancelErrorMessage = 0x5a,
-    TradeCorrectionMessage = 0x59,
-    PriorDayAsOfTradeMessage = 0x48,
 };
 
 type MarketCenterOriginatorId = enum {
@@ -447,19 +439,6 @@ type AsOfAction = enum {
     TradeCancel = 0x43,
 };
 
-type AdministrativeMessageType = enum {
-    GeneralAdministrativeMessage = 0x41,
-    CrossSroTradingActionMessage = 0x48,
-    MarketCenterTradingActionMessage = 0x4b,
-    IssueSymbolDirectoryMessage = 0x42,
-    RegulationShoShortSalePriceTestRestrictedIndicatorMessage = 0x56,
-    LimitUpLimitDownPriceBandMessage = 0x50,
-    MarketWideCircuitBreakerDeclineLevelMessage = 0x43,
-    MarketWideCircuitBreakerStatusMessage = 0x44,
-    AuctionCollarMessage = 0x45,
-    ClosingTradeSummaryReportMessage = 0x5a,
-};
-
 type TradingActionCode = enum {
     TradingHalt = 0x48,
     QuotationResumptionIncludingAfterEma = 0x51,
@@ -547,19 +526,5 @@ type TradingActionIndicator = enum {
 type MarketCenterCloseIndicator = enum {
     BasedOnMSaleCondition = 0x4d,
     NotBasedOnMSaleCondition = 0x20,
-};
-
-type VolumeMessageType = enum {
-    TotalConsolidatedAndMarketCenterVolumeMessage = 0x4d,
-};
-
-type ControlMessageType = enum {
-    StartOfDayMessage = 0x49,
-    EndOfDayMessage = 0x4a,
-    MarketSessionOpenMessage = 0x4f,
-    MarketSessionCloseMessage = 0x43,
-    EndOfTransmissionsMessage = 0x5a,
-    EndOfTradeReportingMessage = 0x58,
-    EndOfConsolidatedLastSaleEligibility = 0x53,
 };
 

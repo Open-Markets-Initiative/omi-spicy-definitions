@@ -1,0 +1,204 @@
+module BivaBivaequitiesOrderentryOuchV105Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BivaequitiesOrderentryV105 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::AcceptedMessage -> accepted_message: AcceptedMessage;
+        SequencedMessageType::ReplacedMessage -> replaced_message: ReplacedMessage;
+        SequencedMessageType::CanceledMessage -> canceled_message: CanceledMessage;
+        SequencedMessageType::ExecutedOrderMessage -> executed_order_message: ExecutedOrderMessage;
+        SequencedMessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        SequencedMessageType::RejectedOrderMessage -> rejected_order_message: RejectedOrderMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type AcceptedMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    account_type: uint8 &convert=AccountType($$);
+    account_id: uint32;
+    order_verb: uint8 &convert=OrderVerb($$);
+    quantity: uint64;
+    orderbook: uint32;
+    price: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
+    client_id: uint32;
+    order_reference_number: uint64;
+    minimum_quantity: uint64;
+    order_state: uint8 &convert=OrderState($$);
+};
+
+type ReplacedMessage = unit {
+    timestamp: uint64;
+    replacement_order_token: uint32;
+    order_verb: uint8 &convert=OrderVerb($$);
+    quantity: uint64;
+    orderbook: uint32;
+    price: uint32;
+    order_reference_number: uint64;
+    order_state: uint8 &convert=OrderState($$);
+    previous_order_token: uint32;
+};
+
+type CanceledMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    quantity: uint64;
+    canceled_reason: uint8 &convert=CanceledReason($$);
+};
+
+type ExecutedOrderMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    executed_quantity: uint64;
+    executed_price: uint32;
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    match_number: uint64;
+    counter_party_id: uint32;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    match_number: uint64;
+    broken_trade_reason: uint8 &convert=BrokenTradeReason($$);
+};
+
+type RejectedOrderMessage = unit {
+    timestamp: uint64;
+    order_token: uint32;
+    rejected_reason: uint8 &convert=RejectedReason($$);
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    AcceptedMessage = 0x41,
+    ReplacedMessage = 0x55,
+    CanceledMessage = 0x43,
+    ExecutedOrderMessage = 0x45,
+    BrokenTradeMessage = 0x42,
+    RejectedOrderMessage = 0x4a,
+};
+
+type EventCode = enum {
+    StartOfDay = 0x53,
+    EndOfDay = 0x45,
+};
+
+type AccountType = enum {
+    Client = 0x43,
+    House = 0x48,
+    Other = 0x4f,
+    Strategy = 0x59,
+    MarketMaker = 0x4d,
+    Stabilisation = 0x53,
+};
+
+type OrderVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    ShortSell = 0x54,
+};
+
+type TimeInForce = enum {
+    Immediate = 0,
+    Session = 99997,
+    Day = 99998,
+};
+
+type OrderState = enum {
+    Live = 0x4c,
+    Dead = 0x44,
+};
+
+type CanceledReason = enum {
+    UserRequestedCancel = 0x55,
+    ImmediateOrderExpired = 0x49,
+    TimeoutSessionOrDayOrderExpired = 0x54,
+    Supervisory = 0x53,
+    UserLoggedOff = 0x4c,
+    InvalidQuantityOrQuantityExceedsMaximumLimit = 0x5a,
+    OrderNotAllowedAtThisTime = 0x52,
+    InvalidPrice = 0x58,
+    InvalidMinimumQuantity = 0x4e,
+    InvalidOrderType = 0x59,
+    FlowControlInPlaceForUser = 0x46,
+    Unknown = 0x57,
+};
+
+type LiquidityFlag = enum {
+    AddedForThePassiveFirm = 0x41,
+    RemovedForTheAggressor = 0x52,
+    UncrossForAuctionExecutions = 0x55,
+};
+
+type BrokenTradeReason = enum {
+    ConsentBothPartiesAgreedToBreakTheTrade = 0x43,
+    SupervisoryBrokenByBivaMarketControl = 0x53,
+};
+
+type RejectedReason = enum {
+    SecboardInstrumentBoardOrMarketNotTradeable = 0x48,
+    InvalidQuantityOrQuantityExceedsMaximumLimit = 0x5a,
+    InvalidOrderbookIdentifier = 0x53,
+    OrderNotAllowedAtThisTime = 0x52,
+    InvalidPrice = 0x58,
+    InvalidMinimumQuantity = 0x4e,
+    InvalidOrderType = 0x59,
+    FlowControlInPlaceForUser = 0x46,
+    Unknown = 0x57,
+};
+

@@ -1,0 +1,35 @@
+module NseNsecmSnapshotBinaryV69Response;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NsecmSnapshotV69 = unit {
+    stream_header: StreamHeader;
+    response_message: ResponseMessage;
+};
+
+type StreamHeader = unit {
+    message_length: int16;
+    stream_id: int16;
+    sequence_number: uint32;
+};
+
+type ResponseMessage = unit {
+    response_message_type: uint8 &convert=ResponseMessageType($$);
+    response_payload: OrderBookSnapshotRecoveryResponseMessage;
+};
+
+type OrderBookSnapshotRecoveryResponseMessage = unit {
+    request_status: uint8 &convert=RequestStatus($$);
+};
+
+type ResponseMessageType = enum {
+    OrderBookSnapshotRecoveryResponseMessage = 0x42,
+};
+
+type RequestStatus = enum {
+    Success = 0x53,
+    Error = 0x45,
+};
+

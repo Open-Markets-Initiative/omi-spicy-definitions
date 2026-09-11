@@ -1,0 +1,25 @@
+module NseNsecmRecoveryBinaryV71Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NsecmRecoveryV71 = unit {
+    client_message: ClientMessage;
+};
+
+type ClientMessage = unit {
+    client_message_type: uint8 &convert=ClientMessageType($$);
+    client_payload: TickDataRecoveryRequestMessage;
+};
+
+type TickDataRecoveryRequestMessage = unit {
+    stream_id: int16;
+    start_sequence_number: uint32;
+    end_sequence_number: uint32;
+};
+
+type ClientMessageType = enum {
+    TickDataRecoveryRequestMessage = 0x52,
+};
+

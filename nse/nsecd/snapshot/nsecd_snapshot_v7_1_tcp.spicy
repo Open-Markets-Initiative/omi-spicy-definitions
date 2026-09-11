@@ -1,0 +1,60 @@
+module NseNsecdSnapshotBinaryV71Tcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NsecdSnapshotV71 = unit {
+    snapshot_header: SnapshotHeader;
+    message: Message[self.snapshot_header.number_of_records];
+};
+
+type SnapshotHeader = unit {
+    trans_code: int16 &convert=TransCode($$);
+    size: int32;
+    number_of_records: int32;
+    last_sequence_number: uint32;
+    stream_id: int16;
+};
+
+type Message = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::NewOrderMessage -> new_order_message: NewOrderMessage;
+        MessageType::NewSpreadOrderMessage -> new_spread_order_message: NewSpreadOrderMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NewOrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type NewSpreadOrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type TransCode = enum {
+    OrderBookSnapshot = 10501,
+};
+
+type MessageType = enum {
+    NewOrderMessage = 0x4e,
+    NewSpreadOrderMessage = 0x47,
+};
+
+type OrderType = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+

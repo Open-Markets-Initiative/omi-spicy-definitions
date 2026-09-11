@@ -1,0 +1,25 @@
+module NseNsecdSnapshotBinaryV70Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NsecdSnapshotV70 = unit {
+    client_message: ClientMessage;
+};
+
+type ClientMessage = unit {
+    client_message_type: uint8 &convert=ClientMessageType($$);
+    client_payload: OrderBookSnapshotRecoveryRequestMessage;
+};
+
+type OrderBookSnapshotRecoveryRequestMessage = unit {
+    stream_id: int16;
+    start_sequence_number: uint32;
+    end_sequence_number: uint32;
+};
+
+type ClientMessageType = enum {
+    OrderBookSnapshotRecoveryRequestMessage = 0x4f,
+};
+

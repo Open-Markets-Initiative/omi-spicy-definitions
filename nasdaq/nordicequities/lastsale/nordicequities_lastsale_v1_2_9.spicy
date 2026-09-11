@@ -1,0 +1,118 @@
+module NasdaqNordicequitiesLastsaleItchV129;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NordicequitiesLastsaleV129 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::AdjustedClosingPriceMessage -> adjusted_closing_price_message: AdjustedClosingPriceMessage;
+        MessageType::OnExchangeTradeMessage -> on_exchange_trade_message: OnExchangeTradeMessage;
+        MessageType::OtcTradeMessage -> otc_trade_message: OtcTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type AdjustedClosingPriceMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+    adjusted_closing_price: uint64;
+};
+
+type OnExchangeTradeMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+    execution_date: uint32;
+    execution_time: uint64;
+    agreement_date: uint32;
+    agreement_time: uint64;
+    price_on_exchange: uint64;
+    quantity: uint64;
+    venue_of_execution: bytes &size=4;
+    transaction_identifier_code: bytes &size=10;
+    mmt_trade_flags: bytes &size=14;
+    trade_type: uint8 &convert=TradeType($$);
+    mpid_buyer: bytes &size=4;
+    mpid_seller: bytes &size=4;
+    transaction_to_be_cleared: uint8 &convert=TransactionToBeCleared($$);
+};
+
+type OtcTradeMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    instrument_identification_code_type: bytes &size=4;
+    instrument_identification_code: bytes &size=12;
+    agreement_date: uint32;
+    agreement_time: uint64;
+    price_otc: uint64;
+    price_fraction: uint8;
+    price_notation: bytes &size=4;
+    price_currency: bytes &size=3;
+    quantity: uint64;
+    quantity_fraction: uint8;
+    notation_of_the_quantity_in_measurement_unit: bytes &size=25;
+    quantity_in_measurement_unit: uint64;
+    quantity_in_measurement_unit_fraction: uint8;
+    venue_of_execution: bytes &size=4;
+    notional_amount: uint64;
+    notional_amount_fraction: uint8;
+    notional_currency: bytes &size=3;
+    type_field: bytes &size=4;
+    transaction_identifier_code: bytes &size=10;
+    mmt_trade_flags: bytes &size=14;
+    transaction_to_be_cleared: uint8 &convert=TransactionToBeCleared($$);
+    trade_type: uint8 &convert=TradeType($$);
+    third_country_trading_venue_of_execution: bytes &size=4;
+};
+
+type MessageType = enum {
+    AdjustedClosingPriceMessage = 0x47,
+    OnExchangeTradeMessage = 0x54,
+    OtcTradeMessage = 0x5a,
+};
+
+type TradeType = enum {
+    StandardTrade = 0x31,
+    NonStandardSettlement = 0x32,
+    ExchangeGrantedTrade = 0x33,
+    PortfolioTrade = 0x35,
+    VolumeWeightedAveragePriceTrade = 0x36,
+    PreOpeningTrade = 0x38,
+    StandardRoutedTrade = 0x44,
+    StandardRoutedDarkTrade = 0x45,
+    StandardDarkTrade = 0x46,
+    StandardAuctionOnDemandTrade = 0x47,
+    StandardTradeAtClosingTrade = 0x48,
+    ContingentTrade = 0x49,
+    OtcStandardTrade = 0x39,
+    OtcNonStandardTrade = 0x41,
+    SiStandardTrade = 0x42,
+    SiNonStandardTrade = 0x43,
+    OtcLoanPayment = 0x4f,
+    OtcPrimaryTransaction = 0x50,
+};
+
+type TransactionToBeCleared = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+

@@ -1,0 +1,148 @@
+module NseNsecomRecoveryBinaryV70Tcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NsecomRecoveryV70 = unit {
+    stream_header: StreamHeader;
+    message: Message;
+};
+
+type StreamHeader = unit {
+    message_length: int16;
+    stream_id: int16;
+    sequence_number: uint32;
+};
+
+type Message = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::NewOrderMessage -> new_order_message: NewOrderMessage;
+        MessageType::OrderModificationMessage -> order_modification_message: OrderModificationMessage;
+        MessageType::OrderCancellationMessage -> order_cancellation_message: OrderCancellationMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::NewSpreadOrderMessage -> new_spread_order_message: NewSpreadOrderMessage;
+        MessageType::SpreadOrderModificationMessage -> spread_order_modification_message: SpreadOrderModificationMessage;
+        MessageType::SpreadOrderCancellationMessage -> spread_order_cancellation_message: SpreadOrderCancellationMessage;
+        MessageType::SpreadTradeMessage -> spread_trade_message: SpreadTradeMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        MessageType::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        MessageType::TickDataRecoveryResponseMessage -> tick_data_recovery_response_message: TickDataRecoveryResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NewOrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type OrderModificationMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type OrderCancellationMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type TradeMessage = unit {
+    timestamp: int64;
+    buy_order_id: bytes &size=8;
+    sell_order_id: bytes &size=8;
+    token: int32;
+    trade_price: int32;
+    trade_quantity: int32;
+};
+
+type NewSpreadOrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadOrderModificationMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadOrderCancellationMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadTradeMessage = unit {
+    timestamp: int64;
+    buy_order_id: bytes &size=8;
+    sell_order_id: bytes &size=8;
+    token: int32;
+    trade_price: int32;
+    quantity: int32;
+};
+
+type TradeCancelMessage = unit {
+    timestamp: int64;
+    buy_order_id: bytes &size=8;
+    sell_order_id: bytes &size=8;
+    token: int32;
+    trade_price: int32;
+    trade_quantity: int32;
+};
+
+type HeartbeatMessage = unit {
+    last_sequence_no: uint32;
+};
+
+type TickDataRecoveryResponseMessage = unit {
+    request_status: uint8 &convert=RequestStatus($$);
+};
+
+type MessageType = enum {
+    NewOrderMessage = 0x4e,
+    OrderModificationMessage = 0x4d,
+    OrderCancellationMessage = 0x58,
+    TradeMessage = 0x54,
+    NewSpreadOrderMessage = 0x47,
+    SpreadOrderModificationMessage = 0x48,
+    SpreadOrderCancellationMessage = 0x4a,
+    SpreadTradeMessage = 0x4b,
+    TradeCancelMessage = 0x43,
+    HeartbeatMessage = 0x5a,
+    TickDataRecoveryResponseMessage = 0x59,
+};
+
+type OrderType = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type RequestStatus = enum {
+    Success = 0x53,
+    Error = 0x45,
+};
+

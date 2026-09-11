@@ -1,0 +1,248 @@
+module NasdaqNordicequitiesTotalviewGlimpseV3001Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NordicequitiesTotalviewV3001 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::OrderBookTradingActionMessage -> order_book_trading_action_message: OrderBookTradingActionMessage;
+        SequencedMessageType::OrderBookDirectoryMessage -> order_book_directory_message: OrderBookDirectoryMessage;
+        SequencedMessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        SequencedMessageType::AddOrderMpidAttributionMessage -> add_order_mpid_attribution_message: AddOrderMpidAttributionMessage;
+        SequencedMessageType::EndOfSnapshotMessage -> end_of_snapshot_message: EndOfSnapshotMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type OrderBookTradingActionMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+    symbol_state: uint8 &convert=SymbolState($$);
+    extension: uint8 &convert=Extension($$);
+    reason: bytes &size=4;
+};
+
+type OrderBookDirectoryMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+    symbol: bytes &size=16;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    mic: bytes &size=4;
+    market_segment_id: uint16;
+    note_codes_bit_field_1: NoteCodesBitField1;
+    note_codes_bit_field_2: NoteCodesBitField2;
+    note_codes_bit_field_3: NoteCodesBitField3;
+    note_codes_bit_field_4: NoteCodesBitField4;
+    note_codes_bit_field_5: NoteCodesBitField5;
+    note_codes_bit_field_6: NoteCodesBitField6;
+    note_codes_bit_field_7: NoteCodesBitField7;
+    note_codes_bit_field_8: NoteCodesBitField8;
+    round_lot_size: uint32;
+    nordic_mid_mic: bytes &size=4;
+    aod_mic: bytes &size=4;
+    notation_of_qty: bytes &size=4;
+    notional_amount: uint64;
+    currency: bytes &size=3;
+    price_notation: uint8 &convert=PriceNotation($$);
+    multiplier_for_calculating_quantity_in_measurement_unit: uint64;
+};
+
+type NoteCodesBitField1 = unit {
+    nm_new_market_company: bytes &size=1;
+    xr_excluding_participating_in_rights: bytes &size=1;
+    sp_excluding_participating_in_split: bytes &size=1;
+    po_company_subject_to_public_offer: bytes &size=1;
+    ud_under_drawing: bytes &size=1;
+    sr_excluding_comb_split_and_issue_rights: bytes &size=1;
+    ul_un_listed: bytes &size=1;
+    wi_when_issued: bytes &size=1;
+};
+
+type NoteCodesBitField2 = unit {
+    br_company_bankruptcy: bytes &size=1;
+    su_suspension: bytes &size=1;
+    rl_removal_from_listing_in_process: bytes &size=1;
+    sl_other_surveillance_list_reason: bytes &size=1;
+    to_a_significant_reverse_takeover_pending: bytes &size=1;
+    cs_cent_shares: bytes &size=1;
+    rs_reversed_split: bytes &size=1;
+    bs_excluding_comb_bonus_split: bytes &size=1;
+};
+
+type NoteCodesBitField3 = unit {
+    ss_excluding_comb_split_redemption_share: bytes &size=1;
+    fn_first_north_company: bytes &size=1;
+    ob_observation_status: bytes &size=1;
+    xd_excluding_dividend: bytes &size=1;
+    fe_foreign_non_eueea_entity: bytes &size=1;
+    so_sold_out_buy_back: bytes &size=1;
+    sk_soft_knock: bytes &size=1;
+    kb_knock_out_buy_back: bytes &size=1;
+};
+
+type NoteCodesBitField4 = unit {
+    bb_buy_back: bytes &size=1;
+    reserved_23: bytes &size=1;
+    ce_capped_by_esma: bytes &size=1;
+    reserved_5: bytes &size=1;
+    pd_price_discrepancy_historical_average_share_classes: bytes &size=1;
+    sm_stressed_market: bytes &size=1;
+    ew_marketwide_exceptional_circumstance: bytes &size=1;
+};
+
+type NoteCodesBitField5 = unit {
+    em_exceptional_circumstances_related_to_market_maker: bytes &size=1;
+    un_underlying_not_quoted: bytes &size=1;
+    da_digital_asset: bytes &size=1;
+    kn_knockout_buy_back_into_next_trading_day: bytes &size=1;
+    reserved_58: bytes &size=1;
+};
+
+type NoteCodesBitField6 = unit {
+    reserved_18: bytes &size=2;
+};
+
+type NoteCodesBitField7 = unit {
+    reserved_18: bytes &size=2;
+};
+
+type NoteCodesBitField8 = unit {
+    reserved_18: bytes &size=2;
+};
+
+type AddOrderMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    order_book: uint32;
+    price: uint32;
+};
+
+type AddOrderMpidAttributionMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    order_book: uint32;
+    price: uint32;
+    attribution: bytes &size=4;
+};
+
+type EndOfSnapshotMessage = unit {
+    sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    OrderBookTradingActionMessage = 0x48,
+    OrderBookDirectoryMessage = 0x52,
+    AddOrderMessage = 0x41,
+    AddOrderMpidAttributionMessage = 0x46,
+    EndOfSnapshotMessage = 0x47,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    EndOfMessages = 0x43,
+};
+
+type SymbolState = enum {
+    Closed = 0x43,
+    PreOpen = 0x50,
+    OpeningAuction = 0x4f,
+    ContinuousTrading = 0x54,
+    ScheduledIntradayAuction = 0x49,
+    ClosingAuction = 0x4c,
+    PostTrade = 0x53,
+    Halted = 0x48,
+    AuctionPeriod = 0x51,
+    TradingAtClosingPrice = 0x41,
+};
+
+type Extension = enum {
+    CrossExtension = 0x45,
+};
+
+type Reason = enum {
+    ReasonNotAvailable = 0x20,
+};
+
+type FinancialProduct = enum {
+    Stock = 1,
+    EquityWarrant = 2,
+    EquityRight = 3,
+    Bond = 4,
+    LotteryBondSeries = 6,
+    Convertible = 7,
+    Warrant = 8,
+    UnitTrustCertificate = 11,
+    IndexFundUnit = 12,
+};
+
+type PriceNotation = enum {
+    MonetaryValue = 0x4d,
+};
+
+type BuySellIndicator = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+

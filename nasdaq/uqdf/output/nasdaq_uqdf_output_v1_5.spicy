@@ -18,9 +18,9 @@ type PacketHeader = unit {
 type Message = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_category ) {
-        0x51 -> quote: Quote;
-        0x41 -> administrative: Administrative;
-        0x43 -> control: Control;
+        0x51 -> quote_message: QuoteMessage;
+        0x41 -> administrative_message: AdministrativeMessage;
+        0x43 -> control_message: ControlMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -31,12 +31,12 @@ type MessageHeader = unit {
     message_category: uint8;
 };
 
-type Quote = unit {
-    quote_message_type: uint8 &convert=QuoteMessageType($$);
+type QuoteMessage = unit {
+    quote_message_type: uint8;
     switch ( self.quote_message_type ) {
-        QuoteMessageType::QuoteShortFormMessage -> quote_short_form_message: QuoteShortFormMessage;
-        QuoteMessageType::QuoteLongFormMessage -> quote_long_form_message: QuoteLongFormMessage;
-        QuoteMessageType::FinraAdfMarketParticipantQuotationMessage -> finra_adf_market_participant_quotation_message: FinraAdfMarketParticipantQuotationMessage;
+        0x45 -> quote_short_form_message: QuoteShortFormMessage;
+        0x46 -> quote_long_form_message: QuoteLongFormMessage;
+        0x4d -> finra_adf_market_participant_quotation_message: FinraAdfMarketParticipantQuotationMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -89,7 +89,7 @@ type LongFormNationalBboAppendage = unit {
 type QuoteLongFormMessage = unit {
     message_info: MessageInfo;
     finra_timestamp: uint64;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     bid_price: uint64;
     bid_size: uint32;
     ask_price: uint64;
@@ -114,7 +114,7 @@ type FinraAdfMpidAppendage = unit {
 type FinraAdfMarketParticipantQuotationMessage = unit {
     message_info: MessageInfo;
     finra_timestamp: uint64;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     bid_price: uint64;
     bid_size: uint32;
     ask_price: uint64;
@@ -123,19 +123,19 @@ type FinraAdfMarketParticipantQuotationMessage = unit {
     finra_market_participant: bytes &size=4;
 };
 
-type Administrative = unit {
-    administrative_message_type: uint8 &convert=AdministrativeMessageType($$);
+type AdministrativeMessage = unit {
+    administrative_message_type: uint8;
     switch ( self.administrative_message_type ) {
-        AdministrativeMessageType::GeneralAdministrativeMessage -> general_administrative_message: GeneralAdministrativeMessage;
-        AdministrativeMessageType::CrossSroTradingActionMessage -> cross_sro_trading_action_message: CrossSroTradingActionMessage;
-        AdministrativeMessageType::MarketCenterTradingActionMessage -> market_center_trading_action_message: MarketCenterTradingActionMessage;
-        AdministrativeMessageType::IssueSymbolDirectoryMessage -> issue_symbol_directory_message: IssueSymbolDirectoryMessage;
-        AdministrativeMessageType::RegulationShoShortSalePriceTestRestrictedIndicatorMessage -> regulation_sho_short_sale_price_test_restricted_indicator_message: RegulationShoShortSalePriceTestRestrictedIndicatorMessage;
-        AdministrativeMessageType::LimitUpLimitDownPriceBandMessage -> limit_up_limit_down_price_band_message: LimitUpLimitDownPriceBandMessage;
-        AdministrativeMessageType::MarketWideCircuitBreakerDeclineLevelMessage -> market_wide_circuit_breaker_decline_level_message: MarketWideCircuitBreakerDeclineLevelMessage;
-        AdministrativeMessageType::MarketWideCircuitBreakerStatusMessage -> market_wide_circuit_breaker_status_message: MarketWideCircuitBreakerStatusMessage;
-        AdministrativeMessageType::AuctionCollarMessage -> auction_collar_message: AuctionCollarMessage;
-        AdministrativeMessageType::SessionCloseRecapMessage -> session_close_recap_message: SessionCloseRecapMessage;
+        0x41 -> general_administrative_message: GeneralAdministrativeMessage;
+        0x48 -> cross_sro_trading_action_message: CrossSroTradingActionMessage;
+        0x4b -> market_center_trading_action_message: MarketCenterTradingActionMessage;
+        0x42 -> issue_symbol_directory_message: IssueSymbolDirectoryMessage;
+        0x56 -> regulation_sho_short_sale_price_test_restricted_indicator_message: RegulationShoShortSalePriceTestRestrictedIndicatorMessage;
+        0x50 -> limit_up_limit_down_price_band_message: LimitUpLimitDownPriceBandMessage;
+        0x43 -> market_wide_circuit_breaker_decline_level_message: MarketWideCircuitBreakerDeclineLevelMessage;
+        0x44 -> market_wide_circuit_breaker_status_message: MarketWideCircuitBreakerStatusMessage;
+        0x45 -> auction_collar_message: AuctionCollarMessage;
+        0x52 -> session_close_recap_message: SessionCloseRecapMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -148,7 +148,7 @@ type GeneralAdministrativeMessage = unit {
 
 type CrossSroTradingActionMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     trading_action_code: uint8 &convert=TradingActionCode($$);
     trading_action_sequence_number: uint32;
     action_timestamp: uint64;
@@ -157,7 +157,7 @@ type CrossSroTradingActionMessage = unit {
 
 type MarketCenterTradingActionMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     trading_action_code: uint8 &convert=TradingActionCode($$);
     action_timestamp: uint64;
     market_center_identifier: bytes &size=1;
@@ -165,7 +165,7 @@ type MarketCenterTradingActionMessage = unit {
 
 type IssueSymbolDirectoryMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     old_symbol: bytes &size=11;
     issue_name: bytes &size=30;
     issue_type: uint8 &convert=IssueType($$);
@@ -179,13 +179,13 @@ type IssueSymbolDirectoryMessage = unit {
 
 type RegulationShoShortSalePriceTestRestrictedIndicatorMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=11;
+    symbol_short: bytes &size=5;
     reg_sho_action: uint8 &convert=RegShoAction($$);
 };
 
 type LimitUpLimitDownPriceBandMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     luld_price_band_indicator: uint8 &convert=LuldPriceBandIndicator($$);
     luld_timestamp: uint64;
     limit_down_price: uint64;
@@ -206,7 +206,7 @@ type MarketWideCircuitBreakerStatusMessage = unit {
 
 type AuctionCollarMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     trading_action_sequence_number: uint32;
     collar_reference_price: uint64;
     collar_up_price: uint64;
@@ -216,7 +216,7 @@ type AuctionCollarMessage = unit {
 
 type SessionCloseRecapMessage = unit {
     message_info: MessageInfo;
-    symbol: bytes &size=11;
+    symbol_long: bytes &size=11;
     national_best_bid_market_center: bytes &size=1;
     national_best_bid_price: uint64;
     national_best_bid_size: uint64;
@@ -236,15 +236,15 @@ type MarketCenterCloseRecap = unit {
     market_center_ask_size: uint64;
 };
 
-type Control = unit {
-    control_message_type: uint8 &convert=ControlMessageType($$);
+type ControlMessage = unit {
+    control_message_type: uint8;
     switch ( self.control_message_type ) {
-        ControlMessageType::StartOfDayMessage -> start_of_day_message: StartOfDayMessage;
-        ControlMessageType::EndOfDayMessage -> end_of_day_message: EndOfDayMessage;
-        ControlMessageType::MarketSessionOpenMessage -> market_session_open_message: MarketSessionOpenMessage;
-        ControlMessageType::MarketSessionCloseMessage -> market_session_close_message: MarketSessionCloseMessage;
-        ControlMessageType::EndOfTransmissionsMessage -> end_of_transmissions_message: EndOfTransmissionsMessage;
-        ControlMessageType::QuoteWipeOutMessage -> quote_wipe_out_message: QuoteWipeOutMessage;
+        0x49 -> start_of_day_message: StartOfDayMessage;
+        0x4a -> end_of_day_message: EndOfDayMessage;
+        0x4f -> market_session_open_message: MarketSessionOpenMessage;
+        0x43 -> market_session_close_message: MarketSessionCloseMessage;
+        0x5a -> end_of_transmissions_message: EndOfTransmissionsMessage;
+        0x50 -> quote_wipe_out_message: QuoteWipeOutMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -271,12 +271,6 @@ type EndOfTransmissionsMessage = unit {
 
 type QuoteWipeOutMessage = unit {
     message_info: MessageInfo;
-};
-
-type QuoteMessageType = enum {
-    QuoteShortFormMessage = 0x45,
-    QuoteLongFormMessage = 0x46,
-    FinraAdfMarketParticipantQuotationMessage = 0x4d,
 };
 
 type MarketCenterOriginatorId = enum {
@@ -390,19 +384,6 @@ type FinraAdfMpidAppendageIndicator = enum {
     AdfMpiDsAttached = 0x32,
 };
 
-type AdministrativeMessageType = enum {
-    GeneralAdministrativeMessage = 0x41,
-    CrossSroTradingActionMessage = 0x48,
-    MarketCenterTradingActionMessage = 0x4b,
-    IssueSymbolDirectoryMessage = 0x42,
-    RegulationShoShortSalePriceTestRestrictedIndicatorMessage = 0x56,
-    LimitUpLimitDownPriceBandMessage = 0x50,
-    MarketWideCircuitBreakerDeclineLevelMessage = 0x43,
-    MarketWideCircuitBreakerStatusMessage = 0x44,
-    AuctionCollarMessage = 0x45,
-    SessionCloseRecapMessage = 0x52,
-};
-
 type TradingActionCode = enum {
     TradingHalt = 0x48,
     QuotationResumptionIncludingAfterEma = 0x51,
@@ -487,14 +468,5 @@ type SpecialCondition = enum {
     TradingHaltInEffectAtMarketClose = 0x48,
     NoEligibleMarketParticipantQuotesInIssueAtMarketClose = 0x4d,
     NoSpecialConditionExists = 0x20,
-};
-
-type ControlMessageType = enum {
-    StartOfDayMessage = 0x49,
-    EndOfDayMessage = 0x4a,
-    MarketSessionOpenMessage = 0x4f,
-    MarketSessionCloseMessage = 0x43,
-    EndOfTransmissionsMessage = 0x5a,
-    QuoteWipeOutMessage = 0x50,
 };
 

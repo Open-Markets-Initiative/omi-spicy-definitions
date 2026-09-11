@@ -1,0 +1,397 @@
+module NasdaqNordicequitiesTotalviewItchV304X;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NordicequitiesTotalviewV304X = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::OrderBookTradingActionMessage -> order_book_trading_action_message: OrderBookTradingActionMessage;
+        MessageType::OrderBookDirectoryMessage -> order_book_directory_message: OrderBookDirectoryMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::AddOrderMpidAttributionMessage -> add_order_mpid_attribution_message: AddOrderMpidAttributionMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        MessageType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderBookFlushMessage -> order_book_flush_message: OrderBookFlushMessage;
+        MessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::CrossTradeMessage -> cross_trade_message: CrossTradeMessage;
+        MessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        MessageType::NoiiMessage -> noii_message: NoiiMessage;
+        MessageType::MoiiMessage -> moii_message: MoiiMessage;
+        MessageType::ExecutionSummaryMessage -> execution_summary_message: ExecutionSummaryMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type OrderBookTradingActionMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+    symbol_state: uint8 &convert=SymbolState($$);
+    extension: uint8 &convert=Extension($$);
+    reason: bytes &size=4;
+};
+
+type OrderBookDirectoryMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+    symbol: bytes &size=16;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    mic: bytes &size=4;
+    market_segment_id: uint16;
+    note_codes_bit_field_1: NoteCodesBitField1;
+    note_codes_bit_field_2: NoteCodesBitField2;
+    note_codes_bit_field_3: NoteCodesBitField3;
+    note_codes_bit_field_4: NoteCodesBitField4;
+    note_codes_bit_field_5: NoteCodesBitField5;
+    note_codes_bit_field_6: NoteCodesBitField6;
+    note_codes_bit_field_7: NoteCodesBitField7;
+    note_codes_bit_field_8: NoteCodesBitField8;
+    round_lot_size: uint32;
+    nordic_mid_mic: bytes &size=4;
+    aod_mic: bytes &size=4;
+    notation_of_qty: bytes &size=4;
+    notional_amount: uint64;
+    currency: bytes &size=3;
+    price_notation: uint8 &convert=PriceNotation($$);
+    multiplier_for_calculating_quantity_in_measurement_unit: uint64;
+    pure_stream_mic: bytes &size=4;
+};
+
+type NoteCodesBitField1 = unit {
+    nm_new_market_company: bytes &size=1;
+    xr_excluding_participating_in_rights: bytes &size=1;
+    sp_excluding_participating_in_split: bytes &size=1;
+    po_company_subject_to_public_offer: bytes &size=1;
+    ud_under_drawing: bytes &size=1;
+    sr_excluding_comb_split_and_issue_rights: bytes &size=1;
+    ul_un_listed: bytes &size=1;
+    wi_when_issued: bytes &size=1;
+};
+
+type NoteCodesBitField2 = unit {
+    br_company_bankruptcy: bytes &size=1;
+    su_suspension: bytes &size=1;
+    rl_removal_from_listing_in_process: bytes &size=1;
+    sl_other_surveillance_list_reason: bytes &size=1;
+    to_a_significant_reverse_takeover_pending: bytes &size=1;
+    cs_cent_shares: bytes &size=1;
+    rs_reversed_split: bytes &size=1;
+    bs_excluding_comb_bonus_split: bytes &size=1;
+};
+
+type NoteCodesBitField3 = unit {
+    ss_excluding_comb_split_redemption_share: bytes &size=1;
+    fn_first_north_company: bytes &size=1;
+    ob_observation_status: bytes &size=1;
+    xd_excluding_dividend: bytes &size=1;
+    fe_foreign_non_eueea_entity: bytes &size=1;
+    so_sold_out_buy_back: bytes &size=1;
+    sk_soft_knock: bytes &size=1;
+    kb_knock_out_buy_back: bytes &size=1;
+};
+
+type NoteCodesBitField4 = unit {
+    bb_buy_back: bytes &size=1;
+    reserved_23: bytes &size=1;
+    ce_capped_by_esma: bytes &size=1;
+    reserved_5: bytes &size=1;
+    pd_price_discrepancy_historical_average_share_classes: bytes &size=1;
+    sm_stressed_market: bytes &size=1;
+    ew_marketwide_exceptional_circumstance: bytes &size=1;
+};
+
+type NoteCodesBitField5 = unit {
+    em_exceptional_circumstances_related_to_market_maker: bytes &size=1;
+    un_underlying_not_quoted: bytes &size=1;
+    da_digital_asset: bytes &size=1;
+    kn_knockout_buy_back_into_next_trading_day: bytes &size=1;
+    reserved_58: bytes &size=1;
+};
+
+type NoteCodesBitField6 = unit {
+    reserved_18: bytes &size=2;
+};
+
+type NoteCodesBitField7 = unit {
+    reserved_18: bytes &size=2;
+};
+
+type NoteCodesBitField8 = unit {
+    reserved_18: bytes &size=2;
+};
+
+type AddOrderMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    order_book: uint32;
+    price: uint32;
+};
+
+type AddOrderMpidAttributionMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    order_book: uint32;
+    price: uint32;
+    attribution: bytes &size=4;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    executed_quantity: uint32;
+    match_number: uint32;
+    mpid: bytes &size=4;
+    mpid_counterparty: bytes &size=4;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    executed_quantity: uint32;
+    match_number: uint32;
+    printable: uint8 &convert=Printable($$);
+    trade_price: uint32;
+    mpid_owner: bytes &size=4;
+    mpid_counterparty: bytes &size=4;
+};
+
+type OrderCancelMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    canceled_quantity: uint32;
+};
+
+type OrderDeleteMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+};
+
+type OrderBookFlushMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+};
+
+type OrderReplaceMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    original_order_reference_number: uint64;
+    new_order_reference_number: uint64;
+    quantity: uint32;
+    price: uint32;
+};
+
+type TradeMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_reference_number: uint64;
+    trade_type: uint8 &convert=TradeType($$);
+    quantity: uint32;
+    order_book: uint32;
+    match_number: uint32;
+    trade_price: uint32;
+    participant_id_buyer: bytes &size=4;
+    participant_id_seller: bytes &size=4;
+};
+
+type CrossTradeMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    quantity: uint32;
+    order_book: uint32;
+    cross_price: uint32;
+    match_number: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    number_of_trades: uint32;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    match_number: uint32;
+};
+
+type NoiiMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    paired_quantity: uint64;
+    imbalance_quantity: uint64;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    order_book: uint32;
+    equilibrium_price: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    best_bid_price: uint32;
+    best_bid_quantity: uint64;
+    best_ask_price: uint32;
+    best_ask_quantity: uint64;
+};
+
+type MoiiMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    paired_quantity: uint64;
+    order_book: uint32;
+    equilibrium_price: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    cross_level: uint8 &convert=CrossLevel($$);
+};
+
+type ExecutionSummaryMessage = unit {
+    timestamp: uint64;
+    tracking_number: uint16;
+    order_book: uint32;
+    aggressing_side: uint8 &convert=AggressingSide($$);
+    quantity: uint32;
+    hidden_quantity: uint32;
+    stp_cancel_quantity: uint32;
+    far_price: uint32;
+    add_quantity: uint32;
+    number_of_lit_executions: uint16;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    OrderBookTradingActionMessage = 0x48,
+    OrderBookDirectoryMessage = 0x52,
+    AddOrderMessage = 0x41,
+    AddOrderMpidAttributionMessage = 0x46,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderCancelMessage = 0x58,
+    OrderDeleteMessage = 0x44,
+    OrderBookFlushMessage = 0x59,
+    OrderReplaceMessage = 0x55,
+    TradeMessage = 0x50,
+    CrossTradeMessage = 0x51,
+    BrokenTradeMessage = 0x42,
+    NoiiMessage = 0x49,
+    MoiiMessage = 0x4a,
+    ExecutionSummaryMessage = 0x4b,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    EndOfMessages = 0x43,
+};
+
+type SymbolState = enum {
+    Closed = 0x43,
+    PreOpen = 0x50,
+    OpeningAuction = 0x4f,
+    ContinuousTrading = 0x54,
+    ScheduledIntradayAuction = 0x49,
+    ClosingAuction = 0x4c,
+    PostTrade = 0x53,
+    Halted = 0x48,
+    AuctionPeriod = 0x51,
+    TradingAtClosingPrice = 0x41,
+};
+
+type Extension = enum {
+    CrossExtension = 0x45,
+};
+
+type Reason = enum {
+    ReasonNotAvailable = 0x20,
+};
+
+type FinancialProduct = enum {
+    Stock = 1,
+    EquityWarrant = 2,
+    EquityRight = 3,
+    Bond = 4,
+    LotteryBondSeries = 6,
+    Convertible = 7,
+    Warrant = 8,
+    UnitTrustCertificate = 11,
+    IndexFundUnit = 12,
+};
+
+type PriceNotation = enum {
+    MonetaryValue = 0x4d,
+};
+
+type BuySellIndicator = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type Printable = enum {
+    NonPrintable = 0x4e,
+    Printable = 0x59,
+};
+
+type TradeType = enum {
+    MainBook = 0x42,
+    NordicMid = 0x53,
+};
+
+type CrossType = enum {
+    OpeningCross = 0x4f,
+    ScheduledIntradayCross = 0x49,
+    ClosingCross = 0x43,
+    CrossForHaltedSecurities = 0x48,
+    AuctionOnDemand = 0x41,
+};
+
+type ImbalanceDirection = enum {
+    BuyImbalance = 0x42,
+    SellImbalance = 0x53,
+    NoImbalance = 0x4e,
+    InsufficientOrdersToCalculate = 0x4f,
+};
+
+type CrossLevel = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    Mid = 0x4d,
+    Limit = 0x4c,
+};
+
+type AggressingSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    None_x20 = 0x20,
+};
+

@@ -1,0 +1,641 @@
+module NasdaqNordicequitiesOrderentryOuchV5026Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NordicequitiesOrderentryV5026 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::OrderAcceptedMessage -> order_accepted_message: OrderAcceptedMessage;
+        SequencedMessageType::OrderReplacedMessage -> order_replaced_message: OrderReplacedMessage;
+        SequencedMessageType::CancelledOrderMessage -> cancelled_order_message: CancelledOrderMessage;
+        SequencedMessageType::CancelPendingMessage -> cancel_pending_message: CancelPendingMessage;
+        SequencedMessageType::ReplacePendingMessage -> replace_pending_message: ReplacePendingMessage;
+        SequencedMessageType::ExecutedOrderMessage -> executed_order_message: ExecutedOrderMessage;
+        SequencedMessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        SequencedMessageType::RejectedOrderMessage -> rejected_order_message: RejectedOrderMessage;
+        SequencedMessageType::CancelRejectedMessage -> cancel_rejected_message: CancelRejectedMessage;
+        SequencedMessageType::OrderRestatedMessage -> order_restated_message: OrderRestatedMessage;
+        SequencedMessageType::MmoRefreshRequestMessage -> mmo_refresh_request_message: MmoRefreshRequestMessage;
+        SequencedMessageType::AccountQueryResponseMessage -> account_query_response_message: AccountQueryResponseMessage;
+        SequencedMessageType::GtcCancelledMessage -> gtc_cancelled_message: GtcCancelledMessage;
+        SequencedMessageType::ResponseToMmiNotificationMessage -> response_to_mmi_notification_message: ResponseToMmiNotificationMessage;
+        SequencedMessageType::PendingOrderMessage -> pending_order_message: PendingOrderMessage;
+        SequencedMessageType::StreamStatusMessage -> stream_status_message: StreamStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type OrderAcceptedMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    price: uint32;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    order_book: uint32;
+    quantity: uint32;
+    user: bytes &size=6;
+    execution_within_firm: uint32;
+    investment_decision_within_firm_short_code: uint32;
+    client_identifier: uint32;
+    party_role_qualifier: PartyRoleQualifier;
+    capacity: uint8 &convert=Capacity($$);
+    algo_indicator: uint8 &convert=AlgoIndicator($$);
+    appendage_length: uint16;
+    tagvalue: Tagvalue[] &eod;
+};
+
+type PartyRoleQualifier = unit {
+    client_identification: uint8 &convert=ClientIdentification($$);
+    investment_decision_within_firm: uint8 &convert=InvestmentDecisionWithinFirm($$);
+    execution_decision_within_firm: uint8 &convert=ExecutionDecisionWithinFirm($$);
+    reserved_78: bytes &size=1;
+};
+
+type Tagvalue = unit {
+    length: uint8;
+    tag: uint8;
+    switch ( self.tag ) {
+        1 -> clearing_account: ClearingAccount;
+        2 -> clearing_account_type: ClearingAccountType;
+        3 -> clearing_firm: ClearingFirm;
+        4 -> client_reference: ClientReference;
+        5 -> cross_type: CrossType;
+        6 -> dea_indicator: DeaIndicator;
+        7 -> display: Display;
+        8 -> display_price: DisplayPrice;
+        9 -> display_quantity: DisplayQuantity;
+        10 -> expire_time: ExpireTime;
+        11 -> firm: Firm;
+        12 -> liquidity_provision_indicator: LiquidityProvisionIndicator;
+        13 -> max_floor: MaxFloor;
+        14 -> minimum_quantity: MinimumQuantity;
+        15 -> order_reference: OrderReference;
+        16 -> original_order_entry_date: OriginalOrderEntryDate;
+        17 -> original_order_reference_number: OriginalOrderReferenceNumber;
+        18 -> peg_difference: PegDifference;
+        19 -> peg_type: PegType;
+        20 -> random_reserve: RandomReserve;
+        21 -> secondary_order_reference_number: SecondaryOrderReferenceNumber;
+        22 -> stp_action: StpAction;
+        23 -> stp_level: StpLevel;
+        24 -> stp_trader_group: StpTraderGroup;
+        25 -> time_in_force: TimeInForce;
+        26 -> trading_at_closing_price: TradingAtClosingPrice;
+        27 -> order_condition: OrderCondition;
+        28 -> cumulative_quantity: CumulativeQuantity;
+        29 -> customer_order_capacity: CustomerOrderCapacity;
+        30 -> target_strategy: TargetStrategy;
+        31 -> min_rate: MinRate;
+        32 -> max_rate: MaxRate;
+        33 -> conditional_type: ConditionalType;
+        34 -> firm_up_id: FirmUpId;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClearingAccount = unit {
+    clearing_account_value: bytes &size=12;
+};
+
+type ClearingAccountType = unit {
+    clearing_account_type_value: uint8 &convert=ClearingAccountTypeValue($$);
+};
+
+type ClearingFirm = unit {
+    clearing_firm_value: bytes &size=4;
+};
+
+type ClientReference = unit {
+    client_reference_value: bytes &size=15;
+};
+
+type CrossType = unit {
+    cross_type_value: uint8 &convert=CrossTypeValue($$);
+};
+
+type DeaIndicator = unit {
+    dea_indicator_value: uint8 &convert=DeaIndicatorValue($$);
+};
+
+type Display = unit {
+    display_value: uint8 &convert=DisplayValue($$);
+};
+
+type DisplayPrice = unit {
+    display_price_value: uint32;
+};
+
+type DisplayQuantity = unit {
+    display_quantity_value: uint32;
+};
+
+type ExpireTime = unit {
+    expire_time_value: uint16;
+};
+
+type Firm = unit {
+    firm_value: bytes &size=4;
+};
+
+type LiquidityProvisionIndicator = unit {
+    liquidity_provision_indicator_value: uint8 &convert=LiquidityProvisionIndicatorValue($$);
+};
+
+type MaxFloor = unit {
+    max_floor_value: uint32;
+};
+
+type MinimumQuantity = unit {
+    minimum_quantity_value: uint32;
+};
+
+type OrderReference = unit {
+    order_reference_value: bytes &size=10;
+};
+
+type OriginalOrderEntryDate = unit {
+    original_order_entry_date_value: uint32;
+};
+
+type OriginalOrderReferenceNumber = unit {
+    original_order_reference_number_value: uint64;
+};
+
+type PegDifference = unit {
+    peg_difference_value: int32;
+};
+
+type PegType = unit {
+    peg_type_value: uint8 &convert=PegTypeValue($$);
+};
+
+type RandomReserve = unit {
+    random_reserve_value: uint32;
+};
+
+type SecondaryOrderReferenceNumber = unit {
+    secondary_order_reference_number_value: uint64;
+};
+
+type StpAction = unit {
+    stp_action_value: uint8 &convert=StpActionValue($$);
+};
+
+type StpLevel = unit {
+    stp_level_value: uint8 &convert=StpLevelValue($$);
+};
+
+type StpTraderGroup = unit {
+    stp_trader_group_value: bytes &size=2;
+};
+
+type TimeInForce = unit {
+    time_in_force_value: uint8 &convert=TimeInForceValue($$);
+};
+
+type TradingAtClosingPrice = unit {
+    trading_at_closing_price_value: uint8 &convert=TradingAtClosingPriceValue($$);
+};
+
+type OrderCondition = unit {
+    order_condition_value: uint8 &convert=OrderConditionValue($$);
+};
+
+type CumulativeQuantity = unit {
+    cumulative_quantity_value: uint32;
+};
+
+type CustomerOrderCapacity = unit {
+    customer_order_capacity_value: uint8 &convert=CustomerOrderCapacityValue($$);
+};
+
+type TargetStrategy = unit {
+    target_strategy_value: uint8 &convert=TargetStrategyValue($$);
+};
+
+type MinRate = unit {
+    min_rate_value: uint16;
+};
+
+type MaxRate = unit {
+    max_rate_value: uint16;
+};
+
+type ConditionalType = unit {
+    conditional_type_value: uint8 &convert=ConditionalTypeValue($$);
+};
+
+type FirmUpId = unit {
+    firm_up_id_value: uint32;
+};
+
+type OrderReplacedMessage = unit {
+    timestamp: uint64;
+    orig_user_ref_num: uint32;
+    new_user_ref_num: uint32;
+    price: uint32;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    order_book: uint32;
+    quantity: uint32;
+    user: bytes &size=6;
+    appendage_length: uint16;
+    tagvalue: Tagvalue[] &eod;
+};
+
+type CancelledOrderMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    decrement_quantity: uint32;
+    cancel_reason: uint8 &convert=CancelReason($$);
+};
+
+type CancelPendingMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    cancel_pending_reason: uint8 &convert=CancelPendingReason($$);
+};
+
+type ReplacePendingMessage = unit {
+    timestamp: uint64;
+    orig_user_ref_num: uint32;
+    user_ref_num: uint32;
+    replace_pending_reason: bytes &size=1;
+};
+
+type ExecutedOrderMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    executed_quantity: uint32;
+    execution_price: uint32;
+    liquidity_flag: bytes &size=1;
+    match_number: uint32;
+    contra_firm: bytes &size=4;
+    trading_mode: uint8 &convert=TradingMode($$);
+    transaction_category: uint8 &convert=TransactionCategory($$);
+    transaction_type_algo_indicator: uint8 &convert=TransactionTypeAlgoIndicator($$);
+    liquidity_attributes: LiquidityAttributes;
+    last_market: uint8;
+};
+
+type LiquidityAttributes = unit {
+    reserved_13: bytes &size=1;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    liquidity_internalized: uint8 &convert=LiquidityInternalized($$);
+    liquidity_top_of_book: uint8 &convert=LiquidityTopOfBook($$);
+    liquidity_self_trade: uint8 &convert=LiquiditySelfTrade($$);
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    match_number: uint32;
+    broken_trade_reason: uint8 &convert=BrokenTradeReason($$);
+    trading_mode: uint8 &convert=TradingMode($$);
+    transaction_category: uint8 &convert=TransactionCategory($$);
+    transaction_type_algo_indicator: uint8 &convert=TransactionTypeAlgoIndicator($$);
+};
+
+type RejectedOrderMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    rejected_order_reason: uint16;
+};
+
+type CancelRejectedMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    cancel_rejected_reason: uint16;
+};
+
+type OrderRestatedMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    restate_reason: uint8 &convert=RestateReason($$);
+    appendage_length: uint16;
+    tagvalue: Tagvalue[] &eod;
+};
+
+type MmoRefreshRequestMessage = unit {
+    timestamp: uint64;
+    firm: Firm;
+    order_book: uint32;
+    mmo_refresh_reason: bytes &size=1;
+};
+
+type AccountQueryResponseMessage = unit {
+    timestamp: uint64;
+    next_user_ref_num: uint32;
+};
+
+type GtcCancelledMessage = unit {
+    timestamp: uint64;
+    original_order_entry_date: OriginalOrderEntryDate;
+    original_order_reference_number: OriginalOrderReferenceNumber;
+    reason: uint16;
+};
+
+type ResponseToMmiNotificationMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    order_book: uint32;
+    instruction: bytes &size=1;
+    add_or_remove: bytes &size=1;
+    firm: Firm;
+    user: bytes &size=6;
+    instruction_status: bytes &size=1;
+};
+
+type PendingOrderMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    pending_order_reason: uint8 &convert=PendingOrderReason($$);
+};
+
+type StreamStatusMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    cum_rate: uint16;
+    status: uint8 &convert=Status($$);
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    OrderAcceptedMessage = 0x41,
+    OrderReplacedMessage = 0x55,
+    CancelledOrderMessage = 0x43,
+    CancelPendingMessage = 0x50,
+    ReplacePendingMessage = 0x4e,
+    ExecutedOrderMessage = 0x45,
+    BrokenTradeMessage = 0x42,
+    RejectedOrderMessage = 0x4a,
+    CancelRejectedMessage = 0x49,
+    OrderRestatedMessage = 0x54,
+    MmoRefreshRequestMessage = 0x57,
+    AccountQueryResponseMessage = 0x51,
+    GtcCancelledMessage = 0x47,
+    ResponseToMmiNotificationMessage = 0x52,
+    PendingOrderMessage = 0x4d,
+    StreamStatusMessage = 0x44,
+};
+
+type EventCode = enum {
+    StartOfDay = 0x53,
+    EndOfDay = 0x45,
+};
+
+type BuySellIndicator = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type ClientIdentification = enum {
+    None_0 = 0,
+    LeiFirm = 1,
+    NaturalPerson = 3,
+};
+
+type InvestmentDecisionWithinFirm = enum {
+    None_0 = 0,
+    Algo = 2,
+    NaturalPerson = 3,
+};
+
+type ExecutionDecisionWithinFirm = enum {
+    None_0 = 0,
+    Algo = 2,
+    NaturalPerson = 3,
+};
+
+type Capacity = enum {
+    Client = 0x31,
+    OwnAccount = 0x32,
+    MarketMaker = 0x33,
+    IssuerHolding = 0x34,
+    IssuePriceStabilizing = 0x36,
+    RisklessPrincipal = 0x37,
+    IssuerHoldingDeal = 0x38,
+    IssuePriceStabilizingDeal = 0x39,
+};
+
+type AlgoIndicator = enum {
+    NoAlgo = 0x2d,
+    Algo = 0x48,
+};
+
+type ClearingAccountTypeValue = enum {
+    CustomerClient = 0x31,
+    FirmHouse = 0x32,
+};
+
+type CrossTypeValue = enum {
+    ClosingCross = 0x43,
+    OpeningCross = 0x4f,
+    ScheduledIntradayCross = 0x49,
+    HaltCross = 0x48,
+    AuctionOnDemand = 0x41,
+};
+
+type DeaIndicatorValue = enum {
+    OrderReceivedFromACustomer = 0x31,
+    OrderReceivedFromWithinTheFirm = 0x32,
+    OrderReceivedFromAnotherBrokerDealer = 0x33,
+    OrderReceivedFromACustomerOrOriginatedWithTheFirm = 0x34,
+    OrderReceivedFromADirectAccessOrSponsoredAccessCustomer = 0x35,
+};
+
+type DisplayValue = enum {
+    Display = 0x59,
+    NonDisplay = 0x4e,
+    AuctionOnDemand = 0x41,
+    NordicMid = 0x4d,
+    PureStream = 0x53,
+};
+
+type LiquidityProvisionIndicatorValue = enum {
+    NoLiquidityProvision = 0x4e,
+    LiquidityProvision = 0x59,
+};
+
+type PegTypeValue = enum {
+    Midpoint = 0x4d,
+    Market = 0x50,
+    Primary = 0x52,
+};
+
+type StpActionValue = enum {
+    CancelPassiveOrder = 0x31,
+    CancelAggressiveOrder = 0x32,
+    CancelBothOrders = 0x33,
+    CreateATransferTransaction = 0x34,
+};
+
+type StpLevelValue = enum {
+    MpidAndTrader = 0x31,
+    Mpid = 0x32,
+    SpecifiedTraderGroup = 0x33,
+};
+
+type TimeInForceValue = enum {
+    Day = 0x30,
+    GtcGoodTillCancelled = 0x31,
+    IocImmediateOrCancel = 0x33,
+    GttGoodTillTime = 0x36,
+    GfaGoodForAuction = 0x42,
+};
+
+type TradingAtClosingPriceValue = enum {
+    ParticipateInTradingAtClosingPrice = 0x59,
+    DoNotParticipateInTradingAtClosingPrice = 0x4e,
+};
+
+type OrderConditionValue = enum {
+    MarketMakerOrder = 0x57,
+    MarketMakerOrderRefresh = 0x55,
+    TopofBook = 0x50,
+    DarklitSweep = 0x51,
+    TradeNow = 0x54,
+};
+
+type CustomerOrderCapacityValue = enum {
+    RetailCustomer = 0x35,
+};
+
+type TargetStrategyValue = enum {
+    Rate5To15Percent = 0x30,
+    Rate5To30Percent = 0x31,
+    Rate10To200Percent = 0x35,
+    Custom = 0x43,
+};
+
+type ConditionalTypeValue = enum {
+    ConditionalOrder = 0x43,
+    FirmUpOrder = 0x46,
+};
+
+type CancelReason = enum {
+    UserRequestedCancel = 0x55,
+    ImmediateOrCancelOrder = 0x49,
+    Timeout = 0x54,
+    Supervisory = 0x53,
+    SelfMatchPrevention = 0x51,
+    HiddenPegNotLis = 0x4c,
+    BadQuote = 0x4e,
+    StateManagement = 0x52,
+};
+
+type CancelPendingReason = enum {
+    CancelPendingCompletionOfAuctionOnDemand = 0x41,
+};
+
+type TradingMode = enum {
+    OpeningAuction = 0x4f,
+    ScheduledIntradayAuction = 0x49,
+    UnscheduledAuction = 0x55,
+    ContinuousTrading = 0x32,
+    AtMarketCloseTrading = 0x33,
+    OnDemandAuction = 0x50,
+};
+
+type TransactionCategory = enum {
+    DarkTrade = 0x44,
+    NoneApply = 0x2d,
+};
+
+type TransactionTypeAlgoIndicator = enum {
+    AlgorithmicTrade = 0x48,
+    NoAlgorithmicTrade = 0x2d,
+};
+
+type LiquidityIndicator = enum {
+    AddedLiquidity = 0,
+    RemovedLiquidity = 1,
+    AuctionLiquidity = 2,
+    Reserved = 3,
+};
+
+type LiquidityInternalized = enum {
+    NotInternalized = 0,
+    Internalized = 1,
+};
+
+type LiquidityTopOfBook = enum {
+    NotTopOfBook = 0,
+    TopOfBook = 1,
+};
+
+type LiquiditySelfTrade = enum {
+    NonSelfTrade = 0,
+    SelfTrade = 1,
+};
+
+type BrokenTradeReason = enum {
+    Erroneous = 0x45,
+    Consent = 0x43,
+    Supervisory = 0x53,
+};
+
+type RestateReason = enum {
+    RefreshOfDisplay = 0x52,
+    UpdateOfDisplayedPrice = 0x50,
+};
+
+type PendingOrderReason = enum {
+    SystemProcessing = 0x53,
+};
+
+type Status = enum {
+    StreamOn = 0x4f,
+    StreamOff = 0x58,
+};
+

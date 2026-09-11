@@ -1,0 +1,105 @@
+module BivaBivaequitiesOrderentryOuchV105Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BivaequitiesOrderentryV105 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::EnterOrderMessage -> enter_order_message: EnterOrderMessage;
+        UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
+        UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type EnterOrderMessage = unit {
+    order_token: uint32;
+    account_type: uint8 &convert=AccountType($$);
+    account_id: uint32;
+    order_verb: uint8 &convert=OrderVerb($$);
+    quantity: uint64;
+    orderbook: uint32;
+    price: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
+    client_id: uint32;
+    minimum_quantity: uint64;
+};
+
+type ReplaceOrderMessage = unit {
+    existing_order_token: uint32;
+    replacement_order_token: uint32;
+    quantity: uint64;
+    price: uint32;
+};
+
+type CancelOrderMessage = unit {
+    order_token: uint32;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    EnterOrderMessage = 0x4f,
+    ReplaceOrderMessage = 0x55,
+    CancelOrderMessage = 0x58,
+};
+
+type AccountType = enum {
+    Client = 0x43,
+    House = 0x48,
+    Other = 0x4f,
+    Strategy = 0x59,
+    MarketMaker = 0x4d,
+    Stabilisation = 0x53,
+};
+
+type OrderVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    ShortSell = 0x54,
+};
+
+type TimeInForce = enum {
+    Immediate = 0,
+    Session = 99997,
+    Day = 99998,
+};
+

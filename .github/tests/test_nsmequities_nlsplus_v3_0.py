@@ -12,35 +12,35 @@ import payloads
 SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 
-class NsmequitiesNlsplusV40Tests(unittest.TestCase):
+class NsmequitiesNlsplusV30Tests(unittest.TestCase):
 
     def test_nlsplusregshoshortsalepricetestrestrictedindicatormessage(self):
-        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v4_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v4.0/NlsPlus.RegShoShortSalePriceTestRestrictedIndicatorMessage.pcap"):
+        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v3_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v3.0/NlsPlus.RegShoShortSalePriceTestRestrictedIndicatorMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_nlsplusstocktradingactionmessage(self):
-        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v4_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v4.0/NlsPlus.StockTradingActionMessage.pcap"):
+        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v3_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v3.0/NlsPlus.StockTradingActionMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_nlsplussystemeventmessage(self):
-        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v4_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v4.0/NlsPlus.SystemEventMessage.pcap"):
+        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v3_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v3.0/NlsPlus.SystemEventMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_nlsplustradereportlongpricemessage(self):
-        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v4_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v4.0/NlsPlus.TradeReportLongPriceMessage.pcap"):
+        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v3_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v3.0/NlsPlus.TradeReportLongPriceMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_nlsplustradereportmessage(self):
-        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v4_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v4.0/NlsPlus.TradeReportMessage.pcap"):
+        module = "nasdaq/nsmequities/nlsplus/nsmequities_nlsplus_v3_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.NlsPlus.Itch.v3.0/NlsPlus.TradeReportMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

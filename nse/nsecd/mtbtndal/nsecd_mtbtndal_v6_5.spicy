@@ -1,10 +1,10 @@
-module NseNsecdMtbtBinaryV65;
+module NseNsecdMtbtndalBinaryV65;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Little;
 
-public type NsecdMtbtV65 = unit {
+public type NsecdMtbtndalV65 = unit {
     stream_header: StreamHeader;
     message: Message;
 };
@@ -18,13 +18,13 @@ type StreamHeader = unit {
 type Message = unit {
     message_type: uint8 &convert=MessageType($$);
     switch ( self.message_type ) {
-        MessageType::OrderMessage -> order_message: OrderMessage;
-        MessageType::OrderMessage_x4d -> order_message: OrderMessage;
-        MessageType::OrderMessage_x58 -> order_message: OrderMessage;
+        MessageType::NewOrderMessage -> new_order_message: NewOrderMessage;
+        MessageType::OrderModificationMessage -> order_modification_message: OrderModificationMessage;
+        MessageType::OrderCancellationMessage -> order_cancellation_message: OrderCancellationMessage;
         MessageType::TradeMessage -> trade_message: TradeMessage;
-        MessageType::SpreadOrderMessage -> spread_order_message: SpreadOrderMessage;
-        MessageType::SpreadOrderMessage_x48 -> spread_order_message: SpreadOrderMessage;
-        MessageType::SpreadOrderMessage_x4a -> spread_order_message: SpreadOrderMessage;
+        MessageType::NewSpreadOrderMessage -> new_spread_order_message: NewSpreadOrderMessage;
+        MessageType::SpreadOrderModificationMessage -> spread_order_modification_message: SpreadOrderModificationMessage;
+        MessageType::SpreadOrderCancellationMessage -> spread_order_cancellation_message: SpreadOrderCancellationMessage;
         MessageType::SpreadTradeMessage -> spread_trade_message: SpreadTradeMessage;
         MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
         MessageType::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
@@ -32,7 +32,25 @@ type Message = unit {
     };
 };
 
-type OrderMessage = unit {
+type NewOrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type OrderModificationMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type OrderCancellationMessage = unit {
     timestamp: int64;
     order_id: bytes &size=8;
     token: int32;
@@ -50,7 +68,25 @@ type TradeMessage = unit {
     trade_quantity: int32;
 };
 
-type SpreadOrderMessage = unit {
+type NewSpreadOrderMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadOrderModificationMessage = unit {
+    timestamp: int64;
+    order_id: bytes &size=8;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadOrderCancellationMessage = unit {
     timestamp: int64;
     order_id: bytes &size=8;
     token: int32;
@@ -82,13 +118,13 @@ type HeartbeatMessage = unit {
 };
 
 type MessageType = enum {
-    OrderMessage = 0x4e,
-    OrderMessage_x4d = 0x4d,
-    OrderMessage_x58 = 0x58,
+    NewOrderMessage = 0x4e,
+    OrderModificationMessage = 0x4d,
+    OrderCancellationMessage = 0x58,
     TradeMessage = 0x54,
-    SpreadOrderMessage = 0x47,
-    SpreadOrderMessage_x48 = 0x48,
-    SpreadOrderMessage_x4a = 0x4a,
+    NewSpreadOrderMessage = 0x47,
+    SpreadOrderModificationMessage = 0x48,
+    SpreadOrderCancellationMessage = 0x4a,
     SpreadTradeMessage = 0x4b,
     TradeCancelMessage = 0x43,
     HeartbeatMessage = 0x5a,

@@ -1,0 +1,156 @@
+module BivaBivaequitiesIndexItchV112;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BivaequitiesIndexV112 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TimeStampSecondsMessage -> time_stamp_seconds_message: TimeStampSecondsMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::PriceTickSizeMessage -> price_tick_size_message: PriceTickSizeMessage;
+        MessageType::QuantityTickSizeMessage -> quantity_tick_size_message: QuantityTickSizeMessage;
+        MessageType::OrderbookDirectoryMessage -> orderbook_directory_message: OrderbookDirectoryMessage;
+        MessageType::OrderbookTradingActionMessage -> orderbook_trading_action_message: OrderbookTradingActionMessage;
+        MessageType::OrderbookReferencePriceMessage -> orderbook_reference_price_message: OrderbookReferencePriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type TimeStampSecondsMessage = unit {
+    second: uint32;
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    group: bytes &size=8;
+    event_code: uint8 &convert=EventCode($$);
+    orderbook: uint32;
+};
+
+type PriceTickSizeMessage = unit {
+    nanoseconds: uint32;
+    tick_size_table_id: uint32;
+    price_tick_size: uint32;
+    price_start: uint32;
+};
+
+type QuantityTickSizeMessage = unit {
+    nanoseconds: uint32;
+    tick_size_table_id: uint32;
+    quantity_tick_size: uint64;
+    quantity_start: uint64;
+};
+
+type OrderbookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    orderbook: uint32;
+    isin: bytes &size=12;
+    sec_code: bytes &size=15;
+    currency: bytes &size=3;
+    group: bytes &size=8;
+    minimum_quantity: uint64;
+    quantity_tick_size_table_id: uint32;
+    quantity_decimals: uint32;
+    price_tick_size_table_id: uint32;
+    price_decimals: uint32;
+    delisting_or_maturity_date: uint32;
+    delisting_time: uint32;
+    turnover_ratio: bytes &size=1;
+    quotation_basis: bytes &size=3;
+    instrument: bytes &size=12;
+    listing_type: uint8 &convert=ListingType($$);
+    listing_exchange: bytes &size=4;
+};
+
+type OrderbookTradingActionMessage = unit {
+    nanoseconds: uint32;
+    orderbook: uint32;
+    trading_state: uint8 &convert=TradingState($$);
+    trading_action_reason: uint8 &convert=TradingActionReason($$);
+};
+
+type OrderbookReferencePriceMessage = unit {
+    nanoseconds: uint32;
+    orderbook: uint32;
+    reference_price: uint32;
+    price_type: uint8 &convert=PriceType($$);
+    reference_price_reason: uint8 &convert=ReferencePriceReason($$);
+};
+
+type MessageType = enum {
+    TimeStampSecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    PriceTickSizeMessage = 0x4c,
+    QuantityTickSizeMessage = 0x4d,
+    OrderbookDirectoryMessage = 0x52,
+    OrderbookTradingActionMessage = 0x48,
+    OrderbookReferencePriceMessage = 0x58,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    ScheduledAuctionStarts = 0x56,
+    ScheduledAuctionCloses = 0x55,
+    StartOfPostCloseSession = 0x50,
+    EndOfPostCloseSession = 0x54,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type ListingType = enum {
+    RegularSecurities = 0x52,
+    SubRmSecurities = 0x53,
+};
+
+type TradingState = enum {
+    Trading = 0x54,
+    Suspended = 0x56,
+};
+
+type TradingActionReason = enum {
+    NormalTrading = 0x4e,
+    VolatilityAuction = 0x48,
+    ContinuousAuctionStart = 0x41,
+    ContinuousAuctionEnd = 0x42,
+    NewsPending = 0x51,
+    StaticPriceBandBreach = 0x53,
+    MarketSurveillanceSuspension = 0x4d,
+    SuspensionByMarketOfOrigin = 0x4f,
+    NonCompliance = 0x43,
+    StartOfIndicationOfInterest = 0x49,
+    ExpiredSecurityIsUnavailableForTrading = 0x45,
+    NotYetAvailableForTrading = 0x4c,
+};
+
+type PriceType = enum {
+    ClosePrice = 0x43,
+    ReferencePrice = 0x52,
+    Inav = 0x49,
+    VwapOrPpp = 0x56,
+};
+
+type ReferencePriceReason = enum {
+    None_x20 = 0x20,
+};
+

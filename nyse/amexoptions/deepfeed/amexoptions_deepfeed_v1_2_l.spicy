@@ -6,7 +6,7 @@ import spicy;
 
 public type AmexoptionsDeepfeedV12L = unit {
     packet_header: PacketHeader;
-    message: Message[self.packet_header.number_msgs];
+    messages: Message[self.packet_header.number_msgs];
 };
 
 type PacketHeader = unit {
@@ -77,7 +77,7 @@ type SourceTimeReferenceMessage = unit {
 type SymbolIndexMappingMessage = unit {
     symbol_index: uint32;
     symbol: bytes &size=11;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     market_id: uint16 &convert=MarketId($$);
     system_id: uint8;
     exchange_code: uint8 &convert=ExchangeCode($$);
@@ -88,9 +88,9 @@ type SymbolIndexMappingMessage = unit {
     prev_close_volume: uint32;
     price_resolution: uint8 &convert=PriceResolution($$);
     round_lot: uint8 &convert=RoundLot($$);
-    reserved_2: uint16;
-    second_reserved_2: uint16;
-    third_reserved_2: uint16;
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
 };
 
 type SymbolClearMessage = unit {
@@ -107,7 +107,7 @@ type SecurityStatusMessage = unit {
     symbol_seq_num: uint32;
     security_status: uint8 &convert=SecurityStatus($$);
     halt_condition: uint8 &convert=HaltCondition($$);
-    reserved_4: uint32;
+    : skip bytes &size=4;   # padding
     price_1: uint32;
     price_2: uint32;
     ssr_triggering_exchange_id: uint8 &convert=SsrTriggeringExchangeId($$);
@@ -132,7 +132,7 @@ type OutrightSeriesIndexMappingMessage = unit {
     put_or_call: uint8 &convert=PutOrCall($$);
     strike_price: bytes &size=10;
     closing_only_indicator: uint8 &convert=ClosingOnlyIndicator($$);
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type OptionsStatusMessage = unit {
@@ -220,7 +220,7 @@ type OptionsAddOrderMessage = unit {
     volume: uint32;
     side: uint8 &convert=Side($$);
     firm_id: bytes &size=5;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     cust_indicator: uint8 &convert=CustIndicator($$);
 };
 
@@ -241,7 +241,7 @@ type OptionsDeleteOrderMessage = unit {
     series_index: uint32;
     series_seq_num: uint32;
     order_id: uint64;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type OptionsOrderExecutionMessage = unit {
@@ -253,9 +253,9 @@ type OptionsOrderExecutionMessage = unit {
     price: int32;
     volume: uint32;
     printable_flag: uint8 &convert=PrintableFlag($$);
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     trade_cond_1: uint8 &convert=TradeCond1($$);
-    reserved_3: bytes &size=3;
+    : skip bytes &size=3;   # padding
 };
 
 type OptionsReplaceOrderMessage = unit {
@@ -267,7 +267,7 @@ type OptionsReplaceOrderMessage = unit {
     price: int32;
     volume: uint32;
     side: uint8 &convert=Side($$);
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     cust_indicator: uint8 &convert=CustIndicator($$);
 };
 
@@ -276,16 +276,16 @@ type OptionsImbalanceMessage = unit {
     source_time_ns: uint32;
     series_index: uint32;
     series_seq_num: uint32;
-    reserved_4: uint32;
+    : skip bytes &size=4;   # padding
     paired_qty: uint32;
     total_imbalance_qty: uint32;
     market_imbalance_qty: uint32;
-    reserved_2: uint16;
+    : skip bytes &size=2;   # padding
     auction_type: uint8 &convert=AuctionType($$);
     imbalance_side: uint8 &convert=ImbalanceSide($$);
     continuous_book_clearing_price: int32;
     auction_interest_clearing_price: int32;
-    second_reserved_4: uint32;
+    : skip bytes &size=4;   # padding
     indicative_match_price: int32;
     upper_collar: int32;
     lower_collar: int32;
@@ -302,7 +302,7 @@ type OptionsAddOrderRefreshMessage = unit {
     volume: uint32;
     side: uint8 &convert=Side($$);
     firm_id: bytes &size=5;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     cust_indicator: uint8 &convert=CustIndicator($$);
 };
 
@@ -330,7 +330,7 @@ type OptionsNonDisplayedTradeMessage = unit {
     volume: uint32;
     printable_flag: uint8 &convert=PrintableFlag($$);
     non_displayed_trade_trade_cond_1: uint8 &convert=NonDisplayedTradeTradeCond1($$);
-    reserved_3: bytes &size=3;
+    : skip bytes &size=3;   # padding
     price_type: uint8 &convert=PriceType($$);
 };
 

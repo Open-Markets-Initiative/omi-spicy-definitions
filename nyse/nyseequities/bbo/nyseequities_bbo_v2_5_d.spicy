@@ -6,7 +6,7 @@ import spicy;
 
 public type NyseequitiesBboV25D = unit {
     packet_header: PacketHeader;
-    message: Message[self.packet_header.number_msgs];
+    messages: Message[self.packet_header.number_msgs];
 };
 
 type PacketHeader = unit {
@@ -63,7 +63,7 @@ type SourceTimeReferenceMessage = unit {
 type SymbolIndexMappingMessage = unit {
     symbol_index: uint32;
     symbol: bytes &size=11;
-    reserved_1: uint8;
+    : skip bytes &size=1;   # padding
     market_id: uint16 &convert=MarketId($$);
     system_id: uint8;
     exchange_code: uint8 &convert=ExchangeCode($$);
@@ -76,7 +76,7 @@ type SymbolIndexMappingMessage = unit {
     round_lot: uint8 &convert=RoundLot($$);
     mpv: uint16;
     unit_of_trade: uint16;
-    reserved_2: uint16;
+    : skip bytes &size=2;   # padding
 };
 
 type SymbolClearMessage = unit {
@@ -93,7 +93,7 @@ type SecurityStatusMessage = unit {
     symbol_seq_num: uint32;
     security_status: uint8 &convert=SecurityStatus($$);
     halt_condition: uint8 &convert=HaltCondition($$);
-    reserved_4: uint32;
+    : skip bytes &size=4;   # padding
     price_1: uint32;
     price_2: uint32;
     ssr_triggering_exchange_id: uint8 &convert=SsrTriggeringExchangeId($$);
