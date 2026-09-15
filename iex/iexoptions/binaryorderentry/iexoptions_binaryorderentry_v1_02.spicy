@@ -52,20 +52,20 @@ type LoginResponseMessage = unit {
 
 type GatewayHeartbeatMessage = unit {
     keep_alive: uint8 &convert=KeepAlive($$);
-    gateway_heartbeat_message_sub_sessions_groups: GatewayHeartbeatMessageSubSessionsGroups;
+    sub_sessions_groups: SubSessionsGroups;
 };
 
-type GatewayHeartbeatMessageSubSessionsGroups = unit {
+type SubSessionsGroups = unit {
     session_info_group_encoding: SessionInfoGroupEncoding;
-    gateway_heartbeat_message_sub_sessions_group: GatewayHeartbeatMessageSubSessionsGroup[self.session_info_group_encoding.num_in_group];
+    sub_sessions_group: SubSessionsGroup[self.session_info_group_encoding.num_in_group];
 };
 
 type SessionInfoGroupEncoding = unit {
-    block_length_uint_8: uint8;
+    block_length_short: uint8;
     num_in_group: uint8;
 };
 
-type GatewayHeartbeatMessageSubSessionsGroup = unit {
+type SubSessionsGroup = unit {
     subsession_type: int8 &convert=SubsessionType($$);
     subsession_id: uint64;
     joined: uint8 &convert=Joined($$);
@@ -137,7 +137,7 @@ type BusinessMessage = unit(template_id: TemplateId) {
 
 type NewOrderSingleMessage = unit {
     account_account: bytes &size=16;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
@@ -145,7 +145,7 @@ type NewOrderSingleMessage = unit {
     open_close: int8 &convert=OpenClose($$);
     attributed_quote: int8 &convert=AttributedQuote($$);
     time_in_force: int8 &convert=TimeInForce($$);
-    cancel_instead_of_slide_cancel_instead_of_slide: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlide($$);
+    cancel_instead_of_slide: int8 &convert=CancelInsteadOfSlide($$);
     display_inst: int8 &convert=DisplayInst($$);
     exec_inst: int8 &convert=ExecInst($$);
     ord_type: int8 &convert=OrdType($$);
@@ -162,7 +162,7 @@ type NewOrderSingleMessage = unit {
 
 type OrderCancelReplaceRequestMessage = unit {
     account_account: bytes &size=16;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
@@ -171,7 +171,7 @@ type OrderCancelReplaceRequestMessage = unit {
     open_close: int8 &convert=OpenClose($$);
     attributed_quote: int8 &convert=AttributedQuote($$);
     time_in_force: int8 &convert=TimeInForce($$);
-    cancel_instead_of_slide_cancel_instead_of_slide_optional: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlideOptional($$);
+    cancel_instead_of_slide_optional: int8 &convert=CancelInsteadOfSlideOptional($$);
     display_inst: int8 &convert=DisplayInst($$);
     exec_inst: int8 &convert=ExecInst($$);
     ord_type: int8 &convert=OrdType($$);
@@ -187,7 +187,7 @@ type OrderCancelReplaceRequestMessage = unit {
 };
 
 type OrderCancelRequestMessage = unit {
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
@@ -195,10 +195,10 @@ type OrderCancelRequestMessage = unit {
 
 type NewBulkQuoteMessage = unit {
     market_participant_id: bytes &size=4;
-    custom_group_id_uint_16: uint16;
+    custom_group_id: uint16;
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
-    cancel_instead_of_slide_cancel_instead_of_slide_optional: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlideOptional($$);
+    cancel_instead_of_slide_optional: int8 &convert=CancelInsteadOfSlideOptional($$);
     send_time: uint64;
     aiq: bytes &size=3;
     time_in_force: int8 &convert=TimeInForce($$);
@@ -211,12 +211,12 @@ type NewBulkQuoteMessageQuoteUpdatesGroups = unit {
 };
 
 type QuoteUpdatesGroupEncoding = unit {
-    block_length_uint_8: uint8;
+    block_length_short: uint8;
     num_in_group: uint8;
 };
 
 type NewBulkQuoteMessageQuoteUpdatesGroup = unit {
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     side: int8 &convert=Side($$);
     price_price_4_optional: int32;
     order_qty_quantity_zero_optional: uint32;
@@ -225,7 +225,7 @@ type NewBulkQuoteMessageQuoteUpdatesGroup = unit {
 };
 
 type MassCancelRequestMessage = unit {
-    underlying_id_instrument_id_optional: uint32;
+    underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     send_time: uint64;
@@ -235,7 +235,7 @@ type MassCancelRequestMessage = unit {
 };
 
 type PurgeRequestMessage = unit {
-    underlying_id_instrument_id: uint32;
+    underlying_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     send_time: uint64;
@@ -250,18 +250,18 @@ type PurgeRequestMessageCustomGroupIdsGroups = unit {
 };
 
 type CustomGroupIdsGroupEncoding = unit {
-    block_length_uint_8: uint8;
+    block_length_short: uint8;
     num_in_group: uint8;
 };
 
 type PurgeRequestMessageCustomGroupIdsGroup = unit {
-    custom_group_id_uint_16: uint16;
+    custom_group_id: uint16;
 };
 
 type OrderAckMessage = unit {
     account_account: bytes &size=16;
     transact_time: uint64;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
@@ -271,7 +271,7 @@ type OrderAckMessage = unit {
     open_close: int8 &convert=OpenClose($$);
     attributed_quote: int8 &convert=AttributedQuote($$);
     time_in_force: int8 &convert=TimeInForce($$);
-    cancel_instead_of_slide_cancel_instead_of_slide: int8 &convert=CancelInsteadOfSlideCancelInsteadOfSlide($$);
+    cancel_instead_of_slide: int8 &convert=CancelInsteadOfSlide($$);
     display_inst: int8 &convert=DisplayInst($$);
     exec_inst: int8 &convert=ExecInst($$);
     ord_type: int8 &convert=OrdType($$);
@@ -294,7 +294,7 @@ type OrderAckMessage = unit {
 
 type UnsolicitedModifyAckMessage = unit {
     transact_time: uint64;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     orig_cl_ord_id: uint64;
     order_id: uint64;
@@ -310,7 +310,7 @@ type UnsolicitedModifyAckMessage = unit {
 
 type OrderCancelAckMessage = unit {
     transact_time: uint64;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
@@ -324,7 +324,7 @@ type OrderCancelAckMessage = unit {
 
 type MassCancelAckMessage = unit {
     transact_time: uint64;
-    underlying_id_instrument_id_optional: uint32;
+    underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     reason_code: uint8 &convert=ReasonCode($$);
@@ -338,7 +338,7 @@ type MassCancelAckMessage = unit {
 type BulkQuoteAckMessage = unit {
     transact_time: uint64;
     market_participant_id: bytes &size=4;
-    custom_group_id_uint_16: uint16;
+    custom_group_id: uint16;
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
     aiq: bytes &size=3;
@@ -352,12 +352,12 @@ type BulkQuoteAckMessageQuoteAcksGroups = unit {
 };
 
 type QuoteAcksGroupEncoding = unit {
-    block_length_uint_8: uint8;
+    block_length_short: uint8;
     num_in_group: uint8;
 };
 
 type BulkQuoteAckMessageQuoteAcksGroup = unit {
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     side: int8 &convert=Side($$);
     order_id: uint64;
     ack_type: int8 &convert=AckType($$);
@@ -372,7 +372,7 @@ type NewIocQuoteAckMessage = unit {
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
     aiq: bytes &size=3;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     side: int8 &convert=Side($$);
     order_id: uint64;
     ack_type: int8 &convert=AckType($$);
@@ -384,7 +384,7 @@ type NewIocQuoteAckMessage = unit {
 
 type QuoteRestatedMessage = unit {
     transact_time: uint64;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     order_id: uint64;
@@ -397,7 +397,7 @@ type QuoteRestatedMessage = unit {
 
 type QuoteCanceledMessage = unit {
     transact_time: uint64;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     order_id: uint64;
@@ -409,7 +409,7 @@ type QuoteCanceledMessage = unit {
 
 type PurgeAckMessage = unit {
     transact_time: uint64;
-    underlying_id_instrument_id: uint32;
+    underlying_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     ack_style_purge_request_ack_style: uint8 &convert=AckStylePurgeRequestAckStyle($$);
@@ -425,13 +425,13 @@ type PurgeAckMessageCustomGroupIdsGroups = unit {
 };
 
 type PurgeAckMessageCustomGroupIdsGroup = unit {
-    custom_group_id_uint_16: uint16;
+    custom_group_id: uint16;
 };
 
 type ExecutionReportMessage = unit {
     account_account: bytes &size=16;
     transact_time: uint64;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
@@ -465,7 +465,7 @@ type ExecutionReportMessage = unit {
 
 type TradeBustCorrectMessage = unit {
     transact_time: uint64;
-    instrument_id_instrument_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     order_id: uint64;
@@ -481,8 +481,8 @@ type TradeBustCorrectMessage = unit {
 
 type ApplicationLayerRejectMessage = unit {
     transact_time: uint64;
-    underlying_id_instrument_id: uint32;
-    instrument_id_instrument_id: uint32;
+    underlying_id: uint32;
+    instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     account_string_16: bytes &size=16;
@@ -492,30 +492,30 @@ type ApplicationLayerRejectMessage = unit {
 };
 
 type RiskLimitUpdateRequestMessage = unit {
-    underlying_id_instrument_id_optional: uint32;
+    underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
-    risk_control_risk_control_optional: int8 &convert=RiskControlRiskControlOptional($$);
-    risk_control_status_risk_control_status_optional: int8 &convert=RiskControlStatusRiskControlStatusOptional($$);
+    risk_control_optional: int8 &convert=RiskControlOptional($$);
+    risk_control_status_optional: int8 &convert=RiskControlStatusOptional($$);
     time_limit: uint64;
     percentage_limit: uint32;
     count_limit: uint32;
     ioc_attribution: int8 &convert=IocAttribution($$);
-    cust_capacity_weight_uint_8_optional: uint8;
+    cust_capacity_weight_optional: uint8;
 };
 
 type RiskActionRequestMessage = unit {
-    underlying_id_instrument_id_optional: uint32;
+    underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
-    risk_control_risk_control: int8 &convert=RiskControlRiskControl($$);
+    risk_control: int8 &convert=RiskControl($$);
     risk_action: int8 &convert=RiskAction($$);
-    custom_group_id_uint_16_optional: uint16;
+    custom_group_id_optional: uint16;
 };
 
 type UnderlyingRefDataMessage = unit {
     transact_time: uint64;
-    underlying_id_uint_32: uint32;
+    underlying_id: uint32;
     underlying_symbol: bytes &size=8;
     mic: bytes &size=4;
     mpv_group: int8 &convert=MpvGroup($$);
@@ -523,8 +523,8 @@ type UnderlyingRefDataMessage = unit {
 
 type InstrumentRefDataMessage = unit {
     transact_time: uint64;
-    instrument_id_uint_32: uint32;
-    underlying_id_uint_32: uint32;
+    instrument_id: uint32;
+    underlying_id: uint32;
     osi_symbol: bytes &size=21;
     maturity_date: bytes &size=8;
     option_type: int8 &convert=OptionType($$);
@@ -553,7 +553,7 @@ type MpidConfigurationAcknowledgementMessage = unit {
 
 type MarketMakerSymbolAppointmentMessage = unit {
     transact_time: uint64;
-    underlying_id_instrument_id: uint32;
+    underlying_id: uint32;
     market_participant_id: bytes &size=4;
     appointment_type: int8 &convert=AppointmentType($$);
     appointment_status: int8 &convert=AppointmentStatus($$);
@@ -579,28 +579,28 @@ type SessionConfigurationAcknowledgementMessage = unit {
 
 type RiskControlAcknowledgmentMessage = unit {
     transact_time: uint64;
-    underlying_id_instrument_id_optional: uint32;
+    underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
-    custom_group_id_uint_16_optional: uint16;
+    custom_group_id_optional: uint16;
     risk_ack_type: int8 &convert=RiskAckType($$);
-    risk_control_status_risk_control_status: int8 &convert=RiskControlStatusRiskControlStatus($$);
-    risk_control_risk_control: int8 &convert=RiskControlRiskControl($$);
+    risk_control_status: int8 &convert=RiskControlStatus($$);
+    risk_control: int8 &convert=RiskControl($$);
     risk_action: int8 &convert=RiskAction($$);
     time_limit: uint64;
     percentage_limit: uint32;
     count_limit: uint32;
     ioc_attribution: int8 &convert=IocAttribution($$);
     blocked_by_breach_indicator: int8 &convert=BlockedByBreachIndicator($$);
-    cust_capacity_weight_uint_8: uint8;
+    cust_capacity_weight: uint8;
     throttle_indicator: int8 &convert=ThrottleIndicator($$);
 };
 
 type RiskControlAlertMessage = unit {
     transact_time: uint64;
-    underlying_id_instrument_id_optional: uint32;
+    underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
-    risk_control_risk_control: int8 &convert=RiskControlRiskControl($$);
+    risk_control: int8 &convert=RiskControl($$);
     time_limit: uint64;
     percentage_limit: uint32;
     count_limit: uint32;
@@ -733,7 +733,7 @@ type TimeInForce = enum {
     Ioc = 1,
 };
 
-type CancelInsteadOfSlideCancelInsteadOfSlide = enum {
+type CancelInsteadOfSlide = enum {
     Slide = 0,
     Cancel = 1,
 };
@@ -757,7 +757,7 @@ type Side = enum {
     Sell = 2,
 };
 
-type CancelInsteadOfSlideCancelInsteadOfSlideOptional = enum {
+type CancelInsteadOfSlideOptional = enum {
     Slide = 0,
     Cancel = 1,
 };
@@ -970,7 +970,7 @@ type RejectType = enum {
     NewIocQuoteReject = 8,
 };
 
-type RiskControlRiskControlOptional = enum {
+type RiskControlOptional = enum {
     TransactionBased = 1,
     VolumeBased = 2,
     PercentageBased = 3,
@@ -979,7 +979,7 @@ type RiskControlRiskControlOptional = enum {
     IntrinsicValueAndArbitrage = 6,
 };
 
-type RiskControlStatusRiskControlStatusOptional = enum {
+type RiskControlStatusOptional = enum {
     Disabled = 0,
     Enabled = 1,
 };
@@ -989,7 +989,7 @@ type IocAttribution = enum {
     ExcludeIoc = 2,
 };
 
-type RiskControlRiskControl = enum {
+type RiskControl = enum {
     TransactionBased = 1,
     VolumeBased = 2,
     PercentageBased = 3,
@@ -1099,7 +1099,7 @@ type RiskAckType = enum {
     Unsolicited = 1,
 };
 
-type RiskControlStatusRiskControlStatus = enum {
+type RiskControlStatus = enum {
     Disabled = 0,
     Enabled = 1,
 };

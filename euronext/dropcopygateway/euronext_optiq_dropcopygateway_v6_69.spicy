@@ -62,7 +62,7 @@ type DcMarketStatusChangeMessage = unit {
     price_limits: uint8 &convert=PriceLimits($$);
     quote_spread_multiplier: uint8 &convert=QuoteSpreadMultiplier($$);
     order_entry_qualifier: uint8 &convert=OrderEntryQualifier($$);
-    session_sessionenum: uint8 &convert=SessionSessionenum($$);
+    session: uint8 &convert=Session($$);
     scheduled_event: uint8 &convert=ScheduledEvent($$);
     scheduled_event_time: uint64;
     trading_group_order_entry_qualifier: uint8 &convert=TradingGroupOrderEntryQualifier($$);
@@ -96,8 +96,8 @@ type DcPriceUpdateMessage = unit {
     event_time: uint64;
     price_type: uint8 &convert=PriceType($$);
     symbol_index: uint32;
-    price: int64;
-    quantity: uint64;
+    price_optional: int64;
+    quantity_optional: uint64;
     imbalance_qty: uint64;
     imbalance_qty_side: uint8 &convert=ImbalanceQtySide($$);
 };
@@ -107,51 +107,51 @@ type LongOrderMessage = unit {
     produce_time: uint64;
     consume_time: uint64;
     order_event_type: uint8 &convert=OrderEventType($$);
-    account_type_internal_account_type_internalenum: uint8 &convert=AccountTypeInternalAccountTypeInternalenum($$);
+    account_type_internal: uint8 &convert=AccountTypeInternal($$);
     ack_phase: uint8 &convert=AckPhase($$);
     ack_qualifiers: AckQualifiers;
     ack_type: uint8 &convert=AckType($$);
-    book_in: uint64;
-    book_out_time: uint64;
-    client_order_id: int64;
+    book_in_optional: uint64;
+    book_out_time_optional: uint64;
+    client_order_id_optional: int64;
     dark_execution_instruction: DarkExecutionInstruction;
     emm: uint8 &convert=Emm($$);
     event_id: uint64;
-    execution_instruction_execution_instructionset: ExecutionInstructionExecutionInstructionset;
+    execution_instruction: ExecutionInstruction;
     firm_id: bytes &size=8;
     indicative_auction_price: int64;
     indicative_auction_volume: uint64;
     oe_session_id: uint64;
-    lp_role_lp_roleenum_optional: uint8 &convert=LpRoleLpRoleenumOptional($$);
-    mi_fid_indicators_mi_fid_indicatorsset: MiFidIndicatorsMiFidIndicatorsset;
-    oegin_from_member: uint64;
-    oegout_time_to_me: uint64;
+    lp_role_optional: uint8 &convert=LpRoleOptional($$);
+    mi_fid_indicators: MiFidIndicators;
+    oegin_from_member_optional: uint64;
+    oegout_time_to_me_optional: uint64;
     order_id: uint64;
     order_priority: uint64;
     order_px: int64;
     order_qty: uint64;
-    order_side_order_sideenum: uint8 &convert=OrderSideOrderSideenum($$);
+    order_side: uint8 &convert=OrderSide($$);
     order_type: uint8 &convert=OrderType($$);
     orig_client_order_id: int64;
     stpid: uint16;
     symbol_index: uint32;
-    time_in_force_time_in_forceenum: uint8 &convert=TimeInForceTimeInForceenum($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
     displayed_qty: uint64;
     cross_order_indicator: uint8;
     counterpart_firm_id: bytes &size=8;
-    execution_id: uint32;
-    execution_phase_execution_phaseenum_optional: uint8 &convert=ExecutionPhaseExecutionPhaseenumOptional($$);
-    last_shares: uint64;
-    last_traded_px: int64;
+    execution_id_optional: uint32;
+    execution_phase_optional: uint8 &convert=ExecutionPhaseOptional($$);
+    last_shares_optional: uint64;
+    last_traded_px_optional: int64;
     leaves_qty: uint64;
-    trade_qualifier_trade_qualifierset_optional: TradeQualifierTradeQualifiersetOptional;
+    trade_qualifier_optional: TradeQualifierOptional;
     trade_time: uint64;
     trade_type: uint8 &convert=TradeType($$);
     kill_reason: uint16 &convert=KillReason($$);
     breached_collar_price: int64;
     collar_rej_type: uint8 &convert=CollarRejType($$);
     rejected_message: uint8;
-    error_code: uint16;
+    error_code_optional: uint16;
     stop_queue_priority: uint64;
     counterparty_reason_type: uint8 &convert=CounterpartyReasonType($$);
     quote_indicator: uint8;
@@ -200,7 +200,7 @@ type DarkExecutionInstruction = unit {
     unused_dark_execution_instructionset_7: bytes &size=1;
 };
 
-type ExecutionInstructionExecutionInstructionset = unit {
+type ExecutionInstruction = unit {
     stp_resting_order: bytes &size=1;
     stp_incoming_order: bytes &size=1;
     disclosed_quantity_randomization: bytes &size=1;
@@ -211,7 +211,7 @@ type ExecutionInstructionExecutionInstructionset = unit {
     stp_both_orders: bytes &size=1;
 };
 
-type MiFidIndicatorsMiFidIndicatorsset = unit {
+type MiFidIndicators = unit {
     dea_indicator: bytes &size=1;
     investment_algo_indicator: bytes &size=1;
     execution_algo_indicator: bytes &size=1;
@@ -221,7 +221,7 @@ type MiFidIndicatorsMiFidIndicatorsset = unit {
     reserved_2: bytes &size=1;
 };
 
-type TradeQualifierTradeQualifiersetOptional = unit {
+type TradeQualifierOptional = unit {
     uncrossing_trade: bytes &size=1;
     first_trade_price: bytes &size=1;
     passive_order: bytes &size=1;
@@ -238,7 +238,7 @@ type LongOrderFreeTextSectionGroups = unit {
 };
 
 type GroupSizeEncoding = unit {
-    block_length_uint_8: uint8;
+    block_length_short: uint8;
     num_in_group: uint8;
 };
 
@@ -278,12 +278,12 @@ type LongOrderClearingFieldsGroups = unit {
 };
 
 type LongOrderClearingFieldsGroup = unit {
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     client_id: bytes &size=8;
     account_number: bytes &size=12;
     technical_origin: uint8 &convert=TechnicalOrigin($$);
     open_close: OpenClose;
-    clearing_instruction_clearing_instructionenum_optional: uint16 &convert=ClearingInstructionClearingInstructionenumOptional($$);
+    clearing_instruction_optional: uint16 &convert=ClearingInstructionOptional($$);
 };
 
 type OpenClose = unit {
@@ -306,7 +306,7 @@ type LongOrderNonModifiableOptFieldsGroups = unit {
 };
 
 type LongOrderNonModifiableOptFieldsGroup = unit {
-    trading_capacity_trading_capacityenum_optional: uint8 &convert=TradingCapacityTradingCapacityenumOptional($$);
+    trading_capacity_optional: uint8 &convert=TradingCapacityOptional($$);
     minimum_order_quantity: uint64;
     account_type_cross: uint8 &convert=AccountTypeCross($$);
 };
@@ -384,7 +384,7 @@ type LongOrderStrategyFieldsGroup = unit {
     leg_last_qty: uint64;
     leg_instrument_id: uint32;
     leg_side: uint8 &convert=LegSide($$);
-    execution_id: uint32;
+    execution_id_optional: uint32;
     trade_unique_identifier: bytes &size=16;
 };
 
@@ -442,7 +442,7 @@ type DcShortOrderRejectMessage = unit {
     emm: uint8 &convert=Emm($$);
     event_id: uint64;
     firm_id: bytes &size=8;
-    oegin_from_member: uint64;
+    oegin_from_member_optional: uint64;
     oegout_time_to_me: uint64;
     order_id: uint64;
     symbol_index: uint32;
@@ -450,15 +450,15 @@ type DcShortOrderRejectMessage = unit {
     collar_rej_type: uint8 &convert=CollarRejType($$);
     rejected_message: uint8;
     error_code: uint16;
-    mi_fid_indicators_mi_fid_indicatorsset_optional: MiFidIndicatorsMiFidIndicatorssetOptional;
-    oe_session_id: uint64;
-    order_side_order_sideenum_optional: uint8 &convert=OrderSideOrderSideenumOptional($$);
-    time_in_force_time_in_forceenum_optional: uint8 &convert=TimeInForceTimeInForceenumOptional($$);
+    mi_fid_indicators_optional: MiFidIndicatorsOptional;
+    oe_session_id_optional: uint64;
+    order_side_optional: uint8 &convert=OrderSideOptional($$);
+    time_in_force_optional: uint8 &convert=TimeInForceOptional($$);
     d_c_short_order_reject_message_modifiable_short_codes_groups: DCShortOrderRejectMessageModifiableShortCodesGroups;
     d_c_short_order_reject_message_short_codes_details_modifiable_groups: DCShortOrderRejectMessageShortCodesDetailsModifiableGroups;
 };
 
-type MiFidIndicatorsMiFidIndicatorssetOptional = unit {
+type MiFidIndicatorsOptional = unit {
     dea_indicator: bytes &size=1;
     investment_algo_indicator: bytes &size=1;
     execution_algo_indicator: bytes &size=1;
@@ -528,7 +528,7 @@ type TradeBustNotificationMessage = unit {
     consume_time: uint64;
     firm_id: bytes &size=8;
     oe_session_id: uint64;
-    order_side_order_sideenum: uint8 &convert=OrderSideOrderSideenum($$);
+    order_side: uint8 &convert=OrderSide($$);
     book_out_time: uint64;
     book_in_time: uint64;
     symbol_index: uint32;
@@ -537,21 +537,21 @@ type TradeBustNotificationMessage = unit {
     last_shares: uint64;
     last_traded_px: int64;
     order_id: uint64;
-    mi_fid_indicators_mi_fid_indicatorsset: MiFidIndicatorsMiFidIndicatorsset;
-    clearing_firm_i_d_char_8: bytes &size=8;
-    trading_capacity_trading_capacityenum: uint8 &convert=TradingCapacityTradingCapacityenum($$);
+    mi_fid_indicators: MiFidIndicators;
+    clearing_firm_id: bytes &size=8;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
     oegin_from_member: uint64;
-    execution_phase_execution_phaseenum: uint8 &convert=ExecutionPhaseExecutionPhaseenum($$);
-    trade_qualifier_trade_qualifierset: TradeQualifierTradeQualifierset;
+    execution_phase: uint8 &convert=ExecutionPhase($$);
+    trade_qualifier: TradeQualifier;
     counterpart_firm_id: bytes &size=8;
     order_type: uint8 &convert=OrderType($$);
-    time_in_force_time_in_forceenum_optional: uint8 &convert=TimeInForceTimeInForceenumOptional($$);
-    clearing_instruction_clearing_instructionenum_optional: uint16 &convert=ClearingInstructionClearingInstructionenumOptional($$);
+    time_in_force_optional: uint8 &convert=TimeInForceOptional($$);
+    clearing_instruction_optional: uint16 &convert=ClearingInstructionOptional($$);
     technical_origin: uint8 &convert=TechnicalOrigin($$);
     free_text: bytes &size=18;
     account_number: bytes &size=12;
-    account_type_account_typeenum: uint8 &convert=AccountTypeAccountTypeenum($$);
-    lp_role_lp_roleenum_optional: uint8 &convert=LpRoleLpRoleenumOptional($$);
+    account_type: uint8 &convert=AccountType($$);
+    lp_role_optional: uint8 &convert=LpRoleOptional($$);
     open_close: OpenClose;
     original_invest_decis_w_firm_short_code: int32;
     original_non_exec_broker_short_code: int32;
@@ -569,7 +569,7 @@ type TradeBustNotificationMessage = unit {
     trade_bust_notification_short_codes_details_modifiable_groups: TradeBustNotificationShortCodesDetailsModifiableGroups;
 };
 
-type TradeQualifierTradeQualifierset = unit {
+type TradeQualifier = unit {
     uncrossing_trade: bytes &size=1;
     first_trade_price: bytes &size=1;
     passive_order: bytes &size=1;
@@ -612,13 +612,13 @@ type DcQuoteMessage = unit {
     emm: uint8 &convert=Emm($$);
     event_id: uint64;
     client_order_id: int64;
-    trading_capacity_trading_capacityenum: uint8 &convert=TradingCapacityTradingCapacityenum($$);
-    account_type_account_typeenum: uint8 &convert=AccountTypeAccountTypeenum($$);
-    lp_role_lp_roleenum: uint8 &convert=LpRoleLpRoleenum($$);
-    mi_fid_indicators_mi_fid_indicatorsset: MiFidIndicatorsMiFidIndicatorsset;
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    account_type: uint8 &convert=AccountType($$);
+    lp_role: uint8 &convert=LpRole($$);
+    mi_fid_indicators: MiFidIndicators;
     rfe_answer: uint8;
     firm_id: bytes &size=8;
-    execution_instruction_execution_instructionset_optional: ExecutionInstructionExecutionInstructionsetOptional;
+    execution_instruction_optional: ExecutionInstructionOptional;
     stpid: uint16;
     d_c_quote_message_bid_quoterep_groups: DCQuoteMessageBidQuoterepGroups;
     d_c_quote_message_offer_quoterep_groups: DCQuoteMessageOfferQuoterepGroups;
@@ -627,7 +627,7 @@ type DcQuoteMessage = unit {
     d_c_quote_message_modifiable_short_codes_groups: DCQuoteMessageModifiableShortCodesGroups;
 };
 
-type ExecutionInstructionExecutionInstructionsetOptional = unit {
+type ExecutionInstructionOptional = unit {
     stp_resting_order: bytes &size=1;
     stp_incoming_order: bytes &size=1;
     disclosed_quantity_randomization: bytes &size=1;
@@ -651,7 +651,7 @@ type DCQuoteMessageBidQuoterepGroup = unit {
     buy_revision_flag: uint8 &convert=BuyRevisionFlag($$);
     bid_error_code: uint16;
     bid_oe_session_id: uint64;
-    rfe_answer: uint8;
+    rfe_answer_optional: uint8;
     bid_leaves_quantity: uint64;
     bid_previous_size: uint64;
     bid_previous_px: int64;
@@ -670,7 +670,7 @@ type DCQuoteMessageOfferQuoterepGroup = unit {
     sell_revision_flag: uint8 &convert=SellRevisionFlag($$);
     offer_error_code: uint16;
     offer_oe_session_id: uint64;
-    rfe_answer: uint8;
+    rfe_answer_optional: uint8;
     offer_leaves_quantity: uint64;
     offer_previous_size: uint64;
     offer_previous_px: int64;
@@ -682,12 +682,12 @@ type DCQuoteMessageClearingDatasetGroups = unit {
 };
 
 type DCQuoteMessageClearingDatasetGroup = unit {
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     client_id: bytes &size=8;
     account_number: bytes &size=12;
     technical_origin: uint8 &convert=TechnicalOrigin($$);
     open_close: OpenClose;
-    clearing_instruction_clearing_instructionenum_optional: uint16 &convert=ClearingInstructionClearingInstructionenumOptional($$);
+    clearing_instruction_optional: uint16 &convert=ClearingInstructionOptional($$);
     free_text: bytes &size=18;
 };
 
@@ -740,13 +740,13 @@ type DcDeclarationNewMessage = unit {
     declaration_event_type: uint8 &convert=DeclarationEventType($$);
     firm_id: bytes &size=8;
     oe_session_id: uint64;
-    account_type_account_typeenum: uint8 &convert=AccountTypeAccountTypeenum($$);
+    account_type: uint8 &convert=AccountType($$);
     client_order_id: int64;
     emm: uint8 &convert=Emm($$);
     declaration_id: uint64;
     declaration_status: uint8 &convert=DeclarationStatus($$);
-    price: int64;
-    quantity: uint64;
+    price_optional: int64;
+    quantity_optional: uint64;
     side: uint8 &convert=Side($$);
     symbol_index: uint32;
     operation_type: uint8 &convert=OperationType($$);
@@ -756,11 +756,11 @@ type DcDeclarationNewMessage = unit {
     investor_id: bytes &size=16;
     free_text: bytes &size=18;
     principal_code: bytes &size=8;
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     clearing_account: bytes &size=16;
     settlement_period: uint8;
     settlement_flag: uint8;
-    guarantee_flag_guarantee_flagenum: uint8 &convert=GuaranteeFlagGuaranteeFlagenum($$);
+    guarantee_flag: uint8 &convert=GuaranteeFlag($$);
     transaction_price_type: uint8 &convert=TransactionPriceType($$);
 };
 
@@ -815,11 +815,11 @@ type DcShortTradeDeclarationMessage = unit {
     cross_order_indicator: uint8;
     trade_time: uint64;
     publication_time: uint64;
-    session_sessionenum_optional: uint8 &convert=SessionSessionenumOptional($$);
+    session_optional: uint8 &convert=SessionOptional($$);
     trade_type: uint8 &convert=TradeType($$);
-    settlement_period: uint8;
-    settlement_flag: uint8;
-    guarantee_flag_guarantee_flagenum_optional: uint8 &convert=GuaranteeFlagGuaranteeFlagenumOptional($$);
+    settlement_period_optional: uint8;
+    settlement_flag_optional: uint8;
+    guarantee_flag_optional: uint8 &convert=GuaranteeFlagOptional($$);
     d_c_short_trade_declaration_message_short_trade_declarations_groups: DCShortTradeDeclarationMessageShortTradeDeclarationsGroups;
 };
 
@@ -830,8 +830,8 @@ type DCShortTradeDeclarationMessageShortTradeDeclarationsGroups = unit {
 
 type DCShortTradeDeclarationMessageShortTradeDeclarationsGroup = unit {
     declaration_id: uint64;
-    price: int64;
-    quantity: uint64;
+    price_optional: int64;
+    quantity_optional: uint64;
     operation_type: uint8 &convert=OperationType($$);
     side: uint8 &convert=Side($$);
     firm_id: bytes &size=8;
@@ -841,9 +841,9 @@ type DCShortTradeDeclarationMessageShortTradeDeclarationsGroup = unit {
     trader_id: bytes &size=16;
     investor_id: bytes &size=16;
     principal_code: bytes &size=8;
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     clearing_account: bytes &size=16;
-    account_type_account_typeenum: uint8 &convert=AccountTypeAccountTypeenum($$);
+    account_type: uint8 &convert=AccountType($$);
     client_order_id: int64;
     free_text: bytes &size=18;
 };
@@ -874,13 +874,13 @@ type DcTradeBustDeclarationMessage = unit {
     declaration_event_type: uint8 &convert=DeclarationEventType($$);
     firm_id: bytes &size=8;
     oe_session_id: uint64;
-    account_type_account_typeenum: uint8 &convert=AccountTypeAccountTypeenum($$);
+    account_type: uint8 &convert=AccountType($$);
     client_order_id: int64;
     emm: uint8 &convert=Emm($$);
     declaration_id: uint64;
     declaration_status: uint8 &convert=DeclarationStatus($$);
-    price: int64;
-    quantity: uint64;
+    price_optional: int64;
+    quantity_optional: uint64;
     side: uint8 &convert=Side($$);
     symbol_index: uint32;
     operation_type: uint8 &convert=OperationType($$);
@@ -888,7 +888,7 @@ type DcTradeBustDeclarationMessage = unit {
     trader_id: bytes &size=16;
     investor_id: bytes &size=16;
     free_text: bytes &size=18;
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     clearing_account: bytes &size=16;
 };
 
@@ -899,16 +899,16 @@ type DcTradeMessage = unit {
     event_id: uint64;
     execution_id: uint32;
     quantity: uint64;
-    price: int64;
+    price_optional: int64;
     trade_time: uint64;
     publication_time: uint64;
-    session_sessionenum_optional: uint8 &convert=SessionSessionenumOptional($$);
+    session_optional: uint8 &convert=SessionOptional($$);
     exec_phase: uint8 &convert=ExecPhase($$);
     transparency_indicator: uint8 &convert=TransparencyIndicator($$);
-    trade_qualifier_trade_qualifierset: TradeQualifierTradeQualifierset;
-    settlement_period: uint8;
-    settlement_flag: uint8;
-    guarantee_flag_guarantee_flagenum_optional: uint8 &convert=GuaranteeFlagGuaranteeFlagenumOptional($$);
+    trade_qualifier: TradeQualifier;
+    settlement_period_optional: uint8;
+    settlement_flag_optional: uint8;
+    guarantee_flag_optional: uint8 &convert=GuaranteeFlagOptional($$);
     counterparty_reason_type: uint8 &convert=CounterpartyReasonType($$);
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
@@ -924,28 +924,28 @@ type DCTradeMessageMatchedOrdersGroups = unit {
 
 type DCTradeMessageMatchedOrdersGroup = unit {
     order_id: uint64;
-    order_side_order_sideenum: uint8 &convert=OrderSideOrderSideenum($$);
+    order_side: uint8 &convert=OrderSide($$);
     order_type: uint8 &convert=OrderType($$);
-    time_in_force_time_in_forceenum: uint8 &convert=TimeInForceTimeInForceenum($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
     order_px: int64;
     client_id: bytes &size=8;
     technical_origin: uint8 &convert=TechnicalOrigin($$);
     open_close: OpenClose;
     client_order_id: int64;
     firm_id: bytes &size=8;
-    oe_partition_id: uint16;
-    logical_access_id: uint32;
-    book_in: uint64;
-    trade_qualifier_trade_qualifierset_optional: TradeQualifierTradeQualifiersetOptional;
-    account_type_internal_account_type_internalenum_optional: uint8 &convert=AccountTypeInternalAccountTypeInternalenumOptional($$);
-    lp_role_lp_roleenum_optional: uint8 &convert=LpRoleLpRoleenumOptional($$);
+    oe_partition_id_optional: uint16;
+    logical_access_id_optional: uint32;
+    book_in_optional: uint64;
+    trade_qualifier_optional: TradeQualifierOptional;
+    account_type_internal_optional: uint8 &convert=AccountTypeInternalOptional($$);
+    lp_role_optional: uint8 &convert=LpRoleOptional($$);
     clearing_account: bytes &size=16;
     free_text: bytes &size=18;
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     trader_id: bytes &size=16;
     original_investor_id: bytes &size=16;
-    cross_order_indicator: uint8;
-    clearing_instruction_clearing_instructionenum: uint16 &convert=ClearingInstructionClearingInstructionenum($$);
+    cross_order_indicator_optional: uint8;
+    clearing_instruction: uint16 &convert=ClearingInstruction($$);
 };
 
 type DCTradeMessageMatchedDeclarationsGroups = unit {
@@ -958,16 +958,16 @@ type DCTradeMessageMatchedDeclarationsGroup = unit {
     side: uint8 &convert=Side($$);
     operation_type: uint8 &convert=OperationType($$);
     firm_id: bytes &size=8;
-    oe_partition_id: uint16;
-    logical_access_id: uint32;
-    book_in: uint64;
-    account_type_account_typeenum_optional: uint8 &convert=AccountTypeAccountTypeenumOptional($$);
+    oe_partition_id_optional: uint16;
+    logical_access_id_optional: uint32;
+    book_in_optional: uint64;
+    account_type_optional: uint8 &convert=AccountTypeOptional($$);
     client_order_id: int64;
     free_text: bytes &size=18;
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     clearing_account: bytes &size=16;
     principal_code: bytes &size=8;
-    cross_order_indicator: uint8;
+    cross_order_indicator_optional: uint8;
     trader_id: bytes &size=16;
     investor_id: bytes &size=16;
 };
@@ -994,7 +994,7 @@ type DcShortDeclarationFillMessage = unit {
     cross_order_indicator: uint8;
     trade_time: uint64;
     entering_counterparty: bytes &size=8;
-    session_sessionenum_optional: uint8 &convert=SessionSessionenumOptional($$);
+    session_optional: uint8 &convert=SessionOptional($$);
     trade_type: uint8 &convert=TradeType($$);
     firm_id: bytes &size=8;
     oe_partition_id: uint16;
@@ -1002,14 +1002,14 @@ type DcShortDeclarationFillMessage = unit {
     trader_id: bytes &size=16;
     investor_id: bytes &size=16;
     principal_code: bytes &size=8;
-    clearing_firm_i_d_char_8_optional: bytes &size=8;
+    clearing_firm_id_optional: bytes &size=8;
     clearing_account: bytes &size=16;
-    account_type_account_typeenum: uint8 &convert=AccountTypeAccountTypeenum($$);
+    account_type: uint8 &convert=AccountType($$);
     client_order_id: int64;
     free_text: bytes &size=18;
-    settlement_period: uint8;
-    settlement_flag: uint8;
-    guarantee_flag_guarantee_flagenum_optional: uint8 &convert=GuaranteeFlagGuaranteeFlagenumOptional($$);
+    settlement_period_optional: uint8;
+    settlement_flag_optional: uint8;
+    guarantee_flag_optional: uint8 &convert=GuaranteeFlagOptional($$);
 };
 
 type DcQuoteRequestMessage = unit {
@@ -1030,7 +1030,7 @@ type DcQuoteRequestMessage = unit {
     oegout_time_to_me: uint64;
     order_id: uint64;
     order_qty: uint64;
-    order_side_order_sideenum_optional: uint8 &convert=OrderSideOrderSideenumOptional($$);
+    order_side_optional: uint8 &convert=OrderSideOptional($$);
     rfq_status: uint8 &convert=RfqStatus($$);
     symbol_index: uint32;
     min_order_qty: uint64;
@@ -1236,7 +1236,7 @@ type OrderEntryQualifier = enum {
     CancelOnly = 3,
 };
 
-type SessionSessionenum = enum {
+type Session = enum {
     Session0 = 0,
     Session1 = 1,
     Session2 = 2,
@@ -1359,7 +1359,7 @@ type OrderEventType = enum {
     Parked = 24,
 };
 
-type AccountTypeInternalAccountTypeInternalenum = enum {
+type AccountTypeInternal = enum {
     Client = 1,
     House = 2,
     RetailLiquidityProvider = 3,
@@ -1418,13 +1418,13 @@ type AckType = enum {
     AvdTriggeredAck = 27,
 };
 
-type LpRoleLpRoleenumOptional = enum {
+type LpRoleOptional = enum {
     LiquidityProviderorMarketMaker = 1,
     RetailLiquidityProvider = 3,
     RfqLiquidityProvider = 12,
 };
 
-type OrderSideOrderSideenum = enum {
+type OrderSide = enum {
     Buy = 1,
     Sell = 2,
     Cross = 3,
@@ -1446,7 +1446,7 @@ type OrderType = enum {
     AuctionVolumeDiscovery = 14,
 };
 
-type TimeInForceTimeInForceenum = enum {
+type TimeInForce = enum {
     Day = 0,
     GoodTillCancel = 1,
     ValidforUncrossing = 2,
@@ -1459,7 +1459,7 @@ type TimeInForceTimeInForceenum = enum {
     GoodTillMonthGtm = 10,
 };
 
-type ExecutionPhaseExecutionPhaseenumOptional = enum {
+type ExecutionPhaseOptional = enum {
     ContinuousTradingPhase = 1,
     UncrossingPhase = 2,
     TradingAtLastPhase = 3,
@@ -1627,7 +1627,7 @@ type TechnicalOrigin = enum {
     Crossmargining = 5,
 };
 
-type ClearingInstructionClearingInstructionenumOptional = enum {
+type ClearingInstructionOptional = enum {
     ProcessnormallyformerlySystematicposting = 0,
     Manualmode = 8,
     Automaticpostingmode = 9,
@@ -1637,7 +1637,7 @@ type ClearingInstructionClearingInstructionenumOptional = enum {
     Giveuptosinglefirm = 4010,
 };
 
-type TradingCapacityTradingCapacityenumOptional = enum {
+type TradingCapacityOptional = enum {
     Dealingonownaccount = 1,
     Matchedprincipal = 2,
     Anyothercapacity = 3,
@@ -1709,13 +1709,13 @@ type EventShortCodeType = enum {
     EventCisc = 2,
 };
 
-type OrderSideOrderSideenumOptional = enum {
+type OrderSideOptional = enum {
     Buy = 1,
     Sell = 2,
     Cross = 3,
 };
 
-type TimeInForceTimeInForceenumOptional = enum {
+type TimeInForceOptional = enum {
     Day = 0,
     GoodTillCancel = 1,
     ValidforUncrossing = 2,
@@ -1835,13 +1835,13 @@ type UpdateType = enum {
     ClearBook = 254,
 };
 
-type TradingCapacityTradingCapacityenum = enum {
+type TradingCapacity = enum {
     Dealingonownaccount = 1,
     Matchedprincipal = 2,
     Anyothercapacity = 3,
 };
 
-type ExecutionPhaseExecutionPhaseenum = enum {
+type ExecutionPhase = enum {
     ContinuousTradingPhase = 1,
     UncrossingPhase = 2,
     TradingAtLastPhase = 3,
@@ -1849,7 +1849,7 @@ type ExecutionPhaseExecutionPhaseenum = enum {
     Ipo = 5,
 };
 
-type AccountTypeAccountTypeenum = enum {
+type AccountType = enum {
     Client = 1,
     House = 2,
     Ro = 4,
@@ -1861,7 +1861,7 @@ type AccountTypeAccountTypeenum = enum {
     CeresClient = 15,
 };
 
-type LpRoleLpRoleenum = enum {
+type LpRole = enum {
     LiquidityProviderorMarketMaker = 1,
     RetailLiquidityProvider = 3,
     RfqLiquidityProvider = 12,
@@ -1930,7 +1930,7 @@ type OperationType = enum {
     DeclarationofatradeonaSecondarylistingplace = 7,
 };
 
-type GuaranteeFlagGuaranteeFlagenum = enum {
+type GuaranteeFlag = enum {
     ClearedbutnotGuaranteed = 1,
     ClearedandGuaranteed = 2,
 };
@@ -1951,7 +1951,7 @@ type DeclarationKillReason = enum {
     CancelledUponCsDrequest = 6,
 };
 
-type SessionSessionenumOptional = enum {
+type SessionOptional = enum {
     Session0 = 0,
     Session1 = 1,
     Session2 = 2,
@@ -1964,7 +1964,7 @@ type SessionSessionenumOptional = enum {
     Session9 = 9,
 };
 
-type GuaranteeFlagGuaranteeFlagenumOptional = enum {
+type GuaranteeFlagOptional = enum {
     ClearedbutnotGuaranteed = 1,
     ClearedandGuaranteed = 2,
 };
@@ -1983,7 +1983,7 @@ type TransparencyIndicator = enum {
     DarkTradeandDeferredPublication = 2,
 };
 
-type AccountTypeInternalAccountTypeInternalenumOptional = enum {
+type AccountTypeInternalOptional = enum {
     Client = 1,
     House = 2,
     RetailLiquidityProvider = 3,
@@ -2001,7 +2001,7 @@ type AccountTypeInternalAccountTypeInternalenumOptional = enum {
     CeresClient = 15,
 };
 
-type ClearingInstructionClearingInstructionenum = enum {
+type ClearingInstruction = enum {
     ProcessnormallyformerlySystematicposting = 0,
     Manualmode = 8,
     Automaticpostingmode = 9,
@@ -2011,7 +2011,7 @@ type ClearingInstructionClearingInstructionenum = enum {
     Giveuptosinglefirm = 4010,
 };
 
-type AccountTypeAccountTypeenumOptional = enum {
+type AccountTypeOptional = enum {
     Client = 1,
     House = 2,
     Ro = 4,

@@ -85,12 +85,12 @@ type HealthStatusMessage = unit {
 };
 
 type TechnicalNotificationMessage = unit {
-    md_seq_num: uint64;
+    md_seq_num_optional: uint64;
     technical_notification_type: uint8 &convert=TechnicalNotificationType($$);
     rebroadcast_indicator: uint8;
     retransmission_start_time: uint64;
     retransmission_end_time: uint64;
-    symbol_index: uint32;
+    symbol_index_optional: uint32;
 };
 
 type MarketUpdateMessage = unit {
@@ -116,7 +116,7 @@ type MarketUpdatesGroup = unit {
     symbol_index: uint32;
     number_of_orders: uint16;
     price: int64;
-    quantity: uint64;
+    quantity_optional: uint64;
 };
 
 type OrderUpdateMessage = unit {
@@ -161,7 +161,7 @@ type PriceUpdatesGroup = unit {
     price_type: uint8 &convert=PriceType($$);
     symbol_index: uint32;
     price: int64;
-    quantity: uint64;
+    quantity_optional: uint64;
     imbalance_qty: uint64;
     imbalance_qty_side: uint8 &convert=ImbalanceQtySide($$);
     price_qualifier: uint8 &convert=PriceQualifier($$);
@@ -172,7 +172,7 @@ type FullTradeInformationMessage = unit {
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
     event_time: uint64;
-    symbol_index: uint32;
+    symbol_index_optional: uint32;
     trading_date_time: bytes &size=27;
     publication_date_time: bytes &size=27;
     trade_type: uint8 &convert=TradeType($$);
@@ -193,7 +193,7 @@ type FullTradeInformationMessage = unit {
     mmt_transaction_category: bytes &size=4;
     mmt_negotiation_indicator: bytes &size=4;
     mmt_agency_cross_trade_indicator: bytes &size=4;
-    mmt_modification_indicator_char_4_optional: bytes &size=4;
+    mmt_modification_indicator_optional: bytes &size=4;
     mmt_benchmark_indicator: bytes &size=4;
     mmt_special_dividend_indicator: bytes &size=4;
     mmt_off_book_automated_indicator: uint8 &convert=MmtOffBookAutomatedIndicator($$);
@@ -290,7 +290,7 @@ type TimetableMessage = unit {
     rebroadcast_indicator: uint8;
     emm_optional: uint8 &convert=EmmOptional($$);
     pattern_id: uint16;
-    symbol_index: uint32;
+    symbol_index_optional: uint32;
     timetables_groups: TimetablesGroups;
 };
 
@@ -338,7 +338,7 @@ type StandingDataMessage = unit {
     icb: bytes &size=16;
     issuing_country: bytes &size=3;
     last_adjusted_closing_price: int64;
-    lot_size: uint64;
+    lot_size_optional: uint64;
     maturity_date_optional: bytes &size=8;
     maximum_decimals_in_quantity: uint8;
     mic: bytes &size=4;
@@ -390,7 +390,7 @@ type EmmPatternRepGroup = unit {
     pattern_id: uint16;
     tick_size_index_id: uint16;
     market_model: uint8 &convert=MarketModel($$);
-    lot_size: uint64;
+    lot_size_optional: uint64;
     inst_unit_exp: uint8 &convert=InstUnitExp($$);
     anonymous: uint8 &convert=Anonymous($$);
 };
@@ -485,10 +485,10 @@ type ContractStandingDataMessage = unit {
     contract_name: bytes &size=60;
     contract_type: uint8 &convert=ContractType($$);
     underlying_type: uint8 &convert=UnderlyingType($$);
-    price_decimals: uint8;
+    price_decimals_optional: uint8;
     quantity_decimals: uint8;
     amount_decimals: uint8;
-    ratio_decimals: uint8;
+    ratio_decimals_optional: uint8;
     main_depositary: bytes &size=5;
     mic: bytes &size=4;
     country_of_exchange: bytes &size=3;
@@ -546,7 +546,7 @@ type ContractEmmPropertiesGroup = unit {
     emm_optional: uint8 &convert=EmmOptional($$);
     tick_size_index_id: uint16;
     pattern_id: uint16;
-    lot_size: uint64;
+    lot_size_optional: uint64;
     strategy_authorized: StrategyAuthorized;
     dynamic_collar_logic: uint8 &convert=DynamicCollarLogic($$);
     collar_max_unhalt_nb: uint8;
@@ -687,7 +687,7 @@ type PackageComponentsGroup = unit {
 };
 
 type ApaQuotesMessage = unit {
-    md_seq_num: uint64;
+    md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     mifid_instrument_id_type: bytes &size=4;
     mifid_instrument_id: bytes &size=12;
@@ -702,7 +702,7 @@ type ApaQuotesMessage = unit {
 };
 
 type ApaStandingDataMessage = unit {
-    md_seq_num: uint64;
+    md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     mifid_instrument_id_type: bytes &size=4;
     mifid_instrument_id: bytes &size=12;
@@ -770,7 +770,7 @@ type ApaFullTradeInformationMessage = unit {
 };
 
 type BfInstrumentReferenceMessage = unit {
-    md_seq_num: uint64;
+    md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     symbol_index: uint32;
     optiq_segment: uint8 &convert=OptiqSegment($$);
@@ -822,7 +822,7 @@ type InterestPaymentDateRepGroup = unit {
 };
 
 type BfTradeMessage = unit {
-    md_seq_num: uint64;
+    md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     symbol_index: uint32;
     mifid_transaction_id: bytes &size=52;
@@ -844,20 +844,20 @@ type BfTradeMessage = unit {
 };
 
 type BfnavMessage = unit {
-    md_seq_num: uint64;
+    md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     symbol_index: uint32;
     bid_offer_date_time: uint64;
     mifid_transaction_id: bytes &size=52;
     mmt_modification_indicator: bytes &size=4;
     nav_price: int64;
-    event_time: uint64;
+    event_time_optional: uint64;
     nav_bid_price: int64;
     nav_offer_price: int64;
 };
 
 type BfInstrumentSuspensionMessage = unit {
-    md_seq_num: uint64;
+    md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     symbol_index: uint32;
     event_time: uint64;

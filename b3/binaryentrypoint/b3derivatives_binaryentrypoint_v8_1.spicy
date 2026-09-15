@@ -184,7 +184,7 @@ type RetransmitRejectMessage = unit {
 type SimpleNewOrderMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
-    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    mm_protection_reset: uint8 &convert=MmProtectionReset($$);
     clordid: uint64;
     account: uint32;
     sender_location: bytes &size=10;
@@ -222,7 +222,7 @@ type Memo = unit {
 type SimpleModifyOrderMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
-    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    mm_protection_reset: uint8 &convert=MmProtectionReset($$);
     clordid: uint64;
     account: uint32;
     sender_location: bytes &size=10;
@@ -244,7 +244,7 @@ type SimpleModifyOrderMessage = unit {
 type NewOrderSingleMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
-    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    mm_protection_reset: uint8 &convert=MmProtectionReset($$);
     clordid: uint64;
     account: uint32;
     sender_location: bytes &size=10;
@@ -283,7 +283,7 @@ type DeskId = unit {
 type OrderCancelReplaceRequestMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
-    mm_protection_reset_boolean: uint8 &convert=MmProtectionResetBoolean($$);
+    mm_protection_reset: uint8 &convert=MmProtectionReset($$);
     clordid: uint64;
     account: uint32;
     sender_location: bytes &size=10;
@@ -397,7 +397,7 @@ type ExecutionReportNewMessage = unit {
     investor_id: InvestorId;
     cross_type: uint8 &convert=CrossType($$);
     cross_prioritization: uint8 &convert=CrossPrioritization($$);
-    mm_protection_reset_boolean_optional: uint8 &convert=MmProtectionResetBooleanOptional($$);
+    mm_protection_reset_optional: uint8 &convert=MmProtectionResetOptional($$);
     : skip bytes &size=3;   # padding
     strategy_id: int32;
     desk_id: DeskId;
@@ -443,7 +443,7 @@ type ExecutionReportModifyMessage = unit {
     : skip bytes &size=3;   # padding
     ordtagid: uint8;
     investor_id: InvestorId;
-    mm_protection_reset_boolean_optional: uint8 &convert=MmProtectionResetBooleanOptional($$);
+    mm_protection_reset_optional: uint8 &convert=MmProtectionResetOptional($$);
     : skip bytes &size=3;   # padding
     strategy_id: int32;
     desk_id: DeskId;
@@ -584,7 +584,7 @@ type ExecutionReportForwardMessage = unit {
     contra_broker: uint32;
     order_id: uint64;
     aggressor_indicator: uint8 &convert=AggressorIndicator($$);
-    settltype_optional: uint8 &convert=SettltypeOptional($$);
+    settl_type_optional: uint8 &convert=SettlTypeOptional($$);
     trade_date: uint16;
     days_to_settlement_optional: uint16;
     : skip bytes &size=2;   # padding
@@ -652,7 +652,7 @@ type QuoteRequestMessage = unit {
     contra_broker: uint32;
     transact_time: uint64;
     price_8: int64;
-    settltype: uint8 &convert=Settltype($$);
+    settl_type: uint8 &convert=SettlType($$);
     execute_underlying_trade: uint8 &convert=ExecuteUnderlyingTrade($$);
     order_qty: uint64;
     sender_location: bytes &size=10;
@@ -697,7 +697,7 @@ type QuoteStatusReportMessage = unit {
     quote_status_response_to: uint8 &convert=QuoteStatusResponseTo($$);
     account: uint32;
     side_optional: uint8 &convert=SideOptional($$);
-    settltype_optional: uint8 &convert=SettltypeOptional($$);
+    settl_type_optional: uint8 &convert=SettlTypeOptional($$);
     price_8_optional: int64;
     order_qty: uint64;
     sender_location: bytes &size=10;
@@ -720,7 +720,7 @@ type QuoteMessage = unit {
     price_8_optional: int64;
     order_qty: uint64;
     side: uint8 &convert=Side($$);
-    settltype: uint8 &convert=Settltype($$);
+    settl_type: uint8 &convert=SettlType($$);
     account: uint32;
     sender_location: bytes &size=10;
     entering_trader: bytes &size=5;
@@ -755,7 +755,7 @@ type QuoteRequestRejectMessage = unit {
     contra_broker: uint32;
     transact_time: uint64;
     entering_trader: bytes &size=5;
-    settltype_optional: uint8 &convert=SettltypeOptional($$);
+    settl_type_optional: uint8 &convert=SettlTypeOptional($$);
     price_8_optional: int64;
     order_qty_optional: uint64;
     sender_location: bytes &size=10;
@@ -1016,7 +1016,7 @@ type RetransmitRejectCode = enum {
     SystemBusy = 11,
 };
 
-type MmProtectionResetBoolean = enum {
+type MmProtectionReset = enum {
     FalseValue = 0,
     TrueValue = 1,
 };
@@ -1130,7 +1130,7 @@ type MultiLegReportingType = enum {
     MultilegSecurity = 0x33,
 };
 
-type MmProtectionResetBooleanOptional = enum {
+type MmProtectionResetOptional = enum {
     FalseValue = 0,
     TrueValue = 1,
 };
@@ -1698,7 +1698,7 @@ type OrdRejReason = enum {
     SystemError_33050 = 33050,
 };
 
-type SettltypeOptional = enum {
+type SettlTypeOptional = enum {
     BuyersDiscretion = 0x30,
     SellersDiscretion = 0x38,
     Mutual = 0x58,
@@ -1757,7 +1757,7 @@ type SecurityResponseType = enum {
     AcceptSecurityAsProposalWithRevisions = 2,
 };
 
-type Settltype = enum {
+type SettlType = enum {
     BuyersDiscretion = 0x30,
     SellersDiscretion = 0x38,
     Mutual = 0x58,
