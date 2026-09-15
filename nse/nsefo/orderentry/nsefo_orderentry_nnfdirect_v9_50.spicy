@@ -18,7 +18,7 @@ type DirectPacket = unit {
         TransactionCode::SystemInformationInMessage -> system_information_in_message: SystemInformationInMessage;
         TransactionCode::SystemInformationOutMessage -> system_information_out_message: SystemInformationOutMessage;
         TransactionCode::GatewayRouterRequestMessage -> gateway_router_request_message: GatewayRouterRequestMessage;
-        TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage;
+        TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage(self.message_header.message_length);
         TransactionCode::UpdateLocalDatabaseInMessage -> update_local_database_in_message: UpdateLocalDatabaseInMessage;
         TransactionCode::UpdateLocalDatabaseHeaderMessage -> update_local_database_header_message: UpdateLocalDatabaseHeaderMessage;
         TransactionCode::UpdateLocalDatabaseTrailerMessage -> update_local_database_trailer_message: UpdateLocalDatabaseTrailerMessage;
@@ -102,7 +102,7 @@ type DirectPacket = unit {
         TransactionCode::UserAddressUnlockApproveMessage -> user_address_unlock_approve_message: UserAddressUnlockApproveMessage;
         TransactionCode::GiveupConfirmationMessage -> giveup_confirmation_message: GiveupConfirmationMessage;
         TransactionCode::GiveupConfirmationMessage_4507 -> giveup_confirmation_message: GiveupConfirmationMessage;
-        TransactionCode::OrderCancellationConfirmationMessage -> order_cancellation_confirmation_message: OrderCancellationConfirmationMessage;
+        TransactionCode::OrderCancellationConfirmationMessage -> order_cancellation_confirmation_message: OrderCancellationConfirmationMessage(self.message_header.message_length);
         * -> unknown: bytes &eod;
     };
 };
@@ -127,20 +127,20 @@ type MessageHeader = unit {
 
 type SignOnRequestInMessage = unit {
     user_id: int32;
-    reserved_8: bytes &size=8;
+    : skip bytes &size=8;   # padding
     password: bytes &size=8;
-    second_reserved_8: bytes &size=8;
+    : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
     last_password_change_date: int32;
     broker_id: bytes &size=5;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
     batch_2_start_time: int32;
     host_switch_context: bytes &size=1;
     colour: bytes &size=50;
-    second_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     user_type: int16;
     sequence_number: bytes &size=8;
     ws_class_name: bytes &size=14;
@@ -150,9 +150,9 @@ type SignOnRequestInMessage = unit {
     member_type: int16;
     clearing_status: bytes &size=1;
     broker_name: bytes &size=25;
-    reserved_16: bytes &size=16;
-    second_reserved_16: bytes &size=16;
-    third_reserved_16: bytes &size=16;
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
 };
 
 type StBrokerEligibilityPerMkt = unit {
@@ -166,37 +166,37 @@ type StBrokerEligibilityPerMkt = unit {
 
 type SignOnRequestOutMessage = unit {
     user_id: int32;
-    reserved_8: bytes &size=8;
+    : skip bytes &size=8;   # padding
     password: bytes &size=8;
-    second_reserved_8: bytes &size=8;
+    : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
     last_password_change_date: int32;
     broker_id: bytes &size=5;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
     end_time: int32;
-    second_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     colour: bytes &size=50;
-    third_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     user_type: int16;
     sequence_number: bytes &size=8;
-    reserved_14: bytes &size=14;
+    : skip bytes &size=14;   # padding
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
     st_broker_eligibility_per_mkt: StBrokerEligibilityPerMkt;
     member_type: int16;
     clearing_status: bytes &size=1;
     broker_name: bytes &size=25;
-    reserved_16: bytes &size=16;
-    second_reserved_16: bytes &size=16;
-    third_reserved_16: bytes &size=16;
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
 };
 
 type SignOffRequestOutMessage = unit {
     user_id: int32;
-    reserved_145: bytes &size=145;
+    : skip bytes &size=145;   # padding
 };
 
 type SystemInformationInMessage = unit {
@@ -217,7 +217,7 @@ type SystemInformationOutMessage = unit {
     warning_percent: int16;
     volume_freeze_percent: int16;
     snap_quote_time: int16;
-    reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
     board_lot_quantity: int32;
     tick_size: int32;
     maximum_gtc_days: int16;
@@ -260,7 +260,7 @@ type GatewayRouterRequestMessage = unit {
     filler: bytes &size=1;
 };
 
-type GatewayRouterResponseMessage = unit {
+type GatewayRouterResponseMessage = unit(message_length: int16) {
     box_id: int16;
     broker_id: bytes &size=5;
     filler: bytes &size=1;
@@ -268,11 +268,11 @@ type GatewayRouterResponseMessage = unit {
     port_field: int32;
     session_key: bytes &size=8;
     cryptographic_key: bytes &size=32;
-    cryptographic_tail: CryptographicTail;
+    cryptographic_tail: CryptographicTail(message_length);
 };
 
-type CryptographicTail = unit {
-    switch ( self.packet.direct_packet.message_header.message_length ) {
+type CryptographicTail = unit(message_length: int16) {
+    switch ( message_length ) {
         124 -> existing_encryption_tail: ExistingEncryptionTail;
         136 -> new_encryption_tail: NewEncryptionTail;
         * -> unknown: bytes &eod;
@@ -295,18 +295,18 @@ type UpdateLocalDatabaseInMessage = unit {
     last_update_instrument_time: int32;
     last_update_index_time: int32;
     request_for_open_orders: bytes &size=1;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     st_market_status: StMarketStatus;
     st_ex_market_status: StExMarketStatus;
     st_pl_market_status: StPlMarketStatus;
 };
 
 type UpdateLocalDatabaseHeaderMessage = unit {
-    reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
 };
 
 type UpdateLocalDatabaseTrailerMessage = unit {
-    reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
 };
 
 type DownloadRequestMessage = unit {
@@ -349,20 +349,20 @@ type OrderEntryMessage = unit {
 
 type OrderEntryBody = unit {
     participant_type: uint8 &convert=ParticipantType($$);
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     competitor_period: int16;
     solicitor_period: int16;
     modified_cancelled_by: uint8 &convert=ModifiedCancelledBy($$);
-    second_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     reason_code: int16 &convert=ReasonCode($$);
-    reserved_4: int32;
+    : skip bytes &size=4;   # padding
     token_no: int32;
     contract_desc: ContractDesc;
     counter_party_broker_id: bytes &size=5;
-    third_reserved_1: bytes &size=1;
-    reserved_2: bytes &size=2;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
     closeout_flag: bytes &size=1;
-    fourth_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     order_type: int16;
     order_number: bytes &size=8;
     account_number: bytes &size=10;
@@ -389,7 +389,7 @@ type OrderEntryBody = unit {
     pro_client_indicator: int16;
     settlement_period: int16;
     additional_order_flags: AdditionalOrderFlags;
-    fifth_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
@@ -397,9 +397,9 @@ type OrderEntryBody = unit {
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
-    second_reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
     last_activity_reference: int64;
-    reserved_52: bytes &size=52;
+    : skip bytes &size=52;   # padding
 };
 
 type ContractDesc = unit {
@@ -447,7 +447,7 @@ type PriceModificationMessage = unit {
     last_modified: int32;
     reference: bytes &size=4;
     last_activity_reference: int64;
-    reserved_24: bytes &size=24;
+    : skip bytes &size=24;   # padding
 };
 
 type TradeInquiryMessage = unit {
@@ -458,7 +458,7 @@ type TradeInquiryMessage = unit {
     fill_price: int32;
     mkt_type: uint8 &convert=MktType($$);
     buy_open_close: bytes &size=1;
-    reserved_4: int32;
+    : skip bytes &size=4;   # padding
     buy_broker_id: bytes &size=5;
     sell_broker_id: bytes &size=5;
     trader_id: int32;
@@ -466,12 +466,12 @@ type TradeInquiryMessage = unit {
     sell_open_close: bytes &size=1;
     buy_account_number: bytes &size=10;
     sell_account_number: bytes &size=10;
-    reserved_24: bytes &size=24;
-    reserved_2: bytes &size=2;
-    second_reserved_2: bytes &size=2;
+    : skip bytes &size=24;   # padding
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
     buy_pan: bytes &size=10;
     sell_pan: bytes &size=10;
-    reserved_60: bytes &size=60;
+    : skip bytes &size=60;   # padding
 };
 
 type SpreadOrderEntryMessage = unit {
@@ -520,7 +520,7 @@ type SpreadOrderBody = unit {
     pro_client_1: int16;
     settlement_period_1: int16;
     additional_order_flags: AdditionalOrderFlags;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
@@ -528,9 +528,9 @@ type SpreadOrderBody = unit {
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
-    reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
     last_activity_reference: int64;
-    reserved_52: bytes &size=52;
+    : skip bytes &size=52;   # padding
     price_diff: int32;
     ms_spd_leg_info: MsSpdLegInfo[2];
 };
@@ -553,14 +553,14 @@ type MsSpdLegInfo = unit {
     st_order_flags: StOrderFlags;
     open_close_2: bytes &size=1;
     additional_order_flags: AdditionalOrderFlags;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     filler_y: bytes &size=1;
 };
 
 type TradeConfirmationMessage = unit {
     response_order_number: bytes &size=8;
     broker_id: bytes &size=5;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     trader_number: int32;
     account_number: bytes &size=10;
     buy_sell_indicator: int16 &convert=BuySellIndicator($$);
@@ -579,27 +579,27 @@ type TradeConfirmationMessage = unit {
     activity_time: int32;
     counter_trader_order_number: bytes &size=8;
     counter_broker_id: bytes &size=5;
-    second_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     token: int32;
     contract_desc: ContractDesc;
     open_close: bytes &size=1;
     old_open_close: bytes &size=1;
     trade_book_type: bytes &size=1;
-    third_reserved_1: bytes &size=1;
-    reserved_4: int32;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
     old_account_number: bytes &size=10;
     participant: bytes &size=12;
     old_participant: bytes &size=12;
     additional_order_flags: AdditionalOrderFlags;
-    fourth_reserved_1: bytes &size=1;
-    fifth_reserved_1: bytes &size=1;
-    sixth_reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
     pan: bytes &size=10;
     old_pan: bytes &size=10;
     algo_id: int32;
-    reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
     last_activity_reference: int64;
-    reserved_52: bytes &size=52;
+    : skip bytes &size=52;   # padding
 };
 
 type UserOrderLimitUpdateMessage = unit {
@@ -639,7 +639,7 @@ type SpreadOrderLimitUpdateMessage = unit {
 type ControlMessageToTraderMessage = unit {
     trader_id: int32;
     action_code: bytes &size=3;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     broad_cast_message_length: int16;
     broad_cast_message: bytes &size=239;
 };
@@ -671,7 +671,7 @@ type ReportHeaderBody = unit {
 };
 
 type ReportStatisticsBody = unit {
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     number_of_records: int16;
     mkt_stats_data: MktStatsData[4];
 };
@@ -693,12 +693,12 @@ type MktStatsData = unit {
 
 type ReportTrailerBody = unit {
     number_of_packets: int32;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type EnhancedMarketStatisticsReportMessage = unit {
     message_type: bytes &size=1;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     number_of_records: int16;
     enhncd_mkt_stats_data: EnhncdMktStatsData[4];
 };
@@ -734,7 +734,7 @@ type MktIndex = unit {
 
 type IndustryIndexReportMessage = unit {
     message_type: bytes &size=1;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     number_of_industry_records: int16;
     industry_index: IndustryIndex[10];
 };
@@ -787,7 +787,7 @@ type SpreadReportHeaderBody = unit {
 };
 
 type SpreadReportStatisticsBody = unit {
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     no_of_records: int16;
     spd_stats_data: SpdStatsData[3];
 };
@@ -872,13 +872,13 @@ type SecureBoxRegistrationRequestInMessage = unit {
 type BoxSignOnRequestInMessage = unit {
     box_id: int16;
     broker_id: bytes &size=5;
-    reserved_5: bytes &size=5;
+    : skip bytes &size=5;   # padding
     session_key: bytes &size=8;
 };
 
 type BoxSignOnRequestOutMessage = unit {
     box_id: int16;
-    reserved_10: bytes &size=10;
+    : skip bytes &size=10;   # padding
 };
 
 type BoxSignOffMessage = unit {
@@ -888,12 +888,12 @@ type BoxSignOffMessage = unit {
 type ContingencyBroadcastMessage = unit {
     stream_number: int16;
     status: int16 &convert=Status($$);
-    reserved_200: bytes &size=200;
+    : skip bytes &size=200;   # padding
 };
 
 type BranchOrderValueLimitUpdateMessage = unit {
     broker_id: bytes &size=5;
-    reserved_25: bytes &size=25;
+    : skip bytes &size=25;   # padding
     branch_id: int16;
     branch_limits: BranchLimits[2];
 };
@@ -901,29 +901,29 @@ type BranchOrderValueLimitUpdateMessage = unit {
 type BranchLimits = unit {
     branch_buy_value_limit: bytes &size=8;
     branch_sell_value_limit: bytes &size=8;
-    reserved_16: bytes &size=16;
+    : skip bytes &size=16;   # padding
 };
 
 type UserOrderValueLimitUpdateMessage = unit {
     broker_id: bytes &size=5;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     branch_id: int16;
-    reserved_26: bytes &size=26;
+    : skip bytes &size=26;   # padding
     user_id: int32;
-    reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
     user_limits: UserLimits[2];
 };
 
 type UserLimits = unit {
-    reserved_32: bytes &size=32;
+    : skip bytes &size=32;   # padding
     user_order_buy_value_limit: bytes &size=8;
     user_order_sell_value_limit: bytes &size=8;
-    reserved_16: bytes &size=16;
+    : skip bytes &size=16;   # padding
 };
 
 type NormalOrderLimitUpdateMessage = unit {
     broker_id: bytes &size=5;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     user_id: int32;
     order_qty_limit: bytes &size=8;
     order_val_limit: bytes &size=8;
@@ -931,46 +931,46 @@ type NormalOrderLimitUpdateMessage = unit {
 
 type ResetUserPasswordMessage = unit {
     user_id: int32;
-    reserved_14: bytes &size=14;
+    : skip bytes &size=14;   # padding
 };
 
 type CollateralUserStatusChangeRequestMessage = unit {
     user_id: int32;
     col_user_bit: bytes &size=1;
-    reserved_7: bytes &size=7;
+    : skip bytes &size=7;   # padding
 };
 
 type CollateralUserStatusChangeResponseMessage = unit {
     user_id: int32;
     col_user_bit: bytes &size=1;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type UserTradeModifyCancelStatusChangeRequestMessage = unit {
     user_id: int32;
     trd_mod_cxl_bit: bytes &size=1;
-    reserved_7: bytes &size=7;
+    : skip bytes &size=7;   # padding
 };
 
 type UserTradeModifyCancelStatusChangeResponseMessage = unit {
     user_id: int32;
     trd_mod_cxl_bit: bytes &size=1;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type UserAddressUnlockRequestMessage = unit {
     user_id: int32;
-    reserved_70: bytes &size=70;
+    : skip bytes &size=70;   # padding
 };
 
 type UserAddressUnlockConfirmMessage = unit {
     user_id: int32;
-    reserved_36: bytes &size=36;
+    : skip bytes &size=36;   # padding
 };
 
 type UserAddressUnlockApproveMessage = unit {
     user_id: int32;
-    reserved_36: bytes &size=36;
+    : skip bytes &size=36;   # padding
 };
 
 type GiveupConfirmationMessage = unit {
@@ -996,14 +996,14 @@ type Giveup = unit {
     last_modified_date_time: int32;
     initiated_by_control: bytes &size=1;
     open_close: bytes &size=1;
-    reserved_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     participant: bytes &size=12;
     giveup_flag: bytes &size=1;
     deleted: bytes &size=1;
 };
 
-type OrderCancellationConfirmationMessage = unit {
-    switch ( self.packet.direct_packet.message_header.message_length ) {
+type OrderCancellationConfirmationMessage = unit(message_length: int16) {
+    switch ( message_length ) {
         316 -> order_entry_body: OrderEntryBody;
         480 -> spread_order_body: SpreadOrderBody;
         * -> unknown: bytes &eod;

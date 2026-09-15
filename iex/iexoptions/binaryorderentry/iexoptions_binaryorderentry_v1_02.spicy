@@ -12,8 +12,8 @@ type SbeMessage = unit {
     packet_length: uint16;
     message_header: MessageHeader;
     switch ( self.message_header.schema_id ) {
-        SchemaId::Session -> session_message: SessionMessage;
-        SchemaId::Business -> business_message: BusinessMessage;
+        SchemaId::Session -> session_message: SessionMessage(self.message_header.template_id);
+        SchemaId::Business -> business_message: BusinessMessage(self.message_header.template_id);
         * -> unknown: bytes &eod;
     };
 };
@@ -25,8 +25,8 @@ type MessageHeader = unit {
     version: uint16;
 };
 
-type SessionMessage = unit {
-    switch ( self.packet.sbe_message.message_header.template_id ) {
+type SessionMessage = unit(template_id: TemplateId) {
+    switch ( template_id ) {
         TemplateId::LoginRequestMessage -> login_request_message: LoginRequestMessage;
         TemplateId::LoginResponseMessage -> login_response_message: LoginResponseMessage;
         TemplateId::GatewayHeartbeatMessage -> gateway_heartbeat_message: GatewayHeartbeatMessage;
@@ -102,8 +102,8 @@ type SubsessionLeaveResponseMessage = unit {
     reason: uint8 &convert=Reason($$);
 };
 
-type BusinessMessage = unit {
-    switch ( self.packet.sbe_message.message_header.template_id ) {
+type BusinessMessage = unit(template_id: TemplateId) {
+    switch ( template_id ) {
         TemplateId::LoginRequestMessage -> new_order_single_message: NewOrderSingleMessage;
         TemplateId::LoginResponseMessage -> order_cancel_replace_request_message: OrderCancelReplaceRequestMessage;
         TemplateId::GatewayHeartbeatMessage -> order_cancel_request_message: OrderCancelRequestMessage;

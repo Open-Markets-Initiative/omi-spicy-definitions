@@ -11,8 +11,8 @@ public type CoinbasederivativesOrdersapiV14 = unit {
 type SbeMessage = unit {
     message_header: MessageHeader;
     switch ( self.message_header.schema_id ) {
-        SchemaId::Session -> session_message: SessionMessage;
-        SchemaId::Order -> order_message: OrderMessage;
+        SchemaId::Session -> session_message: SessionMessage(self.message_header.template_id);
+        SchemaId::Order -> order_message: OrderMessage(self.message_header.template_id);
         * -> unknown: bytes &eod;
     };
     : skip bytes &size=0;   # padding
@@ -37,8 +37,8 @@ type Flags = unit {
     : skip bytes &size=1;   # padding
 };
 
-type SessionMessage = unit {
-    switch ( self.packet.sbe_message.message_header.template_id ) {
+type SessionMessage = unit(template_id: TemplateId) {
+    switch ( template_id ) {
         TemplateId::SessionLogonMessage -> logon_message: LogonMessage;
         TemplateId::SessionLogonConfMessage -> logon_conf_message: LogonConfMessage;
         TemplateId::SessionLogoutMessage -> logout_message: LogoutMessage;
@@ -87,8 +87,8 @@ type GapFillMessage = unit {
     gap_fill_padding: uint32;
 };
 
-type OrderMessage = unit {
-    switch ( self.packet.sbe_message.message_header.template_id ) {
+type OrderMessage = unit(template_id: TemplateId) {
+    switch ( template_id ) {
         TemplateId::SessionResendRequestMessage -> ping_message: PingMessage;
         TemplateId::SessionGapFillMessage -> pong_message: PongMessage;
         TemplateId::InstrumentInfoRequestMessage -> instrument_info_request_message: InstrumentInfoRequestMessage;

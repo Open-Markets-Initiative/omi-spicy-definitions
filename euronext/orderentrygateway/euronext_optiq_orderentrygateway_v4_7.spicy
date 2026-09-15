@@ -85,7 +85,7 @@ type NewOrderMessage = unit {
     side: uint8 &convert=Side($$);
     order_type: uint8 &convert=OrderType($$);
     time_in_force: uint8 &convert=TimeInForce($$);
-    order_px_optional: int64;
+    order_px: int64;
     order_qty: uint64;
     execution_within_firm_short_code: int32;
     trading_capacity: uint8 &convert=TradingCapacity($$);
@@ -96,7 +96,7 @@ type NewOrderMessage = unit {
     mifid_indicators: MifidIndicators;
     stpid: uint16;
     non_executing_client_id: uint16;
-    ioi_id_optional: int64;
+    ioi_id: int64;
     free_text_groups: FreeTextGroups;
     mifid_short_codes_groups: MifidShortCodesGroups;
     order_optional_fields_groups: OrderOptionalFieldsGroups;
@@ -171,7 +171,7 @@ type OrderOptionalFieldsGroup = unit {
     undisclosed_price: int64;
     disclosed_qty: uint64;
     min_order_qty: uint64;
-    quote_req_id_optional: uint64;
+    quote_req_id: uint64;
     order_expiration_time: uint32;
     order_expiration_date: uint16;
     peg_offset: int8;
@@ -238,24 +238,24 @@ type AdditionalInfosGroup = unit {
 type AckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
-    client_order_id_optional: int64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    client_order_id: int64;
     orig_client_order_id: int64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
     side_optional: uint8 &convert=SideOptional($$);
     ack_type: uint8 &convert=AckType($$);
     ack_phase: uint8 &convert=AckPhase($$);
-    order_id_optional: uint64;
+    order_id: uint64;
     order_priority: uint64;
-    order_px_optional: int64;
-    order_qty_optional: uint64;
+    order_px: int64;
+    order_qty: uint64;
     ack_qualifiers: AckQualifiers;
     mifid_fields_groups: MifidFieldsGroups;
 };
@@ -277,20 +277,9 @@ type MifidFieldsGroups = unit {
 };
 
 type MifidFieldsGroup = unit {
-    execution_instruction_optional: ExecutionInstructionOptional;
+    execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     mifid_indicators_optional: MifidIndicatorsOptional;
-};
-
-type ExecutionInstructionOptional = unit {
-    stp_resting_order: bytes &size=1;
-    stp_incoming_order: bytes &size=1;
-    disclosed_quantity_randomization: bytes &size=1;
-    disabled_cancel_on_disconnect_indicator: bytes &size=1;
-    rfq_answer: bytes &size=1;
-    rfq_confirmation: bytes &size=1;
-    conditional_order: bytes &size=1;
-    unused_execution_instructionset_7: bytes &size=1;
 };
 
 type MifidIndicatorsOptional = unit {
@@ -307,10 +296,10 @@ type FillMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
     trade_time: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
-    client_order_id_optional: int64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    client_order_id: int64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
     side: uint8 &convert=Side($$);
@@ -363,7 +352,7 @@ type FillStrategyFieldGroup = unit {
     leg_last_qty: uint64;
     leg_instrument_id: uint32;
     leg_side_optional: uint8 &convert=LegSideOptional($$);
-    execution_id_optional: uint32;
+    execution_id: uint32;
 };
 
 type FillDerivativesFieldGroups = unit {
@@ -381,14 +370,14 @@ type FillDerivativesFieldGroup = unit {
 type KillMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
-    client_order_id_optional: int64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    client_order_id: int64;
     orig_client_order_id: int64;
     order_id: uint64;
     symbol_index: uint32;
@@ -416,9 +405,9 @@ type CancelReplaceMessage = unit {
     execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     client_order_id: int64;
-    order_id_optional: uint64;
+    order_id: uint64;
     orig_client_order_id: int64;
-    order_px_optional: int64;
+    order_px: int64;
     order_qty: uint64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
@@ -473,16 +462,16 @@ type CancelReplaceClearingFieldsGroup = unit {
 type RejectMessage = unit {
     msg_seq_num: uint32;
     firm_id_optional: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
-    book_in_optional: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
-    client_order_id_optional: int64;
-    order_id_optional: uint64;
-    symbol_index_optional: uint32;
+    book_in: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    client_order_id: int64;
+    order_id: uint64;
+    symbol_index: uint32;
     emm_optional: uint8 &convert=EmmOptional($$);
     rejected_message: uint8;
     error_code: uint16;
@@ -519,6 +508,17 @@ type QuotesMessage = unit {
     quotes_rep_groups: QuotesRepGroups;
 };
 
+type ExecutionInstructionOptional = unit {
+    stp_resting_order: bytes &size=1;
+    stp_incoming_order: bytes &size=1;
+    disclosed_quantity_randomization: bytes &size=1;
+    disabled_cancel_on_disconnect_indicator: bytes &size=1;
+    rfq_answer: bytes &size=1;
+    rfq_confirmation: bytes &size=1;
+    conditional_order: bytes &size=1;
+    unused_execution_instructionset_7: bytes &size=1;
+};
+
 type ClearingDatasetGroups = unit {
     group_size_encoding: GroupSizeEncoding;
     clearing_dataset_group: ClearingDatasetGroup[self.group_size_encoding.num_in_group];
@@ -551,17 +551,17 @@ type QuotesRepGroup = unit {
 type QuoteAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
     client_order_id: int64;
     account_type: uint8 &convert=AccountType($$);
     lp_role: uint8 &convert=LpRole($$);
-    execution_instruction_optional: ExecutionInstructionOptional;
+    execution_within_firm_short_code: int32;
     ack_qualifiers_optional: AckQualifiersOptional;
     quote_acks_groups: QuoteAcksGroups;
 };
@@ -607,7 +607,7 @@ type CancelRequestMessage = unit {
     execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     client_order_id: int64;
-    order_id_optional: uint64;
+    order_id: uint64;
     orig_client_order_id: int64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
@@ -625,12 +625,12 @@ type MassCancelMessage = unit {
     execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     client_order_id: int64;
-    symbol_index_optional: uint32;
+    symbol_index: uint32;
     emm_optional: uint8 &convert=EmmOptional($$);
     instrument_group_code: bytes &size=2;
     side_optional: uint8 &convert=SideOptional($$);
-    lp_role_optional: uint32;
-    oe_partition_id_optional: uint16;
+    logical_access_id: uint32;
+    oe_partition_id: uint16;
     contract_id: uint32;
     maturity: bytes &size=8;
     account_type_optional: uint8 &convert=AccountTypeOptional($$);
@@ -644,7 +644,7 @@ type MassCancelMessage = unit {
 type MassCancelAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
     book_in: uint64;
@@ -653,12 +653,12 @@ type MassCancelAckMessage = unit {
     oeg_out_to_member: uint64;
     client_order_id: int64;
     total_affected_orders: int32;
-    symbol_index_optional: uint32;
+    symbol_index: uint32;
     emm_optional: uint8 &convert=EmmOptional($$);
     instrument_group_code: bytes &size=2;
     side_optional: uint8 &convert=SideOptional($$);
-    lp_role_optional: uint32;
-    oe_partition_id_optional: uint16;
+    logical_access_id: uint32;
+    oe_partition_id: uint16;
     contract_id: uint32;
     maturity: bytes &size=8;
     account_type_optional: uint8 &convert=AccountTypeOptional($$);
@@ -676,7 +676,7 @@ type OpenOrderRequestMessage = unit {
     execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     client_order_id: int64;
-    order_id_optional: uint64;
+    order_id: uint64;
     orig_client_order_id: int64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
@@ -687,10 +687,10 @@ type OwnershipRequestAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
     client_order_id: int64;
-    order_id_optional: uint64;
+    order_id: uint64;
     symbol_index: uint32;
-    lp_role_optional: uint32;
-    oe_partition_id_optional: uint16;
+    logical_access_id: uint32;
+    oe_partition_id: uint16;
     total_affected_orders: int32;
     order_category: uint8 &convert=OrderCategory($$);
 };
@@ -702,12 +702,12 @@ type OwnershipRequestMessage = unit {
     execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     client_order_id: int64;
-    order_id_optional: uint64;
+    order_id: uint64;
     orig_client_order_id: int64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
-    lp_role_optional: uint32;
-    oe_partition_id_optional: uint16;
+    logical_access_id: uint32;
+    oe_partition_id: uint16;
     order_category: uint8 &convert=OrderCategory($$);
 };
 
@@ -715,9 +715,9 @@ type TradeBustNotificationMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
     execution_id: uint32;
@@ -737,7 +737,7 @@ type CollarBreachConfirmationMessage = unit {
     client_order_id: int64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
-    order_id_optional: uint64;
+    order_id: uint64;
     orig_client_order_id: int64;
 };
 
@@ -751,7 +751,7 @@ type PriceInputMessage = unit {
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
     input_price_type: uint8 &convert=InputPriceType($$);
-    price_optional: int64;
+    price: int64;
 };
 
 type LiquidityProviderCommandMessage = unit {
@@ -785,9 +785,9 @@ type RfqNotificationMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
     quote_req_id: uint64;
     order_qty: uint64;
     counterpart_firm_id: bytes &size=8;
@@ -805,9 +805,9 @@ type RfqMatchingStatusMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
     quote_req_id: uint64;
     potential_matching_px: int64;
     potential_matching_qty: uint64;
@@ -822,9 +822,9 @@ type RfqlpMatchingStatusMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
     quote_req_id: uint64;
     potential_matching_qty: uint64;
     symbol_index: uint32;
@@ -835,12 +835,12 @@ type RfqlpMatchingStatusMessage = unit {
 type UserNotificationMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    execution_instruction_optional: ExecutionInstructionOptional;
+    execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     family_id: bytes &size=8;
-    symbol_index_optional: uint32;
+    symbol_index: uint32;
     user_status: uint8 &convert=UserStatus($$);
-    lp_role_optional: uint32;
+    logical_access_id: uint32;
     order_size_limit: uint64;
     not_used_groups: NotUsedGroups;
 };
@@ -867,13 +867,13 @@ type MmSignInMessage = unit {
 type MmSignInAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
     book_in: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
     logical_access_id: uint32;
     oe_partition_id: uint16;
     client_order_id: int64;
@@ -891,7 +891,7 @@ type MmSignInAckMessage = unit {
 
 type InstrumentSynchronizationListMessage = unit {
     msg_seq_num: uint32;
-    oeg_out_to_member_optional: uint64;
+    oeg_out_to_member: uint64;
     resynchronization_id: uint16;
     instrument_synchronization_groups: InstrumentSynchronizationGroups;
 };
@@ -908,7 +908,7 @@ type InstrumentSynchronizationGroup = unit {
 
 type SynchronizationTimeMessage = unit {
     msg_seq_num: uint32;
-    oeg_out_to_member_optional: uint64;
+    oeg_out_to_member: uint64;
     resynchronization_id: uint16;
     last_book_in_time: uint64;
 };
@@ -933,7 +933,7 @@ type StrategyLegsGroup = unit {
     leg_ratio: uint32;
     leg_security_type: uint8 &convert=LegSecurityType($$);
     leg_put_or_call: uint8 &convert=LegPutOrCall($$);
-    leg_price_optional: int64;
+    leg_price: int64;
     leg_strike_price: int64;
     leg_last_trading_date: bytes &size=8;
     leg_side: uint8 &convert=LegSide($$);
@@ -942,13 +942,13 @@ type StrategyLegsGroup = unit {
 type SecurityDefinitionAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
-    book_in_optional: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
+    book_in: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
     security_req_id: int64;
     symbol_index: uint32;
 };
@@ -979,14 +979,14 @@ type MmpRequestGroup = unit {
 type MmProtectionAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
-    book_in_optional: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
-    client_order_id_optional: int64;
+    book_in: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    client_order_id: int64;
     execution_within_firm_short_code: int32;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
@@ -1046,7 +1046,7 @@ type WholesaleLegsGroup = unit {
     offer_quantity: uint64;
     leg_side_optional: uint8 &convert=LegSideOptional($$);
     leg_strike_price: int64;
-    leg_ratio_optional: uint32;
+    leg_ratio: uint32;
     leg_put_or_call: uint8 &convert=LegPutOrCall($$);
     leg_security_type: uint8 &convert=LegSecurityType($$);
     leg_last_trading_date: bytes &size=8;
@@ -1078,20 +1078,20 @@ type WholesaleClientGroup = unit {
 type WholesaleOrderAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    sending_time_optional: uint64;
+    sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
-    book_in_optional: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
-    client_order_id_optional: int64;
+    book_in: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    client_order_id: int64;
     contract_symbol_index: uint32;
     wholesale_trade_type: uint8 &convert=WholesaleTradeType($$);
     lis_transaction_id: uint32;
     strategy_code_optional: uint8 &convert=StrategyCodeOptional($$);
-    price_optional: int64;
-    quantity_optional: uint64;
+    price: int64;
+    quantity: uint64;
     execution_within_firm_short_code: int32;
     mifid_indicators: MifidIndicators;
     wholesale_side: uint8 &convert=WholesaleSide($$);
@@ -1263,11 +1263,11 @@ type WaveForLiquidityNotificationMessage = unit {
     sending_time: uint64;
     oeg_in_from_member: uint64;
     oeg_out_time_to_me: uint64;
-    book_in_optional: uint64;
-    book_out_time_optional: uint64;
-    oeg_in_from_me_optional: uint64;
-    oeg_out_to_member_optional: uint64;
-    ioi_id_optional: int64;
+    book_in: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    ioi_id: int64;
     exchange_ioi_id_optional: int64;
     ioi_type: uint8 &convert=IoiType($$);
     original_ioiid: int64;
@@ -1277,13 +1277,13 @@ type WaveForLiquidityNotificationMessage = unit {
     order_quantity: uint64;
     ioi_quantity: uint8 &convert=IoiQuantity($$);
     ioi_quality_indication: uint8 &convert=IoiQualityIndication($$);
-    error_code_optional: uint16;
+    error_code: uint16;
 };
 
 type LogonMessage = unit {
     logical_access_id: uint32;
     oe_partition_id: uint16;
-    last_msg_seq_num_optional: uint32;
+    last_msg_seq_num: uint32;
     software_provider: bytes &size=8;
     queueing_indicator: uint8;
 };
@@ -1305,7 +1305,7 @@ type LogoutMessage = unit {
 };
 
 type TechnicalRejectMessage = unit {
-    oeg_out_to_member_optional: uint64;
+    oeg_out_to_member: uint64;
     rejected_client_message_sequence_number: uint32;
     rejected_message: uint8;
     error_code: uint16;
@@ -1322,8 +1322,8 @@ type DeclarationEntryMessage = unit {
     emm: uint8 &convert=Emm($$);
     entering_counterparty: bytes &size=8;
     side: uint8 &convert=Side($$);
-    quantity_optional: uint64;
-    price_optional: int64;
+    quantity: uint64;
+    price: int64;
     execution_within_firm_short_code: int32;
     client_identification_shortcode: int32;
     mi_cof_secondary_listing: bytes &size=4;
@@ -1355,7 +1355,7 @@ type DeclarationEntryMessage = unit {
 type DeclarationEntryAckMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    declaration_id_optional: uint64;
+    declaration_id: uint64;
     client_order_id: int64;
     symbol_index: uint32;
     emm: uint8 &convert=Emm($$);
@@ -1380,7 +1380,7 @@ type WaiverIndicator = unit {
 type DeclarationNoticeMessage = unit {
     msg_seq_num: uint32;
     firm_id: bytes &size=8;
-    client_order_id_optional: int64;
+    client_order_id: int64;
     declaration_id: uint64;
     declaration_status: uint8 &convert=DeclarationStatus($$);
     operation_type: uint8 &convert=OperationType($$);
@@ -1388,10 +1388,10 @@ type DeclarationNoticeMessage = unit {
     emm: uint8 &convert=Emm($$);
     entering_counterparty: bytes &size=8;
     side_optional: uint8 &convert=SideOptional($$);
-    quantity_optional: uint64;
-    price_optional: int64;
+    quantity: uint64;
+    price: int64;
     pre_matching_type: uint8 &convert=PreMatchingType($$);
-    trade_time_optional: uint64;
+    trade_time: uint64;
     mi_cof_secondary_listing: bytes &size=4;
     centralisation_date: bytes &size=10;
     clearing_firm_id: bytes &size=8;
@@ -1399,8 +1399,8 @@ type DeclarationNoticeMessage = unit {
     account_type_cross: uint8 &convert=AccountTypeCross($$);
     trading_capacity_optional: uint8 &convert=TradingCapacityOptional($$);
     trading_capacity_cross: uint8 &convert=TradingCapacityCross($$);
-    settlement_flag_optional: uint8;
-    settlement_period_optional: uint8;
+    settlement_flag: uint8;
+    settlement_period: uint8;
     guarantee_flag_optional: uint8 &convert=GuaranteeFlagOptional($$);
     transaction_price_type: uint8 &convert=TransactionPriceType($$);
     principal_code: bytes &size=8;
