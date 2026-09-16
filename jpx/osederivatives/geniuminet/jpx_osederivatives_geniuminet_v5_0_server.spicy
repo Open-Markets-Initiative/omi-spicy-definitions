@@ -1,0 +1,180 @@
+module JpxOsederivativesGeniuminetOuchV50Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type JpxOsederivativesGeniuminetV50 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::OrderAccepted -> order_accepted: OrderAccepted;
+        SequencedMessageType::MassCancelAccepted -> mass_cancel_accepted: MassCancelAccepted;
+        SequencedMessageType::OrderRejected -> order_rejected: OrderRejected;
+        SequencedMessageType::OrderReplaced -> order_replaced: OrderReplaced;
+        SequencedMessageType::OrderCanceled -> order_canceled: OrderCanceled;
+        SequencedMessageType::OrderExecuted -> order_executed: OrderExecuted;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type OrderAccepted = unit {
+    timestamp_nanoseconds: uint64;
+    order_token: bytes &size=14;
+    order_book_id: int32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    quantity: uint64;
+    price: int32;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    open_close: uint8 &convert=OpenClose($$);
+    client_account: bytes &size=16;
+    order_state: uint8 &convert=OrderState($$);
+    customer_info: bytes &size=15;
+    exchange_info: bytes &size=32;
+};
+
+type MassCancelAccepted = unit {
+    timestamp_nanoseconds: uint64;
+    order_token: bytes &size=14;
+    status: uint32;
+};
+
+type OrderRejected = unit {
+    timestamp_nanoseconds: uint64;
+    order_token: bytes &size=14;
+    reject_code: int32;
+};
+
+type OrderReplaced = unit {
+    timestamp_nanoseconds: uint64;
+    replacement_order_token: bytes &size=14;
+    previous_order_token: bytes &size=14;
+    order_book_id: int32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    quantity: uint64;
+    price: int32;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    open_close: uint8 &convert=OpenClose($$);
+    client_account: bytes &size=16;
+    order_state: uint8 &convert=OrderState($$);
+    customer_info: bytes &size=15;
+    exchange_info: bytes &size=32;
+};
+
+type OrderCanceled = unit {
+    timestamp_nanoseconds: uint64;
+    order_token: bytes &size=14;
+    order_book_id: int32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+    cancel_reason: uint8 &convert=CancelReason($$);
+};
+
+type OrderExecuted = unit {
+    timestamp_nanoseconds: uint64;
+    order_token: bytes &size=14;
+    order_book_id: int32;
+    traded_quantity: uint64;
+    trade_price: int32;
+    match_id: uint64;
+    combo_group_id: uint32;
+    deal_source: uint8 &convert=DealSource($$);
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type SequencedMessageType = enum {
+    OrderAccepted = 0x41,
+    MassCancelAccepted = 0x4d,
+    OrderRejected = 0x4a,
+    OrderReplaced = 0x55,
+    OrderCanceled = 0x43,
+    OrderExecuted = 0x45,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    ImmediateOrCancel = 3,
+    FillOrKill = 4,
+};
+
+type OpenClose = enum {
+    NoChange = 0,
+    Open = 1,
+    CloseNet = 2,
+    MandatoryClose = 3,
+    Default = 4,
+};
+
+type OrderState = enum {
+    OnBook = 1,
+    NotOnBook = 2,
+};
+
+type CancelReason = enum {
+    CanceledByUser = 1,
+    OrderInactivated = 4,
+    CanceledBySystem = 9,
+    CanceledByProxy = 10,
+    CanceledBySystemLimitChange = 15,
+    DeletedByTimeValidityExpiration = 19,
+    CanceledDueToIss = 20,
+    InactivatedDueToIss = 21,
+    CanceledAfterAuction = 34,
+    CanceledBySystemDeltaProtection = 41,
+    CanceledBySystemQuantityProtection = 42,
+    SelfTradePrevention = 43,
+};
+
+type DealSource = enum {
+    SystemMatched = 1,
+    CombinationMatched = 7,
+    AuctionEndDeal = 20,
+};
+

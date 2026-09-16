@@ -1,0 +1,140 @@
+module JpxOsederivativesGeniuminetOuchV50Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type JpxOsederivativesGeniuminetV50 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::EnterOrder -> enter_order: EnterOrder;
+        UnsequencedMessageType::EnterMmOrder -> enter_mm_order: EnterMmOrder;
+        UnsequencedMessageType::ReplaceOrder -> replace_order: ReplaceOrder;
+        UnsequencedMessageType::CancelOrder -> cancel_order: CancelOrder;
+        UnsequencedMessageType::CancelByOrderId -> cancel_by_order_id: CancelByOrderId;
+        UnsequencedMessageType::MassCancel -> mass_cancel: MassCancel;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type EnterOrder = unit {
+    order_token: bytes &size=14;
+    order_book_id: int32;
+    side: uint8 &convert=Side($$);
+    quantity: uint64;
+    price: int32;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    open_close: uint8 &convert=OpenClose($$);
+    client_account: bytes &size=16;
+    customer_info: bytes &size=15;
+    exchange_info: bytes &size=32;
+};
+
+type EnterMmOrder = unit {
+    order_token: bytes &size=14;
+    order_book_id: int32;
+    side: uint8 &convert=Side($$);
+    quantity: uint64;
+    price: int32;
+    client_account: bytes &size=16;
+    exchange_info: bytes &size=32;
+};
+
+type ReplaceOrder = unit {
+    existing_order_token: bytes &size=14;
+    replacement_order_token: bytes &size=14;
+    quantity: uint64;
+    price: int32;
+    open_close: uint8 &convert=OpenClose($$);
+    client_account: bytes &size=16;
+    customer_info: bytes &size=15;
+    exchange_info: bytes &size=32;
+};
+
+type CancelOrder = unit {
+    order_token: bytes &size=14;
+};
+
+type CancelByOrderId = unit {
+    order_book_id: int32;
+    side: uint8 &convert=Side($$);
+    order_id: uint64;
+};
+
+type MassCancel = unit {
+    order_token: bytes &size=14;
+    underlying_id: uint32;
+    scope: uint8 &convert=Scope($$);
+    client_account: bytes &size=16;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    EnterOrder = 0x4f,
+    EnterMmOrder = 0x50,
+    ReplaceOrder = 0x55,
+    CancelOrder = 0x58,
+    CancelByOrderId = 0x59,
+    MassCancel = 0x4d,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    ImmediateOrCancel = 3,
+    FillOrKill = 4,
+};
+
+type OpenClose = enum {
+    NoChange = 0,
+    Open = 1,
+    CloseNet = 2,
+    MandatoryClose = 3,
+    Default = 4,
+};
+
+type Scope = enum {
+    Participant = 1,
+};
+

@@ -1,0 +1,197 @@
+module JpxNseequitiesMarketbyorderFlexV11Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type JpxNseequitiesMarketbyorderV11 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    multicast_group_number: uint8;
+    number_of_system_reboots: uint8;
+    sequence_number: uint32;
+    issue_code: bytes &size=12;
+    update_number: uint32;
+    packet_number: uint8;
+    total_number_of_packets: uint8;
+    utility_flag: uint8;
+    message_count: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SecondsTimestampMessage -> seconds_timestamp_message: SecondsTimestampMessage;
+        MessageType::TradingStatusMessage -> trading_status_message: TradingStatusMessage;
+        MessageType::ExecutionSummaryMessage -> execution_summary_message: ExecutionSummaryMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::ResetMessage -> reset_message: ResetMessage;
+        MessageType::CommunicationControlMessage -> communication_control_message: CommunicationControlMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    tag_length: uint8;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SecondsTimestampMessage = unit {
+    time_seconds: uint32;
+};
+
+type TradingStatusMessage = unit {
+    time_microseconds: uint32;
+    market_status: uint8 &convert=MarketStatus($$);
+    status_flag: bytes &size=2;
+    short_selling_status: uint8 &convert=ShortSellingStatus($$);
+    pricing_method: uint8 &convert=PricingMethod($$);
+    book_center_price: uint64;
+};
+
+type ExecutionSummaryMessage = unit {
+    time_microseconds: uint32;
+    triggered_side: uint8 &convert=TriggeredSide($$);
+    total_volume: bytes &size=6;
+    total_invalidation: bytes &size=6;
+    last_price: uint64;
+    match_id: uint32;
+    best_offer: uint64;
+    best_bid: uint64;
+};
+
+type AddOrderMessage = unit {
+    time_microseconds: uint32;
+    order_id: uint32;
+    side: uint8 &convert=Side($$);
+    quantity: bytes &size=6;
+    price: uint64;
+    order_condition: uint8 &convert=OrderCondition($$);
+    modification_flag: uint8 &convert=ModificationFlag($$);
+};
+
+type OrderExecutedMessage = unit {
+    time_microseconds: uint32;
+    order_id: uint32;
+    side: uint8 &convert=Side($$);
+    volume: bytes &size=6;
+    match_id: uint32;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    time_microseconds: uint32;
+    order_id: uint32;
+    side: uint8 &convert=Side($$);
+    volume: bytes &size=6;
+    match_id: uint32;
+    execution_price: uint64;
+    adopted_pricing_method: uint8 &convert=AdoptedPricingMethod($$);
+};
+
+type OrderDeleteMessage = unit {
+    time_microseconds: uint32;
+    order_id: uint32;
+    side: uint8 &convert=Side($$);
+    modification_flag: uint8 &convert=ModificationFlag($$);
+};
+
+type ResetMessage = unit {
+    reset_start_end_flag: uint8 &convert=ResetStartEndFlag($$);
+};
+
+type CommunicationControlMessage = unit {
+    test_mode_flag: uint8 &convert=TestModeFlag($$);
+    communication_start_end_flag: uint8 &convert=CommunicationStartEndFlag($$);
+};
+
+type MessageType = enum {
+    SecondsTimestampMessage = 0x54,
+    TradingStatusMessage = 0x4f,
+    ExecutionSummaryMessage = 0x4b,
+    AddOrderMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderDeleteMessage = 0x44,
+    ResetMessage = 0x52,
+    CommunicationControlMessage = 0x4c,
+};
+
+type MarketStatus = enum {
+    MorningSessionOrderAcceptanceTime = 11,
+    MorningSessionTradingHours = 12,
+    EndOfMorningSession = 19,
+    AfternoonSessionOrderAcceptanceTime = 21,
+    AfternoonSessionTradingHours = 22,
+    AfternoonSessionPreclosing = 23,
+    EndOfAfternoonSession = 29,
+};
+
+type StatusFlag = enum {
+    OtherThanTheAbove = 0,
+};
+
+type ShortSellingStatus = enum {
+    ShortSellingRegulationIsNotApplied = 0,
+    ShortSellingRegulationIsApplied = 1,
+};
+
+type PricingMethod = enum {
+    ItayoseMethod = 1,
+    ZarabaMethod = 2,
+    SellSpecialQuoteDisplayed = 3,
+    BuySpecialQuoteDisplayed = 4,
+    SellSequentialTradeQuoteDisplayed = 5,
+    BuySequentialTradeQuoteDisplayed = 6,
+    OtherThanTheAbove = 0,
+};
+
+type TriggeredSide = enum {
+    SellOrder = 0x53,
+    BuyOrder = 0x42,
+    ItayoseExecution = 0x20,
+};
+
+type Side = enum {
+    SellOrder = 0x53,
+    BuyOrder = 0x42,
+};
+
+type OrderCondition = enum {
+    Nonconditional = 0,
+    Onopen = 2,
+    Onclose = 4,
+    Funari = 6,
+};
+
+type ModificationFlag = enum {
+    CancelOrderOrModificationOrderThatChangesTimePriority = 0,
+    ModificationOrderThatDoesNotChangeTimePriority = 1,
+};
+
+type AdoptedPricingMethod = enum {
+    ItayoseMethod = 1,
+    QuoteDisplayed = 2,
+};
+
+type ResetStartEndFlag = enum {
+    StartOfResetDissemination = 1,
+    EndOfResetDissemination = 2,
+};
+
+type TestModeFlag = enum {
+    Production = 1,
+    Test = 2,
+};
+
+type CommunicationStartEndFlag = enum {
+    HealthCheckControl = 0,
+    CommunicationStart = 1,
+    CommunicationEnd = 2,
+};
+
