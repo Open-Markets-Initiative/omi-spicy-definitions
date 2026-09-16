@@ -56,7 +56,20 @@ type DcMarketStatusChangeMessage = unit {
     event_time: uint64;
     book_state: uint8 &convert=BookState($$);
     status_reason: uint8 &convert=StatusReason($$);
-    phase_qualifier: PhaseQualifier;
+    phase_qualifier: bitfield(16) {
+        no_qualifier: 0;
+        call_bbo_only: 1;
+        trading_at_last: 2;
+        random_uncrossing: 3;
+        suspended: 4;
+        wholesale_allowed: 5;
+        stressed_market_conditions: 6;
+        exceptional_market_conditions: 7;
+        price_improvement_only: 8;
+        quoting_period: 9;
+        execution_prevention_across_all_firms: 10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_period: uint8 &convert=TradingPeriod($$);
     trading_side: uint8 &convert=TradingSide($$);
     price_limits: uint8 &convert=PriceLimits($$);
@@ -70,21 +83,6 @@ type DcMarketStatusChangeMessage = unit {
     phase_time: uint64;
     contract_symbol_index: uint32;
     price_limit_style: uint8 &convert=PriceLimitStyle($$);
-};
-
-type PhaseQualifier = unit {
-    no_qualifier: bytes &size=1;
-    call_bbo_only: bytes &size=1;
-    trading_at_last: bytes &size=1;
-    random_uncrossing: bytes &size=1;
-    suspended: bytes &size=1;
-    wholesale_allowed: bytes &size=1;
-    stressed_market_conditions: bytes &size=1;
-    exceptional_market_conditions: bytes &size=1;
-    price_improvement_only: bytes &size=1;
-    quoting_period: bytes &size=1;
-    execution_prevention_across_all_firms: bytes &size=1;
-    reserved_5: bytes &size=1;
 };
 
 type DcPriceUpdateMessage = unit {
@@ -109,21 +107,55 @@ type LongOrderMessage = unit {
     order_event_type: uint8 &convert=OrderEventType($$);
     account_type_internal: uint8 &convert=AccountTypeInternal($$);
     ack_phase: uint8 &convert=AckPhase($$);
-    ack_qualifiers: AckQualifiers;
+    ack_qualifiers: bitfield(8) {
+        dark_indicator: 0;
+        queue_indicator: 1;
+        request_with_client_order_id: 2;
+        use_of_cross_partition: 3;
+        internal_1: 4;
+        internal_2: 5;
+        execution_upon_entry_flag_enabled: 6;
+        executed_upon_entry_flag: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     ack_type: uint8 &convert=AckType($$);
     book_in_optional: uint64;
     book_out_time_optional: uint64;
     client_order_id_optional: int64;
-    dark_execution_instruction: DarkExecutionInstruction;
+    dark_execution_instruction: bitfield(8) {
+        dark_indicator: 0;
+        deferred_trade_indicator: 1;
+        displayed_order_interaction: 2;
+        sweep_order_indicator: 3;
+        minimum_quantity_type: 4;
+        dark_stp_indicator: 5;
+        reserved_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     emm: uint8 &convert=Emm($$);
     event_id: uint64;
-    execution_instruction: ExecutionInstruction;
+    execution_instruction: bitfield(8) {
+        stp_resting_order: 0;
+        stp_incoming_order: 1;
+        disclosed_quantity_randomization: 2;
+        disabled_cancel_on_disconnect_indicator: 3;
+        rfq_answer: 4;
+        rfq_confirmation: 5;
+        conditional_order: 6;
+        stp_both_orders: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     firm_id: bytes &size=8;
     indicative_auction_price: int64;
     indicative_auction_volume: uint64;
     oe_session_id: uint64;
     lp_role_optional: uint8 &convert=LpRoleOptional($$);
-    mi_fid_indicators: MiFidIndicators;
+    mi_fid_indicators: bitfield(8) {
+        dea_indicator: 0;
+        investment_algo_indicator: 1;
+        execution_algo_indicator: 2;
+        commodity_derivative_indicator: 3;
+        deferral_indicator: 4;
+        frmaramplp: 5;
+        reserved_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     oegin_from_member_optional: uint64;
     oegout_time_to_me_optional: uint64;
     order_id: uint64;
@@ -144,7 +176,16 @@ type LongOrderMessage = unit {
     last_shares_optional: uint64;
     last_traded_px_optional: int64;
     leaves_qty: uint64;
-    trade_qualifier_optional: TradeQualifierOptional;
+    trade_qualifier_optional: bitfield(8) {
+        uncrossing_trade: 0;
+        first_trade_price: 1;
+        passive_order: 2;
+        aggressive_order: 3;
+        trade_creation_by_market_operations: 4;
+        nav_trade_expressed_in_bps: 5;
+        nav_trade_expressed_in_price_currency: 6;
+        deferred_publication: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trade_time: uint64;
     trade_type: uint8 &convert=TradeType($$);
     kill_reason: uint16 &convert=KillReason($$);
@@ -178,59 +219,6 @@ type LongOrderMessage = unit {
     long_order_short_codes_details_modifiable_groups: LongOrderShortCodesDetailsModifiableGroups;
 };
 
-type AckQualifiers = unit {
-    dark_indicator: bytes &size=1;
-    queue_indicator: bytes &size=1;
-    request_with_client_order_id: bytes &size=1;
-    use_of_cross_partition: bytes &size=1;
-    internal_1: bytes &size=1;
-    internal_2: bytes &size=1;
-    execution_upon_entry_flag_enabled: bytes &size=1;
-    executed_upon_entry_flag: bytes &size=1;
-};
-
-type DarkExecutionInstruction = unit {
-    dark_indicator: bytes &size=1;
-    deferred_trade_indicator: bytes &size=1;
-    displayed_order_interaction: bytes &size=1;
-    sweep_order_indicator: bytes &size=1;
-    minimum_quantity_type: bytes &size=1;
-    dark_stp_indicator: bytes &size=1;
-    reserved_2: bytes &size=1;
-};
-
-type ExecutionInstruction = unit {
-    stp_resting_order: bytes &size=1;
-    stp_incoming_order: bytes &size=1;
-    disclosed_quantity_randomization: bytes &size=1;
-    disabled_cancel_on_disconnect_indicator: bytes &size=1;
-    rfq_answer: bytes &size=1;
-    rfq_confirmation: bytes &size=1;
-    conditional_order: bytes &size=1;
-    stp_both_orders: bytes &size=1;
-};
-
-type MiFidIndicators = unit {
-    dea_indicator: bytes &size=1;
-    investment_algo_indicator: bytes &size=1;
-    execution_algo_indicator: bytes &size=1;
-    commodity_derivative_indicator: bytes &size=1;
-    deferral_indicator: bytes &size=1;
-    frmaramplp: bytes &size=1;
-    reserved_2: bytes &size=1;
-};
-
-type TradeQualifierOptional = unit {
-    uncrossing_trade: bytes &size=1;
-    first_trade_price: bytes &size=1;
-    passive_order: bytes &size=1;
-    aggressive_order: bytes &size=1;
-    trade_creation_by_market_operations: bytes &size=1;
-    nav_trade_expressed_in_bps: bytes &size=1;
-    nav_trade_expressed_in_price_currency: bytes &size=1;
-    deferred_publication: bytes &size=1;
-};
-
 type LongOrderFreeTextSectionGroups = unit {
     group_size_encoding: GroupSizeEncoding;
     long_order_free_text_section_group: LongOrderFreeTextSectionGroup[self.group_size_encoding.num_in_group];
@@ -257,18 +245,16 @@ type LongOrderOptionalFieldsGroup = unit {
     disclosed_qty: uint64;
     order_expiration_time: uint32;
     order_expiration_date: uint16;
-    trading_session: TradingSession;
+    trading_session: bitfield(8) {
+        unused_trading_session_validityset_0: 0;
+        session_1: 1;
+        session_2: 2;
+        session_3: 3;
+        session_4: 4;
+        reserved_3: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
     stop_triggered_time_in_force: uint8 &convert=StopTriggeredTimeInForce($$);
     undisclosed_iceberg_type: uint8 &convert=UndisclosedIcebergType($$);
-};
-
-type TradingSession = unit {
-    unused_trading_session_validityset_0: bytes &size=1;
-    session_1: bytes &size=1;
-    session_2: bytes &size=1;
-    session_3: bytes &size=1;
-    session_4: bytes &size=1;
-    reserved_3: bytes &size=1;
 };
 
 type LongOrderClearingFieldsGroups = unit {
@@ -281,22 +267,20 @@ type LongOrderClearingFieldsGroup = unit {
     client_id: bytes &size=8;
     account_number: bytes &size=12;
     technical_origin: uint8 &convert=TechnicalOrigin($$);
-    open_close: OpenClose;
+    open_close: bitfield(16) {
+        field_actively_used: 0;
+        leg_1: 1;
+        leg_2: 2;
+        leg_3: 3;
+        leg_4: 4;
+        leg_5: 5;
+        leg_6: 6;
+        leg_7: 7;
+        leg_8: 8;
+        leg_9: 9;
+        reserved_6: 10..15;
+    } &byte-order=spicy::ByteOrder::Little;
     clearing_instruction_optional: uint16 &convert=ClearingInstructionOptional($$);
-};
-
-type OpenClose = unit {
-    field_actively_used: bytes &size=1;
-    leg_1: bytes &size=1;
-    leg_2: bytes &size=1;
-    leg_3: bytes &size=1;
-    leg_4: bytes &size=1;
-    leg_5: bytes &size=1;
-    leg_6: bytes &size=1;
-    leg_7: bytes &size=1;
-    leg_8: bytes &size=1;
-    leg_9: bytes &size=1;
-    reserved_6: bytes &size=1;
 };
 
 type LongOrderNonModifiableOptFieldsGroups = unit {
@@ -449,22 +433,20 @@ type DcShortOrderRejectMessage = unit {
     collar_rej_type: uint8 &convert=CollarRejType($$);
     rejected_message: uint8;
     error_code: uint16;
-    mi_fid_indicators_optional: MiFidIndicatorsOptional;
+    mi_fid_indicators_optional: bitfield(8) {
+        dea_indicator: 0;
+        investment_algo_indicator: 1;
+        execution_algo_indicator: 2;
+        commodity_derivative_indicator: 3;
+        deferral_indicator: 4;
+        frmaramplp: 5;
+        reserved_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     oe_session_id_optional: uint64;
     order_side_optional: uint8 &convert=OrderSideOptional($$);
     time_in_force_optional: uint8 &convert=TimeInForceOptional($$);
     d_c_short_order_reject_message_modifiable_short_codes_groups: DCShortOrderRejectMessageModifiableShortCodesGroups;
     d_c_short_order_reject_message_short_codes_details_modifiable_groups: DCShortOrderRejectMessageShortCodesDetailsModifiableGroups;
-};
-
-type MiFidIndicatorsOptional = unit {
-    dea_indicator: bytes &size=1;
-    investment_algo_indicator: bytes &size=1;
-    execution_algo_indicator: bytes &size=1;
-    commodity_derivative_indicator: bytes &size=1;
-    deferral_indicator: bytes &size=1;
-    frmaramplp: bytes &size=1;
-    reserved_2: bytes &size=1;
 };
 
 type DCShortOrderRejectMessageModifiableShortCodesGroups = unit {
@@ -536,12 +518,29 @@ type TradeBustNotificationMessage = unit {
     last_shares: uint64;
     last_traded_px: int64;
     order_id: uint64;
-    mi_fid_indicators: MiFidIndicators;
+    mi_fid_indicators: bitfield(8) {
+        dea_indicator: 0;
+        investment_algo_indicator: 1;
+        execution_algo_indicator: 2;
+        commodity_derivative_indicator: 3;
+        deferral_indicator: 4;
+        frmaramplp: 5;
+        reserved_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     clearing_firm_id: bytes &size=8;
     trading_capacity: uint8 &convert=TradingCapacity($$);
     oegin_from_member: uint64;
     execution_phase: uint8 &convert=ExecutionPhase($$);
-    trade_qualifier: TradeQualifier;
+    trade_qualifier: bitfield(8) {
+        uncrossing_trade: 0;
+        first_trade_price: 1;
+        passive_order: 2;
+        aggressive_order: 3;
+        trade_creation_by_market_operations: 4;
+        nav_trade_expressed_in_bps: 5;
+        nav_trade_expressed_in_price_currency: 6;
+        deferred_publication: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     counterpart_firm_id: bytes &size=8;
     order_type: uint8 &convert=OrderType($$);
     time_in_force_optional: uint8 &convert=TimeInForceOptional($$);
@@ -551,7 +550,19 @@ type TradeBustNotificationMessage = unit {
     account_number: bytes &size=12;
     account_type: uint8 &convert=AccountType($$);
     lp_role_optional: uint8 &convert=LpRoleOptional($$);
-    open_close: OpenClose;
+    open_close: bitfield(16) {
+        field_actively_used: 0;
+        leg_1: 1;
+        leg_2: 2;
+        leg_3: 3;
+        leg_4: 4;
+        leg_5: 5;
+        leg_6: 6;
+        leg_7: 7;
+        leg_8: 8;
+        leg_9: 9;
+        reserved_6: 10..15;
+    } &byte-order=spicy::ByteOrder::Little;
     original_invest_decis_w_firm_short_code: int32;
     original_non_exec_broker_short_code: int32;
     event_client_id_short_code: int32;
@@ -566,17 +577,6 @@ type TradeBustNotificationMessage = unit {
     parent_trade_unique_identifier: bytes &size=16;
     trade_bust_notification_short_codes_details_non_modifiable_groups: TradeBustNotificationShortCodesDetailsNonModifiableGroups;
     trade_bust_notification_short_codes_details_modifiable_groups: TradeBustNotificationShortCodesDetailsModifiableGroups;
-};
-
-type TradeQualifier = unit {
-    uncrossing_trade: bytes &size=1;
-    first_trade_price: bytes &size=1;
-    passive_order: bytes &size=1;
-    aggressive_order: bytes &size=1;
-    trade_creation_by_market_operations: bytes &size=1;
-    nav_trade_expressed_in_bps: bytes &size=1;
-    nav_trade_expressed_in_price_currency: bytes &size=1;
-    deferred_publication: bytes &size=1;
 };
 
 type TradeBustNotificationShortCodesDetailsNonModifiableGroups = unit {
@@ -614,27 +614,33 @@ type DcQuoteMessage = unit {
     trading_capacity: uint8 &convert=TradingCapacity($$);
     account_type: uint8 &convert=AccountType($$);
     lp_role: uint8 &convert=LpRole($$);
-    mi_fid_indicators: MiFidIndicators;
+    mi_fid_indicators: bitfield(8) {
+        dea_indicator: 0;
+        investment_algo_indicator: 1;
+        execution_algo_indicator: 2;
+        commodity_derivative_indicator: 3;
+        deferral_indicator: 4;
+        frmaramplp: 5;
+        reserved_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     rfe_answer: uint8;
     firm_id: bytes &size=8;
-    execution_instruction_optional: ExecutionInstructionOptional;
+    execution_instruction_optional: bitfield(8) {
+        stp_resting_order: 0;
+        stp_incoming_order: 1;
+        disclosed_quantity_randomization: 2;
+        disabled_cancel_on_disconnect_indicator: 3;
+        rfq_answer: 4;
+        rfq_confirmation: 5;
+        conditional_order: 6;
+        stp_both_orders: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     stpid: uint16;
     d_c_quote_message_bid_quoterep_groups: DCQuoteMessageBidQuoterepGroups;
     d_c_quote_message_offer_quoterep_groups: DCQuoteMessageOfferQuoterepGroups;
     d_c_quote_message_clearing_dataset_groups: DCQuoteMessageClearingDatasetGroups;
     d_c_quote_message_non_modifiable_short_codes_groups: DCQuoteMessageNonModifiableShortCodesGroups;
     d_c_quote_message_modifiable_short_codes_groups: DCQuoteMessageModifiableShortCodesGroups;
-};
-
-type ExecutionInstructionOptional = unit {
-    stp_resting_order: bytes &size=1;
-    stp_incoming_order: bytes &size=1;
-    disclosed_quantity_randomization: bytes &size=1;
-    disabled_cancel_on_disconnect_indicator: bytes &size=1;
-    rfq_answer: bytes &size=1;
-    rfq_confirmation: bytes &size=1;
-    conditional_order: bytes &size=1;
-    stp_both_orders: bytes &size=1;
 };
 
 type DCQuoteMessageBidQuoterepGroups = unit {
@@ -685,7 +691,19 @@ type DCQuoteMessageClearingDatasetGroup = unit {
     client_id: bytes &size=8;
     account_number: bytes &size=12;
     technical_origin: uint8 &convert=TechnicalOrigin($$);
-    open_close: OpenClose;
+    open_close: bitfield(16) {
+        field_actively_used: 0;
+        leg_1: 1;
+        leg_2: 2;
+        leg_3: 3;
+        leg_4: 4;
+        leg_5: 5;
+        leg_6: 6;
+        leg_7: 7;
+        leg_8: 8;
+        leg_9: 9;
+        reserved_6: 10..15;
+    } &byte-order=spicy::ByteOrder::Little;
     clearing_instruction_optional: uint16 &convert=ClearingInstructionOptional($$);
     free_text: bytes &size=18;
 };
@@ -904,7 +922,16 @@ type DcTradeMessage = unit {
     session_optional: uint8 &convert=SessionOptional($$);
     exec_phase: uint8 &convert=ExecPhase($$);
     transparency_indicator: uint8 &convert=TransparencyIndicator($$);
-    trade_qualifier: TradeQualifier;
+    trade_qualifier: bitfield(8) {
+        uncrossing_trade: 0;
+        first_trade_price: 1;
+        passive_order: 2;
+        aggressive_order: 3;
+        trade_creation_by_market_operations: 4;
+        nav_trade_expressed_in_bps: 5;
+        nav_trade_expressed_in_price_currency: 6;
+        deferred_publication: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     settlement_period_optional: uint8;
     settlement_flag_optional: uint8;
     guarantee_flag_optional: uint8 &convert=GuaranteeFlagOptional($$);
@@ -929,13 +956,34 @@ type DCTradeMessageMatchedOrdersGroup = unit {
     order_px: int64;
     client_id: bytes &size=8;
     technical_origin: uint8 &convert=TechnicalOrigin($$);
-    open_close: OpenClose;
+    open_close: bitfield(16) {
+        field_actively_used: 0;
+        leg_1: 1;
+        leg_2: 2;
+        leg_3: 3;
+        leg_4: 4;
+        leg_5: 5;
+        leg_6: 6;
+        leg_7: 7;
+        leg_8: 8;
+        leg_9: 9;
+        reserved_6: 10..15;
+    } &byte-order=spicy::ByteOrder::Little;
     client_order_id: int64;
     firm_id: bytes &size=8;
     oe_partition_id_optional: uint16;
     logical_access_id_optional: uint32;
     book_in_optional: uint64;
-    trade_qualifier_optional: TradeQualifierOptional;
+    trade_qualifier_optional: bitfield(8) {
+        uncrossing_trade: 0;
+        first_trade_price: 1;
+        passive_order: 2;
+        aggressive_order: 3;
+        trade_creation_by_market_operations: 4;
+        nav_trade_expressed_in_bps: 5;
+        nav_trade_expressed_in_price_currency: 6;
+        deferred_publication: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     account_type_internal_optional: uint8 &convert=AccountTypeInternalOptional($$);
     lp_role_optional: uint8 &convert=LpRoleOptional($$);
     clearing_account: bytes &size=16;
@@ -1019,7 +1067,15 @@ type DcQuoteRequestMessage = unit {
     book_in: uint64;
     book_out_time: uint64;
     client_order_id: int64;
-    dark_execution_instruction: DarkExecutionInstruction;
+    dark_execution_instruction: bitfield(8) {
+        dark_indicator: 0;
+        deferred_trade_indicator: 1;
+        displayed_order_interaction: 2;
+        sweep_order_indicator: 3;
+        minimum_quantity_type: 4;
+        dark_stp_indicator: 5;
+        reserved_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     emm: uint8 &convert=Emm($$);
     end_client: bytes &size=11;
     firm_id: bytes &size=8;

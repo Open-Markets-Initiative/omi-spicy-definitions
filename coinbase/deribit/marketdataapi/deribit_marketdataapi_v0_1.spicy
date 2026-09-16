@@ -13,15 +13,13 @@ type PacketHeader = unit {
     sending_time: int64;
     seq_num: int64;
     channel_id: int32;
-    packet_type: PacketType;
+    packet_type: bitfield(16) {
+        incremental_update: 0;
+        snapshot: 1;
+        retransmit: 2;
+        packet_reserved_bits: 3..15;
+    } &byte-order=spicy::ByteOrder::Little;
     message_count: uint16;
-};
-
-type PacketType = unit {
-    incremental_update: bytes &size=1;
-    snapshot: bytes &size=1;
-    retransmit: bytes &size=1;
-    : skip bytes &size=2;   # padding
 };
 
 type MdMessage = unit {
@@ -53,14 +51,12 @@ type MdMessageHeader = unit {
     message_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
     schema_version: uint16;
-    message_flags: MessageFlags;
+    message_flags: bitfield(16) {
+        start_of_transaction: 0;
+        end_of_transaction: 1;
+        reserved_bits: 2..15;
+    } &byte-order=spicy::ByteOrder::Little;
     transact_time: int64;
-};
-
-type MessageFlags = unit {
-    start_of_transaction: bytes &size=1;
-    end_of_transaction: bytes &size=1;
-    : skip bytes &size=2;   # padding
 };
 
 type InstrumentMessage = unit {
@@ -79,7 +75,12 @@ type InstrumentMessage = unit {
     creation_time: int64;
     expiry_time: int64;
     logical_expiry: LogicalExpiry;
-    flags: Flags;
+    flags: bitfield(32) {
+        is_reversed: 0;
+        is_put_option: 1;
+        is_perpetual: 2;
+        reserved_29: 3..31;
+    } &byte-order=spicy::ByteOrder::Little;
     type_field: int8 &convert=Type($$);
     status: int8 &convert=Status($$);
     quantity_exponent: int8;
@@ -90,13 +91,6 @@ type LogicalExpiry = unit {
     month: int16;
     week_of_month: int16;
     day_of_month: int16;
-};
-
-type Flags = unit {
-    is_reversed: bytes &size=1;
-    is_put_option: bytes &size=1;
-    is_perpetual: bytes &size=1;
-    reserved_29: bytes &size=4;
 };
 
 type TradingStatusUpdateMessage = unit {
@@ -165,13 +159,11 @@ type TradeSummaryMessage = unit {
     mark_price: int64;
     index_price: int64;
     implied_volatility: bytes &size=8;
-    taker_flags: TakerFlags;
-};
-
-type TakerFlags = unit {
-    is_sell: bytes &size=1;
-    is_liquidation: bytes &size=1;
-    reserved_30: bytes &size=4;
+    taker_flags: bitfield(32) {
+        is_sell: 0;
+        is_liquidation: 1;
+        reserved_30: 2..31;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type TradeMessage = unit {
@@ -180,13 +172,11 @@ type TradeMessage = unit {
     maker_order_id: int64;
     fill_qty_mantissa: int64;
     fill_price: int64;
-    maker_flags: MakerFlags;
-};
-
-type MakerFlags = unit {
-    is_sell: bytes &size=1;
-    is_liquidation: bytes &size=1;
-    reserved_30: bytes &size=4;
+    maker_flags: bitfield(32) {
+        is_sell: 0;
+        is_liquidation: 1;
+        reserved_30: 2..31;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type BlockTradeMessage = unit {
@@ -199,7 +189,11 @@ type BlockTradeMessage = unit {
     mark_price: int64;
     index_price: int64;
     implied_volatility: bytes &size=8;
-    taker_flags: TakerFlags;
+    taker_flags: bitfield(32) {
+        is_sell: 0;
+        is_liquidation: 1;
+        reserved_30: 2..31;
+    } &byte-order=spicy::ByteOrder::Little;
     number_of_legs: uint16;
 };
 

@@ -126,13 +126,11 @@ type OrderExecutedMessage = unit {
     trade_price: int32;
     match_id: bytes &size=12;
     deal_source: uint16 &convert=DealSource($$);
-    match_attributes: MatchAttributes;
-};
-
-type MatchAttributes = unit {
-    passive_aggressive_indicator: bytes &size=1;
-    crossing_dealing_capacity: uint8 &convert=CrossingDealingCapacity($$);
-    : skip bytes &size=1;   # padding
+    match_attributes: bitfield(8) {
+        passive_aggressive_indicator: 0;
+        crossing_dealing_capacity: 1..2;
+        reserved: 3..7;
+    } &byte-order=spicy::ByteOrder::Big;
 };
 
 type ServerPacketType = enum {

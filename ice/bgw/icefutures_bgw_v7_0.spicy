@@ -1,0 +1,1597 @@
+module IceIcefuturesBgwSbeV70;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type IcefuturesBgwV70 = unit {
+    simple_open_frame: SimpleOpenFrame[] &eod;
+};
+
+type SimpleOpenFrame = unit {
+    simple_open_framing_header: SimpleOpenFramingHeader;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::SimpleOpenFramingHeaderMessage -> simple_open_framing_header_message: SimpleOpenFramingHeaderMessage;
+        TemplateId::LogonRequestMessage -> logon_request_message: LogonRequestMessage;
+        TemplateId::LogonReportMessage -> logon_report_message: LogonReportMessage;
+        TemplateId::LogoutRequestMessage -> logout_request_message: LogoutRequestMessage;
+        TemplateId::LogoutReportMessage -> logout_report_message: LogoutReportMessage;
+        TemplateId::ErrorMessage -> error_message: ErrorMessage;
+        TemplateId::NewsMessage -> news_message: NewsMessage;
+        TemplateId::SecurityDefinitionReportStrategyMessage -> security_definition_report_strategy_message: SecurityDefinitionReportStrategyMessage;
+        TemplateId::SecurityDefinitionReportMessage -> security_definition_report_message: SecurityDefinitionReportMessage;
+        TemplateId::SecurityDefinitionRejectMessage -> security_definition_reject_message: SecurityDefinitionRejectMessage;
+        TemplateId::SecurityDefinitionRequestMessage -> security_definition_request_message: SecurityDefinitionRequestMessage;
+        TemplateId::SecurityDefinitionReportProductMessage -> security_definition_report_product_message: SecurityDefinitionReportProductMessage;
+        TemplateId::IpRequestMessage -> ip_request_message: IpRequestMessage;
+        TemplateId::IpReportMessage -> ip_report_message: IpReportMessage;
+        TemplateId::TraderLogonRequestMessage -> trader_logon_request_message: TraderLogonRequestMessage;
+        TemplateId::TraderLogonReportMessage -> trader_logon_report_message: TraderLogonReportMessage;
+        TemplateId::TraderLogoutRequestMessage -> trader_logout_request_message: TraderLogoutRequestMessage;
+        TemplateId::TraderLogoutReportMessage -> trader_logout_report_message: TraderLogoutReportMessage;
+        TemplateId::NewOrderRequestMessage -> new_order_request_message: NewOrderRequestMessage;
+        TemplateId::CancelReplaceRequestMessage -> cancel_replace_request_message: CancelReplaceRequestMessage;
+        TemplateId::CancelRequestMessage -> cancel_request_message: CancelRequestMessage;
+        TemplateId::QuoteRequestMessage -> quote_request_message: QuoteRequestMessage;
+        TemplateId::NewOrderCrossRequestMessage -> new_order_cross_request_message: NewOrderCrossRequestMessage;
+        TemplateId::OrderMassCancelRequestMessage -> order_mass_cancel_request_message: OrderMassCancelRequestMessage;
+        TemplateId::MassQuoteRequestMessage -> mass_quote_request_message: MassQuoteRequestMessage;
+        TemplateId::QuoteCancelRequestMessage -> quote_cancel_request_message: QuoteCancelRequestMessage;
+        TemplateId::SecurityDefinitionRequestCreateStrategyMessage -> security_definition_request_create_strategy_message: SecurityDefinitionRequestCreateStrategyMessage;
+        TemplateId::SecurityDefinitionRequestCreateFlexMessage -> security_definition_request_create_flex_message: SecurityDefinitionRequestCreateFlexMessage;
+        TemplateId::ExecutionReportNewMessage -> execution_report_new_message: ExecutionReportNewMessage;
+        TemplateId::ExecutionReportModifyMessage -> execution_report_modify_message: ExecutionReportModifyMessage;
+        TemplateId::ExecutionReportCancelMessage -> execution_report_cancel_message: ExecutionReportCancelMessage;
+        TemplateId::ExecutionReportRejectMessage -> execution_report_reject_message: ExecutionReportRejectMessage;
+        TemplateId::ExecutionReportSnapshotMessage -> execution_report_snapshot_message: ExecutionReportSnapshotMessage;
+        TemplateId::ExecutionReportTradeMessage -> execution_report_trade_message: ExecutionReportTradeMessage;
+        TemplateId::QuoteReportMessage -> quote_report_message: QuoteReportMessage;
+        TemplateId::NewOrderCrossReportMessage -> new_order_cross_report_message: NewOrderCrossReportMessage;
+        TemplateId::OrderMassCancelReportMessage -> order_mass_cancel_report_message: OrderMassCancelReportMessage;
+        TemplateId::MassQuoteReportMessage -> mass_quote_report_message: MassQuoteReportMessage;
+        TemplateId::ResendRequestMessage -> resend_request_message: ResendRequestMessage;
+        TemplateId::ResendReportMessage -> resend_report_message: ResendReportMessage;
+        TemplateId::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SimpleOpenFramingHeader = unit {
+    message_length: uint16;
+    encoding_type: uint16;
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+    sequence_id: uint32;
+    send_time: uint64;
+    header_flags: bitfield(8) {
+        poss_dupe: 0;
+        poss_resend: 1;
+        reserved_bits: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type SimpleOpenFramingHeaderMessage = unit {
+    framing_header: FramingHeader;
+};
+
+type FramingHeader = unit {
+    message_length: uint16;
+    encoding_type: uint16;
+};
+
+type LogonRequestMessage = unit {
+    user_id: bytes &size=20;
+    client_id: int32;
+    heart_beat_interval: uint16;
+    application_name: bytes &size=30;
+    application_version: bytes &size=50;
+    application_vendor: bytes &size=30;
+    raw_data: bytes &size=50;
+    ip_session_token: bytes &size=50;
+};
+
+type LogonReportMessage = unit {
+    user_id: bytes &size=20;
+    heart_beat_interval: uint16;
+    severity_level: uint8 &convert=SeverityLevel($$);
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type LogoutRequestMessage = unit {
+    user_id: bytes &size=20;
+};
+
+type LogoutReportMessage = unit {
+    user_id: bytes &size=20;
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type ErrorMessage = unit {
+    ref_sequence_id: uint32;
+    severity_level: uint8 &convert=SeverityLevel($$);
+    supported_schema_version: bytes &size=20;
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type NewsMessage = unit {
+    user_id: bytes &size=20;
+    exchange_code: int32;
+    text_var_string_16_null: TextVarString16Null;
+};
+
+type TextVarString16Null = unit {
+    text_length: uint16;
+    text_data: bytes &size=self.text_length;
+};
+
+type SecurityDefinitionReportStrategyMessage = unit {
+    security_req_id: int32;
+    security_response_type: uint8 &convert=SecurityResponseType($$);
+    security_response_id: int32;
+    market_type_i_d_int_32: int32;
+    no_rpts: int32;
+    list_seq_no: int32;
+    symbol_int_32: int32;
+    underlying_strategy_symbol: int32;
+    maturity_date: uint16;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    security_sub_type_int_16: int16;
+    exchange_silo: uint8 &convert=ExchangeSilo($$);
+    transact_time_utc_timestamp: uint64;
+    leg_deals_suppressed: uint8 &convert=LegDealsSuppressed($$);
+    increment_price: int64;
+    increment_qty: int64;
+    min_price: int64;
+    max_price: int64;
+    num_of_decimal_price: int8;
+    num_of_decimal_qty: int8;
+    product_i_d_int_32: int32;
+    base_num_lots: int32;
+    denominator: int32;
+    implied_type: bytes &size=1;
+    off_exchange_increment_price_decimal_9_null: int64;
+    off_exchange_increment_qty_decimal_9_null: int64;
+    num_of_decimal_strike_price: int8;
+    num_of_cycles_int_16_null: int16;
+    lot_size_multiplier_decimal_9_null: int64;
+    block_only: uint8 &convert=BlockOnly($$);
+    flex_allowed: uint8 &convert=FlexAllowed($$);
+    gt_allowed: uint8 &convert=GtAllowed($$);
+    mifid_regulated_market_boolean_enum: uint8 &convert=MifidRegulatedMarketBooleanEnum($$);
+    strip_type: int16;
+    hub_id: int32;
+    override_block_min: uint8 &convert=OverrideBlockMin($$);
+    test_market_indicator_boolean_enum: uint8 &convert=TestMarketIndicatorBooleanEnum($$);
+    screen_tick_value: int64;
+    block_tick_value: int64;
+    security_definition_report_strategy_message_no_block_details_groups: SecurityDefinitionReportStrategyMessageNoBlockDetailsGroups;
+    security_definition_report_strategy_message_no_security_alt_i_d_groups: SecurityDefinitionReportStrategyMessageNoSecurityAltIDGroups;
+    security_definition_report_strategy_message_no_legs_groups: SecurityDefinitionReportStrategyMessageNoLegsGroups;
+    security_id: SecurityId;
+    unit_of_measure: UnitOfMeasure;
+    price_denomination: PriceDenomination;
+    cleared_alias: ClearedAlias;
+    security_desc: SecurityDesc;
+    price_unit: PriceUnit;
+    strip_name: StripName;
+    hub_name: HubName;
+    hub_alias: HubAlias;
+    security_exchange: SecurityExchange;
+    strategy_security_id: StrategySecurityId;
+    physical_code: PhysicalCode;
+};
+
+type SecurityDefinitionReportStrategyMessageNoBlockDetailsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    security_definition_report_strategy_message_no_block_details_group: SecurityDefinitionReportStrategyMessageNoBlockDetailsGroup[self.group_size_encoding.num_in_group];
+};
+
+type GroupSizeEncoding = unit {
+    block_length: uint16;
+    num_in_group: uint16;
+};
+
+type SecurityDefinitionReportStrategyMessageNoBlockDetailsGroup = unit {
+    block_details_block_type: uint8 &convert=BlockDetailsBlockType($$);
+    block_details_trade_type: bytes &size=3;
+    block_details_min_qty: int64;
+};
+
+type SecurityDefinitionReportStrategyMessageNoSecurityAltIDGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    security_definition_report_strategy_message_no_security_alt_i_d_group: SecurityDefinitionReportStrategyMessageNoSecurityAltIDGroup[self.group_size_encoding.num_in_group];
+};
+
+type SecurityDefinitionReportStrategyMessageNoSecurityAltIDGroup = unit {
+    security_alt_id: bytes &size=30;
+    security_alt_id_source: bytes &size=3;
+};
+
+type SecurityDefinitionReportStrategyMessageNoLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    security_definition_report_strategy_message_no_legs_group: SecurityDefinitionReportStrategyMessageNoLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type SecurityDefinitionReportStrategyMessageNoLegsGroup = unit {
+    leg_symbol_int_32: int32;
+    leg_security_type: uint8 &convert=LegSecurityType($$);
+    leg_security_sub_type: int16;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_price: int64;
+    leg_option_delta: int32;
+    leg_ratio_qty_denominator_int_16: int16;
+    leg_ratio_qty_numerator_int_16: int16;
+    leg_ratio_price_denominator: int16;
+    leg_ratio_price_numerator: int16;
+};
+
+type SecurityId = unit {
+    security_id_length: uint16;
+    security_id_data: bytes &size=self.security_id_length;
+};
+
+type UnitOfMeasure = unit {
+    unit_of_measure_length: uint16;
+    unit_of_measure_data: bytes &size=self.unit_of_measure_length;
+};
+
+type PriceDenomination = unit {
+    price_denomination_length: uint16;
+    price_denomination_data: bytes &size=self.price_denomination_length;
+};
+
+type ClearedAlias = unit {
+    cleared_alias_length: uint16;
+    cleared_alias_data: bytes &size=self.cleared_alias_length;
+};
+
+type SecurityDesc = unit {
+    security_desc_length: uint16;
+    security_desc_data: bytes &size=self.security_desc_length;
+};
+
+type PriceUnit = unit {
+    price_unit_length: uint16;
+    price_unit_data: bytes &size=self.price_unit_length;
+};
+
+type StripName = unit {
+    strip_name_length: uint16;
+    strip_name_data: bytes &size=self.strip_name_length;
+};
+
+type HubName = unit {
+    hub_name_length: uint16;
+    hub_name_data: bytes &size=self.hub_name_length;
+};
+
+type HubAlias = unit {
+    hub_alias_length: uint16;
+    hub_alias_data: bytes &size=self.hub_alias_length;
+};
+
+type SecurityExchange = unit {
+    security_exchange_length: uint16;
+    security_exchange_data: bytes &size=self.security_exchange_length;
+};
+
+type StrategySecurityId = unit {
+    strategy_security_id_length: uint16;
+    strategy_security_id_data: bytes &size=self.strategy_security_id_length;
+};
+
+type PhysicalCode = unit {
+    physical_code_length: uint16;
+    physical_code_data: bytes &size=self.physical_code_length;
+};
+
+type SecurityDefinitionReportMessage = unit {
+    security_req_id: int32;
+    security_response_type: uint8 &convert=SecurityResponseType($$);
+    security_response_id: int32;
+    market_type_i_d_int_32: int32;
+    symbol_int_32: int32;
+    exchange_silo: uint8 &convert=ExchangeSilo($$);
+    no_rpts: int32;
+    list_seq_no: int32;
+    underlying_symbol_int_32: int32;
+    cfi_code: bytes &size=12;
+    security_sub_type_int_16_null: int16;
+    maturity_date: uint16;
+    screen_last_trade_date: uint16;
+    contract_multiplier: int32;
+    start_date: uint16;
+    end_date: uint16;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    strike_price: int64;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    currency: bytes &size=12;
+    settl_method: uint8 &convert=SettlMethod($$);
+    strike_exercise_style: uint8 &convert=StrikeExerciseStyle($$);
+    increment_qty: int64;
+    increment_price: int64;
+    min_price: int64;
+    max_price: int64;
+    off_exchange_increment_price_decimal_9: int64;
+    off_exchange_increment_qty_decimal_9: int64;
+    screen_tick_value: int64;
+    block_tick_value: int64;
+    lot_size: int32;
+    contract_size: int32;
+    num_of_decimal_price: int8;
+    num_of_decimal_qty: int8;
+    granularity: bytes &size=12;
+    base_num_lots: int32;
+    tick_value: int64;
+    product_i_d_int_32: int32;
+    clearable: uint8 &convert=Clearable($$);
+    hedge_product_id: int32;
+    hedge_market_id: int32;
+    hedge_only: uint8 &convert=HedgeOnly($$);
+    is_dividend_adjusted: uint8 &convert=IsDividendAdjusted($$);
+    denominator: int32;
+    initial_margin: int32;
+    implied_type: bytes &size=1;
+    num_of_decimal_strike_price: int8;
+    num_of_cycles_int_16: int16;
+    lot_size_multiplier_decimal_9: int64;
+    strip_type: int16;
+    strip_id: int32;
+    block_only: uint8 &convert=BlockOnly($$);
+    flex_allowed: uint8 &convert=FlexAllowed($$);
+    gt_allowed: uint8 &convert=GtAllowed($$);
+    aon_allowed: uint8 &convert=AonAllowed($$);
+    mifid_regulated_market_boolean_enum_null: uint8 &convert=MifidRegulatedMarketBooleanEnumNull($$);
+    flex_strike_allowed: uint8 &convert=FlexStrikeAllowed($$);
+    hub_id: int32;
+    override_block_min: uint8 &convert=OverrideBlockMin($$);
+    test_market_indicator_boolean_enum_null: uint8 &convert=TestMarketIndicatorBooleanEnumNull($$);
+    ref_sprd_product_id: int32;
+    market_transparency_type: uint8 &convert=MarketTransparencyType($$);
+    non_commoditized_market: uint8 &convert=NonCommoditizedMarket($$);
+    security_definition_report_message_no_block_details_groups: SecurityDefinitionReportMessageNoBlockDetailsGroups;
+    security_definition_report_message_no_security_alt_i_d_groups: SecurityDefinitionReportMessageNoSecurityAltIDGroups;
+    security_id: SecurityId;
+    unit_of_measure: UnitOfMeasure;
+    price_denomination: PriceDenomination;
+    cleared_alias: ClearedAlias;
+    security_desc: SecurityDesc;
+    price_unit: PriceUnit;
+    strip_name: StripName;
+    hub_name: HubName;
+    hub_alias: HubAlias;
+    security_exchange: SecurityExchange;
+    physical_code: PhysicalCode;
+    home_exchange: HomeExchange;
+};
+
+type SecurityDefinitionReportMessageNoBlockDetailsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    security_definition_report_message_no_block_details_group: SecurityDefinitionReportMessageNoBlockDetailsGroup[self.group_size_encoding.num_in_group];
+};
+
+type SecurityDefinitionReportMessageNoBlockDetailsGroup = unit {
+    block_details_block_type: uint8 &convert=BlockDetailsBlockType($$);
+    block_details_trade_type: bytes &size=3;
+    block_details_min_qty: int64;
+};
+
+type SecurityDefinitionReportMessageNoSecurityAltIDGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    security_definition_report_message_no_security_alt_i_d_group: SecurityDefinitionReportMessageNoSecurityAltIDGroup[self.group_size_encoding.num_in_group];
+};
+
+type SecurityDefinitionReportMessageNoSecurityAltIDGroup = unit {
+    security_alt_id: bytes &size=30;
+    security_alt_id_source: bytes &size=3;
+};
+
+type HomeExchange = unit {
+    home_exchange_length: uint16;
+    home_exchange_data: bytes &size=self.home_exchange_length;
+};
+
+type SecurityDefinitionRejectMessage = unit {
+    security_req_id: int32;
+    security_response_type: uint8 &convert=SecurityResponseType($$);
+    security_request_type: uint8 &convert=SecurityRequestType($$);
+    market_type_i_d_int_32: int32;
+    security_type_security_type_enum_null: uint8 &convert=SecurityTypeSecurityTypeEnumNull($$);
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type SecurityDefinitionRequestMessage = unit {
+    security_req_id: int32;
+    security_request_type: uint8 &convert=SecurityRequestType($$);
+    market_type_i_d_int_32: int32;
+};
+
+type SecurityDefinitionReportProductMessage = unit {
+    security_req_id: int32;
+    security_response_type: uint8 &convert=SecurityResponseType($$);
+    security_response_id: int32;
+    market_type_i_d_int_32: int32;
+    no_rpts: int32;
+    list_seq_no: int32;
+    product_i_d_int_32: int32;
+    product_type: bytes &size=12;
+    mifid_regulated_market_boolean_enum: uint8 &convert=MifidRegulatedMarketBooleanEnum($$);
+    test_market_indicator_boolean_enum: uint8 &convert=TestMarketIndicatorBooleanEnum($$);
+    stops_allowed: uint8 &convert=StopsAllowed($$);
+    options_allowed: uint8 &convert=OptionsAllowed($$);
+    uds_options_allowed: uint8 &convert=UdsOptionsAllowed($$);
+    uds_futures_allowed: uint8 &convert=UdsFuturesAllowed($$);
+    mass_quotes_allowed: uint8 &convert=MassQuotesAllowed($$);
+    rfq_futures_allowed: uint8 &convert=RfqFuturesAllowed($$);
+    rfq_options_allowed: uint8 &convert=RfqOptionsAllowed($$);
+    crossing_order_futures_allowed: uint8 &convert=CrossingOrderFuturesAllowed($$);
+    crossing_order_options_allowed: uint8 &convert=CrossingOrderOptionsAllowed($$);
+    self_block_allowed: uint8 &convert=SelfBlockAllowed($$);
+    product_name: ProductName;
+    product_desc: ProductDesc;
+    product_group: ProductGroup;
+};
+
+type ProductName = unit {
+    product_name_length: uint16;
+    product_name_data: bytes &size=self.product_name_length;
+};
+
+type ProductDesc = unit {
+    product_desc_length: uint16;
+    product_desc_data: bytes &size=self.product_desc_length;
+};
+
+type ProductGroup = unit {
+    product_group_length: uint16;
+    product_group_data: bytes &size=self.product_group_length;
+};
+
+type IpRequestMessage = unit {
+    client_id: int32;
+    i_p_request_message_no_users_groups: IPRequestMessageNoUsersGroups;
+};
+
+type IPRequestMessageNoUsersGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    i_p_request_message_no_users_group: IPRequestMessageNoUsersGroup[self.group_size_encoding.num_in_group];
+};
+
+type IPRequestMessageNoUsersGroup = unit {
+    user_id: bytes &size=20;
+};
+
+type IpReportMessage = unit {
+    exchange_code: int32;
+    text: bytes &size=100;
+    i_p_report_message_no_users_groups: IPReportMessageNoUsersGroups;
+};
+
+type IPReportMessageNoUsersGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    i_p_report_message_no_users_group: IPReportMessageNoUsersGroup[self.group_size_encoding.num_in_group];
+};
+
+type IPReportMessageNoUsersGroup = unit {
+    user_id: bytes &size=20;
+    success: uint8 &convert=Success($$);
+    ip_address: bytes &size=15;
+    port_field: int16;
+    ip_session_token: bytes &size=50;
+};
+
+type TraderLogonRequestMessage = unit {
+    originator_user_id: bytes &size=20;
+    direct_electronic_access: uint8 &convert=DirectElectronicAccess($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    liquidity_provision: uint8 &convert=LiquidityProvision($$);
+    commodity_deriv_indicator: uint8 &convert=CommodityDerivIndicator($$);
+    investment_decision: int64;
+    execution_decision: int64;
+    client_id_code: int64;
+    mifid_id: int64;
+    raw_data: bytes &size=50;
+};
+
+type TraderLogonReportMessage = unit {
+    originator_user_id: bytes &size=20;
+    client_id: int32;
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type TraderLogoutRequestMessage = unit {
+    originator_user_id: bytes &size=20;
+};
+
+type TraderLogoutReportMessage = unit {
+    originator_user_id: bytes &size=20;
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type NewOrderRequestMessage = unit {
+    price_decimal_9_null: int64;
+    order_qty_decimal_9: int64;
+    symbol_int_32: int32;
+    time_in_force_time_in_force_enum: uint8 &convert=TimeInForceTimeInForceEnum($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    originator_user_id: bytes &size=20;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    cl_ord_id: int64;
+    max_show: int64;
+    stop_px: int64;
+    give_up_clearing_firm: int32;
+    clearing_firm_int_32: int32;
+    self_match_prevention_id: int64;
+    expire_date: uint16;
+    self_match_prevention_instruction: uint8 &convert=SelfMatchPreventionInstruction($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    direct_electronic_access: uint8 &convert=DirectElectronicAccess($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    liquidity_provision: uint8 &convert=LiquidityProvision($$);
+    commodity_deriv_indicator: uint8 &convert=CommodityDerivIndicator($$);
+    investment_decision: int64;
+    execution_decision: int64;
+    client_id_code: int64;
+    mifid_id: int64;
+    cust_order_handling_inst: uint8 &convert=CustOrderHandlingInst($$);
+    position_effect: uint8 &convert=PositionEffect($$);
+    alloc_handl_inst: uint8 &convert=AllocHandlInst($$);
+    price_type: uint8 &convert=PriceType($$);
+    clearing_account_string_14: bytes &size=14;
+    customer_account_ref_id: bytes &size=12;
+    memo: bytes &size=30;
+    allocation_account: bytes &size=20;
+    on_behalf_of_comp_id: bytes &size=41;
+    on_behalf_of_sub_i_d_string_41: bytes &size=41;
+    on_behalf_of_location_i_d_string_41: bytes &size=41;
+};
+
+type CancelReplaceRequestMessage = unit {
+    price_decimal_9_null: int64;
+    order_qty_decimal_9: int64;
+    symbol_int_32: int32;
+    time_in_force_time_in_force_enum: uint8 &convert=TimeInForceTimeInForceEnum($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    originator_user_id: bytes &size=20;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    cl_ord_id: int64;
+    orig_cl_ord_i_d_int_64: int64;
+    max_show: int64;
+    stop_px: int64;
+    give_up_clearing_firm: int32;
+    clearing_firm_int_32: int32;
+    self_match_prevention_id: int64;
+    expire_date: uint16;
+    self_match_prevention_instruction: uint8 &convert=SelfMatchPreventionInstruction($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    direct_electronic_access: uint8 &convert=DirectElectronicAccess($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    liquidity_provision: uint8 &convert=LiquidityProvision($$);
+    commodity_deriv_indicator: uint8 &convert=CommodityDerivIndicator($$);
+    investment_decision: int64;
+    execution_decision: int64;
+    client_id_code: int64;
+    mifid_id: int64;
+    alloc_handl_inst: uint8 &convert=AllocHandlInst($$);
+    price_type: uint8 &convert=PriceType($$);
+    clearing_account_string_14: bytes &size=14;
+    customer_account_ref_id: bytes &size=12;
+    memo: bytes &size=30;
+    allocation_account: bytes &size=20;
+    on_behalf_of_comp_id: bytes &size=41;
+    on_behalf_of_sub_i_d_string_41: bytes &size=41;
+    on_behalf_of_location_i_d_string_41: bytes &size=41;
+};
+
+type CancelRequestMessage = unit {
+    symbol_int_32: int32;
+    originator_user_id: bytes &size=20;
+    cl_ord_id: int64;
+    orig_cl_ord_i_d_int_64: int64;
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+};
+
+type QuoteRequestMessage = unit {
+    originator_user_id: bytes &size=20;
+    side_side_enum_null: uint8 &convert=SideSideEnumNull($$);
+    order_qty_decimal_9_null: int64;
+    rfq_req_id: int64;
+    symbol_int_32: int32;
+    clearing_firm_int_32_null: int32;
+    clearing_account_string_14_null: bytes &size=14;
+    on_behalf_of_comp_id: bytes &size=41;
+    on_behalf_of_sub_i_d_string_41: bytes &size=41;
+    on_behalf_of_location_i_d_string_41: bytes &size=41;
+};
+
+type NewOrderCrossRequestMessage = unit {
+    price_decimal_9: int64;
+    order_qty_decimal_9: int64;
+    symbol_int_32: int32;
+    originator_user_id: bytes &size=20;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    cross_i_d_int_64: int64;
+    cross_type_cross_type_enum: uint8 &convert=CrossTypeCrossTypeEnum($$);
+    trade_type: bytes &size=3;
+    exec_inst: uint8 &convert=ExecInst($$);
+    price_type: uint8 &convert=PriceType($$);
+    bypass_mqr: uint8 &convert=BypassMqr($$);
+    hedge_only: uint8 &convert=HedgeOnly($$);
+    benchmark_price: int64;
+    bench_mark_price_type: uint8 &convert=BenchMarkPriceType($$);
+    time_in_force_time_in_force_enum: uint8 &convert=TimeInForceTimeInForceEnum($$);
+    transact_details: bytes &size=100;
+    transact_time_utc_timestamp: uint64;
+    new_order_cross_request_message_no_sides_groups: NewOrderCrossRequestMessageNoSidesGroups;
+    new_order_cross_request_message_no_legs_groups: NewOrderCrossRequestMessageNoLegsGroups;
+};
+
+type NewOrderCrossRequestMessageNoSidesGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    new_order_cross_request_message_no_sides_group: NewOrderCrossRequestMessageNoSidesGroup[self.group_size_encoding.num_in_group];
+};
+
+type NewOrderCrossRequestMessageNoSidesGroup = unit {
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    cl_ord_id: int64;
+    give_up_clearing_firm: int32;
+    clearing_firm_int_32: int32;
+    direct_electronic_access: uint8 &convert=DirectElectronicAccess($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    liquidity_provision: uint8 &convert=LiquidityProvision($$);
+    commodity_deriv_indicator: uint8 &convert=CommodityDerivIndicator($$);
+    investment_decision: int64;
+    execution_decision: int64;
+    client_id_code: int64;
+    mifid_id: int64;
+    self_match_prevention_id: int64;
+    self_match_prevention_instruction: uint8 &convert=SelfMatchPreventionInstruction($$);
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    cust_order_handling_inst: uint8 &convert=CustOrderHandlingInst($$);
+    position_effect: uint8 &convert=PositionEffect($$);
+    alloc_handl_inst: uint8 &convert=AllocHandlInst($$);
+    clearing_account_string_14: bytes &size=14;
+    customer_account_ref_id: bytes &size=12;
+    memo: bytes &size=30;
+    allocation_account: bytes &size=20;
+    on_behalf_of_comp_id: bytes &size=41;
+    on_behalf_of_sub_i_d_string_41: bytes &size=41;
+    on_behalf_of_location_i_d_string_41: bytes &size=41;
+};
+
+type NewOrderCrossRequestMessageNoLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    new_order_cross_request_message_no_legs_group: NewOrderCrossRequestMessageNoLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type NewOrderCrossRequestMessageNoLegsGroup = unit {
+    leg_symbol_int_32_null: int32;
+    leg_security_id_source: int8;
+    leg_opt_attribute: int32;
+    leg_qty: int64;
+    leg_price: int64;
+    leg_security_type: uint8 &convert=LegSecurityType($$);
+    leg_memo_field: bytes &size=12;
+    leg_security_id: bytes &size=75;
+};
+
+type OrderMassCancelRequestMessage = unit {
+    originator_user_id: bytes &size=20;
+    ord_type_order_type_enum_null: uint8 &convert=OrdTypeOrderTypeEnumNull($$);
+    side_side_enum_null: uint8 &convert=SideSideEnumNull($$);
+    symbol_int_32_null: int32;
+    cl_ord_id: int64;
+    market_type_i_d_int_32_null: int32;
+    price_decimal_9_null: int64;
+    mass_cancel_request_type: uint8 &convert=MassCancelRequestType($$);
+    time_in_force_time_in_force_enum_null: uint8 &convert=TimeInForceTimeInForceEnumNull($$);
+    on_behalf_of_sub_i_d_string_41_null: bytes &size=41;
+};
+
+type MassQuoteRequestMessage = unit {
+    quote_id: int64;
+    risk_protection_reset: uint8 &convert=RiskProtectionReset($$);
+    self_match_prevention_id: int64;
+    self_match_prevention_instruction: uint8 &convert=SelfMatchPreventionInstruction($$);
+    originator_user_id: bytes &size=20;
+    direct_electronic_access: uint8 &convert=DirectElectronicAccess($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    liquidity_provision: uint8 &convert=LiquidityProvision($$);
+    commodity_deriv_indicator: uint8 &convert=CommodityDerivIndicator($$);
+    investment_decision: int64;
+    execution_decision: int64;
+    client_id_code: int64;
+    mifid_id: int64;
+    mass_quote_request_message_no_quote_sets_groups: MassQuoteRequestMessageNoQuoteSetsGroups;
+};
+
+type MassQuoteRequestMessageNoQuoteSetsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_request_message_no_quote_sets_group: MassQuoteRequestMessageNoQuoteSetsGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteRequestMessageNoQuoteSetsGroup = unit {
+    quote_set_id: int32;
+    underlying_symbol_int_32: int32;
+    quote_entry_id: int32;
+    symbol_int_32: int32;
+    bid_px: int64;
+    offer_px: int64;
+    bid_sz: int64;
+    offer_sz: int64;
+};
+
+type QuoteCancelRequestMessage = unit {
+    quote_id: int64;
+    quote_cancel_type: uint8 &convert=QuoteCancelType($$);
+    originator_user_id: bytes &size=20;
+    quote_cancel_request_message_no_quote_entries_groups: QuoteCancelRequestMessageNoQuoteEntriesGroups;
+};
+
+type QuoteCancelRequestMessageNoQuoteEntriesGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    quote_cancel_request_message_no_quote_entries_group: QuoteCancelRequestMessageNoQuoteEntriesGroup[self.group_size_encoding.num_in_group];
+};
+
+type QuoteCancelRequestMessageNoQuoteEntriesGroup = unit {
+    underlying_symbol_int_32_null: int32;
+    underlying_security_id: int32;
+    underlying_product: int32;
+};
+
+type SecurityDefinitionRequestCreateStrategyMessage = unit {
+    security_req_id: int32;
+    security_request_type: uint8 &convert=SecurityRequestType($$);
+    market_type_i_d_int_32: int32;
+    security_sub_type_int_16_null: int16;
+    product_i_d_int_32_null: int32;
+    start_date: uint16;
+    end_date: uint16;
+    security_type_security_type_enum: uint8 &convert=SecurityTypeSecurityTypeEnum($$);
+    security_definition_request_create_strategy_message_no_legs_groups: SecurityDefinitionRequestCreateStrategyMessageNoLegsGroups;
+};
+
+type SecurityDefinitionRequestCreateStrategyMessageNoLegsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    security_definition_request_create_strategy_message_no_legs_group: SecurityDefinitionRequestCreateStrategyMessageNoLegsGroup[self.group_size_encoding.num_in_group];
+};
+
+type SecurityDefinitionRequestCreateStrategyMessageNoLegsGroup = unit {
+    leg_symbol_int_32: int32;
+    leg_security_type: uint8 &convert=LegSecurityType($$);
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio_qty_denominator_int_16_null: int16;
+    leg_ratio_qty_numerator_int_16_null: int16;
+    leg_price: int64;
+    leg_option_delta: int32;
+};
+
+type SecurityDefinitionRequestCreateFlexMessage = unit {
+    security_req_id: int32;
+    security_request_type: uint8 &convert=SecurityRequestType($$);
+    market_type_i_d_int_32: int32;
+    security_type_security_type_enum: uint8 &convert=SecurityTypeSecurityTypeEnum($$);
+    maturity_date: uint16;
+    product_i_d_int_32_null: int32;
+    symbol_int_32_null: int32;
+    strike_price: int64;
+};
+
+type ExecutionReportNewMessage = unit {
+    originator_user_id: bytes &size=20;
+    exec_i_d_order_exec_id: ExecIDOrderExecId;
+    cl_ord_id: int64;
+    symbol_int_32: int32;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    orig_order_id: OrigOrderId;
+    leaves_qty: int64;
+    price_decimal_9_null: int64;
+    me_acceptance_time_utc_timestamp: uint64;
+    time_priority: uint64;
+    order_status: uint8 &convert=OrderStatus($$);
+    memo: bytes &size=30;
+};
+
+type ExecIDOrderExecId = unit {
+    system_id: int64;
+    system_sequence_id: int32;
+    transact_time_utc_timestamp: uint64;
+};
+
+type OrigOrderId = unit {
+    original_system_id: int64;
+    original_creation_timestamp: uint64;
+};
+
+type ExecutionReportModifyMessage = unit {
+    originator_user_id: bytes &size=20;
+    exec_i_d_order_exec_id: ExecIDOrderExecId;
+    cl_ord_id: int64;
+    symbol_int_32: int32;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    orig_order_id: OrigOrderId;
+    orig_cl_ord_i_d_int_64_null: int64;
+    leaves_qty: int64;
+    cum_qty: int64;
+    price_decimal_9_null: int64;
+    me_acceptance_time_utc_timestamp: uint64;
+    time_priority: uint64;
+    exec_type: uint8 &convert=ExecType($$);
+    order_status: uint8 &convert=OrderStatus($$);
+    order_state: uint8 &convert=OrderState($$);
+    exec_restatement_reason: uint8 &convert=ExecRestatementReason($$);
+    order_modification_flags: bitfield(8) {
+        stop_limit_price_changed: 0;
+        stop_elected: 1;
+        order_flags_reserved_2: 2;
+        order_flags_reserved_3: 3;
+        order_flags_reserved_4: 4;
+        order_flags_reserved_5: 5;
+        order_flags_reserved_6: 6;
+        order_flags_reserved_7: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    memo: bytes &size=30;
+};
+
+type ExecutionReportCancelMessage = unit {
+    originator_user_id: bytes &size=20;
+    exec_i_d_order_exec_id: ExecIDOrderExecId;
+    cl_ord_id: int64;
+    symbol_int_32: int32;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    orig_order_id: OrigOrderId;
+    orig_cl_ord_i_d_int_64_null: int64;
+    me_acceptance_time_utc_timestamp: uint64;
+    exchange_code: int32;
+    cancel_reason: uint8 &convert=CancelReason($$);
+    cross_i_d_int_64_null: int64;
+    text: bytes &size=100;
+};
+
+type ExecutionReportRejectMessage = unit {
+    originator_user_id: bytes &size=20;
+    exec_i_d_order_exec_id: ExecIDOrderExecId;
+    cl_ord_id: int64;
+    symbol_int_32: int32;
+    ord_type_order_type_enum_null: uint8 &convert=OrdTypeOrderTypeEnumNull($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    orig_order_id: OrigOrderId;
+    orig_cl_ord_i_d_int_64_null: int64;
+    order_status: uint8 &convert=OrderStatus($$);
+    reject_response_to: uint8 &convert=RejectResponseTo($$);
+    reject_reason: uint8 &convert=RejectReason($$);
+    exchange_code: int32;
+    memo: bytes &size=30;
+    text: bytes &size=100;
+};
+
+type ExecutionReportSnapshotMessage = unit {
+    originator_user_id: bytes &size=20;
+    exec_i_d_order_exec_id: ExecIDOrderExecId;
+    cl_ord_id: int64;
+    symbol_int_32: int32;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    orig_order_id: OrigOrderId;
+    max_show: int64;
+    leaves_qty: int64;
+    cum_qty: int64;
+    price_decimal_9_null: int64;
+    stop_px: int64;
+    expire_date: uint16;
+    time_priority: uint64;
+    time_in_force_time_in_force_enum: uint8 &convert=TimeInForceTimeInForceEnum($$);
+    order_status: uint8 &convert=OrderStatus($$);
+    order_state: uint8 &convert=OrderState($$);
+    give_up_clearing_firm: int32;
+    clearing_firm_int_32_null: int32;
+    direct_electronic_access: uint8 &convert=DirectElectronicAccess($$);
+    trading_capacity: uint8 &convert=TradingCapacity($$);
+    liquidity_provision: uint8 &convert=LiquidityProvision($$);
+    commodity_deriv_indicator: uint8 &convert=CommodityDerivIndicator($$);
+    investment_decision: int64;
+    execution_decision: int64;
+    client_id_code: int64;
+    mifid_id: int64;
+    self_match_prevention_id: int64;
+    self_match_prevention_instruction: uint8 &convert=SelfMatchPreventionInstruction($$);
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    exec_inst: uint8 &convert=ExecInst($$);
+    cust_order_handling_inst: uint8 &convert=CustOrderHandlingInst($$);
+    position_effect: uint8 &convert=PositionEffect($$);
+    alloc_handl_inst: uint8 &convert=AllocHandlInst($$);
+    clearing_account_string_14_null: bytes &size=14;
+    customer_account_ref_id: bytes &size=12;
+    memo: bytes &size=30;
+    allocation_account: bytes &size=20;
+    on_behalf_of_comp_id: bytes &size=41;
+    on_behalf_of_sub_i_d_string_41_null: bytes &size=41;
+    on_behalf_of_location_i_d_string_41_null: bytes &size=41;
+};
+
+type ExecutionReportTradeMessage = unit {
+    originator_user_id: bytes &size=20;
+    exec_i_d_int_64: int64;
+    cl_ord_id: int64;
+    symbol_int_32: int32;
+    ord_type_order_type_enum: uint8 &convert=OrdTypeOrderTypeEnum($$);
+    side_side_enum: uint8 &convert=SideSideEnum($$);
+    order_id: int64;
+    orig_order_id: OrigOrderId;
+    leaves_qty: int64;
+    cum_qty: int64;
+    last_px: int64;
+    last_shares: int64;
+    transact_time_utc_timestamp: uint64;
+    num_of_lots: int64;
+    exec_type: uint8 &convert=ExecType($$);
+    trade_flags: bitfield(8) {
+        liquidity_indicator: 0;
+        deal_adjust_indicator: 1;
+        trade_flags_reserved_2: 2;
+        trade_flags_reserved_3: 3;
+        trade_flags_reserved_4: 4;
+        trade_flags_reserved_5: 5;
+        trade_flags_reserved_6: 6;
+        trade_flags_reserved_7: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    clearing_firm_int_32_null: int32;
+    clearing_account_string_14_null: bytes &size=14;
+    memo: bytes &size=30;
+    exec_ref_id: int64;
+    no_leg_executions: int16;
+    secondary_exec_id: int64;
+    link_exec_id: int64;
+    last_par_px: int64;
+    delivery_start_date: uint64;
+    delivery_end_date: uint64;
+    cross_i_d_int_64_null: int64;
+    cross_type_cross_type_enum_null: uint8 &convert=CrossTypeCrossTypeEnumNull($$);
+    waiver_indicator: uint8 &convert=WaiverIndicator($$);
+    trade_type: bytes &size=3;
+};
+
+type QuoteReportMessage = unit {
+    originator_user_id: bytes &size=20;
+    side_side_enum_null: uint8 &convert=SideSideEnumNull($$);
+    symbol_int_32: int32;
+    rfq_req_id: int64;
+    rfq_system_id: int64;
+    transact_time_utc_timestamp: uint64;
+    order_qty_decimal_9_null: int64;
+    quote_ack_status: uint16 &convert=QuoteAckStatus($$);
+    quote_reject_reason: uint8 &convert=QuoteRejectReason($$);
+};
+
+type NewOrderCrossReportMessage = unit {
+    originator_user_id: bytes &size=20;
+    symbol_int_32: int32;
+    cross_i_d_int_64: int64;
+    transact_time_utc_timestamp: uint64;
+    rfc_status: uint8 &convert=RfcStatus($$);
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type OrderMassCancelReportMessage = unit {
+    originator_user_id: bytes &size=20;
+    symbol_int_32_null: int32;
+    cl_ord_id: int64;
+    transact_time_utc_timestamp: uint64;
+    market_type_i_d_int_32_null: int32;
+    mass_cancel_request_type: uint8 &convert=MassCancelRequestType($$);
+    mass_cancel_response: uint8 &convert=MassCancelResponse($$);
+    mass_cancel_reject_reason: uint8 &convert=MassCancelRejectReason($$);
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type MassQuoteReportMessage = unit {
+    quote_id: int64;
+    originator_user_id: bytes &size=20;
+    risk_protection_reset: uint8 &convert=RiskProtectionReset($$);
+    quote_ack_status: uint16 &convert=QuoteAckStatus($$);
+    quote_reject_reason: uint8 &convert=QuoteRejectReason($$);
+    transact_time_utc_timestamp_null: uint64;
+    me_acceptance_time_utc_timestamp_null: uint64;
+    exchange_code: int32;
+    text: bytes &size=100;
+    mass_quote_report_message_no_quote_sets_groups: MassQuoteReportMessageNoQuoteSetsGroups;
+};
+
+type MassQuoteReportMessageNoQuoteSetsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    mass_quote_report_message_no_quote_sets_group: MassQuoteReportMessageNoQuoteSetsGroup[self.group_size_encoding.num_in_group];
+};
+
+type MassQuoteReportMessageNoQuoteSetsGroup = unit {
+    quote_set_id: int32;
+    underlying_symbol_int_32: int32;
+    quote_entry_id: int32;
+    symbol_int_32: int32;
+    quote_entry_reject_reason: uint8 &convert=QuoteEntryRejectReason($$);
+    quote_entry_exchange_code: int32;
+    quote_entry_reject_reason_text: bytes &size=100;
+};
+
+type ResendRequestMessage = unit {
+    begin_seq_no: uint32;
+    end_seq_no: uint32;
+};
+
+type ResendReportMessage = unit {
+    begin_seq_no: uint32;
+    end_seq_no: uint32;
+    status: uint8 &convert=Status($$);
+    exchange_code: int32;
+    text: bytes &size=100;
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+    gap_fill_flag: uint8 &convert=GapFillFlag($$);
+};
+
+type TemplateId = enum {
+    SimpleOpenFramingHeaderMessage = 0,
+    LogonRequestMessage = 1,
+    LogonReportMessage = 101,
+    LogoutRequestMessage = 13,
+    LogoutReportMessage = 113,
+    HeartBeatMessage = 51,
+    ErrorMessage = 114,
+    NewsMessage = 116,
+    SecurityDefinitionReportStrategyMessage = 112,
+    SecurityDefinitionReportMessage = 115,
+    SecurityDefinitionRejectMessage = 155,
+    SecurityDefinitionRequestMessage = 15,
+    SecurityDefinitionReportProductMessage = 154,
+    IpRequestMessage = 2001,
+    IpReportMessage = 2002,
+    TraderLogonRequestMessage = 2,
+    TraderLogonReportMessage = 102,
+    TraderLogoutRequestMessage = 3,
+    TraderLogoutReportMessage = 103,
+    NewOrderRequestMessage = 4,
+    CancelReplaceRequestMessage = 5,
+    CancelRequestMessage = 6,
+    QuoteRequestMessage = 7,
+    NewOrderCrossRequestMessage = 8,
+    OrderMassCancelRequestMessage = 9,
+    MassQuoteRequestMessage = 10,
+    QuoteCancelRequestMessage = 11,
+    SecurityDefinitionRequestCreateStrategyMessage = 12,
+    SecurityDefinitionRequestCreateFlexMessage = 14,
+    ExecutionReportNewMessage = 104,
+    ExecutionReportModifyMessage = 105,
+    ExecutionReportCancelMessage = 106,
+    ExecutionReportRejectMessage = 151,
+    ExecutionReportSnapshotMessage = 152,
+    ExecutionReportTradeMessage = 153,
+    QuoteReportMessage = 107,
+    NewOrderCrossReportMessage = 108,
+    OrderMassCancelReportMessage = 109,
+    MassQuoteReportMessage = 110,
+    ResendRequestMessage = 16,
+    ResendReportMessage = 117,
+    SequenceResetMessage = 111,
+};
+
+type SeverityLevel = enum {
+    Info = 1,
+    Warning = 2,
+    Error = 3,
+    Fatal = 4,
+};
+
+type SecurityResponseType = enum {
+    AcceptedSecurityAsDefined = 1,
+    AcceptedSecurityPerRequest = 4,
+    RejectedSecurityPerRequest = 5,
+    SecurityAlreadyDefined = 10,
+};
+
+type SecurityTradingStatus = enum {
+    TradingHaltSuspended = 2,
+    NoOpenNoResumePreClose = 4,
+    ReadyToTradeOpen = 17,
+    NotAvailableForTradingClose = 18,
+    NotTraded = 19,
+    UnknownOrInvalidExpired = 20,
+    PreOpen = 21,
+    TradingAsStrategyLegOnlyOpen = 100,
+};
+
+type ExchangeSilo = enum {
+    Ice = 0,
+    Endex = 1,
+    Liffe = 2,
+};
+
+type LegDealsSuppressed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type BlockOnly = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type FlexAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type GtAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type MifidRegulatedMarketBooleanEnum = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type OverrideBlockMin = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type TestMarketIndicatorBooleanEnum = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type BlockDetailsBlockType = enum {
+    Regular = 0,
+    Pnc = 1,
+    Dp = 2,
+    Lis = 3,
+};
+
+type LegSecurityType = enum {
+    Fut = 1,
+    Opt = 2,
+    CommonStock = 3,
+    Mleg = 4,
+};
+
+type LegSide = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type PutOrCall = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type SettlMethod = enum {
+    CashFinancial = 0x43,
+    Physical = 0x50,
+};
+
+type StrikeExerciseStyle = enum {
+    European = 0,
+    American = 1,
+    Asian = 3,
+};
+
+type Clearable = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type HedgeOnly = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type IsDividendAdjusted = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type AonAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type MifidRegulatedMarketBooleanEnumNull = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type FlexStrikeAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type TestMarketIndicatorBooleanEnumNull = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type MarketTransparencyType = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type NonCommoditizedMarket = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type SecurityRequestType = enum {
+    CreateStrategy = 1,
+    RequestListofFutures = 3,
+    RequestListofOptions = 100,
+    RequestListofStrategies = 101,
+    CreateFlexOption = 102,
+    CreateFlexExpiry = 103,
+    RequestListOfProducts = 104,
+};
+
+type SecurityTypeSecurityTypeEnumNull = enum {
+    Fut = 1,
+    Opt = 2,
+    CommonStock = 3,
+    Mleg = 4,
+};
+
+type StopsAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type OptionsAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type UdsOptionsAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type UdsFuturesAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type MassQuotesAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type RfqFuturesAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type RfqOptionsAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type CrossingOrderFuturesAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type CrossingOrderOptionsAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type SelfBlockAllowed = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type Success = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type DirectElectronicAccess = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type TradingCapacity = enum {
+    Deal = 0,
+    Mtch = 1,
+    Aotc = 2,
+};
+
+type LiquidityProvision = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type CommodityDerivIndicator = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type TimeInForceTimeInForceEnum = enum {
+    Day = 0,
+    Gtc = 1,
+    Fak = 3,
+    Fok = 4,
+    Gtd = 6,
+};
+
+type SideSideEnum = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type OrdTypeOrderTypeEnum = enum {
+    Market = 1,
+    Limit = 2,
+    Stop = 3,
+    StopLimit = 4,
+};
+
+type ManualOrderIndicator = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type SelfMatchPreventionInstruction = enum {
+    CancelRestingOrder = 0x52,
+    CancelTakingOrder = 0x54,
+    CancelBothOrders = 0x42,
+};
+
+type ExecInst = enum {
+    Aon = 0x47,
+    Pnc = 0x50,
+    Dp = 0x44,
+};
+
+type CustOrderHandlingInst = enum {
+    C = 0x43,
+    D = 0x44,
+    G = 0x47,
+    H = 0x48,
+    W = 0x57,
+    Y = 0x59,
+};
+
+type PositionEffect = enum {
+    Open = 0x4f,
+    Close = 0x43,
+};
+
+type AllocHandlInst = enum {
+    Apt = 0x41,
+    G = 0x47,
+};
+
+type PriceType = enum {
+    PerContract = 2,
+    FixedCabinetTradePrice = 10,
+    FixedRate = 100,
+    Npv = 101,
+    RateDifferential = 102,
+    NpvDifferential = 103,
+};
+
+type SideSideEnumNull = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type CrossTypeCrossTypeEnum = enum {
+    Aon = 0x31,
+    Ioc = 0x32,
+};
+
+type BypassMqr = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type BenchMarkPriceType = enum {
+    FixedAmount = 3,
+};
+
+type OrdTypeOrderTypeEnumNull = enum {
+    Market = 1,
+    Limit = 2,
+    Stop = 3,
+    StopLimit = 4,
+};
+
+type MassCancelRequestType = enum {
+    CancelForTradingSession = 6,
+    CancelAllForTrader = 10,
+};
+
+type TimeInForceTimeInForceEnumNull = enum {
+    Day = 0,
+    Gtc = 1,
+    Fak = 3,
+    Fok = 4,
+    Gtd = 6,
+};
+
+type RiskProtectionReset = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type QuoteCancelType = enum {
+    CancelByUnderlyingMarket = 3,
+    CancelAll = 4,
+    CancelByProductId = 5,
+};
+
+type SecurityTypeSecurityTypeEnum = enum {
+    Fut = 1,
+    Opt = 2,
+    CommonStock = 3,
+    Mleg = 4,
+};
+
+type OrderStatus = enum {
+    New = 0,
+    PartialFill = 1,
+    Fill = 2,
+    Canceled = 4,
+    Replace = 5,
+    Rejected = 8,
+};
+
+type ExecType = enum {
+    New = 0x30,
+    PartialFill = 0x31,
+    Fill = 0x32,
+    Cancelled = 0x34,
+    Replaced = 0x35,
+    Rejected = 0x38,
+    Restated = 0x44,
+    TradeCorrect = 0x47,
+    TradeCancel = 0x48,
+};
+
+type OrderState = enum {
+    Active = 0,
+    Inactive = 1,
+    Withdrawn = 2,
+    Consummated = 4,
+    Elected = 6,
+};
+
+type ExecRestatementReason = enum {
+    Repriced = 3,
+    Other = 99,
+};
+
+type CancelReason = enum {
+    CanceledByUser = 0,
+    CanceledBySystem = 7,
+    CanceledForReasonabilityLimits = 10,
+    CanceledAtMarketClose = 11,
+    CanceledForIpl = 13,
+    CanceledForIoc = 27,
+    CanceledForFok = 28,
+    CanceledForMarket = 31,
+};
+
+type RejectResponseTo = enum {
+    Cancel = 1,
+    CancelReplace = 2,
+    NewOrder = 3,
+};
+
+type RejectReason = enum {
+    TooLateToCancel = 0,
+    UnknownSymbol = 1,
+    ExchangeClosed = 2,
+    OrderExceedsLimit = 3,
+    UnableToProcessRequest = 4,
+    UnknownOrder = 5,
+    DuplicateOrder = 6,
+    MissingPermissions = 7,
+    UserDefined = 9,
+    CancelOrReplacePending = 10,
+    Unsupported = 11,
+    RiskProtectionActive = 12,
+};
+
+type CrossTypeCrossTypeEnumNull = enum {
+    Aon = 0x31,
+    Ioc = 0x32,
+};
+
+type WaiverIndicator = enum {
+    Lrgs = 1,
+    Size = 2,
+    Ilqd = 3,
+};
+
+type QuoteAckStatus = enum {
+    Accepted = 0,
+    CancelledAll = 4,
+    Rejected = 5,
+    PartiallyCancelled = 200,
+    UnreasonableQuotes = 300,
+};
+
+type QuoteRejectReason = enum {
+    Accepted = 0,
+    Other = 99,
+    ValidationFailure = 100,
+    InvalidUserId = 101,
+    RiskProtectionActive = 102,
+    NoClearingAccountForTrader = 104,
+    NoMassQuoteSets = 105,
+    FirstSetMassQuoteIsEmpty = 106,
+    InvalidClearingAccountStatus = 107,
+    InvalidClearingLimits = 108,
+    InvalidMarketId = 109,
+    ExceedsAllowedMassQuoteSets = 110,
+    ExceedsAllowedMassQuotes = 111,
+    InvalidMassQuoteId = 112,
+};
+
+type RfcStatus = enum {
+    None_0 = 0,
+    Success = 1,
+    PartialSuccessBidFailure = 2,
+    PartialSuccessOfferFailure = 3,
+    Failure = 4,
+};
+
+type MassCancelResponse = enum {
+    Rejected = 0,
+    CancelForTradingSession = 6,
+    CancelAllForTrader = 10,
+};
+
+type MassCancelRejectReason = enum {
+    Unsupported = 0,
+    InvalidTradingSession = 6,
+    InvalidMarket = 7,
+    Other = 99,
+};
+
+type QuoteEntryRejectReason = enum {
+    Other = 99,
+    RiskProtectionActive = 102,
+    RiskProtectionActiveForSellSide = 113,
+};
+
+type Status = enum {
+    Success = 0,
+    PartialSuccess = 1,
+    Failure = 2,
+};
+
+type GapFillFlag = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+

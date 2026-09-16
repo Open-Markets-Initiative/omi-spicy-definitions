@@ -136,15 +136,13 @@ type ConsolidatedTradingSessionChangeMessage = unit {
     source_time_ns: uint32;
     symbol_index: uint32;
     symbol_seq_num: uint32;
-    trade_session: TradeSession;
+    trade_session: bitfield(8) {
+        ok_for_morning_hours: 0;
+        ok_for_national_hours_core: 1;
+        ok_for_late_hours: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
     market_id: uint16 &convert=MarketId($$);
-};
-
-type TradeSession = unit {
-    ok_for_morning_hours: bytes &size=1;
-    ok_for_national_hours_core: bytes &size=1;
-    ok_for_late_hours: bytes &size=1;
-    reserved_5: bytes &size=1;
 };
 
 type ConsolidatedSecurityStatusMessage = unit {

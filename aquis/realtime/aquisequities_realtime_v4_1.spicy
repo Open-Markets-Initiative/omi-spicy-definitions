@@ -43,19 +43,20 @@ type OrderAdd = unit {
     price: uint64 &byte-order=spicy::ByteOrder::Little;
     order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
     timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
-    md_flags: MdFlags;
-};
-
-type MdFlags = unit {
-    unrestricted_liquidity_indicator: bytes &size=1;
-    reserved_7: bytes &size=1;
+    md_flags: bitfield(8) {
+        unrestricted_liquidity_indicator: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type OrderCancel = unit {
     security_id: uint16 &byte-order=spicy::ByteOrder::Little;
     order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
     timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
-    md_flags: MdFlags;
+    md_flags: bitfield(8) {
+        unrestricted_liquidity_indicator: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type OrderModify = unit {
@@ -64,7 +65,10 @@ type OrderModify = unit {
     price: uint64 &byte-order=spicy::ByteOrder::Little;
     order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
     timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
-    md_flags: MdFlags;
+    md_flags: bitfield(8) {
+        unrestricted_liquidity_indicator: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type Trade = unit {
@@ -76,26 +80,27 @@ type Trade = unit {
     trade_ref: uint32 &byte-order=spicy::ByteOrder::Little;
     timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
     mic: bytes &size=4;
-    binary_mmt: BinaryMmt;
-    md_flags: MdFlags;
-};
-
-type BinaryMmt = unit {
-    market_mechanism: uint8 &convert=MarketMechanism($$);
-    trading_mode: uint8 &convert=TradingMode($$);
-    transaction_category: uint8 &convert=TransactionCategory($$);
-    negotiation_indicator_or_pre_trade_transparency_waiver: uint8 &convert=NegotiationIndicatorOrPreTradeTransparencyWaiver($$);
-    crossing_trade: uint8 &convert=CrossingTrade($$);
-    modification_indicator: uint8 &convert=ModificationIndicator($$);
-    benchmark_reference_price_indicator: uint8 &convert=BenchmarkReferencePriceIndicator($$);
-    dividend: uint8 &convert=Dividend($$);
-    off_book_automation: uint8 &convert=OffBookAutomation($$);
-    price_formation_discovery_process: uint8 &convert=PriceFormationDiscoveryProcess($$);
-    algorithmic_indicator: uint8 &convert=AlgorithmicIndicator($$);
-    publication_mode_post_trade_deferral: uint8 &convert=PublicationModePostTradeDeferral($$);
-    deferral_type: bytes &size=1;
-    duplicative_indicator: uint8 &convert=DuplicativeIndicator($$);
-    spare: bytes &size=1;
+    binary_mmt: bitfield(32) {
+        market_mechanism: 0..2;
+        trading_mode: 3..6;
+        transaction_category: 7..9;
+        negotiation_indicator_or_pre_trade_transparency_waiver: 10..12;
+        crossing_trade: 13;
+        modification_indicator: 14..15;
+        benchmark_reference_price_indicator: 16..17;
+        dividend: 18;
+        off_book_automation: 19..20;
+        price_formation_discovery_process: 21..23;
+        algorithmic_indicator: 24;
+        publication_mode_post_trade_deferral: 25..27;
+        deferral_type: 28;
+        duplicative_indicator: 29;
+        spare: 30..31;
+    } &byte-order=spicy::ByteOrder::Little;
+    md_flags: bitfield(8) {
+        unrestricted_liquidity_indicator: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type TradeBustMessage = unit {
@@ -104,7 +109,23 @@ type TradeBustMessage = unit {
     price: uint64 &byte-order=spicy::ByteOrder::Little;
     trade_ref: uint32 &byte-order=spicy::ByteOrder::Little;
     timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
-    binary_mmt: BinaryMmt;
+    binary_mmt: bitfield(32) {
+        market_mechanism: 0..2;
+        trading_mode: 3..6;
+        transaction_category: 7..9;
+        negotiation_indicator_or_pre_trade_transparency_waiver: 10..12;
+        crossing_trade: 13;
+        modification_indicator: 14..15;
+        benchmark_reference_price_indicator: 16..17;
+        dividend: 18;
+        off_book_automation: 19..20;
+        price_formation_discovery_process: 21..23;
+        algorithmic_indicator: 24;
+        publication_mode_post_trade_deferral: 25..27;
+        deferral_type: 28;
+        duplicative_indicator: 29;
+        spare: 30..31;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type TickTableDataMessage = unit {
@@ -121,36 +142,32 @@ type SecurityDefinitionMessage = unit {
     currency: bytes &size=3;
     mic: bytes &size=4;
     tick_table_id: uint8;
-    security_definition_flags: SecurityDefinitionFlags;
+    security_definition_flags: bitfield(16) {
+        mac_enabled: 0;
+        test_stock: 1;
+        illiquid: 2;
+        reserved_1: 3;
+        aod_enabled: 4;
+        reserved_2: 5..6;
+        avx_enabled: 7;
+        reserved_8: 8..15;
+    } &byte-order=spicy::ByteOrder::Little;
     reserved: bytes &size=20;
     lot_size: uint64 &byte-order=spicy::ByteOrder::Little;
     lot_size_decimal: uint8;
 };
 
-type SecurityDefinitionFlags = unit {
-    mac_enabled: bytes &size=1;
-    test_stock: bytes &size=1;
-    illiquid: bytes &size=1;
-    reserved_1: bytes &size=1;
-    aod_enabled: bytes &size=1;
-    reserved_2: bytes &size=1;
-    avx_enabled: bytes &size=1;
-    reserved_8: bytes &size=2;
-};
-
 type SecurityStatusMessage = unit {
     security_id: uint16 &byte-order=spicy::ByteOrder::Little;
     trading_status: uint8 &convert=TradingStatus($$);
-    market_flags: MarketFlags;
+    market_flags: bitfield(8) {
+        trading: 0;
+        mac_open: 1;
+        mac_run: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
     timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
     trading_phase: uint8 &convert=TradingPhase($$);
-};
-
-type MarketFlags = unit {
-    trading: bytes &size=1;
-    mac_open: bytes &size=1;
-    mac_run: bytes &size=1;
-    reserved_5: bytes &size=1;
 };
 
 type AoDUpdateMessage = unit {

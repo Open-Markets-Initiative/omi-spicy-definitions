@@ -51,18 +51,16 @@ type SbeMessage = unit {
 
 type MessageHeader = unit {
     protocol_id: uint8;
-    session_flags: SessionFlags;
+    session_flags: bitfield(8) {
+        is_resend: 0;
+        reserved_bits: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     message_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
     schema_version: uint16;
     sequence_number: int64;
     last_processed_seq_no: int64;
     send_time_ns: int64;
-};
-
-type SessionFlags = unit {
-    is_resend: bytes &size=1;
-    : skip bytes &size=1;   # padding
 };
 
 type LogonMessage = unit {
@@ -126,7 +124,15 @@ type NewOrderRequestMessage = unit {
     self_match_prevention_id: int64;
     side: int8 &convert=Side($$);
     time_in_force: int8;
-    flags_order_flags: FlagsOrderFlags;
+    flags_order_flags: bitfield(16) {
+        unused_order_flags_0: 0;
+        post_only: 1;
+        post_only_reject: 2;
+        market_limit: 3;
+        mmp: 4;
+        reset_mmp: 5;
+        reserved_10: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
     self_trading_mode: int8 &convert=SelfTradingMode($$);
 };
 
@@ -140,16 +146,6 @@ type ShowQty = unit {
     exponent: int8;
 };
 
-type FlagsOrderFlags = unit {
-    unused_order_flags_0: bytes &size=1;
-    post_only: bytes &size=1;
-    post_only_reject: bytes &size=1;
-    market_limit: bytes &size=1;
-    mmp: bytes &size=1;
-    reset_mmp: bytes &size=1;
-    reserved_10: bytes &size=2;
-};
-
 type AmendOrderRequestMessage = unit {
     client_order_id: int64;
     correlation_id: int64;
@@ -157,14 +153,12 @@ type AmendOrderRequestMessage = unit {
     price: int64;
     quantity: Quantity;
     show_qty: ShowQty;
-    flags_replace_order_flags: FlagsReplaceOrderFlags;
-};
-
-type FlagsReplaceOrderFlags = unit {
-    unused_replace_order_flags_0: bytes &size=1;
-    post_only: bytes &size=1;
-    post_only_reject: bytes &size=1;
-    reserved_13: bytes &size=2;
+    flags_replace_order_flags: bitfield(16) {
+        unused_replace_order_flags_0: 0;
+        post_only: 1;
+        post_only_reject: 2;
+        reserved_13: 3..15;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type CancelOrderRequestMessage = unit {
@@ -178,13 +172,11 @@ type MassQuoteRequestMessage = unit {
     correlation_id: int64;
     mmp_group_id: int64;
     self_match_prevention_id: int64;
-    flags_mass_quote_flags: FlagsMassQuoteFlags;
+    flags_mass_quote_flags: bitfield(8) {
+        reset_mmp: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     mass_quote_request_message_quotes_groups: MassQuoteRequestMessageQuotesGroups;
-};
-
-type FlagsMassQuoteFlags = unit {
-    reset_mmp: bytes &size=1;
-    reserved_7: bytes &size=1;
 };
 
 type MassQuoteRequestMessageQuotesGroups = unit {
@@ -203,8 +195,24 @@ type MassQuoteRequestMessageQuotesGroup = unit {
     ask_price_optional: int64;
     bid_qty: BidQty;
     ask_qty: AskQty;
-    bid_flags: BidFlags;
-    ask_flags: AskFlags;
+    bid_flags: bitfield(16) {
+        unused_order_flags_0: 0;
+        post_only: 1;
+        post_only_reject: 2;
+        market_limit: 3;
+        mmp: 4;
+        reset_mmp: 5;
+        reserved_10: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    ask_flags: bitfield(16) {
+        unused_order_flags_0: 0;
+        post_only: 1;
+        post_only_reject: 2;
+        market_limit: 3;
+        mmp: 4;
+        reset_mmp: 5;
+        reserved_10: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type BidQty = unit {
@@ -215,26 +223,6 @@ type BidQty = unit {
 type AskQty = unit {
     mantissa: int64;
     exponent: int8;
-};
-
-type BidFlags = unit {
-    unused_order_flags_0: bytes &size=1;
-    post_only: bytes &size=1;
-    post_only_reject: bytes &size=1;
-    market_limit: bytes &size=1;
-    mmp: bytes &size=1;
-    reset_mmp: bytes &size=1;
-    reserved_10: bytes &size=2;
-};
-
-type AskFlags = unit {
-    unused_order_flags_0: bytes &size=1;
-    post_only: bytes &size=1;
-    post_only_reject: bytes &size=1;
-    market_limit: bytes &size=1;
-    mmp: bytes &size=1;
-    reset_mmp: bytes &size=1;
-    reserved_10: bytes &size=2;
 };
 
 type MassCancelRequestMessage = unit {
@@ -522,13 +510,11 @@ type OrderFilledMessageFillsGroup = unit {
     fill_qty: FillQty;
     total_filled: TotalFilled;
     side: int8 &convert=Side($$);
-    flags_fill_flags: FlagsFillFlags;
-};
-
-type FlagsFillFlags = unit {
-    is_quote: bytes &size=1;
-    is_fully_filled: bytes &size=1;
-    reserved_6: bytes &size=1;
+    flags_fill_flags: bitfield(8) {
+        is_quote: 0;
+        is_fully_filled: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type OrderFilledMessageLegsGroups = unit {
@@ -547,13 +533,11 @@ type OrderFilledMessageLegsGroup = unit {
 type OrdersCanceledMessage = unit {
     timestamp: int64;
     exec_id: int64;
-    flags_multi_part_event_flags: FlagsMultiPartEventFlags;
+    flags_multi_part_event_flags: bitfield(8) {
+        is_last_message: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     orders_canceled_message_orders_groups: OrdersCanceledMessageOrdersGroups;
-};
-
-type FlagsMultiPartEventFlags = unit {
-    is_last_message: bytes &size=1;
-    reserved_7: bytes &size=1;
 };
 
 type OrdersCanceledMessageOrdersGroups = unit {
@@ -567,12 +551,10 @@ type OrdersCanceledMessageOrdersGroup = unit {
     instrument_id: int64;
     total_filled: TotalFilled;
     cancel_reason: int8 &convert=CancelReason($$);
-    flags_cancel_flags: FlagsCancelFlags;
-};
-
-type FlagsCancelFlags = unit {
-    is_quote: bytes &size=1;
-    reserved_7: bytes &size=1;
+    flags_cancel_flags: bitfield(8) {
+        is_quote: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type OrderPlacedMessage = unit {

@@ -12,17 +12,15 @@ public type OvernightDepthofbookV10 = unit {
 type PacketHeader = unit {
     packet_size: uint16;
     seq_num: uint32;
-    packet_flag: PacketFlag;
+    packet_flag: bitfield(8) {
+        heartbeat: 0;
+        seq_num_reset: 1;
+        reserved_4: 2..5;
+        replay: 6;
+        test: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     messages: uint8;
     packet_milli: uint32;
-};
-
-type PacketFlag = unit {
-    heartbeat: uint8;
-    seq_num_reset: bytes &size=1;
-    reserved_4: bytes &size=1;
-    replay: bytes &size=1;
-    test: bytes &size=1;
 };
 
 type Message = unit {
@@ -73,19 +71,17 @@ type SecurityMessage = unit {
     security_action: uint8 &convert=SecurityAction($$);
     asset_class: uint8 &convert=AssetClass($$);
     security_id: uint32;
-    security_flags: SecurityFlags;
+    security_flags: bitfield(16) {
+        piggyback_flag: 0;
+        caveat_flag: 1;
+        qib_only_144_a: 2;
+        unsolicited_only_flag: 3;
+        closing_cross_auction: 4;
+        reserved_11: 5..15;
+    } &byte-order=spicy::ByteOrder::Big;
     tier: uint8 &convert=Tier($$);
     reporting_status: uint8 &convert=ReportingStatus($$);
     security_status: uint8 &convert=SecurityStatus($$);
-};
-
-type SecurityFlags = unit {
-    piggyback_flag: bytes &size=1;
-    caveat_flag: bytes &size=1;
-    qib_only_144_a: bytes &size=1;
-    unsolicited_only_flag: bytes &size=1;
-    closing_cross_auction: bytes &size=1;
-    reserved_11: bytes &size=2;
 };
 
 type OrderAddMessage = unit {

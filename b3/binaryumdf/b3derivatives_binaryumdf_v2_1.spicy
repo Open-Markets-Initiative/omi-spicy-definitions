@@ -71,31 +71,47 @@ type SequenceMessage = unit {
 
 type EmptyBookMessage = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=3;   # padding
     md_entry_timestamp: uint64;
 };
 
-type MatchEventIndicator = unit {
-    unused_match_event_indicator_0: bytes &size=1;
-    unused_match_event_indicator_1: bytes &size=1;
-    unused_match_event_indicator_2: bytes &size=1;
-    unused_match_event_indicator_3: bytes &size=1;
-    implied: bytes &size=1;
-    recovery_msg: bytes &size=1;
-    unused_match_event_indicator_6: bytes &size=1;
-    end_of_event: bytes &size=1;
-};
-
 type ChannelReset11Message = unit {
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=3;   # padding
     md_entry_timestamp: uint64;
 };
 
 type SecurityStatus3Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     security_trading_status: uint8 &convert=SecurityTradingStatus($$);
     security_trading_event: uint8 &convert=SecurityTradingEvent($$);
@@ -109,7 +125,16 @@ type SecurityStatus3Message = unit {
 type SecurityGroupPhase10Message = unit {
     security_group: bytes &size=3;
     : skip bytes &size=5;   # padding
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
     security_trading_event: uint8 &convert=SecurityTradingEvent($$);
@@ -237,7 +262,16 @@ type SecurityDesc = unit {
 
 type News5Message = unit {
     security_id_optional: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     news_source: uint8 &convert=NewsSource($$);
     language_code: bytes &size=2;
     part_count: uint16;
@@ -252,22 +286,31 @@ type News5Message = unit {
 
 type Headline = unit {
     headline_length: uint16;
-    headline_data: uint8;
+    headline_data: bytes &size=self.headline_length;
 };
 
 type Text = unit {
     text_length: uint16;
-    text_data: uint8;
+    text_data: bytes &size=self.text_length;
 };
 
 type UrlLink = unit {
     url_link_length: uint16;
-    url_link_data: uint8;
+    url_link_data: bytes &size=self.url_link_length;
 };
 
 type OpeningPrice15Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
     open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
     : skip bytes &size=1;   # padding
@@ -281,7 +324,16 @@ type OpeningPrice15Message = unit {
 
 type TheoreticalOpeningPrice16Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
     trade_date: uint16;
     md_corporate_offset_price_optional: int64;
@@ -292,7 +344,16 @@ type TheoreticalOpeningPrice16Message = unit {
 
 type ClosingPrice17Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
     : skip bytes &size=2;   # padding
     md_corporate_price: int64;
@@ -304,31 +365,47 @@ type ClosingPrice17Message = unit {
 
 type AuctionImbalance19Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
-    imbalance_condition: ImbalanceCondition;
+    imbalance_condition: bitfield(16) {
+        unused_imbalance_condition_0: 0;
+        unused_imbalance_condition_1: 1;
+        unused_imbalance_condition_2: 2;
+        unused_imbalance_condition_3: 3;
+        unused_imbalance_condition_4: 4;
+        unused_imbalance_condition_5: 5;
+        unused_imbalance_condition_6: 6;
+        unused_imbalance_condition_7: 7;
+        imbalance_more_buyers: 8;
+        imbalance_more_sellers: 9;
+        reserved_6: 10..15;
+    } &byte-order=spicy::ByteOrder::Little;
     md_entry_size_quantity_optional: int64;
     md_entry_timestamp: uint64;
     rpt_seq: uint32;
 };
 
-type ImbalanceCondition = unit {
-    unused_imbalance_condition_0: bytes &size=1;
-    unused_imbalance_condition_1: bytes &size=1;
-    unused_imbalance_condition_2: bytes &size=1;
-    unused_imbalance_condition_3: bytes &size=1;
-    unused_imbalance_condition_4: bytes &size=1;
-    unused_imbalance_condition_5: bytes &size=1;
-    unused_imbalance_condition_6: bytes &size=1;
-    unused_imbalance_condition_7: bytes &size=1;
-    imbalance_more_buyers: bytes &size=1;
-    imbalance_more_sellers: bytes &size=1;
-    reserved_6: bytes &size=1;
-};
-
 type QuantityBand21Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=3;   # padding
     avg_daily_traded_qty: int64;
     max_trade_vol: int64;
@@ -338,7 +415,16 @@ type QuantityBand21Message = unit {
 
 type PriceBand22Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     price_band_type: uint8 &convert=PriceBandType($$);
     price_limit_type: uint8 &convert=PriceLimitType($$);
     price_band_midpoint_price_type: uint8 &convert=PriceBandMidpointPriceType($$);
@@ -351,7 +437,16 @@ type PriceBand22Message = unit {
 
 type HighPrice24Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
     trade_date: uint16;
     md_future_price: int64;
@@ -361,7 +456,16 @@ type HighPrice24Message = unit {
 
 type LowPrice25Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
     trade_date: uint16;
     md_future_price: int64;
@@ -371,9 +475,35 @@ type LowPrice25Message = unit {
 
 type LastTradePrice27Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_session_id: uint8 &convert=TradingSessionId($$);
-    trade_condition: TradeCondition;
+    trade_condition: bitfield(16) {
+        opening_price: 0;
+        crossed: 1;
+        last_trade_at_the_same_price: 2;
+        out_of_sequence: 3;
+        unused_trade_condition_4: 4;
+        unused_trade_condition_5: 5;
+        trade_on_behalf: 6;
+        unused_trade_condition_7: 7;
+        unused_trade_condition_8: 8;
+        unused_trade_condition_9: 9;
+        unused_trade_condition_10: 10;
+        unused_trade_condition_11: 11;
+        unused_trade_condition_12: 12;
+        regular_trade: 13;
+        block_trade: 14;
+        unused_trade_condition_15: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     md_future_price: int64;
     md_entry_size_quantity: int64;
     trade_id: uint32;
@@ -388,28 +518,18 @@ type LastTradePrice27Message = unit {
     : skip bytes &size=3;   # padding
 };
 
-type TradeCondition = unit {
-    opening_price: bytes &size=1;
-    crossed: bytes &size=1;
-    last_trade_at_the_same_price: bytes &size=1;
-    out_of_sequence: bytes &size=1;
-    unused_trade_condition_4: bytes &size=1;
-    unused_trade_condition_5: bytes &size=1;
-    trade_on_behalf: bytes &size=1;
-    unused_trade_condition_7: bytes &size=1;
-    unused_trade_condition_8: bytes &size=1;
-    unused_trade_condition_9: bytes &size=1;
-    unused_trade_condition_10: bytes &size=1;
-    unused_trade_condition_11: bytes &size=1;
-    unused_trade_condition_12: bytes &size=1;
-    regular_trade: bytes &size=1;
-    block_trade: bytes &size=1;
-    unused_trade_condition_15: bytes &size=1;
-};
-
 type SettlementPrice28Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     trade_date: uint16;
     md_future_price: int64;
@@ -423,7 +543,16 @@ type SettlementPrice28Message = unit {
 
 type OpenInterest29Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     trade_date: uint16;
     md_entry_size_quantity: int64;
@@ -445,7 +574,16 @@ type SnapshotFullRefreshHeader30Message = unit {
 
 type OrderMbO50Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
     md_entry_type: uint8 &convert=MdEntryType($$);
     : skip bytes &size=1;   # padding
@@ -461,7 +599,16 @@ type OrderMbO50Message = unit {
 
 type DeleteOrderMbO51Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     md_entry_type: uint8 &convert=MdEntryType($$);
     : skip bytes &size=1;   # padding
@@ -475,7 +622,16 @@ type DeleteOrderMbO51Message = unit {
 
 type MassDeleteOrdersMbO52Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
     md_entry_type: uint8 &convert=MdEntryType($$);
     : skip bytes &size=1;   # padding
@@ -486,9 +642,35 @@ type MassDeleteOrdersMbO52Message = unit {
 
 type Trade53Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_session_id: uint8 &convert=TradingSessionId($$);
-    trade_condition: TradeCondition;
+    trade_condition: bitfield(16) {
+        opening_price: 0;
+        crossed: 1;
+        last_trade_at_the_same_price: 2;
+        out_of_sequence: 3;
+        unused_trade_condition_4: 4;
+        unused_trade_condition_5: 5;
+        trade_on_behalf: 6;
+        unused_trade_condition_7: 7;
+        unused_trade_condition_8: 8;
+        unused_trade_condition_9: 9;
+        unused_trade_condition_10: 10;
+        unused_trade_condition_11: 11;
+        unused_trade_condition_12: 12;
+        regular_trade: 13;
+        block_trade: 14;
+        unused_trade_condition_15: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     md_future_price: int64;
     md_entry_size_quantity: int64;
     trade_id: uint32;
@@ -503,9 +685,35 @@ type Trade53Message = unit {
 
 type ForwardTrade54Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_session_id: uint8 &convert=TradingSessionId($$);
-    trade_condition: TradeCondition;
+    trade_condition: bitfield(16) {
+        opening_price: 0;
+        crossed: 1;
+        last_trade_at_the_same_price: 2;
+        out_of_sequence: 3;
+        unused_trade_condition_4: 4;
+        unused_trade_condition_5: 5;
+        trade_on_behalf: 6;
+        unused_trade_condition_7: 7;
+        unused_trade_condition_8: 8;
+        unused_trade_condition_9: 9;
+        unused_trade_condition_10: 10;
+        unused_trade_condition_11: 11;
+        unused_trade_condition_12: 12;
+        regular_trade: 13;
+        block_trade: 14;
+        unused_trade_condition_15: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     md_future_price: int64;
     md_entry_size_quantity: int64;
     trade_id: uint32;
@@ -536,7 +744,16 @@ type ExecutionSummary55Message = unit {
 
 type ExecutionStatistics56Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trade_date: uint16;
     trade_volume: int64;
@@ -549,7 +766,16 @@ type ExecutionStatistics56Message = unit {
 
 type TradeBust57Message = unit {
     security_id: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     : skip bytes &size=2;   # padding
     md_future_price: int64;
@@ -579,7 +805,16 @@ type SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup = unit {
     md_insert_timestamp: uint64;
     secondary_order_id: uint64;
     md_entry_type: uint8 &convert=MdEntryType($$);
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        unused_match_event_indicator_0: 0;
+        unused_match_event_indicator_1: 1;
+        unused_match_event_indicator_2: 2;
+        unused_match_event_indicator_3: 3;
+        implied: 4;
+        recovery_msg: 5;
+        unused_match_event_indicator_6: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type TemplateId = enum {

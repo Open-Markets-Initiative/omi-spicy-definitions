@@ -12,18 +12,16 @@ public type EuronextOptiqMarketdatagatewayV552 = unit {
 type MarketDataPacketHeader = unit {
     packet_time: uint64;
     packet_sequence_number: uint32;
-    packet_flags: PacketFlags;
+    packet_flags: bitfield(16) {
+        compression: 0;
+        mdg_restart_count: 1..3;
+        psn_high_weight: 4..6;
+        has_start_of_day_snapshot: 7;
+        has_end_of_day_snapshot: 8;
+        has_status_message: 9;
+        reserved_bits: 10..15;
+    } &byte-order=spicy::ByteOrder::Little;
     channel_id: uint16;
-};
-
-type PacketFlags = unit {
-    compression: bytes &size=1;
-    mdg_restart_count: uint8;
-    psn_high_weight: uint8;
-    has_start_of_day_snapshot: bytes &size=1;
-    has_end_of_day_snapshot: bytes &size=1;
-    has_status_message: bytes &size=1;
-    : skip bytes &size=1;   # padding
 };
 
 type OptiqMessage = unit {
@@ -202,7 +200,16 @@ type FullTradeInformationMessage = unit {
     mmt_publication_mode: bytes &size=4;
     mmt_post_trade_deferral: bytes &size=4;
     mmt_duplicative_indicator: bytes &size=4;
-    trade_qualifier: TradeQualifier;
+    trade_qualifier: bitfield(8) {
+        uncrossing_trade: 0;
+        first_trade_price: 1;
+        passive_order: 2;
+        aggressive_order: 3;
+        trade_creation_by_market_operations: 4;
+        nav_trade_expressed_in_bps: 5;
+        nav_trade_expressed_in_price_currency: 6;
+        deferred_publication: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     transaction_type: uint8 &convert=TransactionType($$);
     effective_date_indicator: uint8 &convert=EffectiveDateIndicator($$);
     block_trade_code: uint8 &convert=BlockTradeCode($$);
@@ -223,17 +230,6 @@ type FullTradeInformationMessage = unit {
     repo_settlement_date: uint16;
     trade_unique_identifier: bytes &size=16;
     not_used_groups: NotUsedGroups;
-};
-
-type TradeQualifier = unit {
-    uncrossing_trade: bytes &size=1;
-    first_trade_price: bytes &size=1;
-    passive_order: bytes &size=1;
-    aggressive_order: bytes &size=1;
-    trade_creation_by_market_operations: bytes &size=1;
-    nav_trade_expressed_in_bps: bytes &size=1;
-    nav_trade_expressed_in_price_currency: bytes &size=1;
-    deferred_publication: bytes &size=1;
 };
 
 type NotUsedGroups = unit {
@@ -258,7 +254,20 @@ type MarketStatesGroup = unit {
     event_time: uint64;
     book_state: uint8 &convert=BookState($$);
     status_reason: uint8 &convert=StatusReason($$);
-    phase_qualifier: PhaseQualifier;
+    phase_qualifier: bitfield(16) {
+        no_qualifier: 0;
+        call_bbo_only: 1;
+        trading_at_last: 2;
+        random_uncrossing: 3;
+        suspended: 4;
+        wholesale_allowed: 5;
+        stressed_market_conditions: 6;
+        exceptional_market_conditions: 7;
+        unused_phase_qualifierset_8: 8;
+        quoting_period: 9;
+        execution_prevention_across_all_firms: 10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_period_optional: uint8 &convert=TradingPeriodOptional($$);
     trading_side: uint8 &convert=TradingSide($$);
     price_limits: uint8 &convert=PriceLimits($$);
@@ -268,21 +277,6 @@ type MarketStatesGroup = unit {
     scheduled_event: uint8 &convert=ScheduledEvent($$);
     scheduled_event_time: uint64;
     instrument_state: uint8 &convert=InstrumentState($$);
-};
-
-type PhaseQualifier = unit {
-    no_qualifier: bytes &size=1;
-    call_bbo_only: bytes &size=1;
-    trading_at_last: bytes &size=1;
-    random_uncrossing: bytes &size=1;
-    suspended: bytes &size=1;
-    wholesale_allowed: bytes &size=1;
-    stressed_market_conditions: bytes &size=1;
-    exceptional_market_conditions: bytes &size=1;
-    unused_phase_qualifierset_8: bytes &size=1;
-    quoting_period: bytes &size=1;
-    execution_prevention_across_all_firms: bytes &size=1;
-    reserved_5: bytes &size=1;
 };
 
 type TimetableMessage = unit {
@@ -302,7 +296,20 @@ type TimetablesGroups = unit {
 type TimetablesGroup = unit {
     phase_time: uint64;
     phase_id: uint8 &convert=PhaseId($$);
-    phase_qualifier: PhaseQualifier;
+    phase_qualifier: bitfield(16) {
+        no_qualifier: 0;
+        call_bbo_only: 1;
+        trading_at_last: 2;
+        random_uncrossing: 3;
+        suspended: 4;
+        wholesale_allowed: 5;
+        stressed_market_conditions: 6;
+        exceptional_market_conditions: 7;
+        unused_phase_qualifierset_8: 8;
+        quoting_period: 9;
+        execution_prevention_across_all_firms: 10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_period: uint8 &convert=TradingPeriod($$);
     order_entry_qualifier: uint8 &convert=OrderEntryQualifier($$);
     session: uint8 &convert=Session($$);
@@ -496,11 +503,23 @@ type ContractStandingDataMessage = unit {
     underlying_mic: bytes &size=4;
     underlying_isin_code: bytes &size=12;
     underlying_expiry: uint32;
-    order_type_rules: OrderTypeRules;
+    order_type_rules: bitfield(16) {
+        market: 0;
+        limit: 1;
+        stop_stop_loss: 2;
+        stop_limit: 3;
+        market_on_open_moo: 4;
+        trade_at_settlement: 5;
+        reserved_10: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
     settlement_method: bytes &size=1;
     trading_currency: bytes &size=3;
     strike_price_decimals_ratio: uint8;
-    mm_protections: MmProtections;
+    mm_protections: bitfield(8) {
+        delta: 0;
+        volume: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
     contract_trading_type: uint8 &convert=ContractTradingType($$);
     inst_unit_exp: uint8 &convert=InstUnitExp($$);
     underlying_subtype: uint8 &convert=UnderlyingSubtype($$);
@@ -522,22 +541,6 @@ type ContractStandingDataMessage = unit {
     contract_emm_properties_groups: ContractEmmPropertiesGroups;
 };
 
-type OrderTypeRules = unit {
-    market: bytes &size=1;
-    limit: bytes &size=1;
-    stop_stop_loss: bytes &size=1;
-    stop_limit: bytes &size=1;
-    market_on_open_moo: bytes &size=1;
-    trade_at_settlement: bytes &size=1;
-    reserved_10: bytes &size=2;
-};
-
-type MmProtections = unit {
-    delta: bytes &size=1;
-    volume: bytes &size=1;
-    reserved_6: bytes &size=1;
-};
-
 type ContractEmmPropertiesGroups = unit {
     group_size_encoding: GroupSizeEncoding;
     contract_emm_properties_group: ContractEmmPropertiesGroup[self.group_size_encoding.num_in_group];
@@ -548,62 +551,60 @@ type ContractEmmPropertiesGroup = unit {
     tick_size_index_id: uint16;
     pattern_id: uint16;
     lot_size_optional: uint64;
-    strategy_authorized: StrategyAuthorized;
+    strategy_authorized: bitfield(64) {
+        jelly_roll: 0;
+        butterfly: 1;
+        call_or_put_cabinet: 2;
+        spread: 3;
+        calendar_spread: 4;
+        diagonal_calendar_spread: 5;
+        guts: 6;
+        two_by_one_ratio_spread: 7;
+        iron_butterfly: 8;
+        combo: 9;
+        strangle: 10;
+        ladder: 11;
+        strip: 12;
+        straddle_calendar_spread: 13;
+        pack_field: 14;
+        diagonal_straddle_calendar_spread: 15;
+        simple_inter_commodity_spread: 16;
+        conversion_reversal: 17;
+        straddle: 18;
+        volatility_trade: 19;
+        condor: 20;
+        box: 21;
+        bundle: 22;
+        reduced_tick_spread: 23;
+        ladder_versus_underlying: 24;
+        butterfly_versus_underlying: 25;
+        call_spread_versus_put_versus_underlying: 26;
+        call_or_put_spread_versus_underlying: 27;
+        call_or_put_calendar_spread_versus_underlying: 28;
+        call_put_diagonal_calendar_spread_versus_underlying: 29;
+        guts_versus_underlying: 30;
+        two_by_one_call_or_put_ratio_spread_versus_underlying: 31;
+        iron_butterfly_versus_underlying: 32;
+        combo_versus_underlying: 33;
+        strangle_versus_underlying: 34;
+        exchange_for_physical: 35;
+        straddle_calendar_spread_versus_underlying: 36;
+        put_spread_versus_call_versus_underlying: 37;
+        diagonal_straddle_calendar_spread_versus_underlying: 38;
+        synthetic: 39;
+        straddle_versus_underlying: 40;
+        condor_versus_underlying: 41;
+        buy_write: 42;
+        iron_condor_versus_underlying: 43;
+        iron_condor: 44;
+        call_spread_versus_sell_a_put: 45;
+        put_spread_versus_sell_a_call: 46;
+        put_straddle_versus_sell_a_call_or_a_put: 47;
+        reserved_16: 48..63;
+    } &byte-order=spicy::ByteOrder::Little;
     dynamic_collar_logic: uint8 &convert=DynamicCollarLogic($$);
     collar_max_unhalt_nb: uint8;
     collar_unhalt_delay: uint32;
-};
-
-type StrategyAuthorized = unit {
-    jelly_roll: bytes &size=1;
-    butterfly: bytes &size=1;
-    call_or_put_cabinet: bytes &size=1;
-    spread: bytes &size=1;
-    calendar_spread: bytes &size=1;
-    diagonal_calendar_spread: bytes &size=1;
-    guts: bytes &size=1;
-    two_by_one_ratio_spread: bytes &size=1;
-    iron_butterfly: bytes &size=1;
-    combo: bytes &size=1;
-    strangle: bytes &size=1;
-    ladder: bytes &size=1;
-    strip: bytes &size=1;
-    straddle_calendar_spread: bytes &size=1;
-    pack_field: bytes &size=1;
-    diagonal_straddle_calendar_spread: bytes &size=1;
-    simple_inter_commodity_spread: bytes &size=1;
-    conversion_reversal: bytes &size=1;
-    straddle: bytes &size=1;
-    volatility_trade: bytes &size=1;
-    condor: bytes &size=1;
-    box: bytes &size=1;
-    bundle: bytes &size=1;
-    reduced_tick_spread: bytes &size=1;
-    ladder_versus_underlying: bytes &size=1;
-    butterfly_versus_underlying: bytes &size=1;
-    call_spread_versus_put_versus_underlying: bytes &size=1;
-    call_or_put_spread_versus_underlying: bytes &size=1;
-    call_or_put_calendar_spread_versus_underlying: bytes &size=1;
-    call_put_diagonal_calendar_spread_versus_underlying: bytes &size=1;
-    guts_versus_underlying: bytes &size=1;
-    two_by_one_call_or_put_ratio_spread_versus_underlying: bytes &size=1;
-    iron_butterfly_versus_underlying: bytes &size=1;
-    combo_versus_underlying: bytes &size=1;
-    strangle_versus_underlying: bytes &size=1;
-    exchange_for_physical: bytes &size=1;
-    straddle_calendar_spread_versus_underlying: bytes &size=1;
-    put_spread_versus_call_versus_underlying: bytes &size=1;
-    diagonal_straddle_calendar_spread_versus_underlying: bytes &size=1;
-    synthetic: bytes &size=1;
-    straddle_versus_underlying: bytes &size=1;
-    condor_versus_underlying: bytes &size=1;
-    buy_write: bytes &size=1;
-    iron_condor_versus_underlying: bytes &size=1;
-    iron_condor: bytes &size=1;
-    call_spread_versus_sell_a_put: bytes &size=1;
-    put_spread_versus_sell_a_call: bytes &size=1;
-    put_straddle_versus_sell_a_call_or_a_put: bytes &size=1;
-    reserved_16: bytes &size=3;
 };
 
 type OutrightStandingDataMessage = unit {

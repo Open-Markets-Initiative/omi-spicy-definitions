@@ -12,17 +12,15 @@ public type LinkatsExtendedtradeV4104 = unit {
 type PacketHeader = unit {
     packet_size: uint16;
     seq_num: uint32;
-    packet_flag: PacketFlag;
+    packet_flag: bitfield(8) {
+        heartbeat: 0;
+        seq_num_reset: 1;
+        reserved_4: 2..5;
+        replay: 6;
+        test: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     messages: uint8;
     packet_milli: uint32;
-};
-
-type PacketFlag = unit {
-    heartbeat: uint8;
-    seq_num_reset: bytes &size=1;
-    reserved_4: bytes &size=1;
-    replay: bytes &size=1;
-    test: bytes &size=1;
 };
 
 type Message = unit {
@@ -75,17 +73,15 @@ type ExtendedTradeMessage = unit {
     trade_action: uint8 &convert=TradeAction($$);
     trade_flags: uint8;
     security_id: uint32;
-    trade_status: TradeStatus;
+    trade_status: bitfield(8) {
+        irregular: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     venue: bytes &size=3;
     deprecated_utf_85: bytes &size=5;
     trade_price: uint64;
     trade_size: uint64;
     trade_time_milli: uint64;
-};
-
-type TradeStatus = unit {
-    irregular: bytes &size=1;
-    reserved_7: bytes &size=1;
 };
 
 type MessageType = enum {

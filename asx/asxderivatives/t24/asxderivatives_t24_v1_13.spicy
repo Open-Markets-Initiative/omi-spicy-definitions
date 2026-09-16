@@ -372,17 +372,15 @@ type OpenHighLowLastTradeAdjustmentMessage = unit {
     last_volume: uint32;
     total_traded_volume: uint32;
     total_trades: uint32;
-    market_updates: MarketUpdates;
-};
-
-type MarketUpdates = unit {
-    opening_trade_price: bytes &size=1;
-    highest_traded_price: bytes &size=1;
-    lowest_traded_price: bytes &size=1;
-    total_traded_volume_and_total_trades: bytes &size=1;
-    last_traded_price: bytes &size=1;
-    last_traded_volume: bytes &size=1;
-    all_fields: bytes &size=1;
+    market_updates: bitfield(8) {
+        opening_trade_price: 0;
+        highest_traded_price: 1;
+        lowest_traded_price: 2;
+        total_traded_volume_and_total_trades: 3;
+        last_traded_price: 4;
+        last_traded_volume: 5;
+        all_fields: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type MarketSettlementMessage = unit {

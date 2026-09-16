@@ -12,17 +12,15 @@ public type LinkatsReferencedataV4104 = unit {
 type PacketHeader = unit {
     packet_size: uint16;
     seq_num: uint32;
-    packet_flag: PacketFlag;
+    packet_flag: bitfield(8) {
+        heartbeat: 0;
+        seq_num_reset: 1;
+        reserved_4: 2..5;
+        replay: 6;
+        test: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     messages: uint8;
     packet_milli: uint32;
-};
-
-type PacketFlag = unit {
-    heartbeat: uint8;
-    seq_num_reset: bytes &size=1;
-    reserved_4: bytes &size=1;
-    replay: bytes &size=1;
-    test: bytes &size=1;
 };
 
 type Message = unit {
@@ -81,7 +79,20 @@ type ExtendedSecurityMessage = unit {
     security_type: bytes &size=5;
     primary_market: bytes &size=3;
     security_id: uint32;
-    extended_security_flags: ExtendedSecurityFlags;
+    extended_security_flags: bitfield(16) {
+        piggyback: 0;
+        caveat_emptor_warning: 1;
+        qualified_institutional_buyers_only: 2;
+        unsolicited_only: 3;
+        sponsored_status: 4;
+        otc_link_ecn_eligible: 5;
+        otc_link_messaging_disabled: 6;
+        saturation_eligible: 7;
+        investment_grade: 8;
+        trading_flat: 9;
+        callable: 10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Big;
     tier: uint8 &convert=Tier($$);
     reporting_status: uint8 &convert=ReportingStatus($$);
     disclosure_status: uint8 &convert=DisclosureStatus($$);
@@ -95,21 +106,6 @@ type ExtendedSecurityMessage = unit {
     security_detail: SecurityDetail;
     issuer: Issuer;
     cusip: bytes &size=9;
-};
-
-type ExtendedSecurityFlags = unit {
-    piggyback: bytes &size=1;
-    caveat_emptor_warning: bytes &size=1;
-    qualified_institutional_buyers_only: bytes &size=1;
-    unsolicited_only: bytes &size=1;
-    sponsored_status: bytes &size=1;
-    otc_link_ecn_eligible: bytes &size=1;
-    otc_link_messaging_disabled: bytes &size=1;
-    saturation_eligible: bytes &size=1;
-    investment_grade: bytes &size=1;
-    trading_flat: bytes &size=1;
-    callable: bytes &size=1;
-    reserved_5: bytes &size=1;
 };
 
 type SecurityDetail = unit {

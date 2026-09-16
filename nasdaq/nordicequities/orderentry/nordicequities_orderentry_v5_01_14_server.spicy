@@ -76,18 +76,16 @@ type OrderAcceptedMessage = unit {
     execution_within_firm: uint32;
     investment_decision_within_firm_short_code: uint32;
     client_identifier: uint32;
-    party_role_qualifier: PartyRoleQualifier;
+    party_role_qualifier: bitfield(8) {
+        client_identification: 0..1;
+        investment_decision_within_firm: 2..3;
+        execution_decision_within_firm: 4..5;
+        reserved_78: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     capacity: uint8 &convert=Capacity($$);
     algo_indicator: uint8 &convert=AlgoIndicator($$);
     appendage_length: uint16;
     tagvalue: Tagvalue[] &eod;
-};
-
-type PartyRoleQualifier = unit {
-    client_identification: uint8 &convert=ClientIdentification($$);
-    investment_decision_within_firm: uint8 &convert=InvestmentDecisionWithinFirm($$);
-    execution_decision_within_firm: uint8 &convert=ExecutionDecisionWithinFirm($$);
-    reserved_78: bytes &size=1;
 };
 
 type Tagvalue = unit {
@@ -288,16 +286,14 @@ type ExecutedOrderMessage = unit {
     trading_mode: uint8 &convert=TradingMode($$);
     transaction_category: uint8 &convert=TransactionCategory($$);
     transaction_type_algo_indicator: uint8 &convert=TransactionTypeAlgoIndicator($$);
-    liquidity_attributes: LiquidityAttributes;
+    liquidity_attributes: bitfield(8) {
+        reserved_13: 0..2;
+        liquidity_indicator: 3..4;
+        liquidity_internalized: 5;
+        liquidity_top_of_book: 6;
+        liquidity_self_trade: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     last_market: uint8;
-};
-
-type LiquidityAttributes = unit {
-    reserved_13: bytes &size=1;
-    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
-    liquidity_internalized: uint8 &convert=LiquidityInternalized($$);
-    liquidity_top_of_book: uint8 &convert=LiquidityTopOfBook($$);
-    liquidity_self_trade: uint8 &convert=LiquiditySelfTrade($$);
 };
 
 type BrokenTradeMessage = unit {

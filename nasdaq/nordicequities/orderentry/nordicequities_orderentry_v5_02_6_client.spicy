@@ -55,18 +55,16 @@ type EnterOrderMessage = unit {
     execution_within_firm: uint32;
     investment_decision_within_firm_short_code: uint32;
     client_identifier: uint32;
-    party_role_qualifier: PartyRoleQualifier;
+    party_role_qualifier: bitfield(8) {
+        client_identification: 0..1;
+        investment_decision_within_firm: 2..3;
+        execution_decision_within_firm: 4..5;
+        reserved_78: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
     capacity: uint8 &convert=Capacity($$);
     algo_indicator: uint8 &convert=AlgoIndicator($$);
     appendage_length: uint16;
     tagvalue: Tagvalue[] &eod;
-};
-
-type PartyRoleQualifier = unit {
-    client_identification: uint8 &convert=ClientIdentification($$);
-    investment_decision_within_firm: uint8 &convert=InvestmentDecisionWithinFirm($$);
-    execution_decision_within_firm: uint8 &convert=ExecutionDecisionWithinFirm($$);
-    reserved_78: bytes &size=1;
 };
 
 type Tagvalue = unit {

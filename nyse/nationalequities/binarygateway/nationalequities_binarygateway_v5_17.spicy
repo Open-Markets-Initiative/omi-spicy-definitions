@@ -146,34 +146,32 @@ type NewOrderSingleAndCancelReplaceRequestMessage = unit {
     mpsubid_1: bytes &size=1;
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
-    bitfield_order_instructions: BitfieldOrderInstructions;
+    bitfield_order_instructions: bitfield(64) {
+        unused_12: 0..11;
+        sub_id_indicator: 12;
+        special_ord_type: 13..16;
+        locate_reqd: 17;
+        retail_indicator: 18;
+        attributed_quote: 19..21;
+        order_capacity: 22..24;
+        interest_type: 25..27;
+        trading_session_id: 28..30;
+        time_in_force: 31..33;
+        proactive_if_locked: 34..36;
+        self_trade_type: 37..39;
+        cancel_instead_of_reprice: 40..43;
+        routing_inst: 44..47;
+        extended_exec_inst: 48..51;
+        exec_inst: 52..55;
+        ord_type: 56..59;
+        side_bits: 60..63;
+    } &byte-order=spicy::ByteOrder::Little;
     price: int64;
     order_qty: uint32;
     min_qty: uint32;
     user_data: bytes &size=8;
     optional_order_add_on: OptionalOrderAddOn;
     optional_routing_strategy_add_on: OptionalRoutingStrategyAddOn;
-};
-
-type BitfieldOrderInstructions = unit {
-    : skip bytes &size=2;   # padding
-    sub_id_indicator: uint8 &convert=SubIdIndicator($$);
-    special_ord_type: uint8 &convert=SpecialOrdType($$);
-    locate_reqd: uint8 &convert=LocateReqd($$);
-    retail_indicator: uint8 &convert=RetailIndicator($$);
-    attributed_quote: uint8 &convert=AttributedQuote($$);
-    order_capacity: uint8 &convert=OrderCapacity($$);
-    interest_type: uint8 &convert=InterestType($$);
-    trading_session_id: uint8 &convert=TradingSessionId($$);
-    time_in_force: uint8 &convert=TimeInForce($$);
-    proactive_if_locked: uint8 &convert=ProactiveIfLocked($$);
-    self_trade_type: uint8 &convert=SelfTradeType($$);
-    cancel_instead_of_reprice: uint8 &convert=CancelInsteadOfReprice($$);
-    routing_inst: uint8 &convert=RoutingInst($$);
-    extended_exec_inst: uint8 &convert=ExtendedExecInst($$);
-    exec_inst: uint8 &convert=ExecInst($$);
-    ord_type: uint8 &convert=OrdType($$);
-    side_bits: uint8;
 };
 
 type OptionalOrderAddOn = unit {
@@ -384,7 +382,26 @@ type OrderAndCancelReplaceAcknowledgementMessage = unit {
     mpsubid_1: bytes &size=1;
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
-    bitfield_order_instructions: BitfieldOrderInstructions;
+    bitfield_order_instructions: bitfield(64) {
+        unused_12: 0..11;
+        sub_id_indicator: 12;
+        special_ord_type: 13..16;
+        locate_reqd: 17;
+        retail_indicator: 18;
+        attributed_quote: 19..21;
+        order_capacity: 22..24;
+        interest_type: 25..27;
+        trading_session_id: 28..30;
+        time_in_force: 31..33;
+        proactive_if_locked: 34..36;
+        self_trade_type: 37..39;
+        cancel_instead_of_reprice: 40..43;
+        routing_inst: 44..47;
+        extended_exec_inst: 48..51;
+        exec_inst: 52..55;
+        ord_type: 56..59;
+        side_bits: 60..63;
+    } &byte-order=spicy::ByteOrder::Little;
     price: int64;
     order_qty: uint32;
     min_qty: uint32;
@@ -395,14 +412,12 @@ type OrderAndCancelReplaceAcknowledgementMessage = unit {
     pre_liquidity_indicator: bytes &size=4;
     reason_code: uint16 &convert=ReasonCode($$);
     ack_type: uint8 &convert=AckType($$);
-    bitfield_flow_indicator: BitfieldFlowIndicator;
+    bitfield_flow_indicator: bitfield(8) {
+        throttled: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     user_data: bytes &size=8;
     optional_order_add_on: OptionalOrderAddOn;
-};
-
-type BitfieldFlowIndicator = unit {
-    throttled: uint8 &convert=Throttled($$);
-    : skip bytes &size=1;   # padding
 };
 
 type OrderModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
@@ -419,7 +434,10 @@ type OrderModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
     locate_reqd_u_81: uint8;
     reason_code: uint16 &convert=ReasonCode($$);
     ack_type: uint8 &convert=AckType($$);
-    bitfield_flow_indicator: BitfieldFlowIndicator;
+    bitfield_flow_indicator: bitfield(8) {
+        throttled: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     user_data: bytes &size=8;
 };
 

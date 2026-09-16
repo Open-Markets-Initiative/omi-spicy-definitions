@@ -13,16 +13,14 @@ type PacketHeader = unit {
     sending_time: int64;
     seq_num: int64;
     channel_id: uint16;
-    packet_flags: PacketFlags;
+    packet_flags: bitfield(8) {
+        incremental_update: 0;
+        snapshot: 1;
+        retransmit: 2;
+        reserved_bits: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
     message_count: uint8;
     snapshot_instrument_id: int32;
-};
-
-type PacketFlags = unit {
-    incremental_update: bytes &size=1;
-    snapshot: bytes &size=1;
-    retransmit: bytes &size=1;
-    : skip bytes &size=1;   # padding
 };
 
 type SbeMessage = unit {
@@ -83,7 +81,14 @@ type OutrightInstrumentDefinitionMessage = unit {
     product_id: int32;
     product_group: int8 &convert=ProductGroup($$);
     trading_status: int8 &convert=TradingStatus($$);
-    definition_flags: DefinitionFlags;
+    definition_flags: bitfield(16) {
+        is_prior_settlement_theoretical: 0;
+        is_announced: 1;
+        is_call: 2;
+        is_strike_delisted: 3;
+        funding_rate_applicable: 4;
+        reserved_11: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
     contract_size: int64;
     logical_expiry: LogicalExpiry;
     funding_interval_minutes: int32;
@@ -98,15 +103,6 @@ type InstrHeader = unit {
     trading_session_date: uint16;
     reserved: int16;
     transact_time: int64;
-};
-
-type DefinitionFlags = unit {
-    is_prior_settlement_theoretical: bytes &size=1;
-    is_announced: bytes &size=1;
-    is_call: bytes &size=1;
-    is_strike_delisted: bytes &size=1;
-    funding_rate_applicable: bytes &size=1;
-    reserved_11: bytes &size=2;
 };
 
 type LogicalExpiry = unit {
@@ -137,7 +133,14 @@ type SpreadInstrumentDefinitionMessage = unit {
     leg_1_instrument_id: int32;
     leg_2_instrument_id: int32;
     spread_buy_convention: int8 &convert=SpreadBuyConvention($$);
-    definition_flags: DefinitionFlags;
+    definition_flags: bitfield(16) {
+        is_prior_settlement_theoretical: 0;
+        is_announced: 1;
+        is_call: 2;
+        is_strike_delisted: 3;
+        funding_rate_applicable: 4;
+        reserved_11: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
     logical_expiry: LogicalExpiry;
 };
 
@@ -159,7 +162,14 @@ type OptionInstrumentDefinitionMessage = unit {
     underlying_instrument_id: int32;
     product_group: int8 &convert=ProductGroup($$);
     trading_status: int8 &convert=TradingStatus($$);
-    definition_flags: DefinitionFlags;
+    definition_flags: bitfield(16) {
+        is_prior_settlement_theoretical: 0;
+        is_announced: 1;
+        is_call: 2;
+        is_strike_delisted: 3;
+        funding_rate_applicable: 4;
+        reserved_11: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
     option_expiry_type: int8 &convert=OptionExpiryType($$);
     logical_expiry: LogicalExpiry;
 };
@@ -263,12 +273,10 @@ type FundingRateMessage = unit {
     fair_value: int64;
     final_funding_rate_timestamp: int64;
     correlation_id: int64;
-    flags: Flags;
-};
-
-type Flags = unit {
-    is_final: bytes &size=1;
-    reserved_7: bytes &size=1;
+    flags: bitfield(8) {
+        is_final: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type StartOfOutrightInstrumentSnapshotMessage = unit {
@@ -336,7 +344,14 @@ type StartOfOptionInstrumentSnapshotMessage = unit {
     trading_session_date: uint16;
     product_group: int8 &convert=ProductGroup($$);
     trading_status: int8 &convert=TradingStatus($$);
-    definition_flags: DefinitionFlags;
+    definition_flags: bitfield(16) {
+        is_prior_settlement_theoretical: 0;
+        is_announced: 1;
+        is_call: 2;
+        is_strike_delisted: 3;
+        funding_rate_applicable: 4;
+        reserved_11: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
     option_expiry_type: int8 &convert=OptionExpiryType($$);
     logical_expiry: LogicalExpiry;
 };
@@ -374,7 +389,14 @@ type EndOfSnapshotMessage = unit {
     next_bid_implied_qty: int32;
     next_ask_implied_qty: int32;
     prior_settlement_price_optional: int64;
-    definition_flags: DefinitionFlags;
+    definition_flags: bitfield(16) {
+        is_prior_settlement_theoretical: 0;
+        is_announced: 1;
+        is_call: 2;
+        is_strike_delisted: 3;
+        funding_rate_applicable: 4;
+        reserved_11: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
     final_funding_rate: int64;
     final_futures_mark_price: int64;
     final_funding_rate_timestamp: int64;

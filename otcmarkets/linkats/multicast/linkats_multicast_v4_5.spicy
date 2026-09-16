@@ -12,17 +12,15 @@ public type LinkatsMulticastV45 = unit {
 type PacketHeader = unit {
     packet_size: uint16;
     seq_num: uint32;
-    packet_flag: PacketFlag;
+    packet_flag: bitfield(8) {
+        heartbeat: 0;
+        seq_num_reset: 1;
+        reserved_4: 2..5;
+        replay: 6;
+        test: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     messages: uint8;
     packet_milli: uint32;
-};
-
-type PacketFlag = unit {
-    heartbeat: uint8;
-    seq_num_reset: bytes &size=1;
-    reserved_4: bytes &size=1;
-    replay: bytes &size=1;
-    test: bytes &size=1;
 };
 
 type Message = unit {
@@ -85,28 +83,35 @@ type SecurityMessage = unit {
     security_action: uint8 &convert=SecurityAction($$);
     asset_class: uint8 &convert=AssetClass($$);
     security_id: uint32;
-    security_flags: SecurityFlags;
+    security_flags: bitfield(8) {
+        proprietary_quote_eligible: 0;
+        caveat_emptor_warning: 1;
+        qualified_institutional_buyers_only: 2;
+        unsolicited_only: 3;
+        bb_quoted: 4;
+        otc_link_ecn_eligible: 5;
+        otc_link_messaging_disabled: 6;
+        saturation_eligible: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     tier: uint8 &convert=Tier($$);
     reporting_status: uint8 &convert=ReportingStatus($$);
     security_status: uint8 &convert=SecurityStatus($$);
-};
-
-type SecurityFlags = unit {
-    proprietary_quote_eligible: bytes &size=1;
-    caveat_emptor_warning: bytes &size=1;
-    qualified_institutional_buyers_only: bytes &size=1;
-    unsolicited_only: bytes &size=1;
-    bb_quoted: bytes &size=1;
-    otc_link_ecn_eligible: bytes &size=1;
-    otc_link_messaging_disabled: bytes &size=1;
-    saturation_eligible: bytes &size=1;
 };
 
 type QuoteMessage = unit {
     channel_seq_num: uint32;
     quote_id: uint32;
     quote_action: uint8;
-    quote_flags: QuoteFlags;
+    quote_flags: bitfield(8) {
+        update_side: 0;
+        state: 1;
+        ask_unsolicited: 2;
+        ask_priced: 3;
+        ask_bid_wanted: 4;
+        bid_unsolicited: 5;
+        bid_priced: 6;
+        bid_ask_wanted: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     security_id: uint32;
     mpid: bytes &size=4;
     ask_price: uint64;
@@ -118,45 +123,56 @@ type QuoteMessage = unit {
     bid_qap: int8;
     bid_time_milli: uint64;
     quote_reference_id: uint16;
-    extended_quote_flags: ExtendedQuoteFlags;
-};
-
-type QuoteFlags = unit {
-    update_side: bytes &size=1;
-    state: bytes &size=1;
-    ask_unsolicited: bytes &size=1;
-    ask_priced: bytes &size=1;
-    ask_bid_wanted: bytes &size=1;
-    bid_unsolicited: bytes &size=1;
-    bid_priced: bytes &size=1;
-    bid_ask_wanted: bytes &size=1;
-};
-
-type ExtendedQuoteFlags = unit {
-    quote_saturated: bytes &size=1;
-    bid_auto_ex: bytes &size=1;
-    offer_auto_ex: bytes &size=1;
-    nms_conditional_quote: bytes &size=1;
-    reserved_4: bytes &size=1;
+    extended_quote_flags: bitfield(8) {
+        quote_saturated: 0;
+        bid_auto_ex: 1;
+        offer_auto_ex: 2;
+        nms_conditional_quote: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type QuoteUpdateMessage = unit {
     channel_seq_num: uint32;
     quote_id: uint32;
-    quote_flags: QuoteFlags;
+    quote_flags: bitfield(8) {
+        update_side: 0;
+        state: 1;
+        ask_unsolicited: 2;
+        ask_priced: 3;
+        ask_bid_wanted: 4;
+        bid_unsolicited: 5;
+        bid_priced: 6;
+        bid_ask_wanted: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     price: uint64;
     size: uint32;
     qap: int8;
     quote_time_milli: uint64;
     quote_reference_id: uint16;
-    extended_quote_flags: ExtendedQuoteFlags;
+    extended_quote_flags: bitfield(8) {
+        quote_saturated: 0;
+        bid_auto_ex: 1;
+        offer_auto_ex: 2;
+        nms_conditional_quote: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type InsideMessage = unit {
     channel_seq_num: uint32;
     inside_id: uint32;
     inside_action: uint8 &convert=InsideAction($$);
-    quote_flags: QuoteFlags;
+    quote_flags: bitfield(8) {
+        update_side: 0;
+        state: 1;
+        ask_unsolicited: 2;
+        ask_priced: 3;
+        ask_bid_wanted: 4;
+        bid_unsolicited: 5;
+        bid_priced: 6;
+        bid_ask_wanted: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     security_id: uint32;
     ask_price: uint64;
     ask_size: uint32;
@@ -171,7 +187,16 @@ type InsideMessage = unit {
 type InsideUpdateMessage = unit {
     channel_seq_num: uint32;
     inside_id: uint32;
-    quote_flags: QuoteFlags;
+    quote_flags: bitfield(8) {
+        update_side: 0;
+        state: 1;
+        ask_unsolicited: 2;
+        ask_priced: 3;
+        ask_bid_wanted: 4;
+        bid_unsolicited: 5;
+        bid_priced: 6;
+        bid_ask_wanted: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     price: uint64;
     size: uint32;
     inside_time_milli: uint64;
@@ -182,7 +207,16 @@ type ReferencePriceMessage = unit {
     channel_seq_num: uint32;
     reference_price_id: uint32;
     reference_price_action: uint8 &convert=ReferencePriceAction($$);
-    quote_flags: QuoteFlags;
+    quote_flags: bitfield(8) {
+        update_side: 0;
+        state: 1;
+        ask_unsolicited: 2;
+        ask_priced: 3;
+        ask_bid_wanted: 4;
+        bid_unsolicited: 5;
+        bid_priced: 6;
+        bid_ask_wanted: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     security_id: uint32;
     ask_price: uint64;
     ask_size: uint32;
@@ -195,7 +229,16 @@ type ReferencePriceMessage = unit {
 type ReferencePriceUpdateMessage = unit {
     channel_seq_num: uint32;
     reference_price_id: uint32;
-    quote_flags: QuoteFlags;
+    quote_flags: bitfield(8) {
+        update_side: 0;
+        state: 1;
+        ask_unsolicited: 2;
+        ask_priced: 3;
+        ask_bid_wanted: 4;
+        bid_unsolicited: 5;
+        bid_priced: 6;
+        bid_ask_wanted: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     price: uint64;
     size: uint32;
     time_milli: uint64;
@@ -213,7 +256,20 @@ type ExtendedSecurityMessage = unit {
     security_type: bytes &size=5;
     primary_market: bytes &size=3;
     security_id: uint32;
-    extended_security_flags: ExtendedSecurityFlags;
+    extended_security_flags: bitfield(16) {
+        piggyback: 0;
+        caveat_emptor_warning: 1;
+        qualified_institutional_buyers_only: 2;
+        unsolicited_only: 3;
+        sponsored_status: 4;
+        otc_link_ecn_eligible: 5;
+        otc_link_messaging_disabled: 6;
+        saturation_eligible: 7;
+        investment_grade: 8;
+        trading_flat: 9;
+        callable: 10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Big;
     tier: uint8 &convert=Tier($$);
     reporting_status: uint8 &convert=ReportingStatus($$);
     disclosure_status: uint8 &convert=DisclosureStatus($$);
@@ -227,21 +283,6 @@ type ExtendedSecurityMessage = unit {
     security_detail: SecurityDetail;
     issuer: Issuer;
     cusip: bytes &size=9;
-};
-
-type ExtendedSecurityFlags = unit {
-    piggyback: bytes &size=1;
-    caveat_emptor_warning: bytes &size=1;
-    qualified_institutional_buyers_only: bytes &size=1;
-    unsolicited_only: bytes &size=1;
-    sponsored_status: bytes &size=1;
-    otc_link_ecn_eligible: bytes &size=1;
-    otc_link_messaging_disabled: bytes &size=1;
-    saturation_eligible: bytes &size=1;
-    investment_grade: bytes &size=1;
-    trading_flat: bytes &size=1;
-    callable: bytes &size=1;
-    reserved_5: bytes &size=1;
 };
 
 type SecurityDetail = unit {
@@ -266,7 +307,20 @@ type ExtendedSecurityNoCusipMessage = unit {
     security_type: bytes &size=5;
     primary_market: bytes &size=3;
     security_id: uint32;
-    extended_security_flags: ExtendedSecurityFlags;
+    extended_security_flags: bitfield(16) {
+        piggyback: 0;
+        caveat_emptor_warning: 1;
+        qualified_institutional_buyers_only: 2;
+        unsolicited_only: 3;
+        sponsored_status: 4;
+        otc_link_ecn_eligible: 5;
+        otc_link_messaging_disabled: 6;
+        saturation_eligible: 7;
+        investment_grade: 8;
+        trading_flat: 9;
+        callable: 10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Big;
     tier: uint8 &convert=Tier($$);
     reporting_status: uint8 &convert=ReportingStatus($$);
     disclosure_status: uint8 &convert=DisclosureStatus($$);
@@ -287,16 +341,14 @@ type TradeMessage = unit {
     trade_action: uint8 &convert=TradeAction($$);
     trade_flags: uint8;
     security_id: uint32;
-    trade_status: TradeStatus;
+    trade_status: bitfield(8) {
+        irregular: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     deprecated: bytes &size=8;
     trade_price: uint64;
     trade_size: uint32;
     trade_time_milli: uint64;
-};
-
-type TradeStatus = unit {
-    irregular: bytes &size=1;
-    reserved_7: bytes &size=1;
 };
 
 type MessageType = enum {

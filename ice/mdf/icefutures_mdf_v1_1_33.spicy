@@ -1,0 +1,1135 @@
+module IceIcefuturesMdfImpactV1133;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type IcefuturesMdfV1133 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_of_msgs];
+};
+
+type PacketHeader = unit {
+    session: uint16;
+    sequence: uint32;
+    number_of_msgs: uint16;
+    sent_date_time: uint64;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::MarketSnapshotMessage -> market_snapshot_message: MarketSnapshotMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::SpotMarketTradeMessage -> spot_market_trade_message: SpotMarketTradeMessage;
+        MessageType::InvestigatedTradeMessage -> investigated_trade_message: InvestigatedTradeMessage;
+        MessageType::CancelledTradeMessage -> cancelled_trade_message: CancelledTradeMessage;
+        MessageType::MarketStatisticsMessage -> market_statistics_message: MarketStatisticsMessage;
+        MessageType::MarketStateChangeMessage -> market_state_change_message: MarketStateChangeMessage;
+        MessageType::SystemTextMessage -> system_text_message: SystemTextMessage;
+        MessageType::OpenInterestMessage -> open_interest_message: OpenInterestMessage;
+        MessageType::OpenPriceMessage -> open_price_message: OpenPriceMessage;
+        MessageType::ClosePriceMessage -> close_price_message: ClosePriceMessage;
+        MessageType::SettlementPriceMessage -> settlement_price_message: SettlementPriceMessage;
+        MessageType::IndexPricesMessage -> index_prices_message: IndexPricesMessage;
+        MessageType::EndOfDayMarketSummaryMessage -> end_of_day_market_summary_message: EndOfDayMarketSummaryMessage;
+        MessageType::MarketEventMessage -> market_event_message: MarketEventMessage;
+        MessageType::PreOpenPriceIndicatorMessage -> pre_open_price_indicator_message: PreOpenPriceIndicatorMessage;
+        MessageType::StripInfoMessage -> strip_info_message: StripInfoMessage;
+        MessageType::IntervalPriceLimitNotificationMessage -> interval_price_limit_notification_message: IntervalPriceLimitNotificationMessage;
+        MessageType::NewFuturesStrategyDefinitionMessage -> new_futures_strategy_definition_message: NewFuturesStrategyDefinitionMessage;
+        MessageType::NewExpiryMessage -> new_expiry_message: NewExpiryMessage;
+        MessageType::SpecialFieldMessage -> special_field_message: SpecialFieldMessage;
+        MessageType::MarketSnapshotOrderMessage -> market_snapshot_order_message: MarketSnapshotOrderMessage;
+        MessageType::AddOrModifyOrderMessage -> add_or_modify_order_message: AddOrModifyOrderMessage;
+        MessageType::DeleteOrderMessage -> delete_order_message: DeleteOrderMessage;
+        MessageType::MessageBundleMarker -> message_bundle_marker: MessageBundleMarker;
+        MessageType::FixingTransitionMessage -> fixing_transition_message: FixingTransitionMessage;
+        MessageType::FixingLockdownMessage -> fixing_lockdown_message: FixingLockdownMessage;
+        MessageType::FixingIndicativePriceMessageMessage -> fixing_indicative_price_message_message: FixingIndicativePriceMessageMessage;
+        MessageType::MarketSnapshotPriceLevelMessage -> market_snapshot_price_level_message: MarketSnapshotPriceLevelMessage;
+        MessageType::AddPriceLevelMessage -> add_price_level_message: AddPriceLevelMessage;
+        MessageType::ChangePriceLevelMessage -> change_price_level_message: ChangePriceLevelMessage;
+        MessageType::DeletePriceLevelMessage -> delete_price_level_message: DeletePriceLevelMessage;
+        MessageType::NewOptionsStrategyDefinitionMessage -> new_options_strategy_definition_message: NewOptionsStrategyDefinitionMessage;
+        MessageType::NewOptionsMarketDefinitionMessage -> new_options_market_definition_message: NewOptionsMarketDefinitionMessage;
+        MessageType::RfqMessage -> rfq_message: RfqMessage;
+        MessageType::OptionOpenInterestMessage -> option_open_interest_message: OptionOpenInterestMessage;
+        MessageType::OptionSettlementPriceMessage -> option_settlement_price_message: OptionSettlementPriceMessage;
+        MessageType::OldStyleOptionsTradeAndMarketStatsMessage -> old_style_options_trade_and_market_stats_message: OldStyleOptionsTradeAndMarketStatsMessage;
+        * -> unknown: bytes &eod;
+    };
+    extra_data: bytes &size=self.message_header.length + 3 - 3909;
+};
+
+type MessageHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    length: uint16;
+};
+
+type MarketSnapshotMessage = unit {
+    market_id: int32;
+    market_type: int16;
+    trading_status: uint8 &convert=TradingStatus($$);
+    volume: int32;
+    block_volume: int32;
+    efs_volume: int32;
+    efp_volume: int32;
+    open_interest: int32;
+    opening_price: int64;
+    settlement_price_with_deal_price_precision: int64;
+    high: int64;
+    low: int64;
+    vwap: int64;
+    num_of_book_entries: int32;
+    last_trade_price: int64;
+    last_trade_quantity: int32;
+    last_trade_date_time: int64;
+    settle_price_date_time: int64;
+    last_message_sequence_id: int32;
+    : skip bytes &size=2;   # padding
+    open_interest_date: bytes &size=10;
+    is_settle_price_official: uint8 &convert=IsSettlePriceOfficial($$);
+    settlement_price: int64;
+    has_previous_day_settlement_price: uint8 &convert=HasPreviousDaySettlementPrice($$);
+    previous_day_settlement_price: int64;
+};
+
+type TradeMessage = unit {
+    market_id: int32;
+    trade_id: int64;
+    is_system_priced_leg: uint8 &convert=IsSystemPricedLeg($$);
+    price: int64;
+    quantity: int32;
+    off_market_trade_indicator: uint8 &convert=OffMarketTradeIndicator($$);
+    transact_date_time: int64;
+    system_priced_leg_type: uint8 &convert=SystemPricedLegType($$);
+    is_implied_spread_at_market_open: bytes &size=1;
+    is_adjusted_trade: bytes &size=1;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    extra_flags: int8;
+    off_market_trade_type: bytes &size=3;
+    sequence_within_millis: int32;
+};
+
+type SpotMarketTradeMessage = unit {
+    market_id: int32;
+    trade_id: int64;
+    price: int64;
+    quantity: int32;
+    transact_date_time: int64;
+    extra_flags: int8;
+    delivery_begin_date_time: int64;
+    delivery_end_date_time: int64;
+    is_system_priced_leg: uint8 &convert=IsSystemPricedLeg($$);
+};
+
+type InvestigatedTradeMessage = unit {
+    market_id: int32;
+    trade_id: int64;
+    price: int64;
+    quantity: int32;
+    off_market_trade_indicator: uint8 &convert=OffMarketTradeIndicator($$);
+    message_date_time: int64;
+    investigation_status: uint8 &convert=InvestigationStatus($$);
+    off_market_trade_type: bytes &size=3;
+};
+
+type CancelledTradeMessage = unit {
+    market_id: int32;
+    trade_id: int64;
+    price: int64;
+    quantity: int32;
+    off_market_trade_indicator: uint8 &convert=OffMarketTradeIndicator($$);
+    message_date_time: int64;
+    off_market_trade_type: bytes &size=3;
+};
+
+type MarketStatisticsMessage = unit {
+    market_id: int32;
+    volume: int32;
+    block_volume: int32;
+    efs_volume: int32;
+    efp_volume: int32;
+    high: int64;
+    low: int64;
+    vwap: int64;
+    message_date_time: int64;
+};
+
+type MarketStateChangeMessage = unit {
+    market_id: int32;
+    trading_status: uint8 &convert=TradingStatus($$);
+    message_date_time: int64;
+};
+
+type SystemTextMessage = unit {
+    text_message: bytes &size=200;
+    message_date_time: int64;
+    text_message_extra_fld: bytes &size=800;
+};
+
+type OpenInterestMessage = unit {
+    market_id: int32;
+    open_interest: int32;
+    open_interest_change: int32;
+    message_date_time: int64;
+    open_interest_date: bytes &size=10;
+};
+
+type OpenPriceMessage = unit {
+    market_id: int32;
+    open_price: int64;
+    message_date_time: int64;
+};
+
+type ClosePriceMessage = unit {
+    market_id: int32;
+    close_price: int64;
+    message_date_time: int64;
+};
+
+type SettlementPriceMessage = unit {
+    market_id: int32;
+    settlement_price_with_deal_price_precision: int64;
+    message_date_time: int64;
+    is_official: uint8 &convert=IsOfficial($$);
+    valuation_date_time: int64;
+    settlement_price: int64;
+};
+
+type IndexPricesMessage = unit {
+    market_id: int32;
+    price: int64;
+    short_name: bytes &size=30;
+    published_date_time: int64;
+    valuation_date_applying_date: bytes &size=10;
+    status: uint8 &convert=Status($$);
+};
+
+type EndOfDayMarketSummaryMessage = unit {
+    market_id: int32;
+    volume: int32;
+    block_volume: int32;
+    efs_volume: int32;
+    efp_volume: int32;
+    opening_price: int64;
+    high: int64;
+    low: int64;
+    vwap: int64;
+    settlement_price_with_deal_price_precision: int64;
+    open_interest: int32;
+    message_date_time: int64;
+    settlement_price: int64;
+};
+
+type MarketEventMessage = unit {
+    market_id: int32;
+    event_type: bytes &size=1;
+    message_date_time: int64;
+};
+
+type PreOpenPriceIndicatorMessage = unit {
+    market_id: int32;
+    pre_open_price: int64;
+    message_date_time: int64;
+    has_pre_open_volume: bytes &size=1;
+    pre_open_volume: int32;
+};
+
+type StripInfoMessage = unit {
+    old_strip_id: int16;
+    strip_type: bytes &size=20;
+    begin_year: int16;
+    begin_month: int16;
+    begin_day: int16;
+    end_year: int16;
+    end_month: int16;
+    end_day: int16;
+    strip_info: bytes &size=50;
+    strip_id: int32;
+};
+
+type IntervalPriceLimitNotificationMessage = unit {
+    market_id: int32;
+    ipl_hold_type: uint8 &convert=IplHoldType($$);
+    notification_date_time: int64;
+    is_up: uint8 &convert=IsUp($$);
+    ipl_hold_duration: int32;
+    ipl_up: int64;
+    ipl_down: int64;
+};
+
+type NewFuturesStrategyDefinitionMessage = unit {
+    market_id: int32;
+    futures_contract_symbol: bytes &size=70;
+    trading_status: uint8 &convert=TradingStatus($$);
+    order_price_denominator: bytes &size=1;
+    increment_price: int32;
+    increment_qty: int32;
+    min_qty: int32;
+    number_of_leg_definitions: int8;
+    leg_definition: LegDefinition[self.number_of_leg_definitions];
+    security_sub_type: int16 &convert=SecuritySubType($$);
+    is_block_only: uint8 &convert=IsBlockOnly($$);
+    strategy_symbol: bytes &size=18;
+    gt_allowed: uint8 &convert=GtAllowed($$);
+    : skip bytes &size=4;   # padding
+    mifid_regulated_market: uint8 &convert=MifidRegulatedMarket($$);
+    market_desc: bytes &size=120;
+    maturity_year: int16;
+    maturity_month: int16;
+    maturity_day: int16;
+    deal_price_denominator: bytes &size=1;
+    unit_quantity: int32;
+    num_decimals_options_price: bytes &size=1;
+    allow_options: uint8 &convert=AllowOptions($$);
+    cleared_alias: bytes &size=15;
+    allows_implied: uint8 &convert=AllowsImplied($$);
+    min_price: int64;
+    max_price: int64;
+    product_name: bytes &size=62;
+    hub_alias: bytes &size=80;
+    strip_name: bytes &size=39;
+    is_tradable: uint8 &convert=IsTradable($$);
+    settle_price_denominator: bytes &size=1;
+    mic_code: bytes &size=4;
+    unit_qty_denominator: bytes &size=1;
+    hedge_only: uint8 &convert=HedgeOnly($$);
+    exchange_silo: uint8 &convert=ExchangeSilo($$);
+    off_exchange_increment_qty_denominator: bytes &size=1;
+    off_exchange_increment_qty: int32;
+    off_exchange_increment_price: int32;
+    off_exchange_increment_option_price: int32;
+    product_id: int32;
+    hub_id: int32;
+    strip_id: int32;
+    underlying_isin: bytes &size=12;
+    test_market_indicator: uint8 &convert=TestMarketIndicator($$);
+    leg_deal_suppressed: uint8 &convert=LegDealSuppressed($$);
+};
+
+type LegDefinition = unit {
+    leg_body_length: int8;
+    leg_market_id: int32;
+    leg_ratio: int16;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_strategy_code: int16;
+    leg_ratio_qty_numerator: int32;
+    leg_ratio_qty_denominator: int32;
+    leg_ratio_price_numerator: int32;
+    leg_ratio_price_denominator: int32;
+};
+
+type NewExpiryMessage = unit {
+    market_id: int32;
+    market_type_id: int16 &convert=MarketTypeId($$);
+    order_price_denominator: bytes &size=1;
+    increment_price: int32;
+    increment_qty: int32;
+    lot_size: int32;
+    market_desc: bytes &size=120;
+    maturity_year: int16;
+    maturity_month: int16;
+    maturity_day: int16;
+    deal_price_denominator: bytes &size=1;
+    min_qty: int32;
+    unit_quantity: int32;
+    currency: bytes &size=20;
+    cleared_alias: bytes &size=15;
+    min_price: int64;
+    max_price: int64;
+    product_id: int32;
+    product_name: bytes &size=62;
+    hub_id: int32;
+    hub_alias: bytes &size=80;
+    strip_id: int32;
+    strip_name: bytes &size=39;
+    settle_price_denominator: bytes &size=1;
+    mic_code: bytes &size=4;
+    unit_qty_denominator: bytes &size=1;
+    off_exchange_increment_qty_denominator: bytes &size=1;
+    off_exchange_increment_qty: int32;
+    off_exchange_increment_price: int32;
+    off_exchange_increment_option_price: int32;
+    contract_symbol: bytes &size=35;
+    isin: bytes &size=12;
+    num_decimals_options_price: bytes &size=1;
+    hedge_market_id: int32;
+    settlement_type: uint8 &convert=SettlementType($$);
+    gt_allowed: uint8 &convert=GtAllowed($$);
+    cross_order_supported: uint8 &convert=CrossOrderSupported($$);
+    unit_of_measure: bytes &size=30;
+    mifid_regulated_market: uint8 &convert=MifidRegulatedMarket($$);
+};
+
+type SpecialFieldMessage = unit {
+    number_of_special_fields: int8;
+    special_field: SpecialField[self.number_of_special_fields];
+};
+
+type SpecialField = unit {
+    special_field_id: int8 &convert=SpecialFieldId($$);
+    special_field_length: int16;
+    variable_field: bytes &size=self.special_field_length;
+};
+
+type MarketSnapshotOrderMessage = unit {
+    market_id: int32;
+    order_id: int64;
+    order_sequence_id: int16;
+    side: uint8 &convert=Side($$);
+    price: int64;
+    quantity: int32;
+    is_implied: bytes &size=1;
+    is_rfq: bytes &size=1;
+    order_entry_date_time: int64;
+    sequence_within_millis: int32;
+};
+
+type AddOrModifyOrderMessage = unit {
+    market_id: int32;
+    order_id: int64;
+    order_sequence_id: int16;
+    side: uint8 &convert=Side($$);
+    price: int64;
+    quantity: int32;
+    is_implied: bytes &size=1;
+    is_rfq: bytes &size=1;
+    order_entry_date_time: int64;
+    extra_flags: int8;
+    sequence_within_millis: int32;
+    modification_timestamp: int64;
+};
+
+type DeleteOrderMessage = unit {
+    market_id: int32;
+    order_id: int64;
+    message_date_time: int64;
+    sequence_within_millis: int32;
+};
+
+type MessageBundleMarker = unit {
+    start_or_end: uint8 &convert=StartOrEnd($$);
+};
+
+type FixingTransitionMessage = unit {
+    market_id: int32;
+    status: uint8 &convert=Status($$);
+    auction_end_time: int64;
+    threshold_imbalance_qty: int32;
+    message_date_time: int64;
+};
+
+type FixingLockdownMessage = unit {
+    market_id: int32;
+    auction_date: bytes &size=10;
+    message_date_time: int64;
+    description: bytes &size=20;
+    round: int16;
+    agg_bid_qty: int32;
+    agg_offer_qty: int32;
+    usd_price: int64;
+    is_balanced: uint8 &convert=IsBalanced($$);
+    is_final: uint8 &convert=IsFinal($$);
+    gbp_price: int64;
+    eur_price: int64;
+};
+
+type FixingIndicativePriceMessageMessage = unit {
+    market_id: int32;
+    iba_currency: bytes &size=3;
+    price: int64;
+    price_in_gram: int64;
+    num_decimals_price: int8;
+    num_decimals_price_in_gram: int8;
+};
+
+type MarketSnapshotPriceLevelMessage = unit {
+    market_id: int32;
+    side: uint8 &convert=Side($$);
+    price_level_position: int8;
+    price: int64;
+    quantity: int32;
+    order_count: int16;
+    implied_quantity: int32;
+    implied_order_count: int16;
+};
+
+type AddPriceLevelMessage = unit {
+    market_id: int32;
+    side: uint8 &convert=Side($$);
+    price_level_position: int8;
+    price: int64;
+    quantity: int32;
+    order_count: int16;
+    implied_quantity: int32;
+    implied_order_count: int16;
+    timestamp: int64;
+};
+
+type ChangePriceLevelMessage = unit {
+    market_id: int32;
+    side: uint8 &convert=Side($$);
+    price_level_position: int8;
+    price: int64;
+    quantity: int32;
+    order_count: int16;
+    implied_quantity: int32;
+    implied_order_count: int16;
+    timestamp: int64;
+};
+
+type DeletePriceLevelMessage = unit {
+    market_id: int32;
+    side: uint8 &convert=Side($$);
+    price_level_position: int8;
+    timestamp: int64;
+};
+
+type NewOptionsStrategyDefinitionMessage = unit {
+    market_id: int32;
+    underlying_market_id: int32;
+    contract_symbol: bytes &size=35;
+    trading_status: uint8 &convert=TradingStatus($$);
+    order_price_denominator: bytes &size=1;
+    increment_price: int32;
+    increment_qty: int32;
+    min_qty: int32;
+    number_of_strategy_leg_definitions: int8;
+    strategy_leg_definition: StrategyLegDefinition[self.number_of_strategy_leg_definitions];
+    number_of_hedge_definitions: int8;
+    hedge_definition: HedgeDefinition[self.number_of_hedge_definitions];
+    security_sub_type: int16 &convert=SecuritySubType($$);
+    is_block_only: uint8 &convert=IsBlockOnly($$);
+    strategy_symbol: bytes &size=18;
+    gt_allowed: uint8 &convert=GtAllowed($$);
+    mifid_regulated_market: uint8 &convert=MifidRegulatedMarket($$);
+    deal_price_denominator: bytes &size=1;
+    settle_price_denominator: bytes &size=1;
+    unit_qty_denominator: bytes &size=1;
+    test_market_indicator: uint8 &convert=TestMarketIndicator($$);
+    contract_symbol_extra: bytes &size=35;
+    leg_deal_suppressed: uint8 &convert=LegDealSuppressed($$);
+};
+
+type StrategyLegDefinition = unit {
+    leg_body_length: int8;
+    leg_market_id: int32;
+    leg_underlying_market_id: int32;
+    leg_ratio: int16;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_strategy_code: int16;
+    leg_ratio_qty_numerator: int32;
+    leg_ratio_qty_denominator: int32;
+    leg_ratio_price_numerator: int32;
+    leg_ratio_price_denominator: int32;
+};
+
+type HedgeDefinition = unit {
+    hedge_body_length: int8;
+    hedge_market_id: int32;
+    hedge_security_type: bytes &size=1;
+    hedge_side: uint8 &convert=HedgeSide($$);
+    hedge_price: int64;
+    hedge_price_denominator: bytes &size=1;
+    hedge_delta: int16;
+    hedge_strategy_code: int16;
+};
+
+type NewOptionsMarketDefinitionMessage = unit {
+    market_id: int32;
+    underlying_market_id: int32;
+    futures_contract_symbol: bytes &size=70;
+    trading_status: uint8 &convert=TradingStatus($$);
+    order_price_denominator: bytes &size=1;
+    increment_qty: int32;
+    lot_size: int32;
+    market_desc: bytes &size=120;
+    option_type: uint8 &convert=OptionType($$);
+    strike_price: int64;
+    deal_price_denominator: bytes &size=1;
+    min_qty: int32;
+    currency: bytes &size=20;
+    num_decimals_strike_price: bytes &size=1;
+    min_options_price: int64;
+    max_options_price: int64;
+    increment_premium_price: int32;
+    options_expiration_year: int16;
+    options_expiration_month: int16;
+    options_expiration_day: int16;
+    options_style: uint8 &convert=OptionsStyle($$);
+    options_expiration_type: uint8 &convert=OptionsExpirationType($$);
+    hedge_market_id: int32;
+    settle_price_denominator: bytes &size=1;
+    unit_qty_denominator: bytes &size=1;
+    tick_value: int64;
+    flex_allowed: bytes &size=1;
+    settlement_type: uint8 &convert=SettlementType($$);
+    is_block_only: uint8 &convert=IsBlockOnly($$);
+    gt_allowed: uint8 &convert=GtAllowed($$);
+    cross_order_supported: uint8 &convert=CrossOrderSupported($$);
+    guaranteed_cross_supported: uint8 &convert=GuaranteedCrossSupported($$);
+    unit_of_measure: bytes &size=30;
+    mifid_regulated_market: uint8 &convert=MifidRegulatedMarket($$);
+};
+
+type RfqMessage = unit {
+    market_id: int32;
+    message_timestamp: int64;
+    rfq_system_id: int64;
+    market_type_id: int16 &convert=MarketTypeId($$);
+    underlying_market_id: int32;
+    quantity: int32;
+    side: uint8 &convert=Side($$);
+};
+
+type OptionOpenInterestMessage = unit {
+    market_id: int32;
+    open_interest: int32;
+    message_date_time: int64;
+    open_interest_date: bytes &size=10;
+};
+
+type OptionSettlementPriceMessage = unit {
+    market_id: int32;
+    settlement_price_with_deal_price_precision: int64;
+    message_date_time: int64;
+    is_official: uint8 &convert=IsOfficial($$);
+    valuation_date_time: int64;
+    volatility: int64;
+    settlement_price: int64;
+    delta: int64;
+};
+
+type OldStyleOptionsTradeAndMarketStatsMessage = unit {
+    underlying_market_id: int32;
+    trade_id: int64;
+    price: int64;
+    quantity: int32;
+    off_market_trade_indicator: uint8 &convert=OffMarketTradeIndicator($$);
+    transact_date_time: int64;
+    option_type: uint8 &convert=OptionType($$);
+    strike_price: int64;
+    event_code: uint8 &convert=EventCode($$);
+    total_volume: int32;
+    block_volume: int32;
+    efs_volume: int32;
+    efp_volume: int32;
+    high: int64;
+    low: int64;
+    vwap: int64;
+};
+
+type MessageType = enum {
+    MarketSnapshotMessage = 0x43,
+    TradeMessage = 0x47,
+    SpotMarketTradeMessage = 0x59,
+    InvestigatedTradeMessage = 0x48,
+    CancelledTradeMessage = 0x49,
+    MarketStatisticsMessage = 0x4a,
+    MarketStateChangeMessage = 0x4b,
+    SystemTextMessage = 0x4c,
+    OpenInterestMessage = 0x4d,
+    OpenPriceMessage = 0x4e,
+    ClosePriceMessage = 0x63,
+    SettlementPriceMessage = 0x4f,
+    IndexPricesMessage = 0x7a,
+    EndOfDayMarketSummaryMessage = 0x75,
+    MarketEventMessage = 0x66,
+    PreOpenPriceIndicatorMessage = 0x67,
+    StripInfoMessage = 0x69,
+    IntervalPriceLimitNotificationMessage = 0x56,
+    NewFuturesStrategyDefinitionMessage = 0x39,
+    NewExpiryMessage = 0x52,
+    SpecialFieldMessage = 0x62,
+    MarketSnapshotOrderMessage = 0x44,
+    AddOrModifyOrderMessage = 0x45,
+    DeleteOrderMessage = 0x46,
+    MessageBundleMarker = 0x54,
+    FixingTransitionMessage = 0x33,
+    FixingLockdownMessage = 0x34,
+    FixingIndicativePriceMessageMessage = 0x30,
+    MarketSnapshotPriceLevelMessage = 0x6d,
+    AddPriceLevelMessage = 0x74,
+    ChangePriceLevelMessage = 0x73,
+    DeletePriceLevelMessage = 0x72,
+    NewOptionsStrategyDefinitionMessage = 0x55,
+    NewOptionsMarketDefinitionMessage = 0x6c,
+    RfqMessage = 0x6b,
+    OptionOpenInterestMessage = 0x76,
+    OptionSettlementPriceMessage = 0x77,
+    OldStyleOptionsTradeAndMarketStatsMessage = 0x57,
+};
+
+type TradingStatus = enum {
+    Open = 0x4f,
+    Close = 0x43,
+    Expired = 0x45,
+    PreOpen = 0x31,
+    PreClose = 0x32,
+};
+
+type IsSettlePriceOfficial = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type HasPreviousDaySettlementPrice = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type IsSystemPricedLeg = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type OffMarketTradeIndicator = enum {
+    Regular = 0x20,
+    Block = 0x4b,
+    Efs = 0x53,
+    Efp = 0x45,
+    EfpEfs = 0x4f,
+    Eoo = 0x51,
+    Efm = 0x49,
+    GuaranteedCross = 0x35,
+    Basis = 0x34,
+};
+
+type SystemPricedLegType = enum {
+    SystemPricedCrackSpreadLeg = 0x43,
+    SystemPricedLeg = 0x53,
+};
+
+type AggressorSide = enum {
+    None_x20 = 0x20,
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type InvestigationStatus = enum {
+    UnderInvestigation = 0x31,
+    InvestigationCompleted = 0x32,
+};
+
+type IsOfficial = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type Status = enum {
+    Closed = 0x43,
+    Preopen = 0x50,
+    Lockdown = 0x4c,
+};
+
+type IplHoldType = enum {
+    IplHoldStart = 0x53,
+    IplHoldEnd = 0x45,
+};
+
+type IsUp = enum {
+    IplUpperBoundViolation = 0x59,
+    IplLowerBoundViolation = 0x4e,
+    Final = 0x46,
+    NonEndexSpotMarket = 0x20,
+};
+
+type LegSide = enum {
+    None_x20 = 0x20,
+    Bid = 0x31,
+    Offer = 0x32,
+};
+
+type SecuritySubType = enum {
+    None_0 = 0,
+    Call = 1,
+    Put = 2,
+    FuturesButterfly = 3,
+    CallButterfly = 4,
+    PutButterfly = 5,
+    CallSpread = 6,
+    PutSpread = 7,
+    DiagonalCallSpread = 9,
+    DiagonalPutSpread = 10,
+    GutStrangle = 11,
+    OneByTwoCallSpreadToTheTwo = 12,
+    OneByTwoPutSpreadToTheTwo = 13,
+    IronButterfly = 14,
+    Strangle = 16,
+    CallLadderTree = 17,
+    PutLadderTree = 18,
+    StraddleSpread = 19,
+    ReversalConversion = 21,
+    Straddle = 22,
+    FuturesCondor = 23,
+    CallCondor = 24,
+    PutCondor = 25,
+    Box = 26,
+    SyntheticUnderlying = 33,
+    CallSpreadVsPut3Way = 34,
+    PutSpreadVsCall3Way = 35,
+    StraddleVsCall3Way = 36,
+    StraddleVsPut3Way = 37,
+    CallCalendarSpread = 38,
+    PutCalendarSpread = 39,
+    IronCondor = 40,
+    JellyRoll = 41,
+    HedgedOneByTwoCallSpreadToTheTwo = 42,
+    HedgedOneByTwoPutSpreadToTheTwo = 43,
+    CallSpreadVersusSellPutHedge = 44,
+    PutSpreadVersusSellCallHedge = 45,
+    HedgedCallCalendar = 46,
+    HedgedPutCalendar = 47,
+    HedgedCallLadderTree = 48,
+    HedgedPutLadderTree = 49,
+    HedgedCallSpread = 50,
+    HedgedPutSpread = 51,
+    HedgedStraddle = 53,
+    HedgedStrangle = 54,
+    HedgedCall = 55,
+    HedgedPut = 56,
+    Custom = 58,
+    HedgedStraddleSpread = 59,
+    HedgedCallCondor = 60,
+    HedgedPutCondor = 61,
+    HedgedDiagonalCallSpread = 63,
+    HedgedDiagonalPutSpread = 64,
+    HedgedCallButterlfy = 65,
+    HedgedPutButterlfy = 66,
+    HedgedGutsStrangle = 67,
+    HedgedIronCondor = 68,
+    HedgedIronButterfly = 69,
+    FenceToTheCall = 70,
+    FenceToThePut = 71,
+    HedgedFenceToTheCall = 72,
+    HedgedFenceToThePut = 73,
+    OneByTwoCallSpreadToTheOne = 74,
+    OneByTwoPutSpreadToTheOne = 75,
+    HedgedOneByTwoCallSpreadToTheOne = 76,
+    HedgedOneByTwoPutSpreadToTheOne = 77,
+    DiscountSpreads = 88,
+    LocationSpreads = 89,
+    PlattsDiffSpread = 90,
+    PlattsSpread = 91,
+    OtcGasOilCrack = 92,
+    BalmoOverMonth = 93,
+    RatioSpread = 94,
+    VolumetricSpread = 95,
+    HeatRate = 96,
+    CrackSpread = 97,
+    ComboSpread = 98,
+    SpreadS = 99,
+    PacknoColor = 100,
+    PackWhite = 101,
+    PackRed = 102,
+    PackGreen = 103,
+    PackBlue = 104,
+    PackGold = 105,
+    PackPurple = 106,
+    PackOrange = 107,
+    PackPink = 108,
+    PackSilver = 109,
+    PackCopper = 110,
+    BundleNoColor = 200,
+    Bundle2Yr = 201,
+    Bundle3Yr = 202,
+    Bundle4Yr = 203,
+    Bundle5Yr = 204,
+    Bundle6Yr = 205,
+    Bundle7Yr = 206,
+    Bundle8Yr = 207,
+    Bundle9Yr = 208,
+    Bundle10Yr = 209,
+    Balmo = 400,
+    NextDay = 410,
+    Cfd = 411,
+    Weekend = 412,
+    SingleDay = 413,
+    CustomDaily = 414,
+    Hourly = 415,
+    Month = 416,
+    Balweek = 450,
+    Basket = 500,
+    CustomMonthly = 550,
+    NextWeek = 600,
+    Period = 700,
+    CustomDailyCfd = 711,
+    CustomDaily7X8 = 712,
+    CustomDaily7X16 = 713,
+    CustomDaily7X6 = 714,
+    CustomDailyOffPeakX16 = 715,
+    Quarter = 800,
+    Year = 900,
+};
+
+type IsBlockOnly = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type GtAllowed = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type MifidRegulatedMarket = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type AllowOptions = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type AllowsImplied = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type IsTradable = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type HedgeOnly = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type ExchangeSilo = enum {
+    Ice = 0x30,
+    Endex = 0x31,
+    Liffe = 0x32,
+};
+
+type TestMarketIndicator = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type LegDealSuppressed = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type MarketTypeId = enum {
+    FinancialGas = 0,
+    FinancialPower = 1,
+    Oil = 2,
+    IpeNaturalGasFutures = 3,
+    IpeGasOilFutures = 4,
+    IpeBrentFutures = 5,
+    IpeUkElectricityFuturesPeak = 7,
+    IpeUkElectricityFuturesBase = 8,
+    IceWtiCrudeFutures = 9,
+    GCNewcastleCoalFutures = 10,
+    IceBrentWtiFuturesSpread = 11,
+    IpeecxEuropeanEmissions = 12,
+    IceHeatingOilFutures = 13,
+    IceHeatingOilWtiFuturesCrack = 14,
+    IceNyhRbobGasolineFutures = 15,
+    IceNyhRbobGasolineWtiFuturesCrack = 16,
+    IceRotterdamCoalFutures = 17,
+    IceRichardsBayCoalFutures = 18,
+    IceRotterdamRichardsBayCoalFuturesSpread = 19,
+    Cocoa = 20,
+    CoffeeC = 21,
+    CottonNo2 = 22,
+    FcojA = 23,
+    SugarNo11 = 24,
+    HeatRateSpread = 25,
+    UsDollarIndex = 26,
+    CanadianOilseeds = 36,
+    EcxCerFutures = 38,
+    ForeignExchange = 39,
+    FinancialIndexData = 40,
+    SugarNo16 = 41,
+    EcxEuacerFuturesSpread = 42,
+    HenryHub = 44,
+    DutchTtfGasFutures = 48,
+    GermanNaturalGasFutures = 50,
+    EuropeanGasSpreads = 51,
+    CanadianFinancialGas = 53,
+    NgxCanadianPhysicalCrude = 54,
+    UsCoalFutures = 55,
+    FobIndoSubbitCoalFutures = 57,
+    HeatingOilBrentFuturesCrack = 58,
+    NyhRbobGasolineBrentFuturesCrack = 59,
+    WetFreight = 60,
+    DryFreight = 61,
+    FerrousMetals = 62,
+    PlattsVariableOil = 63,
+    NyhRbobGasolineHeatingOilSpread = 66,
+    PhysicalEnvironmental = 69,
+    HeatingOilLsGasoilFuturesSpread = 70,
+    LsGasoilBrentFuturesCrack = 71,
+    NyhRbobGasolineLsGasoilFuturesSpread = 72,
+    EcxEuaaFutures = 84,
+    EcxCereuaaFuturesSpread = 85,
+    EcxEuaaeuaFuturesSpread = 86,
+    Soybean = 89,
+    EcxEuaEibAuction = 92,
+    FinancialLng = 93,
+    EuaUkAuction = 95,
+    EuaaUkAuction = 96,
+    CfrSouthChinaCoalFutures = 97,
+    BelgianPowerFutures = 98,
+    DutchPowerFutures = 99,
+    GCNewcastleFobIndoSubbitCoalFuturesSpread = 100,
+    RichardsBaygCNewcastleCoalFuturesSpread = 101,
+    FcojAMini = 102,
+    CifUs = 104,
+    D6Rin = 108,
+    EuropeanPowerSpreads = 111,
+    Taqa = 112,
+    BelgianZtpGasSpot = 113,
+    DutchTtfGasSpot = 114,
+    DutchTtfGasStorage = 115,
+    EuropeanGasSpotSpreads = 116,
+    BelgianZtpGasFutures = 117,
+    UkOcmGasSpot = 118,
+    BelgianGasSpreads = 119,
+    FinancialOlefins = 124,
+    FinancialMonomers = 125,
+    PlattsVariableOilUrals = 126,
+    EndexSpotMarketIndices = 127,
+    InterestRateFutures = 131,
+    SingaporeEnergy = 133,
+    SingaporeFinancials = 134,
+    SingaporeMetals = 135,
+    ItalianNaturalGasFutures = 136,
+    ItalianPowerFutures = 137,
+    CreditSwapData = 139,
+    GoldFixing = 140,
+    NorthSeaPartials = 141,
+    EuFinancialPowerSpreads = 142,
+    EuFinancialPowerFutures = 143,
+    OilCad = 144,
+    SilverFixing = 147,
+    UkSparkSpread = 149,
+    UkOcmPhysicalGasSpot = 150,
+    JapanDomesticWaterborne = 152,
+    DailyMetals = 154,
+    BrixEnergiaFin = 155,
+    JapanDomesticRack = 156,
+    FinancialUsLng = 157,
+    IceRotterdamNewcastleCoalFuturesSpread = 160,
+    OilAmericas = 165,
+    PlattsPetrochemical = 167,
+    PermianWtiFutures = 168,
+    EndexEquityIndices = 170,
+    EndexSingleStockOptions = 171,
+    IfusIceIndices = 172,
+    PlattsAsiaBunker = 173,
+    SofrFutures = 177,
+    DigitalAssetFutures = 178,
+    PermianBrentFuturesSpread = 179,
+    PermianWtiFuturesSpread = 180,
+    LiffeStiRs = 200,
+    LiffeBonds = 202,
+    LiffeSwapnotes = 203,
+    LiffeCommodities = 205,
+    Metals = 206,
+    IfusEquityIndices = 207,
+    GcfRepo = 208,
+    LiffeThreeMonthEuroAndEonia = 209,
+    Eurodollar = 210,
+    LiffeEquityDerivativesNonUsBased = 211,
+    LiffeEquityDerivativesUsBased = 212,
+    LiffeIndexOptions = 213,
+    LiffeIndexFuturesUsRestricted = 214,
+    LiffeIndexFuturesNonUsRestricted = 215,
+    PhysicalGas = 305,
+    Power = 306,
+    NgxPhysicalGas = 314,
+    NgxFinancialPower = 315,
+    NgxFinancialGas = 316,
+    FinancialNgl = 317,
+    OlefinsPolymers = 318,
+    PhysicalNgl = 319,
+    PhysicalOil = 320,
+    TestIpe = 600,
+    TestNybot = 601,
+    TestNdex = 602,
+    TestLiffeuk1 = 603,
+    TestLiffeuk2 = 604,
+};
+
+type SettlementType = enum {
+    Financial = 0x30,
+    Physical = 0x31,
+};
+
+type CrossOrderSupported = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type SpecialFieldId = enum {
+    AltPrice = 1,
+    AltHighPrice = 2,
+    AltLowPrice = 3,
+    AltVwap = 4,
+    AltLastTradePrice = 5,
+    Aon = 6,
+};
+
+type Side = enum {
+    None_x20 = 0x20,
+    Bid = 0x31,
+    Offer = 0x32,
+};
+
+type StartOrEnd = enum {
+    Start = 0x53,
+    End = 0x45,
+};
+
+type IsBalanced = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type IsFinal = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type HedgeSide = enum {
+    None_x20 = 0x20,
+    Bid = 0x31,
+    Offer = 0x32,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type OptionsStyle = enum {
+    American = 0x41,
+    European = 0x45,
+    None_x30 = 0x30,
+    Asian = 0x33,
+    OneTime = 0x34,
+};
+
+type OptionsExpirationType = enum {
+    Monthly = 0x4d,
+    Daily = 0x44,
+};
+
+type GuaranteedCrossSupported = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type EventCode = enum {
+    NormalTrade = 0x30,
+    CancelledTrade = 0x31,
+    AdjustedTrade = 0x32,
+};
+

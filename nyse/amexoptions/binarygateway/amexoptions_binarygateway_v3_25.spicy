@@ -439,15 +439,13 @@ type OrderAndCancelReplaceAcknowledgementMessage = unit {
     pre_liquidity_indicator: bytes &size=4;
     reason_code: uint16 &convert=ReasonCode($$);
     ack_type: uint8 &convert=AckType($$);
-    bitfield_flow_indicator: BitfieldFlowIndicator;
+    bitfield_flow_indicator: bitfield(8) {
+        throttled: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     leg_open_close: uint64 &convert=LegOpenClose($$);
     auction_id: uint64;
     optional_order_add_on: OptionalOrderAddOn;
-};
-
-type BitfieldFlowIndicator = unit {
-    throttled: uint8 &convert=Throttled($$);
-    : skip bytes &size=1;   # padding
 };
 
 type BulkQuoteAcknowledgmentType294Message = unit {
@@ -456,7 +454,10 @@ type BulkQuoteAcknowledgmentType294Message = unit {
     market_maker: bytes &size=10;
     sub_id: bytes &size=4;
     cl_ord_id: uint64;
-    bitfield_flow_indicator: BitfieldFlowIndicator;
+    bitfield_flow_indicator: bitfield(8) {
+        throttled: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     self_trade_type_u_81: uint8;
     group_id: uint32;
     repeating_groups: uint8;
@@ -468,7 +469,10 @@ type BulkQuoteAcknowledgmentMessage = unit {
     market_maker: bytes &size=10;
     sub_id: bytes &size=4;
     cl_ord_id: uint64;
-    bitfield_flow_indicator: BitfieldFlowIndicator;
+    bitfield_flow_indicator: bitfield(8) {
+        throttled: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     self_trade_type_u_81: uint8;
     group_id: uint32;
     repeating_groups: uint8;
@@ -488,7 +492,10 @@ type OrderSingleComplexModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
     locate_reqd_u_81: uint8;
     reason_code: uint16 &convert=ReasonCode($$);
     ack_type: uint8 &convert=AckType($$);
-    bitfield_flow_indicator: BitfieldFlowIndicator;
+    bitfield_flow_indicator: bitfield(8) {
+        throttled: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     user_data: bytes &size=10;
     group_id: uint32;
     market_maker: bytes &size=10;

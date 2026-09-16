@@ -152,16 +152,14 @@ type OrderExecutedMessage = unit {
     timestamp: uint64;
     symbol: bytes &size=8;
     order_capacity: uint8 &convert=OrderCapacity($$);
-    trade_conditions: TradeConditions;
+    trade_conditions: bitfield(8) {
+        intermarket_sweep: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     order_id: uint64;
     trade_id: uint64;
     quantity: uint32;
     price: uint64;
-};
-
-type TradeConditions = unit {
-    intermarket_sweep: bytes &size=1;
-    reserved_7: bytes &size=1;
 };
 
 type ClearBookMessage = unit {

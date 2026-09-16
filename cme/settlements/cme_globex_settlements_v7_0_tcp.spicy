@@ -68,7 +68,16 @@ type IncrementalRefreshSettleGroup = unit {
     security_id: uint32;
     formatted_last_px: FormattedLastPx;
     md_entry_px: int64;
-    settl_price_type: SettlPriceType;
+    settl_price_type: bitfield(8) {
+        final_daily: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        cabinet: 4;
+        reserved_bits: 5;
+        unused_settl_price_type_6: 6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     trading_reference_date: uint16;
     md_statistic_desc: bytes &size=40;
 };
@@ -95,17 +104,6 @@ type UnderlyingMaturityMonthYear = unit {
 type FormattedLastPx = unit {
     mantissa: int64;
     exponent: int8;
-};
-
-type SettlPriceType = unit {
-    final_daily: bytes &size=1;
-    actual: bytes &size=1;
-    rounded: bytes &size=1;
-    intraday: bytes &size=1;
-    cabinet: bytes &size=1;
-    reserved_bits: bytes &size=1;
-    unused_settl_price_type_6: bytes &size=1;
-    null_value: bytes &size=1;
 };
 
 type MdIncrementalRefreshVoi = unit {

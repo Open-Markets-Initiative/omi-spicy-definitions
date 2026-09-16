@@ -111,15 +111,13 @@ type AddOrderNoMpidAttribution = unit {
     ranking_sequence_number: uint32;
     quantity: uint64;
     price: int32;
-    order_attributes: OrderAttributes;
+    order_attributes: bitfield(16) {
+        reserved_13: 0..12;
+        bait_implied_order: 13;
+        reserved_2: 14..15;
+    } &byte-order=spicy::ByteOrder::Little;
     lot_type: uint8 &convert=LotType($$);
     ranking_time: uint64;
-};
-
-type OrderAttributes = unit {
-    reserved_13: bytes &size=2;
-    bait_implied_order: bytes &size=1;
-    reserved_2: bytes &size=1;
 };
 
 type AddOrderWithMpidAttribution = unit {
@@ -130,7 +128,11 @@ type AddOrderWithMpidAttribution = unit {
     : skip bytes &size=4;   # padding
     quantity: uint64;
     price: int32;
-    order_attributes: OrderAttributes;
+    order_attributes: bitfield(16) {
+        reserved_13: 0..12;
+        bait_implied_order: 13;
+        reserved_2: 14..15;
+    } &byte-order=spicy::ByteOrder::Little;
     lot_type: uint8 &convert=LotType($$);
     participant_id: bytes &size=7;
 };
@@ -168,7 +170,11 @@ type OrderReplaceMessage = unit {
     new_order_book_position: uint32;
     quantity: uint64;
     price: int32;
-    order_attributes: OrderAttributes;
+    order_attributes: bitfield(16) {
+        reserved_13: 0..12;
+        bait_implied_order: 13;
+        reserved_2: 14..15;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type OrderDeleteMessage = unit {

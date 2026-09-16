@@ -146,22 +146,20 @@ type SignOnRequestInMessage = unit {
     ws_class_name: bytes &size=14;
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
-    st_broker_eligibility_per_mkt: StBrokerEligibilityPerMkt;
+    st_broker_eligibility_per_mkt: bitfield(16) {
+        pre_open: 0;
+        reserved_212: 1..11;
+        auction_market: 12;
+        spot_market: 13;
+        oddlot_market: 14;
+        normal_market: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     member_type: int16;
     clearing_status: bytes &size=1;
     broker_name: bytes &size=25;
     : skip bytes &size=16;   # padding
     : skip bytes &size=16;   # padding
     : skip bytes &size=16;   # padding
-};
-
-type StBrokerEligibilityPerMkt = unit {
-    pre_open: bytes &size=1;
-    reserved_212: bytes &size=2;
-    auction_market: bytes &size=1;
-    spot_market: bytes &size=1;
-    oddlot_market: bytes &size=1;
-    normal_market: bytes &size=1;
 };
 
 type SignOnRequestOutMessage = unit {
@@ -185,7 +183,14 @@ type SignOnRequestOutMessage = unit {
     : skip bytes &size=14;   # padding
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
-    st_broker_eligibility_per_mkt: StBrokerEligibilityPerMkt;
+    st_broker_eligibility_per_mkt: bitfield(16) {
+        pre_open: 0;
+        reserved_212: 1..11;
+        auction_market: 12;
+        spot_market: 13;
+        oddlot_market: 14;
+        normal_market: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     member_type: int16;
     clearing_status: bytes &size=1;
     broker_name: bytes &size=25;
@@ -221,7 +226,12 @@ type SystemInformationOutMessage = unit {
     board_lot_quantity: int32;
     tick_size: int32;
     maximum_gtc_days: int16;
-    st_stock_eligible_indicators: StStockEligibleIndicators;
+    st_stock_eligible_indicators: bitfield(16) {
+        reserved_113: 0..12;
+        books_merged: 13;
+        minimum_fill: 14;
+        eligible_aon: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     disclosed_quantity_percent_allowed: int16;
     risk_free_interest_rate: int32;
 };
@@ -245,13 +255,6 @@ type StPlMarketStatus = unit {
     pl_market_status_oddlot: int16 &convert=PlMarketStatusOddlot($$);
     pl_market_status_spot: int16 &convert=PlMarketStatusSpot($$);
     pl_market_status_auction: int16 &convert=PlMarketStatusAuction($$);
-};
-
-type StStockEligibleIndicators = unit {
-    reserved_113: bytes &size=2;
-    books_merged: bytes &size=1;
-    minimum_fill: bytes &size=1;
-    eligible_aon: bytes &size=1;
 };
 
 type GatewayRouterRequestMessage = unit {
@@ -379,7 +382,23 @@ type OrderEntryBody = unit {
     entry_date_time: int32;
     minimum_fill_aon_volume: int32;
     last_modified: int32;
-    st_order_flags: StOrderFlags;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     branch_id: int16;
     trader_id: int32;
     broker_id: bytes &size=5;
@@ -388,7 +407,13 @@ type OrderEntryBody = unit {
     settlor: bytes &size=12;
     pro_client_indicator: int16;
     settlement_period: int16;
-    additional_order_flags: AdditionalOrderFlags;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
@@ -409,32 +434,6 @@ type ContractDesc = unit {
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
-};
-
-type StOrderFlags = unit {
-    reserved_12: bytes &size=1;
-    order_pre_open: uint8 &convert=OrderPreOpen($$);
-    frozen: bytes &size=1;
-    modified: bytes &size=1;
-    traded: bytes &size=1;
-    matched_ind: bytes &size=1;
-    mf: bytes &size=1;
-    aon: bytes &size=1;
-    ioc: bytes &size=1;
-    gtc: bytes &size=1;
-    day: bytes &size=1;
-    mit: bytes &size=1;
-    sl: bytes &size=1;
-    market: uint8 &convert=Market($$);
-    ato: bytes &size=1;
-};
-
-type AdditionalOrderFlags = unit {
-    boc: bytes &size=1;
-    col: bytes &size=1;
-    reserved_34: bytes &size=1;
-    stpc: uint8 &convert=Stpc($$);
-    reserved_68: bytes &size=1;
 };
 
 type PriceModificationMessage = unit {
@@ -510,7 +509,23 @@ type SpreadOrderBody = unit {
     entry_date_time_1: int32;
     min_fill_aon_1: int32;
     last_modified_1: int32;
-    st_order_flags: StOrderFlags;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     branch_id_1: int16;
     trader_id_1: int32;
     broker_id_1: bytes &size=5;
@@ -519,7 +534,13 @@ type SpreadOrderBody = unit {
     settlor_1: bytes &size=12;
     pro_client_1: int16;
     settlement_period_1: int16;
-    additional_order_flags: AdditionalOrderFlags;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
@@ -550,9 +571,31 @@ type MsSpdLegInfo = unit {
     price_2: int32;
     trigger_price_2: int32;
     min_fill_aon_2: int32;
-    st_order_flags: StOrderFlags;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     open_close_2: bytes &size=1;
-    additional_order_flags: AdditionalOrderFlags;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     filler_y: bytes &size=1;
 };
@@ -569,7 +612,23 @@ type TradeConfirmationMessage = unit {
     remaining_volume: int32;
     disclosed_volume_remaining: int32;
     price: int32;
-    st_order_flags: StOrderFlags;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Little;
     good_till_date: int32;
     fill_number: int32;
     fill_quantity: int32;
@@ -590,7 +649,13 @@ type TradeConfirmationMessage = unit {
     old_account_number: bytes &size=10;
     participant: bytes &size=12;
     old_participant: bytes &size=12;
-    additional_order_flags: AdditionalOrderFlags;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     : skip bytes &size=1;   # padding
     : skip bytes &size=1;   # padding

@@ -151,17 +151,15 @@ type TradeMessage = unit {
     timestamp: uint64;
     symbol: bytes &size=8;
     trade_id: uint64;
-    trade_conditions: TradeConditions;
+    trade_conditions: bitfield(8) {
+        intermarket_sweep: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     side: uint8 &convert=Side($$);
     quantity: uint32;
     price: uint64;
     cust_quantity: uint32;
     capacity: uint8 &convert=Capacity($$);
-};
-
-type TradeConditions = unit {
-    intermarket_sweep: bytes &size=1;
-    reserved_7: bytes &size=1;
 };
 
 type ClearBookMessage = unit {

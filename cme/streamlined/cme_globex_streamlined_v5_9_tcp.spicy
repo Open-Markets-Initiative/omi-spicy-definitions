@@ -55,20 +55,18 @@ type AdminLogout = unit {
 
 type MdIncrementalRefreshErisReferenceDataAndDailyStatistics = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages_optional: uint16;
     eris_reference_data_groups: ErisReferenceDataGroups;
-};
-
-type MatchEventIndicator = unit {
-    last_trade_msg: bytes &size=1;
-    last_volume_msg: bytes &size=1;
-    last_quote_msg: bytes &size=1;
-    last_stats_msg: bytes &size=1;
-    last_implied_msg: bytes &size=1;
-    recovery_msg: bytes &size=1;
-    reserved: bytes &size=1;
-    end_of_event: bytes &size=1;
 };
 
 type ErisReferenceDataGroups = unit {
@@ -87,7 +85,16 @@ type ErisReferenceDataGroup = unit {
     rpt_seq: uint32;
     md_entry_px_decimal_optional: MdEntryPxDecimalOptional;
     open_close_settl_flag: int8;
-    settl_price_type: SettlPriceType;
+    settl_price_type: bitfield(8) {
+        final_daily: 0;
+        actual: 1;
+        rounded: 2;
+        reserved_bits: 3;
+        unused_settl_price_type_4: 4;
+        unused_settl_price_type_5: 5;
+        unused_settl_price_type_6: 6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     cal_fut_px_optional: CalFutPxOptional;
     reference_id_50: bytes &size=50;
     md_entry_size_optional: uint64;
@@ -135,17 +142,6 @@ type ErisReferenceDataGroup = unit {
 type MdEntryPxDecimalOptional = unit {
     mantissa: int64;
     exponent: int8;
-};
-
-type SettlPriceType = unit {
-    final_daily: bytes &size=1;
-    actual: bytes &size=1;
-    rounded: bytes &size=1;
-    reserved_bits: bytes &size=1;
-    unused_settl_price_type_4: bytes &size=1;
-    unused_settl_price_type_5: bytes &size=1;
-    unused_settl_price_type_6: bytes &size=1;
-    null_value: bytes &size=1;
 };
 
 type CalFutPxOptional = unit {
@@ -317,7 +313,16 @@ type LinesOfTextGroup = unit {
 
 type MdIncrementalRefreshTradeBlocks340 = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages: uint16;
     trade_blocks_original_groups: TradeBlocksOriginalGroups;
 };
@@ -430,7 +435,16 @@ type LegMaturityMonthYear = unit {
 
 type QuoteRequest = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     quote_req_id: bytes &size=26;
     quote_request_related_sym_groups: QuoteRequestRelatedSymGroups;
 };
@@ -483,7 +497,16 @@ type InstAttribGroup = unit {
 type MdIncrementalRefreshIndices = unit {
     transact_time: uint64;
     md_feed_type: bytes &size=2;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages_optional: uint16;
     incremental_refresh_indices_groups: IncrementalRefreshIndicesGroups;
 };
@@ -538,7 +561,16 @@ type PercentTrading = unit {
 
 type MdIncrementalRefreshTradeBlocks349 = unit {
     transact_time_optional: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages: uint16;
     trade_date: uint16;
     trade_blocks_legacy_groups: TradeBlocksLegacyGroups;
@@ -591,7 +623,16 @@ type MdEntrySize = unit {
 
 type MdIncrementalRefreshEris351 = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages_optional: uint16;
     eris_original_groups: ErisOriginalGroups;
 };
@@ -630,7 +671,16 @@ type CalFutPx = unit {
 
 type MdIncrementalRefreshEris353 = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages_optional: uint16;
     eris_groups: ErisGroups;
 };
@@ -666,7 +716,16 @@ type ErisGroup = unit {
 type MdIncrementalRefreshOtC356 = unit {
     transact_time: uint64;
     trade_date: uint16;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages_optional: uint16;
     otc_original_groups: OtcOriginalGroups;
 };
@@ -814,7 +873,16 @@ type InterpolationFactor = unit {
 
 type MdIncrementalRefreshTradeBlocks365 = unit {
     transact_time_optional: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages: uint16;
     trade_date: uint16;
     trade_blocks_groups: TradeBlocksGroups;
@@ -906,7 +974,16 @@ type LegUnitOfMeasureQtyDecimal64Null = unit {
 type MdIncrementalRefreshOtC366 = unit {
     transact_time: uint64;
     trade_date: uint16;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     batch_total_messages_optional: uint16;
     otc_groups: OtcGroups;
 };

@@ -69,14 +69,61 @@ type OrderBookDirectoryMessage = unit {
     trading_currency: bytes &size=3;
     mic: bytes &size=4;
     market_segment_id: uint16;
-    note_codes_bit_field_1: NoteCodesBitField1;
-    note_codes_bit_field_2: NoteCodesBitField2;
-    note_codes_bit_field_3: NoteCodesBitField3;
-    note_codes_bit_field_4: NoteCodesBitField4;
-    note_codes_bit_field_5: NoteCodesBitField5;
-    note_codes_bit_field_6: NoteCodesBitField6;
-    note_codes_bit_field_7: NoteCodesBitField7;
-    note_codes_bit_field_8: NoteCodesBitField8;
+    note_codes_bit_field_1: bitfield(8) {
+        nm_new_market_company: 0;
+        xr_excluding_participating_in_rights: 1;
+        sp_excluding_participating_in_split: 2;
+        po_company_subject_to_public_offer: 3;
+        ud_under_drawing: 4;
+        sr_excluding_comb_split_and_issue_rights: 5;
+        ul_un_listed: 6;
+        wi_when_issued: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    note_codes_bit_field_2: bitfield(8) {
+        br_company_bankruptcy: 0;
+        su_suspension: 1;
+        rl_removal_from_listing_in_process: 2;
+        sl_other_surveillance_list_reason: 3;
+        to_a_significant_reverse_takeover_pending: 4;
+        cs_cent_shares: 5;
+        rs_reversed_split: 6;
+        bs_excluding_comb_bonus_split: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    note_codes_bit_field_3: bitfield(8) {
+        ss_excluding_comb_split_redemption_share: 0;
+        fn_first_north_company: 1;
+        ob_observation_status: 2;
+        xd_excluding_dividend: 3;
+        fe_foreign_non_eueea_entity: 4;
+        so_sold_out_buy_back: 5;
+        sk_soft_knock: 6;
+        kb_knock_out_buy_back: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    note_codes_bit_field_4: bitfield(8) {
+        bb_buy_back: 0;
+        reserved_23: 1..2;
+        ce_capped_by_esma: 3;
+        reserved_5: 4;
+        pd_price_discrepancy_historical_average_share_classes: 5;
+        sm_stressed_market: 6;
+        ew_marketwide_exceptional_circumstance: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    note_codes_bit_field_5: bitfield(8) {
+        em_exceptional_circumstances_related_to_market_maker: 0;
+        un_underlying_not_quoted: 1;
+        da_digital_asset: 2;
+        kn_knockout_buy_back_into_next_trading_day: 3;
+        reserved_58: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    note_codes_bit_field_6: bitfield(8) {
+        reserved_18: 0..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    note_codes_bit_field_7: bitfield(8) {
+        reserved_18: 0..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    note_codes_bit_field_8: bitfield(8) {
+        reserved_18: 0..7;
+    } &byte-order=spicy::ByteOrder::Little;
     round_lot_size: uint32;
     nordic_mid_mic: bytes &size=4;
     aod_mic: bytes &size=4;
@@ -86,69 +133,6 @@ type OrderBookDirectoryMessage = unit {
     price_notation: uint8 &convert=PriceNotation($$);
     multiplier_for_calculating_quantity_in_measurement_unit: uint64;
     pure_stream_mic: bytes &size=4;
-};
-
-type NoteCodesBitField1 = unit {
-    nm_new_market_company: bytes &size=1;
-    xr_excluding_participating_in_rights: bytes &size=1;
-    sp_excluding_participating_in_split: bytes &size=1;
-    po_company_subject_to_public_offer: bytes &size=1;
-    ud_under_drawing: bytes &size=1;
-    sr_excluding_comb_split_and_issue_rights: bytes &size=1;
-    ul_un_listed: bytes &size=1;
-    wi_when_issued: bytes &size=1;
-};
-
-type NoteCodesBitField2 = unit {
-    br_company_bankruptcy: bytes &size=1;
-    su_suspension: bytes &size=1;
-    rl_removal_from_listing_in_process: bytes &size=1;
-    sl_other_surveillance_list_reason: bytes &size=1;
-    to_a_significant_reverse_takeover_pending: bytes &size=1;
-    cs_cent_shares: bytes &size=1;
-    rs_reversed_split: bytes &size=1;
-    bs_excluding_comb_bonus_split: bytes &size=1;
-};
-
-type NoteCodesBitField3 = unit {
-    ss_excluding_comb_split_redemption_share: bytes &size=1;
-    fn_first_north_company: bytes &size=1;
-    ob_observation_status: bytes &size=1;
-    xd_excluding_dividend: bytes &size=1;
-    fe_foreign_non_eueea_entity: bytes &size=1;
-    so_sold_out_buy_back: bytes &size=1;
-    sk_soft_knock: bytes &size=1;
-    kb_knock_out_buy_back: bytes &size=1;
-};
-
-type NoteCodesBitField4 = unit {
-    bb_buy_back: bytes &size=1;
-    reserved_23: bytes &size=1;
-    ce_capped_by_esma: bytes &size=1;
-    reserved_5: bytes &size=1;
-    pd_price_discrepancy_historical_average_share_classes: bytes &size=1;
-    sm_stressed_market: bytes &size=1;
-    ew_marketwide_exceptional_circumstance: bytes &size=1;
-};
-
-type NoteCodesBitField5 = unit {
-    em_exceptional_circumstances_related_to_market_maker: bytes &size=1;
-    un_underlying_not_quoted: bytes &size=1;
-    da_digital_asset: bytes &size=1;
-    kn_knockout_buy_back_into_next_trading_day: bytes &size=1;
-    reserved_58: bytes &size=1;
-};
-
-type NoteCodesBitField6 = unit {
-    reserved_18: bytes &size=2;
-};
-
-type NoteCodesBitField7 = unit {
-    reserved_18: bytes &size=2;
-};
-
-type NoteCodesBitField8 = unit {
-    reserved_18: bytes &size=2;
 };
 
 type AddOrderMessage = unit {
@@ -333,7 +317,7 @@ type Extension = enum {
 };
 
 type Reason = enum {
-    ReasonNotAvailable = 0x20,
+    ReasonNotAvailable = 0,
 };
 
 type FinancialProduct = enum {

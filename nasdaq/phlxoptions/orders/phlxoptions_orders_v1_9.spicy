@@ -39,18 +39,25 @@ type MessageHeader = unit {
 };
 
 type SystemEventMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     event_code: uint8 &convert=EventCode($$);
     version: uint8;
 };
 
-type OptionsDirectoryMessage = unit {
+type Timestamp = unit {
     seconds: uint32;
     nanoseconds: uint32;
+};
+
+type OptionsDirectoryMessage = unit {
+    timestamp: Timestamp;
     option_id: uint32;
     security_symbol: bytes &size=5;
-    expiration: Expiration;
+    expiration: bitfield(16) {
+        day: 0..4;
+        month: 5..8;
+        year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
     explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     source: uint8;
@@ -59,15 +66,8 @@ type OptionsDirectoryMessage = unit {
     phlx_tradable: uint8 &convert=PhlxTradable($$);
 };
 
-type Expiration = unit {
-    day: bytes &size=1;
-    month: bytes &size=1;
-    year: bytes &size=1;
-};
-
 type ComplexOrderStrategyMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     strategy_id: uint32;
     source: uint8;
     underlying_symbol: bytes &size=13;
@@ -79,7 +79,11 @@ type ComplexOrderStrategyMessage = unit {
 type ComplexOrderStrategyLeg = unit {
     option_id: uint32;
     security_symbol: bytes &size=5;
-    expiration: Expiration;
+    expiration: bitfield(16) {
+        day: 0..4;
+        month: 5..8;
+        year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
     explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     side: uint8 &convert=Side($$);
@@ -87,47 +91,54 @@ type ComplexOrderStrategyLeg = unit {
 };
 
 type SecurityTradingActionMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     option_id: uint32;
     security_symbol: bytes &size=5;
-    expiration: Expiration;
+    expiration: bitfield(16) {
+        day: 0..4;
+        month: 5..8;
+        year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
     explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     current_trading_state: uint8 &convert=CurrentTradingState($$);
 };
 
 type ComplexTradingActionMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     strategy_id: uint32;
     current_trading_state: uint8 &convert=CurrentTradingState($$);
 };
 
 type SecurityOpenClosedMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     option_id: uint32;
     security_symbol: bytes &size=5;
-    expiration: Expiration;
+    expiration: bitfield(16) {
+        day: 0..4;
+        month: 5..8;
+        year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
     explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     open_state: uint8 &convert=OpenState($$);
 };
 
 type StrategyOpenClosedMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     strategy_id: uint32;
     open_state: uint8 &convert=OpenState($$);
 };
 
 type SimpleOrderMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     option_id: uint32;
     security_symbol: bytes &size=5;
-    expiration: Expiration;
+    expiration: bitfield(16) {
+        day: 0..4;
+        month: 5..8;
+        year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
     explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     order_id: uint32;
@@ -145,8 +156,7 @@ type SimpleOrderMessage = unit {
 };
 
 type ComplexOrderMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     strategy_id: uint32;
     order_id: uint32;
     side: uint8 &convert=Side($$);
@@ -168,7 +178,11 @@ type ComplexOrderLeg = unit {
     leg_open_close_indicator: uint8 &convert=LegOpenCloseIndicator($$);
     option_id: uint32;
     security_symbol: bytes &size=5;
-    expiration: Expiration;
+    expiration: bitfield(16) {
+        day: 0..4;
+        month: 5..8;
+        year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
     explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     side: uint8 &convert=Side($$);
@@ -176,11 +190,14 @@ type ComplexOrderLeg = unit {
 };
 
 type AuctionNotificationMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     option_id: uint32;
     security_symbol: bytes &size=5;
-    expiration: Expiration;
+    expiration: bitfield(16) {
+        day: 0..4;
+        month: 5..8;
+        year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
     explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     auction_id: uint32;
@@ -193,8 +210,7 @@ type AuctionNotificationMessage = unit {
 };
 
 type ComplexAuctionNotificationMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    timestamp: Timestamp;
     strategy_id: uint32;
     auction_id: uint32;
     auction_type: uint8 &convert=AuctionType($$);
@@ -232,7 +248,7 @@ type EventCode = enum {
 type OptionType = enum {
     Call = 0x43,
     Put = 0x50,
-    Stock = 0x20,
+    Stock = 0,
 };
 
 type OptionClosingType = enum {

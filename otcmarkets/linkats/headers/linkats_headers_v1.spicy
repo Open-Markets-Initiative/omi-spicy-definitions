@@ -12,17 +12,15 @@ public type LinkatsHeadersV1 = unit {
 type PacketHeader = unit {
     packet_size: uint16;
     seq_num: uint32;
-    packet_flag: PacketFlag;
+    packet_flag: bitfield(8) {
+        heartbeat: 0;
+        seq_num_reset: 1;
+        reserved_4: 2..5;
+        replay: 6;
+        test: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     messages: uint8;
     packet_milli: uint32;
-};
-
-type PacketFlag = unit {
-    heartbeat: uint8;
-    seq_num_reset: bytes &size=1;
-    reserved_4: bytes &size=1;
-    replay: bytes &size=1;
-    test: bytes &size=1;
 };
 
 type Message = unit {

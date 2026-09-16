@@ -75,7 +75,12 @@ type NewOrderSingleMessage = unit {
     time_in_force: uint8 &convert=TimeInForce($$);
     order_capacity: uint8 &convert=OrderCapacity($$);
     cust_order_capacity: uint8 &convert=CustOrderCapacity($$);
-    exec_inst: ExecInst;
+    exec_inst: bitfield(16) {
+        participate_do_not_initiate: 0;
+        intermarket_sweep: 1;
+        external_routing_not_allowed: 2;
+        reserved_13: 3..15;
+    } &byte-order=spicy::ByteOrder::Big;
     peg_offset_value: int64;
     peg_price_type: uint8 &convert=PegPriceType($$);
     expire_time: uint64;
@@ -93,13 +98,6 @@ type NewOrderSingleMessage = unit {
     risk_group_id: uint16;
     link_id_optional: bytes &size=4;
     locate_broker_optional: bytes &size=4;
-};
-
-type ExecInst = unit {
-    participate_do_not_initiate: bytes &size=1;
-    intermarket_sweep: bytes &size=1;
-    external_routing_not_allowed: bytes &size=1;
-    reserved_13: bytes &size=2;
 };
 
 type OrderCancelReplaceRequestMessage = unit {

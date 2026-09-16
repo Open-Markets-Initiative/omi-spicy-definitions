@@ -56,19 +56,17 @@ type MessageHeader = unit {
 
 type ChannelReset = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     channel_reset_groups: ChannelResetGroups;
-};
-
-type MatchEventIndicator = unit {
-    last_trade_msg: bytes &size=1;
-    last_volume_msg: bytes &size=1;
-    last_quote_msg: bytes &size=1;
-    last_stats_msg: bytes &size=1;
-    last_implied_msg: bytes &size=1;
-    recovery_msg: bytes &size=1;
-    reserved: bytes &size=1;
-    end_of_event: bytes &size=1;
 };
 
 type ChannelResetGroups = unit {
@@ -94,7 +92,16 @@ type AdminLogout = unit {
 };
 
 type MdInstrumentDefinitionFuture = unit {
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     tot_num_reports_optional: uint32;
     security_update_action: uint8 &convert=SecurityUpdateAction($$);
     last_update_time: uint64;
@@ -123,7 +130,16 @@ type MdInstrumentDefinitionFuture = unit {
     unit_of_measure: bytes &size=30;
     unit_of_measure_qty: int64;
     trading_reference_price: int64;
-    settl_price_type: SettlPriceType;
+    settl_price_type: bitfield(8) {
+        final: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        reserved_bits: 4;
+        unused_settl_price_type_5: 5;
+        unused_settl_price_type_6: 6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     open_interest_qty: int32;
     cleared_volume: int32;
     high_limit_price: int64;
@@ -149,17 +165,6 @@ type MaturityMonthYear = unit {
     month: uint8;
     day: uint8;
     week: uint8;
-};
-
-type SettlPriceType = unit {
-    final: bytes &size=1;
-    actual: bytes &size=1;
-    rounded: bytes &size=1;
-    intraday: bytes &size=1;
-    reserved_bits: bytes &size=1;
-    unused_settl_price_type_5: bytes &size=1;
-    unused_settl_price_type_6: bytes &size=1;
-    null_value: bytes &size=1;
 };
 
 type EventsGroups = unit {
@@ -188,31 +193,29 @@ type InstAttribGroups = unit {
 };
 
 type InstAttribGroup = unit {
-    inst_attrib_value: InstAttribValue;
-};
-
-type InstAttribValue = unit {
-    electronic_match_eligible: bytes &size=1;
-    order_cross_eligible: bytes &size=1;
-    block_trade_eligible: bytes &size=1;
-    efp_eligible: bytes &size=1;
-    ebf_eligible: bytes &size=1;
-    efs_eligible: bytes &size=1;
-    efr_eligible: bytes &size=1;
-    otc_eligible: bytes &size=1;
-    ilink_indicative_mass_quoting_eligible: bytes &size=1;
-    negative_strike_eligible: bytes &size=1;
-    negative_price_outright_eligible: bytes &size=1;
-    is_fractional: bytes &size=1;
-    volatility_quoted_option: bytes &size=1;
-    rfq_cross_eligible: bytes &size=1;
-    zero_price_outright_eligible: bytes &size=1;
-    decaying_product_eligibility: bytes &size=1;
-    variable_product_eligibility: bytes &size=1;
-    daily_product_eligibility: bytes &size=1;
-    gt_orders_eligibility: bytes &size=1;
-    implied_matching_eligibility: bytes &size=1;
-    reserved_12: bytes &size=2;
+    inst_attrib_value: bitfield(32) {
+        electronic_match_eligible: 0;
+        order_cross_eligible: 1;
+        block_trade_eligible: 2;
+        efp_eligible: 3;
+        ebf_eligible: 4;
+        efs_eligible: 5;
+        efr_eligible: 6;
+        otc_eligible: 7;
+        ilink_indicative_mass_quoting_eligible: 8;
+        negative_strike_eligible: 9;
+        negative_price_outright_eligible: 10;
+        is_fractional: 11;
+        volatility_quoted_option: 12;
+        rfq_cross_eligible: 13;
+        zero_price_outright_eligible: 14;
+        decaying_product_eligibility: 15;
+        variable_product_eligibility: 16;
+        daily_product_eligibility: 17;
+        gt_orders_eligibility: 18;
+        implied_matching_eligibility: 19;
+        reserved_12: 20..31;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type LotTypeRulesGroups = unit {
@@ -226,7 +229,16 @@ type LotTypeRulesGroup = unit {
 };
 
 type MdInstrumentDefinitionSpread = unit {
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     tot_num_reports_optional: uint32;
     security_update_action: uint8 &convert=SecurityUpdateAction($$);
     last_update_time: uint64;
@@ -255,7 +267,16 @@ type MdInstrumentDefinitionSpread = unit {
     tick_rule: int8;
     unit_of_measure: bytes &size=30;
     trading_reference_price: int64;
-    settl_price_type: SettlPriceType;
+    settl_price_type: bitfield(8) {
+        final: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        reserved_bits: 4;
+        unused_settl_price_type_5: 5;
+        unused_settl_price_type_6: 6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     open_interest_qty: int32;
     cleared_volume: int32;
     high_limit_price: int64;
@@ -290,7 +311,16 @@ type SecurityStatus = unit {
     asset: bytes &size=6;
     security_id_optional: int32;
     trade_date: uint16;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     security_trading_status: uint8 &convert=SecurityTradingStatus($$);
     halt_reason: uint8 &convert=HaltReason($$);
     security_trading_event: uint8 &convert=SecurityTradingEvent($$);
@@ -298,7 +328,16 @@ type SecurityStatus = unit {
 
 type MdIncrementalRefreshBook = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
     incremental_refresh_book_groups: IncrementalRefreshBookGroups;
 };
@@ -322,7 +361,16 @@ type IncrementalRefreshBookGroup = unit {
 
 type MdIncrementalRefreshDailyStatistics = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
     incremental_refresh_daily_statistics_groups: IncrementalRefreshDailyStatisticsGroups;
 };
@@ -338,7 +386,16 @@ type IncrementalRefreshDailyStatisticsGroup = unit {
     security_id: int32;
     rpt_seq: uint32;
     trading_reference_date: uint16;
-    settl_price_type: SettlPriceType;
+    settl_price_type: bitfield(8) {
+        final: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        reserved_bits: 4;
+        unused_settl_price_type_5: 5;
+        unused_settl_price_type_6: 6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_update_action: uint8 &convert=MdUpdateAction($$);
     md_entry_type_daily_statistics: uint8 &convert=MdEntryTypeDailyStatistics($$);
     : skip bytes &size=7;   # padding
@@ -346,7 +403,16 @@ type IncrementalRefreshDailyStatisticsGroup = unit {
 
 type MdIncrementalRefreshLimitsBanding = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
     incremental_refresh_limits_banding_groups: IncrementalRefreshLimitsBandingGroups;
 };
@@ -366,7 +432,16 @@ type IncrementalRefreshLimitsBandingGroup = unit {
 
 type MdIncrementalRefreshSessionStatistics = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
     incremental_refresh_session_statistics_groups: IncrementalRefreshSessionStatisticsGroups;
 };
@@ -388,7 +463,16 @@ type IncrementalRefreshSessionStatisticsGroup = unit {
 
 type MdIncrementalRefreshTrade = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
     incremental_refresh_trade_groups: IncrementalRefreshTradeGroups;
 };
@@ -412,7 +496,16 @@ type IncrementalRefreshTradeGroup = unit {
 
 type MdIncrementalRefreshVolume = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
     incremental_refresh_volume_groups: IncrementalRefreshVolumeGroups;
 };
@@ -457,14 +550,32 @@ type SnapshotFullRefreshGroup = unit {
     md_price_level_optional: int8;
     trading_reference_date: uint16;
     open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
-    settl_price_type: SettlPriceType;
+    settl_price_type: bitfield(8) {
+        final: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        reserved_bits: 4;
+        unused_settl_price_type_5: 5;
+        unused_settl_price_type_6: 6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     md_entry_type: uint8 &convert=MdEntryType($$);
 };
 
 type QuoteRequest = unit {
     transact_time: uint64;
     quote_req_id: bytes &size=23;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=3;   # padding
     related_sym_groups: RelatedSymGroups;
 };
@@ -484,7 +595,16 @@ type RelatedSymGroup = unit {
 };
 
 type MdInstrumentDefinitionOption = unit {
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     tot_num_reports_optional: uint32;
     security_update_action: uint8 &convert=SecurityUpdateAction($$);
     last_update_time: uint64;
@@ -519,7 +639,16 @@ type MdInstrumentDefinitionOption = unit {
     unit_of_measure: bytes &size=30;
     unit_of_measure_qty: int64;
     trading_reference_price: int64;
-    settl_price_type: SettlPriceType;
+    settl_price_type: bitfield(8) {
+        final: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        reserved_bits: 4;
+        unused_settl_price_type_5: 5;
+        unused_settl_price_type_6: 6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     cleared_volume: int32;
     open_interest_qty: int32;
     low_limit_price: int64;
@@ -545,7 +674,16 @@ type OptionUnderlyingsGroup = unit {
 
 type MdIncrementalRefreshTradeSummary = unit {
     transact_time: uint64;
-    match_event_indicator: MatchEventIndicator;
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
     incremental_refresh_trade_summary_groups: IncrementalRefreshTradeSummaryGroups;
     incremental_refresh_trade_summary_order_id_groups: IncrementalRefreshTradeSummaryOrderIdGroups;

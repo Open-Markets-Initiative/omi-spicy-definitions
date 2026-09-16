@@ -51,19 +51,17 @@ type SystemEventMessage = unit {
 };
 
 type SecurityDirectoryMessage = unit {
-    security_directory_flags: SecurityDirectoryFlags;
+    security_directory_flags: bitfield(8) {
+        unused_5: 0..4;
+        etp: 5;
+        when_issued: 6;
+        test_security: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     timestamp: int64;
     symbol: bytes &size=8;
     round_lot_size: uint32;
     adjusted_poc_price: int64;
     luld_tier: uint8 &convert=LuldTier($$);
-};
-
-type SecurityDirectoryFlags = unit {
-    : skip bytes &size=1;   # padding
-    etp: bytes &size=1;
-    when_issued: bytes &size=1;
-    test_security: bytes &size=1;
 };
 
 type TradingStatusMessage = unit {
@@ -93,7 +91,11 @@ type SecurityEventMessage = unit {
 };
 
 type QuoteUpdateMessage = unit {
-    quote_update_flags: QuoteUpdateFlags;
+    quote_update_flags: bitfield(8) {
+        unused_6: 0..5;
+        market_session: 6;
+        symbol_availability: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     timestamp: int64;
     symbol: bytes &size=8;
     bid_size: uint32;
@@ -102,27 +104,19 @@ type QuoteUpdateMessage = unit {
     ask_size: uint32;
 };
 
-type QuoteUpdateFlags = unit {
-    : skip bytes &size=1;   # padding
-    market_session: bytes &size=1;
-    symbol_availability: bytes &size=1;
-};
-
 type TradeReportMessage = unit {
-    sale_condition_flags: SaleConditionFlags;
+    sale_condition_flags: bitfield(8) {
+        unused_4: 0..3;
+        trade_through_exempt: 4;
+        odd_lot: 5;
+        extended_hours: 6;
+        intermarket_sweep: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     timestamp: int64;
     symbol: bytes &size=8;
     size: uint32;
     price: int64;
     trade_id: uint64;
-};
-
-type SaleConditionFlags = unit {
-    : skip bytes &size=1;   # padding
-    trade_through_exempt: bytes &size=1;
-    odd_lot: bytes &size=1;
-    extended_hours: bytes &size=1;
-    intermarket_sweep: bytes &size=1;
 };
 
 type OfficialPriceMessage = unit {
@@ -133,7 +127,13 @@ type OfficialPriceMessage = unit {
 };
 
 type TradeBreakMessage = unit {
-    sale_condition_flags: SaleConditionFlags;
+    sale_condition_flags: bitfield(8) {
+        unused_4: 0..3;
+        trade_through_exempt: 4;
+        odd_lot: 5;
+        extended_hours: 6;
+        intermarket_sweep: 7;
+    } &byte-order=spicy::ByteOrder::Little;
     timestamp: int64;
     symbol: bytes &size=8;
     size: uint32;

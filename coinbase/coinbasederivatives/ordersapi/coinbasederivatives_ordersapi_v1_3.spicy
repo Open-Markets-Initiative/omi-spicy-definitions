@@ -20,7 +20,10 @@ type SbeMessage = unit {
 
 type MessageHeader = unit {
     protocol_id: uint8;
-    flags: Flags;
+    flags: bitfield(8) {
+        is_resend: 0;
+        reserved_bits: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
     message_length: uint16;
     sequence_number: uint32;
     last_processed_seq_no: uint32;
@@ -30,11 +33,6 @@ type MessageHeader = unit {
     template_id: uint16 &convert=TemplateId($$);
     schema_id: uint16 &convert=SchemaId($$);
     version: uint16;
-};
-
-type Flags = unit {
-    is_resend: bytes &size=1;
-    : skip bytes &size=1;   # padding
 };
 
 type SessionMessage = unit(template_id: TemplateId) {

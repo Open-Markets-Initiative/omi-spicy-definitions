@@ -176,15 +176,13 @@ type BestQuotesMessage = unit {
     bid_volume: uint32;
     ask_quote_condition: uint8 &convert=AskQuoteCondition($$);
     bid_quote_condition: uint8 &convert=BidQuoteCondition($$);
-    retail_pricing_indicator: RetailPricingIndicator;
+    retail_pricing_indicator: bitfield(8) {
+        retail_interest_on_the_bid_side: 0;
+        retail_interest_on_the_ask_side: 1;
+        reserved: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
     market_id_of_best_ask: uint16;
     market_id_of_best_bid: uint16;
-};
-
-type RetailPricingIndicator = unit {
-    retail_interest_on_the_bid_side: bytes &size=1;
-    retail_interest_on_the_ask_side: bytes &size=1;
-    reserved: bytes &size=1;
 };
 
 type ConsolidatedSingleSidedQuoteMessage = unit {
@@ -194,7 +192,11 @@ type ConsolidatedSingleSidedQuoteMessage = unit {
     price: int32;
     volume: uint32;
     quote_condition: uint8 &convert=QuoteCondition($$);
-    retail_pricing_indicator: RetailPricingIndicator;
+    retail_pricing_indicator: bitfield(8) {
+        retail_interest_on_the_bid_side: 0;
+        retail_interest_on_the_ask_side: 1;
+        reserved: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
     market_id: uint16 &convert=MarketId($$);
 };
 

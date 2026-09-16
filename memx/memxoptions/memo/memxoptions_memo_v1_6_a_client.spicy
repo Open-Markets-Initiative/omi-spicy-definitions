@@ -79,7 +79,12 @@ type NewOrderSingleMessage = unit {
     price_optional: uint64;
     time_in_force: uint8 &convert=TimeInForce($$);
     position_effect_optional: uint8 &convert=PositionEffectOptional($$);
-    exec_inst: ExecInst;
+    exec_inst: bitfield(16) {
+        participate_do_not_initiate: 0;
+        intermarket_sweep: 1;
+        external_routing_not_allowed: 2;
+        reserved_13: 3..15;
+    } &byte-order=spicy::ByteOrder::Big;
     trading_capacity: uint8 &convert=TradingCapacity($$);
     reprice_frequency: uint8 &convert=RepriceFrequency($$);
     reprice_behavior: uint8 &convert=RepriceBehavior($$);
@@ -88,13 +93,6 @@ type NewOrderSingleMessage = unit {
     cancel_group_id: uint16;
     risk_group_id: uint16;
     parties_groups: PartiesGroups;
-};
-
-type ExecInst = unit {
-    participate_do_not_initiate: bytes &size=1;
-    intermarket_sweep: bytes &size=1;
-    external_routing_not_allowed: bytes &size=1;
-    reserved_13: bytes &size=2;
 };
 
 type PartiesGroups = unit {
@@ -117,7 +115,12 @@ type ShortTwoSidedBulkQuoteMessage = unit {
     sending_time: uint64;
     clordid: bytes &size=20;
     time_in_force: uint8 &convert=TimeInForce($$);
-    exec_inst: ExecInst;
+    exec_inst: bitfield(16) {
+        participate_do_not_initiate: 0;
+        intermarket_sweep: 1;
+        external_routing_not_allowed: 2;
+        reserved_13: 3..15;
+    } &byte-order=spicy::ByteOrder::Big;
     trading_capacity: uint8 &convert=TradingCapacity($$);
     mtp_group_id: uint16;
     match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
@@ -145,7 +148,12 @@ type LongTwoSidedBulkQuoteMessage = unit {
     sending_time: uint64;
     clordid: bytes &size=20;
     time_in_force: uint8 &convert=TimeInForce($$);
-    exec_inst: ExecInst;
+    exec_inst: bitfield(16) {
+        participate_do_not_initiate: 0;
+        intermarket_sweep: 1;
+        external_routing_not_allowed: 2;
+        reserved_13: 3..15;
+    } &byte-order=spicy::ByteOrder::Big;
     trading_capacity: uint8 &convert=TradingCapacity($$);
     mtp_group_id: uint16;
     match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
@@ -159,7 +167,12 @@ type ShortOneSidedBulkQuoteMessage = unit {
     sending_time: uint64;
     clordid: bytes &size=20;
     time_in_force: uint8 &convert=TimeInForce($$);
-    exec_inst: ExecInst;
+    exec_inst: bitfield(16) {
+        participate_do_not_initiate: 0;
+        intermarket_sweep: 1;
+        external_routing_not_allowed: 2;
+        reserved_13: 3..15;
+    } &byte-order=spicy::ByteOrder::Big;
     trading_capacity: uint8 &convert=TradingCapacity($$);
     mtp_group_id: uint16;
     match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
@@ -186,7 +199,12 @@ type LongOneSidedBulkQuoteMessage = unit {
     sending_time: uint64;
     clordid: bytes &size=20;
     time_in_force: uint8 &convert=TimeInForce($$);
-    exec_inst: ExecInst;
+    exec_inst: bitfield(16) {
+        participate_do_not_initiate: 0;
+        intermarket_sweep: 1;
+        external_routing_not_allowed: 2;
+        reserved_13: 3..15;
+    } &byte-order=spicy::ByteOrder::Big;
     trading_capacity: uint8 &convert=TradingCapacity($$);
     mtp_group_id: uint16;
     match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
@@ -227,14 +245,12 @@ type MassCancelRequestMessage = unit {
     underlier_optional: bytes &size=6;
     options_security_id_optional: bytes &size=8;
     cancel_group_id: uint16;
-    mass_cancel_inst: MassCancelInst;
-};
-
-type MassCancelInst = unit {
-    lockout: bytes &size=1;
-    send_cancels: bytes &size=1;
-    cancel_orders_from_this_port_only: bytes &size=1;
-    reserved_5: bytes &size=1;
+    mass_cancel_inst: bitfield(8) {
+        lockout: 0;
+        send_cancels: 1;
+        cancel_orders_from_this_port_only: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type MassCancelClearLockoutRequestMessage = unit {
