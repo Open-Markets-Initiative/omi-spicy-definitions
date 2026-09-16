@@ -32,6 +32,12 @@ class ArcaequitiesIntegratedfeedV25GTests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_messagesequence(self):
+        module = "nyse/arcaequities/integratedfeed/arcaequities_integratedfeed_v2_5_g.spicy"
+        for payload in payloads.of("omi-data-packets/Nyse/ArcaEquities.IntegratedFeed.Pillar.v2.5.g/MessageSequence.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_modifyordermessage(self):
         module = "nyse/arcaequities/integratedfeed/arcaequities_integratedfeed_v2_5_g.spicy"
         for payload in payloads.of("omi-data-packets/Nyse/ArcaEquities.IntegratedFeed.Pillar.v2.5.g/ModifyOrderMessage.pcap"):

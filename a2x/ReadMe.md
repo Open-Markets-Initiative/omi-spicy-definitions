@@ -1,0 +1,50 @@
+[![A2X](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Images/Logo.png)](https://www.a2x.co.za)
+
+
+## A2X Markets
+
+| Division | [Protocol][Omi.A2X.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Status][Omi.Glossary.Status] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.A2X.Specifications] |
+| --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| [A2XEquities][A2XEquities] | [Rtmdf][A2X.A2XEquities.Rtmdf] | [Amd][Omi.Encoding.Amd] | [1.3.2][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Definition] | 9/15/2022 | 162 | [Active][Omi.Glossary.Status.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Url] - [pdf][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Pdf] |
+| [A2XEquities][A2XEquities] | [Snapshot][A2X.A2XEquities.Snapshot] | [Amd][Omi.Encoding.Amd] | [1.3.2][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Definition] | 9/15/2022 | 71 | [Active][Omi.Glossary.Status.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Url] - [pdf][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Pdf] |
+| [A2XEquities][A2XEquities] | [UdpHeader][A2X.A2XEquities.UdpHeader] | [Amd][Omi.Encoding.Amd] | [1.][A2X.A2XEquities.UdpHeader.Amd.v1.Definition] | 9/1/2017 | 22 | [Header][Omi.Glossary.Status.Header] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.UdpHeader.Amd.v1.Url] |
+
+
+A2X: [website](https://www.a2x.co.za "Go to A2X Markets")
+
+
+## Open Markets Initiative
+
+[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
+
+Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
+
+[Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
+[Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
+[Omi.Glossary.Status.Deprecated]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is no longer in active use"
+[Omi.Glossary.Status.Pending]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is not yet deployed to an active production environment"
+[Omi.Glossary.Status.Unknown]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol deployment status is unknown"
+[Omi.Glossary.Status.Header]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Header only protocol provided for debugging"
+[Omi.Glossary.Testing]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Protocol Testing Status"
+[Omi.Glossary.Testing.Verified]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has been tested on live data"
+[Omi.Glossary.Testing.Incomplete]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has been tested on live data but contains known issues"
+[Omi.Glossary.Testing.Beta]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has not been tested and structure is speculative"
+[Omi.Glossary.Testing.Untested]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has not been tested on live data"
+[Omi.Glossary.Testing.Unavailable]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol does not state a testing status"
+[Omi.Encoding.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Protocols/ReadMe.md "Encoding Directory"
+[Omi.A2X.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/A2X/Protocols "A2X Protocol Directory"
+[Omi.A2X.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/A2X/Specifications "A2X Specifications Directory"
+[Omi.Encoding.Amd]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Amd.md "Amd Encoding"
+[A2XEquities]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/A2X/Protocols/A2XEquities "A2X A2XEquities"
+[A2X.A2XEquities.Rtmdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/Rtmdf.md "Real Time Market Data Feed"
+[A2X.A2XEquities.Snapshot]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/Snapshot.md "Snapshot Feed"
+[A2X.A2XEquities.UdpHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/UdpHeader.md "Udp Headers"
+
+[A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/rtmdf/a2x_a2xequities_rtmdf_v1_3_2.spicy "A2X A2XEquities Rtmdf Amd v1.3.2 Spicy Definition"
+[A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 1.3.2 Url"
+[A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/MarketData/A2X.A2XEquities.MarketDataTechnicalSpecification.Amd.v1.3.2.pdf "A2X Markets 1.3.2 Pdf"
+[A2X.A2XEquities.Snapshot.Amd.v1.3.2.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/snapshot/a2x_a2xequities_snapshot_v1_3_2.spicy "A2X A2XEquities Snapshot Amd v1.3.2 Spicy Definition"
+[A2X.A2XEquities.Snapshot.Amd.v1.3.2.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 1.3.2 Url"
+[A2X.A2XEquities.Snapshot.Amd.v1.3.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/MarketData/A2X.A2XEquities.MarketDataTechnicalSpecification.Amd.v1.3.2.pdf "A2X Markets 1.3.2 Pdf"
+[A2X.A2XEquities.UdpHeader.Amd.v1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/udpheader/a2x_a2xequities_udpheader_v1.spicy "A2X A2XEquities UdpHeader Amd v1 Spicy Definition"
+[A2X.A2XEquities.UdpHeader.Amd.v1.Url]: https://www.a2x.co.za/?page_id=734/#a2xtech "A2X Markets 1. Url"

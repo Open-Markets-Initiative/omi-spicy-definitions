@@ -14,6 +14,12 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class NationalequitiesBboV25DTests(unittest.TestCase):
 
+    def test_messagesequence(self):
+        module = "nyse/nationalequities/bbo/nationalequities_bbo_v2_5_d.spicy"
+        for payload in payloads.of("omi-data-packets/Nyse/NationalEquities.Bbo.Pillar.v2.5.d/MessageSequence.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_quotemessage(self):
         module = "nyse/nationalequities/bbo/nationalequities_bbo_v2_5_d.spicy"
         for payload in payloads.of("omi-data-packets/Nyse/NationalEquities.Bbo.Pillar.v2.5.d/QuoteMessage.pcap"):

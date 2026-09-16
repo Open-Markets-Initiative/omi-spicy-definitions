@@ -14,6 +14,12 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class NationalequitiesTradesV26Tests(unittest.TestCase):
 
+    def test_messagesequence(self):
+        module = "nyse/nationalequities/trades/nationalequities_trades_v2_6.spicy"
+        for payload in payloads.of("omi-data-packets/Nyse/NationalEquities.Trades.Pillar.v2.6/MessageSequence.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_securitystatusmessage(self):
         module = "nyse/nationalequities/trades/nationalequities_trades_v2_6.spicy"
         for payload in payloads.of("omi-data-packets/Nyse/NationalEquities.Trades.Pillar.v2.6/SecurityStatusMessage.pcap"):

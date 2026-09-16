@@ -1,0 +1,69 @@
+[![Asx](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Images/Logo.png)](https://www.asx.com.au)
+
+
+## Australian Securities Exchange
+
+| Division | [Protocol][Omi.Asx.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Status][Omi.Glossary.Status] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Asx.Specifications] |
+| --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| [AsxDerivatives][AsxDerivatives.Exchange] | [Ntp][Asx.AsxDerivatives.Ntp] | [Itch][Omi.Encoding.Itch] | [1.05][Asx.AsxDerivatives.Ntp.Itch.v1.05.Definition] | 12/1/2017 | 506 | [Active][Omi.Glossary.Status.Active] | [Verified][Omi.Glossary.Testing.Verified] | [url][Asx.AsxDerivatives.Ntp.Itch.v1.05.Url] - [pdf][Asx.AsxDerivatives.Ntp.Itch.v1.05.Pdf] |
+| [AsxDerivatives][AsxDerivatives.Exchange] | [T24][Asx.AsxDerivatives.T24] | [Itch][Omi.Encoding.Itch] | [1.13][Asx.AsxDerivatives.T24.Itch.v1.13.Definition] | 7/15/2014 | 542 | [Deprecated][Omi.Glossary.Status.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [pdf][Asx.AsxDerivatives.T24.Itch.v1.13.Pdf] |
+| [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Itch][Omi.Encoding.Itch] | [3.1][Asx.AsxSecurities.Trade.Itch.v3.1.Definition] | 3/1/2023 | 303 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Asx.AsxSecurities.Trade.Itch.v3.1.Url] - [pdf][Asx.AsxSecurities.Trade.Itch.v3.1.Pdf] |
+| [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Itch][Omi.Encoding.Itch] | [2.0][Asx.AsxSecurities.Trade.Itch.v2.0.Definition] | 4/1/2015 | 298 | [Deprecated][Omi.Glossary.Status.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [pdf][Asx.AsxSecurities.Trade.Itch.v2.0.Pdf] |
+| [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Ouch][Omi.Encoding.Ouch] | [3.6][Asx.AsxSecurities.Trade.Ouch.v3.6.Definition] | 2/1/2023 | 151 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Asx.AsxSecurities.Trade.Ouch.v3.6.Url] - [pdf][Asx.AsxSecurities.Trade.Ouch.v3.6.Pdf] |
+| [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Ouch][Omi.Encoding.Ouch] | [3.6][Asx.AsxSecurities.Trade.Ouch.v3.6.Definition] | 2/1/2023 | 227 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Asx.AsxSecurities.Trade.Ouch.v3.6.Url] - [pdf][Asx.AsxSecurities.Trade.Ouch.v3.6.Pdf] |
+| [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Ouch][Omi.Encoding.Ouch] | [2.0][Asx.AsxSecurities.Trade.Ouch.v2.0.Definition] | 4/1/2015 | 152 | [Deprecated][Omi.Glossary.Status.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [pdf][Asx.AsxSecurities.Trade.Ouch.v2.0.Pdf] |
+| [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Ouch][Omi.Encoding.Ouch] | [2.0][Asx.AsxSecurities.Trade.Ouch.v2.0.Definition] | 4/1/2015 | 206 | [Deprecated][Omi.Glossary.Status.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [pdf][Asx.AsxSecurities.Trade.Ouch.v2.0.Pdf] |
+
+
+Asx: [website](https://www.asx.com.au "Go to Australian Securities Exchange")
+
+
+## Open Markets Initiative
+
+[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
+
+Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
+
+[Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
+[Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
+[Omi.Glossary.Status.Deprecated]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is no longer in active use"
+[Omi.Glossary.Status.Pending]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is not yet deployed to an active production environment"
+[Omi.Glossary.Status.Unknown]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol deployment status is unknown"
+[Omi.Glossary.Status.Header]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Header only protocol provided for debugging"
+[Omi.Glossary.Testing]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Protocol Testing Status"
+[Omi.Glossary.Testing.Verified]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has been tested on live data"
+[Omi.Glossary.Testing.Incomplete]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has been tested on live data but contains known issues"
+[Omi.Glossary.Testing.Beta]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has not been tested and structure is speculative"
+[Omi.Glossary.Testing.Untested]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has not been tested on live data"
+[Omi.Glossary.Testing.Unavailable]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol does not state a testing status"
+[Omi.Encoding.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Protocols/ReadMe.md "Encoding Directory"
+[Omi.Asx.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Asx/Protocols "Asx Protocol Directory"
+[Omi.Asx.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Asx/Specifications "Asx Specifications Directory"
+[Omi.Encoding.Itch]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Itch.md "Itch Encoding"
+[Omi.Encoding.Ouch]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Ouch.md "Ouch Encoding"
+[AsxDerivatives.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Asx/Protocols/AsxDerivatives "Asx AsxDerivatives"
+[AsxSecurities.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Asx/Protocols/AsxSecurities "Asx AsxSecurities"
+[Asx.AsxDerivatives.Ntp]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxDerivatives/Ntp.md "New Trading Platform"
+[Asx.AsxDerivatives.T24]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxDerivatives/T24.md "24 Itch"
+[Asx.AsxSecurities.Trade]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxSecurities/Trade.md "Asx Trade"
+
+[Asx.AsxDerivatives.Ntp.Itch.v1.05.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxderivatives/ntp/asxderivatives_ntp_v1_05.spicy "Asx AsxDerivatives Ntp Itch v1.05 Spicy Definition"
+[Asx.AsxDerivatives.Ntp.Itch.v1.05.Url]: https://asxonline.com/public/landing-pages/ntp-document-library.html "Australian Securities Exchange 1.05 Url"
+[Asx.AsxDerivatives.Ntp.Itch.v1.05.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxDerivatives/Ntp/Asx.AsxDerivatives.Ntp.Itch.v1.05.pdf "Australian Securities Exchange 1.05 Pdf"
+[Asx.AsxDerivatives.T24.Itch.v1.13.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxderivatives/t24/asxderivatives_t24_v1_13.spicy "Asx AsxDerivatives T24 Itch v1.13 Spicy Definition"
+[Asx.AsxDerivatives.T24.Itch.v1.13.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxDerivatives/T24/Asx.AsxDerivatives.T24.Itch.v1.13.pdf "Australian Securities Exchange 1.13 Pdf"
+[Asx.AsxSecurities.Trade.Itch.v2.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_itch_v2_0.spicy "Asx AsxSecurities Trade Itch v2.0 Spicy Definition"
+[Asx.AsxSecurities.Trade.Itch.v2.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxSecurities/Trade/Asx.AsxSecurities.Trade.Itch.v2.0.pdf "Australian Securities Exchange 2.0 Pdf"
+[Asx.AsxSecurities.Trade.Itch.v3.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_v3_1.spicy "Asx AsxSecurities Trade Itch v3.1 Spicy Definition"
+[Asx.AsxSecurities.Trade.Itch.v3.1.Url]: https://asxonline.com/public/documents/asx-trade-technical-library.html "Australian Securities Exchange 3.1 Url"
+[Asx.AsxSecurities.Trade.Itch.v3.1.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxSecurities/Trade/Asx.AsxSecurities.Trade.Itch.v3.1.pdf "Australian Securities Exchange 3.1 Pdf"
+[Asx.AsxSecurities.Trade.Ouch.v2.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_ouch_v2_0_client.spicy "Asx AsxSecurities Trade Ouch v2.0 Spicy Definition"
+[Asx.AsxSecurities.Trade.Ouch.v2.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxSecurities/Trade/Asx.AsxSecurities.Trade.Ouch.v2.0.pdf "Australian Securities Exchange 2.0 Pdf"
+[Asx.AsxSecurities.Trade.Ouch.v2.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_ouch_v2_0_server.spicy "Asx AsxSecurities Trade Ouch v2.0 Spicy Definition"
+[Asx.AsxSecurities.Trade.Ouch.v2.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxSecurities/Trade/Asx.AsxSecurities.Trade.Ouch.v2.0.pdf "Australian Securities Exchange 2.0 Pdf"
+[Asx.AsxSecurities.Trade.Ouch.v3.6.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_v3_6_client.spicy "Asx AsxSecurities Trade Ouch v3.6 Spicy Definition"
+[Asx.AsxSecurities.Trade.Ouch.v3.6.Url]: https://asxonline.com/public/documents/asx-trade-technical-library.html "Australian Securities Exchange 3.6 Url"
+[Asx.AsxSecurities.Trade.Ouch.v3.6.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxSecurities/Trade/Asx.AsxSecurities.Trade.Ouch.v3.6.pdf "Australian Securities Exchange 3.6 Pdf"
+[Asx.AsxSecurities.Trade.Ouch.v3.6.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_v3_6_server.spicy "Asx AsxSecurities Trade Ouch v3.6 Spicy Definition"
+[Asx.AsxSecurities.Trade.Ouch.v3.6.Url]: https://asxonline.com/public/documents/asx-trade-technical-library.html "Australian Securities Exchange 3.6 Url"
+[Asx.AsxSecurities.Trade.Ouch.v3.6.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/AsxSecurities/Trade/Asx.AsxSecurities.Trade.Ouch.v3.6.pdf "Australian Securities Exchange 3.6 Pdf"

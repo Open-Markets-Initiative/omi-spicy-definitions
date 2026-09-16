@@ -1,0 +1,52 @@
+[![Bse](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Images/Logo.png)](https://www.bseindia.com)
+
+
+## BSE Limited
+
+| Division | [Protocol][Omi.Bse.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Status][Omi.Glossary.Status] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Bse.Specifications] |
+| --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
+| [BseIndia][BseIndia.Exchange] | [Eobi][Bse.BseIndia.Eobi] | [Fbe][Omi.Encoding.Fbe] | [1.4][Bse.BseIndia.Eobi.Fbe.v1.4.Definition] | 7/14/2025 | 391 | [Active][Omi.Glossary.Status.Active] | [Verified][Omi.Glossary.Testing.Verified] | [url][Bse.BseIndia.Eobi.Fbe.v1.4.Url] - [pdf][Bse.BseIndia.Eobi.Fbe.v1.4.Pdf] |
+| [BseIndia][BseIndia.Exchange] | [Eti][Bse.BseIndia.Eti] | [Fbe][Omi.Encoding.Fbe] | [1.6.14][Bse.BseIndia.Eti.Fbe.v1.6.14.Definition] | 3/30/2026 | 731 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Bse.BseIndia.Eti.Fbe.v1.6.14.Url] - [pdf][Bse.BseIndia.Eti.Fbe.v1.6.14.Pdf] - [xml][Bse.BseIndia.Eti.Fbe.v1.6.14.Xml] |
+| [BseIndia][BseIndia.Exchange] | [Eti][Bse.BseIndia.Eti] | [Fbe][Omi.Encoding.Fbe] | [1.6.14][Bse.BseIndia.Eti.Fbe.v1.6.14.Definition] | 3/30/2026 | 1659 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Bse.BseIndia.Eti.Fbe.v1.6.14.Url] - [pdf][Bse.BseIndia.Eti.Fbe.v1.6.14.Pdf] - [xml][Bse.BseIndia.Eti.Fbe.v1.6.14.Xml] |
+
+
+Bse: [website](https://www.bseindia.com "Go to BSE Limited")
+
+
+## Open Markets Initiative
+
+[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
+
+Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
+
+[Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
+[Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
+[Omi.Glossary.Status.Deprecated]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is no longer in active use"
+[Omi.Glossary.Status.Pending]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is not yet deployed to an active production environment"
+[Omi.Glossary.Status.Unknown]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol deployment status is unknown"
+[Omi.Glossary.Status.Header]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Header only protocol provided for debugging"
+[Omi.Glossary.Testing]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Protocol Testing Status"
+[Omi.Glossary.Testing.Verified]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has been tested on live data"
+[Omi.Glossary.Testing.Incomplete]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has been tested on live data but contains known issues"
+[Omi.Glossary.Testing.Beta]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has not been tested and structure is speculative"
+[Omi.Glossary.Testing.Untested]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol has not been tested on live data"
+[Omi.Glossary.Testing.Unavailable]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Testing.md "Testing Status: Protocol does not state a testing status"
+[Omi.Encoding.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Protocols/ReadMe.md "Encoding Directory"
+[Omi.Bse.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Bse/Protocols "Bse Protocol Directory"
+[Omi.Bse.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Bse/Specifications "Bse Specifications Directory"
+[Omi.Encoding.Fbe]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fbe.md "Fbe Encoding"
+[BseIndia.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Bse/Protocols/BseIndia "Bse BseIndia"
+[Bse.BseIndia.Eobi]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Protocols/BseIndia/Eobi.md "Enhanced Order Book Interface"
+[Bse.BseIndia.Eti]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Protocols/BseIndia/Eti.md "Enhanced Trading Interface"
+
+[Bse.BseIndia.Eobi.Fbe.v1.4.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/bse/eobi/bseindia_eobi_v1_4.spicy "Bse BseIndia Eobi Fbe v1.4 Spicy Definition"
+[Bse.BseIndia.Eobi.Fbe.v1.4.Url]: https://www.bseindia.com/nta "BSE Limited 1.4 Url"
+[Bse.BseIndia.Eobi.Fbe.v1.4.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Specifications/Eobi/Bse.BseIndia.Eobi.Fbe.v1.4.pdf "BSE Limited 1.4 Pdf"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/bse/eti/bseindia_eti_v1_6_14_client.spicy "Bse BseIndia Eti Fbe v1.6.14 Spicy Definition"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Url]: https://www.bseindia.com/nta "BSE Limited 1.6.14 Url"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Specifications/Eti/Bse.BseIndia.Eti.Fbe.v1.6.14.pdf "BSE Limited 1.6.14 Pdf"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Specifications/Eti/Bse.BseIndia.Eti.Fbe.v1.6.14.xml "BSE Limited 1.6.14 Xml"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/bse/eti/bseindia_eti_v1_6_14_server.spicy "Bse BseIndia Eti Fbe v1.6.14 Spicy Definition"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Url]: https://www.bseindia.com/nta "BSE Limited 1.6.14 Url"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Specifications/Eti/Bse.BseIndia.Eti.Fbe.v1.6.14.pdf "BSE Limited 1.6.14 Pdf"
+[Bse.BseIndia.Eti.Fbe.v1.6.14.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Bse/Specifications/Eti/Bse.BseIndia.Eti.Fbe.v1.6.14.xml "BSE Limited 1.6.14 Xml"
