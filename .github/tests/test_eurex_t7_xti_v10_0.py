@@ -15,7 +15,7 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 class EurexT7XtiV100Tests(unittest.TestCase):
 
     def test_orderexecresponse(self):
-        module = "eurex/xti/eurex_t7_xti_v10_0_server.spicy"
+        module = "eurex/t7/xti/eurex_t7_xti_v10_0_server.spicy"
         for payload in payloads.of("omi-data-packets/Eurex/T7.Xti.Fbe.v10.0/OrderExecResponse.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())

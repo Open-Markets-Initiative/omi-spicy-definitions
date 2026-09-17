@@ -13,14 +13,8 @@
 | [IceFutures][IceFutures.Exchange] | [Bgw][Ice.IceFutures.Bgw] | [Sbe][Omi.Encoding.Sbe] | [7.0][Ice.IceFutures.Bgw.Sbe.v7.0.Definition] | 10/24/2025 | 1597 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Ice.IceFutures.Bgw.Sbe.v7.0.Url] - [pdf][Ice.IceFutures.Bgw.Sbe.v7.0.Pdf] |
 
 
-Ice: [website](https://www.ice.com "Go to Intercontinental Exchange")
+<p align="center"><a href="https://www.ice.com" title="Intercontinental Exchange Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/icemarkets" title="Intercontinental Exchange on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://en.wikipedia.org/wiki/Intercontinental_Exchange" title="Intercontinental Exchange on Wikipedia"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Wikipedia.png" alt="Wikipedia" width="32" height="32"></a></p>
 
-
-## Open Markets Initiative
-
-[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
-
-Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
 
 [Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
 [Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
@@ -43,16 +37,16 @@ Other generated code can be found at [Omi Projects](https://github.com/Open-Mark
 [Ice.IceFutures.Bgw]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Protocols/IceFutures/Bgw.md "Binary Order Gateway"
 [Ice.IceFutures.Mdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Protocols/IceFutures/Mdf.md "Multicast Data Feed"
 
-[Ice.IceFutures.Bgw.Sbe.v7.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/bgw/icefutures_bgw_v7_0.spicy "Ice IceFutures Bgw Sbe v7.0 Spicy Definition"
+[Ice.IceFutures.Bgw.Sbe.v7.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/bgw/icefutures_bgw_v7_0.spicy "Ice IceFutures Bgw Sbe v7.0 Spicy Definition"
 [Ice.IceFutures.Bgw.Sbe.v7.0.Url]: https://service.ice.com/s/article/Binary-Order-API "Intercontinental Exchange 7.0 Url"
 [Ice.IceFutures.Bgw.Sbe.v7.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 7.0 Pdf"
-[Ice.IceFutures.Mdf.iMpact.v1.1.24.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/mdf/icefutures_mdf_v1_1_24.spicy "Ice IceFutures Mdf iMpact v1.1.24 Spicy Definition"
+[Ice.IceFutures.Mdf.iMpact.v1.1.24.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/mdf/icefutures_mdf_v1_1_24.spicy "Ice IceFutures Mdf iMpact v1.1.24 Spicy Definition"
 [Ice.IceFutures.Mdf.iMpact.v1.1.24.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 1.1.24 Pdf"
-[Ice.IceFutures.Mdf.iMpact.v1.1.33.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/mdf/icefutures_mdf_v1_1_33.spicy "Ice IceFutures Mdf iMpact v1.1.33 Spicy Definition"
+[Ice.IceFutures.Mdf.iMpact.v1.1.33.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/mdf/icefutures_mdf_v1_1_33.spicy "Ice IceFutures Mdf iMpact v1.1.33 Spicy Definition"
 [Ice.IceFutures.Mdf.iMpact.v1.1.33.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 1.1.33 Pdf"
-[Ice.IceFutures.Mdf.iMpact.v1.1.34.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/mdf/icefutures_mdf_v1_1_34.spicy "Ice IceFutures Mdf iMpact v1.1.34 Spicy Definition"
+[Ice.IceFutures.Mdf.iMpact.v1.1.34.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/mdf/icefutures_mdf_v1_1_34.spicy "Ice IceFutures Mdf iMpact v1.1.34 Spicy Definition"
 [Ice.IceFutures.Mdf.iMpact.v1.1.34.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 1.1.34 Pdf"
-[Ice.IceFutures.Mdf.iMpact.v1.1.43.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/mdf/icefutures_mdf_v1_1_43.spicy "Ice IceFutures Mdf iMpact v1.1.43 Spicy Definition"
+[Ice.IceFutures.Mdf.iMpact.v1.1.43.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/mdf/icefutures_mdf_v1_1_43.spicy "Ice IceFutures Mdf iMpact v1.1.43 Spicy Definition"
 [Ice.IceFutures.Mdf.iMpact.v1.1.43.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 1.1.43 Pdf"
-[Ice.IceFutures.Mdf.iMpact.v1.1.51.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/mdf/icefutures_mdf_v1_1_51.spicy "Ice IceFutures Mdf iMpact v1.1.51 Spicy Definition"
+[Ice.IceFutures.Mdf.iMpact.v1.1.51.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/mdf/icefutures_mdf_v1_1_51.spicy "Ice IceFutures Mdf iMpact v1.1.51 Spicy Definition"
 [Ice.IceFutures.Mdf.iMpact.v1.1.51.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 1.1.51 Pdf"

@@ -17,14 +17,8 @@
 | [AquisEquities][AquisEquities.Exchange] | [TradingProtocol][Aquis.AquisEquities.TradingProtocol] | [Atp][Omi.Encoding.Atp] | [4.0][Aquis.AquisEquities.TradingProtocol.Atp.v4.0.Definition] | 8/1/2025 | 536 | [Active][Omi.Glossary.Status.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][Aquis.AquisEquities.TradingProtocol.Atp.v4.0.Url] - [pdf][Aquis.AquisEquities.TradingProtocol.Atp.v4.0.Pdf] |
 
 
-Aquis: [website](https://www.aquis.eu "Go to Aquis Exchange")
+<p align="center"><a href="https://www.aquis.eu" title="Aquis Exchange Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/aquis-exchange-plc" title="Aquis Exchange on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a></p>
 
-
-## Open Markets Initiative
-
-[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
-
-Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
 
 [Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
 [Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
@@ -51,29 +45,29 @@ Other generated code can be found at [Omi Projects](https://github.com/Open-Mark
 [Aquis.AquisEquities.TcpHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisEquities/TcpHeader.md "Tcp Headers"
 [Aquis.AquisEquities.TradingProtocol]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Protocols/AquisEquities/TradingProtocol.md "Aquis Trading Protocol"
 
-[Aquis.AquisEquities.RealTime.Amd.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/realtime/aquisequities_realtime_v4_0.spicy "Aquis AquisEquities RealTime Amd v4.0 Spicy Definition"
+[Aquis.AquisEquities.RealTime.Amd.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/realtime/aquisequities_realtime_v4_0.spicy "Aquis AquisEquities RealTime Amd v4.0 Spicy Definition"
 [Aquis.AquisEquities.RealTime.Amd.v4.0.Url]: https://www.aquis.eu/markets/documents "Aquis Exchange 4.0 Url"
 [Aquis.AquisEquities.RealTime.Amd.v4.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Specifications/ "Aquis Exchange 4.0 Pdf"
-[Aquis.AquisEquities.RealTime.Amd.v4.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/realtime/aquisequities_realtime_v4_1.spicy "Aquis AquisEquities RealTime Amd v4.1 Spicy Definition"
+[Aquis.AquisEquities.RealTime.Amd.v4.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/realtime/aquisequities_realtime_v4_1.spicy "Aquis AquisEquities RealTime Amd v4.1 Spicy Definition"
 [Aquis.AquisEquities.RealTime.Amd.v4.1.Url]: https://www.aquis.eu/markets/documents "Aquis Exchange 4.1 Url"
-[Aquis.AquisEquities.Replay.Amd.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/replay/aquisequities_replay_v4_0.spicy "Aquis AquisEquities Replay Amd v4.0 Spicy Definition"
+[Aquis.AquisEquities.Replay.Amd.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/replay/aquisequities_replay_v4_0.spicy "Aquis AquisEquities Replay Amd v4.0 Spicy Definition"
 [Aquis.AquisEquities.Replay.Amd.v4.0.Url]: https://www.aquis.eu/markets/documents "Aquis Exchange 4.0 Url"
 [Aquis.AquisEquities.Replay.Amd.v4.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Specifications/ "Aquis Exchange 4.0 Pdf"
-[Aquis.AquisEquities.Replay.Amd.v4.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/replay/aquisequities_replay_v4_1.spicy "Aquis AquisEquities Replay Amd v4.1 Spicy Definition"
+[Aquis.AquisEquities.Replay.Amd.v4.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/replay/aquisequities_replay_v4_1.spicy "Aquis AquisEquities Replay Amd v4.1 Spicy Definition"
 [Aquis.AquisEquities.Replay.Amd.v4.1.Url]: https://www.aquis.eu/markets/documents "Aquis Exchange 4.1 Url"
 [Aquis.AquisEquities.Replay.Amd.v4.1.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Specifications/ "Aquis Exchange 4.1 Pdf"
-[Aquis.AquisEquities.Snapshot.Amd.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/snapshot/aquisequities_snapshot_v4_0.spicy "Aquis AquisEquities Snapshot Amd v4.0 Spicy Definition"
+[Aquis.AquisEquities.Snapshot.Amd.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/snapshot/aquisequities_snapshot_v4_0.spicy "Aquis AquisEquities Snapshot Amd v4.0 Spicy Definition"
 [Aquis.AquisEquities.Snapshot.Amd.v4.0.Url]: https://www.aquis.eu/markets/documents "Aquis Exchange 4.0 Url"
 [Aquis.AquisEquities.Snapshot.Amd.v4.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Specifications/ "Aquis Exchange 4.0 Pdf"
-[Aquis.AquisEquities.Snapshot.Amd.v4.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/snapshot/aquisequities_snapshot_v4_1.spicy "Aquis AquisEquities Snapshot Amd v4.1 Spicy Definition"
+[Aquis.AquisEquities.Snapshot.Amd.v4.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/snapshot/aquisequities_snapshot_v4_1.spicy "Aquis AquisEquities Snapshot Amd v4.1 Spicy Definition"
 [Aquis.AquisEquities.Snapshot.Amd.v4.1.Url]: https://www.aquis.eu/markets/documents "Aquis Exchange 4.1 Url"
 [Aquis.AquisEquities.Snapshot.Amd.v4.1.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Specifications/ "Aquis Exchange 4.1 Pdf"
-[Aquis.AquisEquities.UdpHeader.Amd.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/udpheader/aquisequities_udpheader_v1_0.spicy "Aquis AquisEquities UdpHeader Amd v1.0 Spicy Definition"
+[Aquis.AquisEquities.UdpHeader.Amd.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/udpheader/aquisequities_udpheader_v1_0.spicy "Aquis AquisEquities UdpHeader Amd v1.0 Spicy Definition"
 [Aquis.AquisEquities.UdpHeader.Amd.v1.0.Url]: https://www.aquis.eu/technologies "Aquis Exchange 1.0 Url"
-[Aquis.AquisEquities.TcpHeader.Amd.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/tcpheader/aquisequities_tcpheader_amd_v1_0.spicy "Aquis AquisEquities TcpHeader Amd v1.0 Spicy Definition"
+[Aquis.AquisEquities.TcpHeader.Amd.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/tcpheader/aquisequities_tcpheader_amd_v1_0.spicy "Aquis AquisEquities TcpHeader Amd v1.0 Spicy Definition"
 [Aquis.AquisEquities.TcpHeader.Amd.v1.0.Url]: https://www.aquis.eu/technologies "Aquis Exchange 1.0 Url"
-[Aquis.AquisEquities.TradingProtocol.Atp.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/tradingprotocol/aquisequities_tradingprotocol_v4_0.spicy "Aquis AquisEquities TradingProtocol Atp v4.0 Spicy Definition"
+[Aquis.AquisEquities.TradingProtocol.Atp.v4.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/tradingprotocol/aquisequities_tradingprotocol_v4_0.spicy "Aquis AquisEquities TradingProtocol Atp v4.0 Spicy Definition"
 [Aquis.AquisEquities.TradingProtocol.Atp.v4.0.Url]: https://www.aquis.eu/markets/documents "Aquis Exchange 4.0 Url"
 [Aquis.AquisEquities.TradingProtocol.Atp.v4.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Aquis/Specifications/Atp/Aquis.AquisEquities.TradingProtocol.Atp.v4.0.pdf "Aquis Exchange 4.0 Pdf"
-[Aquis.AquisEquities.TcpHeader.Atp.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/tcpheader/aquisequities_tcpheader_atp_v1_0.spicy "Aquis AquisEquities TcpHeader Atp v1.0 Spicy Definition"
+[Aquis.AquisEquities.TcpHeader.Atp.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/aquis/aquisequities/tcpheader/aquisequities_tcpheader_atp_v1_0.spicy "Aquis AquisEquities TcpHeader Atp v1.0 Spicy Definition"
 [Aquis.AquisEquities.TcpHeader.Atp.v1.0.Url]: https://www.aquis.eu/technologies "Aquis Exchange 1.0 Url"

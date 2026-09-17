@@ -12,14 +12,8 @@
 | [BlueEquities][BlueEquities.Ats] | [MemoirTopOfBook][BlueOceanAts.BlueEquities.MemoirTopOfBook] | [Sbe][Omi.Encoding.Sbe] | [1.3][BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Definition] | 1/1/2024 | 178 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Url] - [pdf][BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Pdf] - [xml][BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Xml] - [pdf][BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Pdf] |
 
 
-BlueOceanAts: [website](https://blueocean-tech.io/ "Go to Blue Ocean Technologies")
+<p align="center"><a href="https://blueocean-tech.io/" title="Blue Ocean Technologies Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/blue-ocean-technologies-llc-an-overnight-trading-company" title="Blue Ocean Technologies on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a></p>
 
-
-## Open Markets Initiative
-
-[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
-
-Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
 
 [Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
 [Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
@@ -45,22 +39,22 @@ Other generated code can be found at [Omi Projects](https://github.com/Open-Mark
 [BlueOceanAts.BlueEquities.MemoirTopOfBook]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Protocols/BlueEquities/MemoirTopOfBook.md "Member Order Information Record Top Of Book"
 [BlueOceanAts.CommonHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Protocols/CommonHeader.md "Common Header"
 
-[BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/blueequities/memo/blueequities_memo_v1_13.spicy "BlueOceanAts BlueEquities Memo Sbe v1.13 Spicy Definition"
+[BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/memo/blueequities_memo_v1_13.spicy "BlueOceanAts BlueEquities Memo Sbe v1.13 Spicy Definition"
 [BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.Url]: https://blueocean-tech.io/trading-updates "Blue Ocean Technologies 1.13 Url"
 [BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/Memo/BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.pdf "Blue Ocean Technologies 1.13 Pdf"
 [BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/Memo/BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.xml "Blue Ocean Technologies 1.13 Xml"
 [BlueOceanAts.BlueEquities.Memo.Sbe.v1.13.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/Common/BlueOceanAts.Tcp.v1.2.pdf "Blue Ocean Technologies 1.13 Pdf"
-[BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/blueequities/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy "BlueOceanAts BlueEquities MemoirDepthFeed Sbe v1.3 Spicy Definition"
+[BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy "BlueOceanAts BlueEquities MemoirDepthFeed Sbe v1.3 Spicy Definition"
 [BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.Url]: https://blueocean-tech.io/trading-updates "Blue Ocean Technologies 1.3 Url"
 [BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/MemoirDepthFeed/BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.pdf "Blue Ocean Technologies 1.3 Pdf"
 [BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/MemoirDepthFeed/BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.xml "Blue Ocean Technologies 1.3 Xml"
 [BlueOceanAts.BlueEquities.MemoirDepthFeed.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/Common/BlueOceanAts.Udp.v1.1.pdf "Blue Ocean Technologies 1.3 Pdf"
-[BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/blueequities/memoirlastsale/blueequities_memoirlastsale_v1_3.spicy "BlueOceanAts BlueEquities MemoirLastSale Sbe v1.3 Spicy Definition"
+[BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/memoirlastsale/blueequities_memoirlastsale_v1_3.spicy "BlueOceanAts BlueEquities MemoirLastSale Sbe v1.3 Spicy Definition"
 [BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.Url]: https://blueocean-tech.io/trading-updates "Blue Ocean Technologies 1.3 Url"
 [BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/MemoirLastSale/BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.pdf "Blue Ocean Technologies 1.3 Pdf"
 [BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/MemoirLastSale/BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.xml "Blue Ocean Technologies 1.3 Xml"
 [BlueOceanAts.BlueEquities.MemoirLastSale.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/Common/BlueOceanAts.Udp.v1.1.pdf "Blue Ocean Technologies 1.3 Pdf"
-[BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/blueequities/memoirtopofbook/blueequities_memoirtopofbook_v1_3.spicy "BlueOceanAts BlueEquities MemoirTopOfBook Sbe v1.3 Spicy Definition"
+[BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/blueoceanats/memoirtopofbook/blueequities_memoirtopofbook_v1_3.spicy "BlueOceanAts BlueEquities MemoirTopOfBook Sbe v1.3 Spicy Definition"
 [BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Url]: https://blueocean-tech.io/trading-updates "Blue Ocean Technologies 1.3 Url"
 [BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/MemoirTopOfBook/BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.pdf "Blue Ocean Technologies 1.3 Pdf"
 [BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Specifications/BlueEquities/MemoirTopOfBook/BlueOceanAts.BlueEquities.MemoirTopOfBook.Sbe.v1.3.xml "Blue Ocean Technologies 1.3 Xml"

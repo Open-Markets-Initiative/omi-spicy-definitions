@@ -11,14 +11,8 @@
 | [24XEquities][24XEquities.Exchange] | [MemoirTopOfBook][24X.24XEquities.MemoirTopOfBook] | [Sbe][Omi.Encoding.Sbe] | [1.3][24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Definition] | 9/1/2025 | 178 | [Active][Omi.Glossary.Status.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Url] - [pdf][24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Pdf] - [xml][24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Xml] |
 
 
-24X: [website](https://24exchange.com "Go to 24 National Exchange")
+<p align="center"><a href="https://24exchange.com" title="24 National Exchange Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/24-exchange-ltd" title="24 National Exchange on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://en.wikipedia.org/wiki/24X_National_Exchange" title="24 National Exchange on Wikipedia"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Wikipedia.png" alt="Wikipedia" width="32" height="32"></a></p>
 
-
-## Open Markets Initiative
-
-[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
-
-Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
 
 [Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
 [Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
@@ -42,19 +36,19 @@ Other generated code can be found at [Omi Projects](https://github.com/Open-Mark
 [24X.24XEquities.MemoirLastSale]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Protocols/24XEquities/MemoirLastSale.md "Member Order Information Record Last Sale"
 [24X.24XEquities.MemoirTopOfBook]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Protocols/24XEquities/MemoirTopOfBook.md "Member Order Information Record Top Of Book"
 
-[24X.24XEquities.Memo.Sbe.v1.13.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/memo/24xequities_memo_v1_13.spicy "24X 24XEquities Memo Sbe v1.13 Spicy Definition"
+[24X.24XEquities.Memo.Sbe.v1.13.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/24xequities/memo/24xequities_memo_v1_13.spicy "24X 24XEquities Memo Sbe v1.13 Spicy Definition"
 [24X.24XEquities.Memo.Sbe.v1.13.Url]: https://equities.24exchange.com/exchange "24 National Exchange 1.13 Url"
 [24X.24XEquities.Memo.Sbe.v1.13.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/Memo/24X.Equities.Memo.Sbe.v1.13.pdf "24 National Exchange 1.13 Pdf"
 [24X.24XEquities.Memo.Sbe.v1.13.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/Memo/24X.Equities.Memo.Sbe.v1.13.xml "24 National Exchange 1.13 Xml"
-[24X.24XEquities.MemoirDepthFeed.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/memoirdepthfeed/24xequities_memoirdepthfeed_v1_3.spicy "24X 24XEquities MemoirDepthFeed Sbe v1.3 Spicy Definition"
+[24X.24XEquities.MemoirDepthFeed.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/24xequities/memoirdepthfeed/24xequities_memoirdepthfeed_v1_3.spicy "24X 24XEquities MemoirDepthFeed Sbe v1.3 Spicy Definition"
 [24X.24XEquities.MemoirDepthFeed.Sbe.v1.3.Url]: https://equities.24exchange.com/exchange "24 National Exchange 1.3 Url"
 [24X.24XEquities.MemoirDepthFeed.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/Memoir/Depth/24X.Equities.MemoirDepthFeed.Sbe.v1.3.pdf "24 National Exchange 1.3 Pdf"
 [24X.24XEquities.MemoirDepthFeed.Sbe.v1.3.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/Memoir/Depth/24X.Equities.MemoirDepthFeed.Sbe.v1.3.xml "24 National Exchange 1.3 Xml"
-[24X.24XEquities.MemoirLastSale.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/memoirlastsale/24xequities_memoirlastsale_v1_3.spicy "24X 24XEquities MemoirLastSale Sbe v1.3 Spicy Definition"
+[24X.24XEquities.MemoirLastSale.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/24xequities/memoirlastsale/24xequities_memoirlastsale_v1_3.spicy "24X 24XEquities MemoirLastSale Sbe v1.3 Spicy Definition"
 [24X.24XEquities.MemoirLastSale.Sbe.v1.3.Url]: https://equities.24exchange.com/exchange "24 National Exchange 1.3 Url"
 [24X.24XEquities.MemoirLastSale.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/Memoir/LastSale/24X.Equities.MemoirLastSale.Sbe.v1.3.pdf "24 National Exchange 1.3 Pdf"
 [24X.24XEquities.MemoirLastSale.Sbe.v1.3.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/Memoir/LastSale/24X.Equities.MemoirLastSale.Sbe.v1.3.xml "24 National Exchange 1.3 Xml"
-[24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/memoirtopofbook/24xequities_memoirtopofbook_v1_3.spicy "24X 24XEquities MemoirTopOfBook Sbe v1.3 Spicy Definition"
+[24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/24x/24xequities/memoirtopofbook/24xequities_memoirtopofbook_v1_3.spicy "24X 24XEquities MemoirTopOfBook Sbe v1.3 Spicy Definition"
 [24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Url]: https://equities.24exchange.com/exchange "24 National Exchange 1.3 Url"
 [24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/Memoir/Top/24X.Equities.MemoirTopOfBook.Sbe.v1.3.pdf "24 National Exchange 1.3 Pdf"
 [24X.24XEquities.MemoirTopOfBook.Sbe.v1.3.Xml]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/24X/Specifications/Equities/MemoirTop/24X.Equities.MemoirTopOfBook.Sbe.v1.3.xml "24 National Exchange 1.3 Xml"

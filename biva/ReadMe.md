@@ -16,14 +16,8 @@
 | [BivaEquities][BivaEquities.Exchange] | [OrderEntry][Biva.BivaEquities.OrderEntry] | [Ouch][Omi.Encoding.Ouch] | [1.05][Biva.BivaEquities.OrderEntry.Ouch.v1.05.Definition] | 1/1/2016 | 204 | [Active][Omi.Glossary.Status.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Biva.BivaEquities.OrderEntry.Ouch.v1.05.Url] - [pdf][Biva.BivaEquities.OrderEntry.Ouch.v1.05.Pdf] |
 
 
-Biva: [website](https://www.biva.mx "Go to Bolsa Institucional de Valores")
+<p align="center"><a href="https://www.biva.mx" title="Bolsa Institucional de Valores Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/company/biva-mx" title="Bolsa Institucional de Valores on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://en.wikipedia.org/wiki/Bolsa_Institucional_de_Valores" title="Bolsa Institucional de Valores on Wikipedia"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Wikipedia.png" alt="Wikipedia" width="32" height="32"></a></p>
 
-
-## Open Markets Initiative
-
-[![Omi](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/About/Images/Logo.png)](https://github.com/Open-Markets-Initiative/Directory)  The Open Markets Initiative (Omi) is a group of technologists dedicated to enhancing the stability of electronic financial markets using modern development methods.
-
-Other generated code can be found at [Omi Projects](https://github.com/Open-Markets-Initiative/Directory/tree/main/Projects "Open Markets Initiative Projects"); for Omi rules and regulations, see [Omi Directory](https://github.com/Open-Markets-Initiative/Directory "Open Markets Initiative Directory").
 
 [Omi.Glossary.Status]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Protocol Deployment Status"
 [Omi.Glossary.Status.Active]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Glossary/Status.md "Deployment Status: Protocol is in active production"
@@ -51,30 +45,30 @@ Other generated code can be found at [Omi Projects](https://github.com/Open-Mark
 [Biva.BivaEquities.Index]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Protocols/BivaEquities/Index.md "Index"
 [Biva.BivaEquities.OrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Protocols/BivaEquities/OrderEntry.md "Order Entry"
 
-[Biva.BivaEquities.TotalView.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/totalview/bivaequities_totalview_itch_v1_12.spicy "Biva BivaEquities TotalView Itch v1.12 Spicy Definition"
+[Biva.BivaEquities.TotalView.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/totalview/bivaequities_totalview_itch_v1_12.spicy "Biva BivaEquities TotalView Itch v1.12 Spicy Definition"
 [Biva.BivaEquities.TotalView.Itch.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"
 [Biva.BivaEquities.TotalView.Itch.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
-[Biva.BivaEquities.TotalView.Glimpse.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/totalview/bivaequities_totalview_glimpse_v1_12_client.spicy "Biva BivaEquities TotalView Glimpse v1.12 Spicy Definition"
+[Biva.BivaEquities.TotalView.Glimpse.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/totalview/bivaequities_totalview_glimpse_v1_12_client.spicy "Biva BivaEquities TotalView Glimpse v1.12 Spicy Definition"
 [Biva.BivaEquities.TotalView.Glimpse.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"
 [Biva.BivaEquities.TotalView.Glimpse.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
-[Biva.BivaEquities.TotalView.Glimpse.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/totalview/bivaequities_totalview_glimpse_v1_12_server.spicy "Biva BivaEquities TotalView Glimpse v1.12 Spicy Definition"
+[Biva.BivaEquities.TotalView.Glimpse.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/totalview/bivaequities_totalview_glimpse_v1_12_server.spicy "Biva BivaEquities TotalView Glimpse v1.12 Spicy Definition"
 [Biva.BivaEquities.TotalView.Glimpse.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"
 [Biva.BivaEquities.TotalView.Glimpse.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
-[Biva.BivaEquities.Basic.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/basic/bivaequities_basic_v1_12.spicy "Biva BivaEquities Basic Itch v1.12 Spicy Definition"
+[Biva.BivaEquities.Basic.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/basic/bivaequities_basic_v1_12.spicy "Biva BivaEquities Basic Itch v1.12 Spicy Definition"
 [Biva.BivaEquities.Basic.Itch.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"
 [Biva.BivaEquities.Basic.Itch.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
-[Biva.BivaEquities.LastSale.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/lastsale/bivaequities_lastsale_v1_12.spicy "Biva BivaEquities LastSale Itch v1.12 Spicy Definition"
+[Biva.BivaEquities.LastSale.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/lastsale/bivaequities_lastsale_v1_12.spicy "Biva BivaEquities LastSale Itch v1.12 Spicy Definition"
 [Biva.BivaEquities.LastSale.Itch.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"
 [Biva.BivaEquities.LastSale.Itch.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
-[Biva.BivaEquities.News.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/news/bivaequities_news_v1_12.spicy "Biva BivaEquities News Itch v1.12 Spicy Definition"
+[Biva.BivaEquities.News.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/news/bivaequities_news_v1_12.spicy "Biva BivaEquities News Itch v1.12 Spicy Definition"
 [Biva.BivaEquities.News.Itch.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"
 [Biva.BivaEquities.News.Itch.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
-[Biva.BivaEquities.Index.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/index/bivaequities_index_v1_12.spicy "Biva BivaEquities Index Itch v1.12 Spicy Definition"
+[Biva.BivaEquities.Index.Itch.v1.12.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/index/bivaequities_index_v1_12.spicy "Biva BivaEquities Index Itch v1.12 Spicy Definition"
 [Biva.BivaEquities.Index.Itch.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"
 [Biva.BivaEquities.Index.Itch.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
-[Biva.BivaEquities.OrderEntry.Ouch.v1.05.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/orderentry/bivaequities_orderentry_v1_05_client.spicy "Biva BivaEquities OrderEntry Ouch v1.05 Spicy Definition"
+[Biva.BivaEquities.OrderEntry.Ouch.v1.05.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/orderentry/bivaequities_orderentry_v1_05_client.spicy "Biva BivaEquities OrderEntry Ouch v1.05 Spicy Definition"
 [Biva.BivaEquities.OrderEntry.Ouch.v1.05.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.05 Url"
 [Biva.BivaEquities.OrderEntry.Ouch.v1.05.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.05 Pdf"
-[Biva.BivaEquities.OrderEntry.Ouch.v1.05.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/orderentry/bivaequities_orderentry_v1_05_server.spicy "Biva BivaEquities OrderEntry Ouch v1.05 Spicy Definition"
+[Biva.BivaEquities.OrderEntry.Ouch.v1.05.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/orderentry/bivaequities_orderentry_v1_05_server.spicy "Biva BivaEquities OrderEntry Ouch v1.05 Spicy Definition"
 [Biva.BivaEquities.OrderEntry.Ouch.v1.05.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.05 Url"
 [Biva.BivaEquities.OrderEntry.Ouch.v1.05.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.05 Pdf"
