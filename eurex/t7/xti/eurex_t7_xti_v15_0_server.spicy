@@ -122,7 +122,7 @@ type BroadcastErrorNotification = unit {
     ref_appl_id: uint8 &convert=RefApplId($$);
     session_status: uint8 &convert=SessionStatus($$);
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type NotifHeaderComp = unit {
@@ -391,7 +391,7 @@ type ForcedLogoutNotification = unit {
     notif_header_comp: NotifHeaderComp;
     var_text_len: uint16;
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type ForcedUserLogoutNotification = unit {
@@ -401,7 +401,7 @@ type ForcedUserLogoutNotification = unit {
     var_text_len: uint16;
     user_status: uint8 &convert=UserStatus($$);
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type HeartbeatNotification = unit {
@@ -500,7 +500,7 @@ type LegalNotificationBroadcast = unit {
     var_text_len: uint16;
     user_status: uint8 &convert=UserStatus($$);
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type RbcHeaderComp = unit {
@@ -530,7 +530,7 @@ type LogonResponse = unit {
     default_cstm_appl_ver_sub_id: bytes &size=5;
     partition_id: uint16;
     public_key: bytes &size=self.public_key_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type LogoutResponse = unit {
@@ -672,7 +672,7 @@ type NewsBroadcast = unit {
     var_text_len: uint16;
     headline: bytes &size=256;
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type OtcResponse = unit {
@@ -1067,7 +1067,7 @@ type Reject = unit {
     var_text_len: uint16;
     session_status: uint8 &convert=SessionStatus($$);
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type RetransmitMeMessageResponse = unit {
@@ -1275,7 +1275,7 @@ type TesApproveBroadcast = unit {
     free_text_2: bytes &size=12;
     free_text_4: bytes &size=16;
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type TesBroadcast = unit {
@@ -1304,7 +1304,7 @@ type TesBroadcast = unit {
     root_party_executing_trader: bytes &size=6;
     side_alloc_grp_bc_comp: SideAllocGrpBcComp[self.no_side_allocs];
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type SideAllocGrpBcComp = unit {

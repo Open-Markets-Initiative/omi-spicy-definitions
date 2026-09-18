@@ -137,7 +137,7 @@ type BroadcastErrorNotification = unit {
     session_status: uint8 &convert=SessionStatus($$);
     : skip bytes &size=4;   # padding
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type NotifHeaderComp = unit {
@@ -360,7 +360,7 @@ type ForcedLogoutNotification = unit {
     var_text_len: uint16;
     : skip bytes &size=6;   # padding
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type ForcedUserLogoutNotification = unit {
@@ -372,7 +372,7 @@ type ForcedUserLogoutNotification = unit {
     var_text_len: uint16;
     : skip bytes &size=6;   # padding
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type GatewayResponse = unit {
@@ -459,7 +459,7 @@ type LegalNotificationBroadcast = unit {
     user_status: uint8 &convert=UserStatus($$);
     : skip bytes &size=5;   # padding
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type RbcHeaderComp = unit {
@@ -600,7 +600,7 @@ type NewsBroadcast = unit {
     headline: bytes &size=256;
     : skip bytes &size=6;   # padding
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type OrderExecNotification = unit {
@@ -822,7 +822,7 @@ type Reject = unit {
     session_status: uint8 &convert=SessionStatus($$);
     : skip bytes &size=1;   # padding
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type RetransmitMeMessageResponse = unit {

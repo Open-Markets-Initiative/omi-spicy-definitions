@@ -20,6 +20,24 @@ class EurexT7EobiV130Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_addflexibleinstrument(self):
+        module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
+        for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/AddFlexibleInstrument.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_auctionbbo(self):
+        module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
+        for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/AuctionBbo.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_auctionclearingprice(self):
+        module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
+        for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/AuctionClearingPrice.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_crossrequest(self):
         module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
         for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/CrossRequest.pcap"):
@@ -74,6 +92,12 @@ class EurexT7EobiV130Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_ordermassdelete(self):
+        module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
+        for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/OrderMassDelete.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_ordermodify(self):
         module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
         for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/OrderModify.pcap"):
@@ -122,9 +146,21 @@ class EurexT7EobiV130Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_topofbook(self):
+        module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
+        for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/TopOfBook.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_tradereport(self):
         module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
         for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/TradeReport.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_tradereversal(self):
+        module = "eurex/t7/eobi/eurex_t7_eobi_v13_0.spicy"
+        for payload in payloads.of("omi-data-packets/Eurex/T7.Eobi.Fbe.v13.0/TradeReversal.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

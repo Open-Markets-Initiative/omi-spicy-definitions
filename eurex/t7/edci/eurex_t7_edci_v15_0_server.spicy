@@ -138,7 +138,7 @@ type ForcedLogoutNotification = unit {
     notif_header_comp: NotifHeaderComp;
     var_text_len: uint16;
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type NotifHeaderComp = unit {
@@ -157,7 +157,7 @@ type LegalNotificationBroadcast = unit {
     var_text_len: uint16;
     user_status: uint8 &convert=UserStatus($$);
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type LogonResponse = unit {
@@ -305,7 +305,7 @@ type Reject = unit {
     var_text_len: uint16;
     session_status: uint8 &convert=SessionStatus($$);
     var_text: bytes &size=self.var_text_len;
-    : skip bytes &size=0;   # padding
+    : skip bytes &size=((8 - (self.offset() + 6) % 8) % 8);   # padding to a 8 byte boundary
 };
 
 type RetransmitResponse = unit {
