@@ -30,6 +30,6 @@
 [CixAspen.Platform]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/CixAts/Protocols/CixAspen "CixAts CixAspen"
 [CixAts.CixAspen.MarketDataFeed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/CixAts/Protocols/CixAspen/MarketDataFeed.md "CIX Market Data Feed"
 
-[CixAts.CixAspen.MarketDataFeed.Aspen.v1.4.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/cixats/marketdatafeed/cixats_cixaspen_marketdatafeed_v1_4.spicy "CixAts CixAspen MarketDataFeed Aspen v1.4 Spicy Definition"
+[CixAts.CixAspen.MarketDataFeed.Aspen.v1.4.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/cixats/marketdatafeed/cixats_cixaspen_marketdatafeed_v1_4.spicy "CixAts MarketDataFeed Aspen v1.4 Spicy Definition"
 [CixAts.CixAspen.MarketDataFeed.Aspen.v1.4.Url]: https://www.thecix.ca/market-data "CIX Trading Inc. 1.4 Url"
 [CixAts.CixAspen.MarketDataFeed.Aspen.v1.4.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/CixAts/Specifications/CixAspen/MarketDataFeed/CixAts.CixAspen.MarketDataFeed.Aspen.v1.4.pdf "CIX Trading Inc. 1.4 Pdf"

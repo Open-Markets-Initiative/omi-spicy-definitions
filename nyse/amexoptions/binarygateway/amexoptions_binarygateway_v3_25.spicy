@@ -184,8 +184,8 @@ type OrderModifyRequestMessage = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     order_qty: uint32;
-    side_u_81: uint8;
-    locate_reqd_u_81: uint8;
+    side_u_81: uint8 &convert=SideU81($$);
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
 };
 
 type NewBulkQuoteType243Message = unit {
@@ -193,7 +193,7 @@ type NewBulkQuoteType243Message = unit {
     market_maker: bytes &size=10;
     sub_id: bytes &size=4;
     cl_ord_id: uint64;
-    self_trade_type_u_81: uint8;
+    self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     mm_sent_time: uint64;
 };
@@ -203,7 +203,7 @@ type NewBulkQuoteType259Message = unit {
     market_maker: bytes &size=10;
     sub_id: bytes &size=4;
     cl_ord_id: uint64;
-    self_trade_type_u_81: uint8;
+    self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     mm_sent_time: uint64;
 };
@@ -264,7 +264,7 @@ type BulkCancelRequestType223Message = unit {
     market_maker: bytes &size=10;
     cl_ord_id: uint64;
     mm_sent_time: uint64;
-    side_u_81: uint8;
+    side_u_81: uint8 &convert=SideU81($$);
     group_id: uint32;
     target_cancel_username: bytes &size=16;
     bulk_action: uint8 &convert=BulkAction($$);
@@ -277,7 +277,7 @@ type BulkCancelRequestType224Message = unit {
     mpid: bytes &size=4;
     mp_sub_id: bytes &size=4;
     cl_ord_id: uint64;
-    side_u_81: uint8;
+    side_u_81: uint8 &convert=SideU81($$);
     target_cancel_username: bytes &size=16;
     bulk_action: uint8 &convert=BulkAction($$);
     target_cancel_mpid: bytes &size=4;
@@ -366,6 +366,8 @@ type MinimumPriceVariantClassReferenceDataMessage = unit {
     transact_time_timestamp_8: uint64;
     mpv_class_name: bytes &size=20;
     mpv_class_id: uint16;
+    rpimpv: uint64;
+    luldmpv: uint64;
 };
 
 type MinimumPriceVariantLevelReferenceDataMessage = unit {
@@ -458,7 +460,7 @@ type BulkQuoteAcknowledgmentType294Message = unit {
         throttled: 0;
         unused_7: 1..7;
     } &byte-order=spicy::ByteOrder::Little;
-    self_trade_type_u_81: uint8;
+    self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     repeating_groups: uint8;
 };
@@ -473,7 +475,7 @@ type BulkQuoteAcknowledgmentMessage = unit {
         throttled: 0;
         unused_7: 1..7;
     } &byte-order=spicy::ByteOrder::Little;
-    self_trade_type_u_81: uint8;
+    self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     repeating_groups: uint8;
 };
@@ -488,8 +490,8 @@ type OrderSingleComplexModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
     price: int64;
     order_qty: uint32;
     leaves_qty: uint32;
-    side_u_81: uint8;
-    locate_reqd_u_81: uint8;
+    side_u_81: uint8 &convert=SideU81($$);
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
     reason_code: uint16 &convert=ReasonCode($$);
     ack_type: uint8 &convert=AckType($$);
     bitfield_flow_indicator: bitfield(8) {
@@ -534,11 +536,11 @@ type ExecutionReportMessage = unit {
     multileg_reporting_type: uint8 &convert=MultilegReportingType($$);
     : skip bytes &size=1;   # padding
     : skip bytes &size=2;   # padding
-    locate_reqd_u_81: uint8;
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
     participant_type: uint8 &convert=ParticipantType($$);
     reason_code: uint16 &convert=ReasonCode($$);
     user_data: bytes &size=10;
-    side_u_81: uint8;
+    side_u_81: uint8 &convert=SideU81($$);
     market_maker: bytes &size=10;
     contra_market_maker: bytes &size=10;
     contra_clearing_firm: bytes &size=5;
@@ -550,7 +552,7 @@ type ExecutionReportMessage = unit {
     contra_covered_or_uncovered: uint8 &convert=ContraCoveredOrUncovered($$);
     covered_or_uncovered: uint8 &convert=CoveredOrUncovered($$);
     cross_id: uint64;
-    open_close_u_81: uint8;
+    open_close_u_81: uint8 &convert=OpenCloseU81($$);
     optional_order_add_on: OptionalOrderAddOn;
 };
 
@@ -625,6 +627,7 @@ type RiskControlAlertMessage = unit {
     mpid: bytes &size=4;
     market_maker: bytes &size=10;
     mp_sub_id: bytes &size=4;
+    : skip bytes &size=4;   # padding
     clearing_number: bytes &size=5;
     risk_user_crd: uint32;
     risk_user_type: uint8 &convert=RiskUserType($$);
@@ -654,7 +657,7 @@ type ComplexSeriesRequestAcknowledgementMessage = unit {
     cl_ord_id: uint64;
     reason_code: uint16 &convert=ReasonCode($$);
     symbol_id: uint32;
-    side_u_81: uint8;
+    side_u_81: uint8 &convert=SideU81($$);
     repeating_groups: uint8;
     leg_group: LegGroup[self.repeating_groups];
 };
@@ -751,6 +754,24 @@ type BoldDesignation = enum {
 type LegOpenClose = enum {
     Open = 0,
     Close = 1,
+};
+
+type SideU81 = enum {
+    NoChangeInSide = 0,
+    Buy = 1,
+    Sell = 2,
+};
+
+type LocateReqdU81 = enum {
+    NoLocateReqd = 0,
+};
+
+type SelfTradeTypeU81 = enum {
+    UseSessionConfiguration = 0,
+    NoSelfTradePrevention = 1,
+    CancelNewest = 2,
+    CancelOldest = 3,
+    CancelBoth = 4,
 };
 
 type BulkAction = enum {
@@ -1308,6 +1329,12 @@ type CoveredOrUncovered = enum {
     NotApplicable = 0,
     Exposed = 1,
     Covered = 2,
+};
+
+type OpenCloseU81 = enum {
+    NotApplicable = 0,
+    Open = 1,
+    Close = 2,
 };
 
 type BustCorrectIndicator = enum {

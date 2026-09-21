@@ -211,6 +211,7 @@ type InboundBusinessHeader = unit {
 
 type InvestorId = unit {
     prefix: uint16;
+    : skip bytes &size=2;   # padding
     document: uint32;
 };
 
@@ -307,7 +308,6 @@ type OrderCancelReplaceRequestMessage = unit {
     custodian_info: CustodianInfo;
     investor_id: InvestorId;
     strategy_id: int32;
-    : skip bytes &size=2;   # padding
     desk_id: DeskId;
     memo: Memo;
 };
@@ -398,7 +398,7 @@ type ExecutionReportNewMessage = unit {
     cross_type: uint8 &convert=CrossType($$);
     cross_prioritization: uint8 &convert=CrossPrioritization($$);
     mm_protection_reset_optional: uint8 &convert=MmProtectionResetOptional($$);
-    : skip bytes &size=3;   # padding
+    : skip bytes &size=1;   # padding
     strategy_id: int32;
     desk_id: DeskId;
     memo: Memo;
@@ -444,7 +444,7 @@ type ExecutionReportModifyMessage = unit {
     ordtagid: uint8;
     investor_id: InvestorId;
     mm_protection_reset_optional: uint8 &convert=MmProtectionResetOptional($$);
-    : skip bytes &size=3;   # padding
+    : skip bytes &size=1;   # padding
     strategy_id: int32;
     desk_id: DeskId;
     memo: Memo;
@@ -483,7 +483,6 @@ type ExecutionReportCancelMessage = unit {
     investor_id: InvestorId;
     strategy_id: int32;
     action_requested_from_session_id: uint32;
-    : skip bytes &size=2;   # padding
     desk_id: DeskId;
     memo: Memo;
 };

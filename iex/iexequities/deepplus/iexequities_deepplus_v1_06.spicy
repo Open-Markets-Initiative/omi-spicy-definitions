@@ -1,44 +1,21 @@
-module IexIexequitiesDeepplusIextpV104;
+module IexIexequitiesDeepplusSnapV106;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Little;
 
-public type IexequitiesDeepplusV104 = unit {
-    iextp_header: IextpHeader;
-    messages: Message[self.iextp_header.message_count];
-};
-
-type IextpHeader = unit {
-    version: uint8;
-    : skip bytes &size=1;   # padding
-    message_protocol_id: uint16;
-    channel_id: uint32;
-    session_id: uint32;
-    payload_length: uint16;
-    message_count: uint16;
-    stream_offset: uint64;
-    first_message_sequence_number: uint64;
-    send_time: uint64;
+public type IexequitiesDeepplusV106 = unit {
+    message: Message[] &eod;
 };
 
 type Message = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
-        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
-        MessageType::SecurityDirectoryMessage -> security_directory_message: SecurityDirectoryMessage;
-        MessageType::TradingStatusMessage -> trading_status_message: TradingStatusMessage;
-        MessageType::RetailLiquidityIndicatorMessage -> retail_liquidity_indicator_message: RetailLiquidityIndicatorMessage;
-        MessageType::OperationalHaltStatusMessage -> operational_halt_status_message: OperationalHaltStatusMessage;
-        MessageType::ShortSalePriceTestStatusMessage -> short_sale_price_test_status_message: ShortSalePriceTestStatusMessage;
-        MessageType::SecurityEventMessage -> security_event_message: SecurityEventMessage;
-        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
-        MessageType::OrderModifyMessage -> order_modify_message: OrderModifyMessage;
-        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
-        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
-        MessageType::TradeMessage -> trade_message: TradeMessage;
-        MessageType::TradeBreakMessage -> trade_break_message: TradeBreakMessage;
-        MessageType::ClearBookMessage -> clear_book_message: ClearBookMessage;
+        MessageType::SnapshotRequestMessage -> snapshot_request_message: SnapshotRequestMessage;
+        MessageType::ErrorResponseMessage -> error_response_message: ErrorResponseMessage;
+        MessageType::SnapshotStartMessage -> snapshot_start_message: SnapshotStartMessage;
+        MessageType::SnapshotDataMessage -> snapshot_data_message: SnapshotDataMessage;
+        MessageType::SnapshotEndMessage -> snapshot_end_message: SnapshotEndMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -46,6 +23,45 @@ type Message = unit {
 type MessageHeader = unit {
     message_length: uint16;
     message_type: uint8 &convert=MessageType($$);
+};
+
+type SnapshotRequestMessage = unit {
+    authentication_token: bytes &size=40;
+    channel_id: uint32;
+    session_id: uint32;
+    minimum_sequence_number: uint64;
+};
+
+type ErrorResponseMessage = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SnapshotStartMessage = unit {
+    snapshot_length: uint64;
+};
+
+type SnapshotDataMessage = unit {
+    iex_tp_header: bytes &size=1;
+    iex_tp_message_block_length: uint16;
+    iex_tp_message_length: uint16;
+    iex_tp_message_type: uint8 &convert=IexTpMessageType($$);
+    switch ( self.iex_tp_message_type ) {
+        IexTpMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        IexTpMessageType::SecurityDirectoryMessage -> security_directory_message: SecurityDirectoryMessage;
+        IexTpMessageType::TradingStatusMessage -> trading_status_message: TradingStatusMessage;
+        IexTpMessageType::RetailLiquidityIndicatorMessage -> retail_liquidity_indicator_message: RetailLiquidityIndicatorMessage;
+        IexTpMessageType::OperationalHaltStatusMessage -> operational_halt_status_message: OperationalHaltStatusMessage;
+        IexTpMessageType::ShortSalePriceTestStatusMessage -> short_sale_price_test_status_message: ShortSalePriceTestStatusMessage;
+        IexTpMessageType::SecurityEventMessage -> security_event_message: SecurityEventMessage;
+        IexTpMessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        IexTpMessageType::OrderModifyMessage -> order_modify_message: OrderModifyMessage;
+        IexTpMessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        IexTpMessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        IexTpMessageType::TradeMessage -> trade_message: TradeMessage;
+        IexTpMessageType::TradeBreakMessage -> trade_break_message: TradeBreakMessage;
+        IexTpMessageType::ClearBookMessage -> clear_book_message: ClearBookMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type SystemEventMessage = unit {
@@ -182,7 +198,29 @@ type ClearBookMessage = unit {
     symbol: bytes &size=8;
 };
 
+type SnapshotEndMessage = unit {
+    snapshot_sequence_number: uint64;
+};
+
 type MessageType = enum {
+    SnapshotRequestMessage = 0x72,
+    ErrorResponseMessage = 0x65,
+    SnapshotStartMessage = 0x73,
+    SnapshotDataMessage = 0x64,
+    SnapshotEndMessage = 0x78,
+};
+
+type RejectReasonCode = enum {
+    AuthenticationFailure = 0x41,
+    IncorrectChannelId = 0x43,
+    SnapshotRequestAlreadyActive = 0x45,
+    QuotaExceeded = 0x51,
+    SnapshotNotYetAvailable = 0x52,
+    IncorrectSessionId = 0x53,
+    UnknownMessage = 0x55,
+};
+
+type IexTpMessageType = enum {
     SystemEventMessage = 0x53,
     SecurityDirectoryMessage = 0x44,
     TradingStatusMessage = 0x48,

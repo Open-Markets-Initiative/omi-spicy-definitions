@@ -1,0 +1,166 @@
+module ImperativeIntelligentcrossDepthofbookAspenV111;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type IntelligentcrossDepthofbookV111 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.count];
+};
+
+type PacketHeader = unit {
+    market_day_identifier: bytes &size=9;
+    feed_identifier: bytes &size=1;
+    sequence: uint64;
+    count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::MarketEventMessage -> market_event_message: MarketEventMessage;
+        MessageType::SymbolInformationMessage -> symbol_information_message: SymbolInformationMessage;
+        MessageType::SymbolStateMessage -> symbol_state_message: SymbolStateMessage;
+        MessageType::NewOrderAddMessage -> new_order_add_message: NewOrderAddMessage;
+        MessageType::OrderPartialCancelMessage -> order_partial_cancel_message: OrderPartialCancelMessage;
+        MessageType::OrderCancelAllMessage -> order_cancel_all_message: OrderCancelAllMessage;
+        MessageType::OrderUpdatedMessage -> order_updated_message: OrderUpdatedMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::TradeBreakMessage -> trade_break_message: TradeBreakMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type MarketEventMessage = unit {
+    reserved_2: bytes &size=2;
+    timestamp: uint64;
+    event: uint8 &convert=Event($$);
+};
+
+type SymbolInformationMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    symbol: bytes &size=11;
+    listing_market: uint8 &convert=ListingMarket($$);
+    reserved_1: bytes &size=1;
+    round_lot_size: uint32;
+};
+
+type SymbolStateMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    symbol: bytes &size=11;
+    state: uint8 &convert=State($$);
+    reserved_1: bytes &size=1;
+    info: bytes &size=4;
+};
+
+type NewOrderAddMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    shares: uint32;
+    symbol: bytes &size=11;
+    price: uint64;
+    reserved_4: bytes &size=4;
+};
+
+type OrderPartialCancelMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    order_id: uint64;
+    shares_canceled: uint32;
+};
+
+type OrderCancelAllMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    order_id: uint64;
+};
+
+type OrderUpdatedMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    order_id: uint64;
+    shares: uint32;
+    price: uint64;
+};
+
+type OrderExecutedMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    order_id: uint64;
+    shares: uint32;
+    execution_id: uint64;
+    reserved_1: bytes &size=1;
+    price: uint64;
+};
+
+type TradeMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    reserved_8: uint64;
+    reserved_1: bytes &size=1;
+    shares: uint32;
+    symbol: bytes &size=11;
+    price: uint64;
+    execution_id: uint64;
+};
+
+type TradeBreakMessage = unit {
+    symbol_id: uint16;
+    timestamp: uint64;
+    execution_id: uint64;
+};
+
+type MessageType = enum {
+    MarketEventMessage = 0x41,
+    SymbolInformationMessage = 0x42,
+    SymbolStateMessage = 0x43,
+    NewOrderAddMessage = 0x44,
+    OrderPartialCancelMessage = 0x46,
+    OrderCancelAllMessage = 0x47,
+    OrderUpdatedMessage = 0x48,
+    OrderExecutedMessage = 0x4a,
+    TradeMessage = 0x4b,
+    TradeBreakMessage = 0x4d,
+};
+
+type Event = enum {
+    StartOfSession = 0x4f,
+    MarketAcceptingOrders = 0x53,
+    MarketOpenForTrading = 0x51,
+    MarketTradingEndedForDay = 0x45,
+    EndOfSession = 0x43,
+};
+
+type ListingMarket = enum {
+    Nyse = 0x4e,
+    Nasdaq = 0x51,
+    Arca = 0x50,
+    Bats = 0x5a,
+    Amex = 0x41,
+    Iex = 0x56,
+};
+
+type State = enum {
+    Inactive = 0x49,
+    Active = 0x41,
+    Disabled = 0x44,
+    Enabled = 0x45,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    EndOfSession = 0x43,
+};
+

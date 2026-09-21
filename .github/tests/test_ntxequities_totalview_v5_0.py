@@ -14,9 +14,27 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class NtxequitiesTotalviewV50Tests(unittest.TestCase):
 
+    def test_addordermpidattributionmessage(self):
+        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/AddOrderMpidAttributionMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_addordernompidattributionmessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/AddOrderNoMpidAttributionMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_noncrosstrademessage(self):
+        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/NonCrossTradeMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_ordercancelmessage(self):
+        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/OrderCancelMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -26,63 +44,45 @@ class NtxequitiesTotalviewV50Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_orderexecutedmessage(self):
+        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/OrderExecutedMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_orderexecutedwithpricemessage(self):
+        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/OrderExecutedWithPriceMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_orderreplacemessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/OrderReplaceMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_addordermpidattributionmessage(self):
-        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/AddOrderMpidAttributionMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
-    def test_noncrosstrademessage(self):
-        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/NonCrossTradeMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
-    def test_ordercancelmessage(self):
-        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/OrderCancelMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
-    def test_orderexecutedmessage(self):
-        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/OrderExecutedMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
-    def test_orderexecutedwithpricemessage(self):
-        module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/OrderExecutedWithPriceMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_regshoshortsalepricetestrestrictedindicatormessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/RegShoShortSalePriceTestRestrictedIndicatorMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/RegShoShortSalePriceTestRestrictedIndicatorMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_retailinterestmessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/RetailInterestMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/RetailInterestMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_stocktradingactionmessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/StockTradingActionMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/StockTradingActionMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_systemeventmessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0.20230822/SystemEventMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NtxEquities.TotalView.Itch.v5.0/SystemEventMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

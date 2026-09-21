@@ -150,7 +150,7 @@ type NewOrderSingleAndCancelReplaceRequestMessage = unit {
         unused_12: 0..11;
         sub_id_indicator: 12;
         special_ord_type: 13..16;
-        locate_reqd: 17;
+        locate_reqd_1: 17;
         retail_indicator: 18;
         attributed_quote: 19..21;
         order_capacity: 22..24;
@@ -158,7 +158,7 @@ type NewOrderSingleAndCancelReplaceRequestMessage = unit {
         trading_session_id: 28..30;
         time_in_force: 31..33;
         proactive_if_locked: 34..36;
-        self_trade_type: 37..39;
+        self_trade_type_3: 37..39;
         cancel_instead_of_reprice: 40..43;
         routing_inst: 44..47;
         extended_exec_inst: 48..51;
@@ -176,7 +176,6 @@ type NewOrderSingleAndCancelReplaceRequestMessage = unit {
 
 type OptionalOrderAddOn = unit {
     sub_msg_header: SubMsgHeader;
-    stop_px: int64;
     deliver_to_comp_id: bytes &size=5;
     max_floor: uint32;
     locate_broker: bytes &size=4;
@@ -210,7 +209,7 @@ type OrderModifyRequestMessage = unit {
     orig_cl_ord_id: uint64;
     order_qty: uint32;
     side: uint8 &convert=Side($$);
-    locate_reqd_u_81: uint8;
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
 };
 
 type BulkCancelRequestMessage = unit {
@@ -235,8 +234,8 @@ type ManualActionResponseMessage = unit {
     sell_indicator: uint8;
     intraday_sell_short_qty: uint32;
     mpsubid_1: bytes &size=1;
-    locate_reqd_u_81: uint8;
-    self_trade_type_bits: uint8;
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
+    self_trade_type_bits: uint8 &convert=SelfTradeTypeBits($$);
     user_data: bytes &size=8;
     manual_response_type: uint8 &convert=ManualResponseType($$);
     dmm_reject_reason: bytes &size=20;
@@ -386,7 +385,7 @@ type OrderAndCancelReplaceAcknowledgementMessage = unit {
         unused_12: 0..11;
         sub_id_indicator: 12;
         special_ord_type: 13..16;
-        locate_reqd: 17;
+        locate_reqd_1: 17;
         retail_indicator: 18;
         attributed_quote: 19..21;
         order_capacity: 22..24;
@@ -394,7 +393,7 @@ type OrderAndCancelReplaceAcknowledgementMessage = unit {
         trading_session_id: 28..30;
         time_in_force: 31..33;
         proactive_if_locked: 34..36;
-        self_trade_type: 37..39;
+        self_trade_type_3: 37..39;
         cancel_instead_of_reprice: 40..43;
         routing_inst: 44..47;
         extended_exec_inst: 48..51;
@@ -431,7 +430,7 @@ type OrderModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
     order_qty: uint32;
     leaves_qty: uint32;
     side: uint8 &convert=Side($$);
-    locate_reqd_u_81: uint8;
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
     reason_code: uint16 &convert=ReasonCode($$);
     ack_type: uint8 &convert=AckType($$);
     bitfield_flow_indicator: bitfield(8) {
@@ -468,7 +467,7 @@ type ExecutionReportMessage = unit {
     last_qty: uint32;
     liquidity_indicator: bytes &size=4;
     displayed_liquidity_indicator: bytes &size=4;
-    locate_reqd_u_81: uint8;
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
     participant_type: uint8 &convert=ParticipantType($$);
     reason_code: uint16 &convert=ReasonCode($$);
     user_data: bytes &size=8;
@@ -599,6 +598,7 @@ type RiskControlAlertMessage = unit {
     mpid: bytes &size=4;
     market_maker_nul: bytes &size=10;
     mpsubid_4: bytes &size=4;
+    : skip bytes &size=4;   # padding
     clearing_number: bytes &size=5;
     risk_user_crd: uint32;
     risk_user_type: uint8 &convert=RiskUserType($$);
@@ -728,11 +728,6 @@ type SpecialOrdType = enum {
     Reserved = 8,
 };
 
-type LocateReqd = enum {
-    NoLocateReqd = 0,
-    LocateReqdForSshOrders = 1,
-};
-
 type RetailIndicator = enum {
     NotRetail = 0,
     RetailOrder = 1,
@@ -754,6 +749,7 @@ type OrderCapacity = enum {
 
 type InterestType = enum {
     NoInterestType = 0,
+    QOrder = 4,
     Cco = 5,
     CcoPartialFillContraside = 6,
 };
@@ -778,15 +774,6 @@ type ProactiveIfLocked = enum {
     NoProactiveIfLocked = 0,
     ProactiveRoute = 1,
     ProactiveTradeNonDisplay = 2,
-};
-
-type SelfTradeType = enum {
-    DefaultCancelNewest = 0,
-    NoSelfTradePrevention = 1,
-    CancelNewest = 2,
-    CancelOldest = 3,
-    CancelBoth = 4,
-    CancelDecrement = 5,
 };
 
 type CancelInsteadOfReprice = enum {
@@ -842,6 +829,16 @@ type OrdType = enum {
     Pegged = 4,
 };
 
+type SideBits = enum {
+    Buy = 1,
+    Sell = 2,
+    SellShort = 3,
+    SellShortExempt = 4,
+    Cross = 5,
+    CrossShort = 6,
+    CrossShortExempt = 7,
+};
+
 type RoutingStrategy = enum {
     MidpointPing = 1,
     RetailPriceImprovementSeeking = 2,
@@ -859,6 +856,11 @@ type Side = enum {
     CrossShortExempt = 7,
 };
 
+type LocateReqdU81 = enum {
+    NoLocateReqd = 0,
+    LocateReqdForSshOrders = 1,
+};
+
 type BulkCancelType = enum {
     SessionDayDirected = 1,
     SessionAllOrders = 2,
@@ -873,6 +875,15 @@ type BulkCancelType = enum {
     MpidUnblockNew = 11,
     MpidDirectedOrders = 12,
     MpidCapitalCommitment = 13,
+};
+
+type SelfTradeTypeBits = enum {
+    DefaultCancelNewest = 0,
+    NoSelfTradePrevention = 1,
+    CancelNewest = 2,
+    CancelOldest = 3,
+    CancelBoth = 4,
+    CancelDecrement = 5,
 };
 
 type ManualResponseType = enum {
@@ -1001,6 +1012,8 @@ type WorkingAwayFromDisplay = enum {
 type PreLiquidityIndicator = enum {
     None_x30 = 0x30,
     CandidateForDisplay = 0x31,
+    JoinNbboCandidate = 0x34,
+    SetNbboCandidate = 0x35,
 };
 
 type ReasonCode = enum {
