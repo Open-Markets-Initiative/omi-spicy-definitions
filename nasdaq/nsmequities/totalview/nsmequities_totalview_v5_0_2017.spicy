@@ -26,8 +26,8 @@ type Message = unit {
         MessageType::MwcbDeclineLevelMessage -> mwcb_decline_level_message: MwcbDeclineLevelMessage;
         MessageType::MwcbStatusLevelMessage -> mwcb_status_level_message: MwcbStatusLevelMessage;
         MessageType::IpoQuotingPeriodUpdate -> ipo_quoting_period_update: IpoQuotingPeriodUpdate;
-        MessageType::AddOrderNoMpidAttributionMessage -> add_order_no_mpid_attribution_message: AddOrderNoMpidAttributionMessage;
         MessageType::LuldAuctionCollarMessage -> luld_auction_collar_message: LuldAuctionCollarMessage;
+        MessageType::AddOrderNoMpidAttributionMessage -> add_order_no_mpid_attribution_message: AddOrderNoMpidAttributionMessage;
         MessageType::AddOrderWithMpidAttributionMessage -> add_order_with_mpid_attribution_message: AddOrderWithMpidAttributionMessage;
         MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
         MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
@@ -82,7 +82,7 @@ type StockTradingActionMessage = unit {
     stock: bytes &size=8;
     trading_state: uint8 &convert=TradingState($$);
     reserved: bytes &size=1;
-    reason: bytes &size=4;
+    reason_code: bytes &size=4;
 };
 
 type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
@@ -130,17 +130,6 @@ type IpoQuotingPeriodUpdate = unit {
     ipo_price: uint32;
 };
 
-type AddOrderNoMpidAttributionMessage = unit {
-    stock_locate: uint16;
-    tracking_number: uint16;
-    timestamp: bytes &size=6;
-    order_reference_number: uint64;
-    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
-    shares: uint32;
-    stock: bytes &size=8;
-    price: uint32;
-};
-
 type LuldAuctionCollarMessage = unit {
     stock_locate: uint16;
     tracking_number: uint16;
@@ -150,6 +139,17 @@ type LuldAuctionCollarMessage = unit {
     upper_auction_collar_price: uint32;
     lower_auction_collar_price: uint32;
     auction_collar_extension: uint32;
+};
+
+type AddOrderNoMpidAttributionMessage = unit {
+    stock_locate: uint16;
+    tracking_number: uint16;
+    timestamp: bytes &size=6;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: uint32;
+    stock: bytes &size=8;
+    price: uint32;
 };
 
 type AddOrderWithMpidAttributionMessage = unit {
@@ -271,8 +271,8 @@ type MessageType = enum {
     MwcbDeclineLevelMessage = 0x56,
     MwcbStatusLevelMessage = 0x57,
     IpoQuotingPeriodUpdate = 0x4b,
-    AddOrderNoMpidAttributionMessage = 0x41,
     LuldAuctionCollarMessage = 0x4a,
+    AddOrderNoMpidAttributionMessage = 0x41,
     AddOrderWithMpidAttributionMessage = 0x46,
     OrderExecutedMessage = 0x45,
     OrderExecutedWithPriceMessage = 0x43,
@@ -329,19 +329,19 @@ type RoundLotsOnly = enum {
 type IssueClassification = enum {
     AmericanDepositaryShare = 0x41,
     Bond = 0x42,
-    Common = 0x43,
-    Depository = 0x46,
+    CommonStock = 0x43,
+    DepositoryReceipt = 0x46,
     Sec144A = 0x49,
-    Limited = 0x4c,
+    LimitedPartnership = 0x4c,
     Notes = 0x4e,
     OrdinaryShare = 0x4f,
-    Preferred = 0x50,
-    Other = 0x51,
+    PreferredStock = 0x50,
+    OtherSecurities = 0x51,
     Right = 0x52,
-    Shares = 0x53,
-    Convertible = 0x54,
+    SharesOfBeneficialInterest = 0x53,
+    ConvertibleDebenture = 0x54,
     Unit = 0x55,
-    UnitsBenifInt = 0x56,
+    UnitsOfBeneficialInterest = 0x56,
     Warrant = 0x57,
 };
 
@@ -349,13 +349,13 @@ type IssueSubType = enum {
     PreferredTrustSecurities = 0x41,
     IndexBasedDerivative = 0x42,
     CommonShares = 0x43,
-    GlobalDepositary = 0x44,
+    GlobalDepositaryShares = 0x44,
     EtfPortfolioDepositaryReceipt = 0x45,
     Holdrs = 0x46,
     GlobalShares = 0x47,
-    Etf = 0x49,
-    Corporate = 0x4a,
-    Contingent = 0x4c,
+    EtfIndexFundShares = 0x49,
+    CorporateBackedTrustSecurity = 0x4a,
+    ContingentLitigationRight = 0x4c,
     EquityBasedDerivative = 0x4d,
     NyRegistryShares = 0x4e,
     OpenEndedMutualFund = 0x4f,
@@ -411,6 +411,10 @@ type TradingState = enum {
     Paused = 0x50,
     QuotationOnlyPeriod = 0x51,
     Trading = 0x54,
+};
+
+type ReasonCode = enum {
+    ReasonNotAvailable = 0,
 };
 
 type RegShoAction = enum {

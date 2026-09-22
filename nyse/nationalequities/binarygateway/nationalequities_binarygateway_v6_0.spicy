@@ -172,6 +172,7 @@ type NewOrderSingleAndCancelReplaceRequestMessage = unit {
     user_data: bytes &size=8;
     optional_order_add_on: OptionalOrderAddOn;
     optional_routing_strategy_add_on: OptionalRoutingStrategyAddOn;
+    optional_settlement_type_add_on: OptionalSettlementTypeAddOn;
 };
 
 type OptionalOrderAddOn = unit {
@@ -193,6 +194,11 @@ type OptionalRoutingStrategyAddOn = unit {
     sub_msg_header: SubMsgHeader;
     routing_strategy: uint8 &convert=RoutingStrategy($$);
     : skip bytes &size=27;   # padding
+};
+
+type OptionalSettlementTypeAddOn = unit {
+    sub_msg_header: SubMsgHeader;
+    settlement_type: uint8 &convert=SettlementType($$);
 };
 
 type OrderCancelRequestMessage = unit {
@@ -417,6 +423,8 @@ type OrderAndCancelReplaceAcknowledgementMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     user_data: bytes &size=8;
     optional_order_add_on: OptionalOrderAddOn;
+    optional_routing_strategy_add_on: OptionalRoutingStrategyAddOn;
+    optional_settlement_type_add_on: OptionalSettlementTypeAddOn;
 };
 
 type OrderModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
@@ -475,8 +483,7 @@ type ExecutionReportMessage = unit {
     participant_type: uint8 &convert=ParticipantType($$);
     reason_code: uint16 &convert=ReasonCode($$);
     user_data: bytes &size=8;
-    optional_order_add_on: OptionalOrderAddOn;
-    optional_routing_strategy_add_on: OptionalRoutingStrategyAddOn;
+    optional_settlement_type_add_on: OptionalSettlementTypeAddOn;
 };
 
 type TradeBustCorrectMessage = unit {
@@ -849,6 +856,11 @@ type RoutingStrategy = enum {
     MidpointPing = 1,
     RetailPriceImprovementSeeking = 2,
     RetailMidpointPing = 3,
+};
+
+type SettlementType = enum {
+    RegularWay = 0x30,
+    Cash = 0x31,
 };
 
 type Side = enum {

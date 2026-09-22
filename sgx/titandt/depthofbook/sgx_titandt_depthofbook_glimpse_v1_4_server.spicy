@@ -1,0 +1,206 @@
+module SgxTitandtDepthofbookGlimpseV14Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SgxTitandtDepthofbookV14 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        SequencedMessageType::OrderBookDirectoryMessage -> order_book_directory_message: OrderBookDirectoryMessage;
+        SequencedMessageType::CombinationOrderBookDirectoryMessage -> combination_order_book_directory_message: CombinationOrderBookDirectoryMessage;
+        SequencedMessageType::TickSizeTableEntryMessage -> tick_size_table_entry_message: TickSizeTableEntryMessage;
+        SequencedMessageType::OrderBookStateMessage -> order_book_state_message: OrderBookStateMessage;
+        SequencedMessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        SequencedMessageType::EndOfSnapshotMessage -> end_of_snapshot_message: EndOfSnapshotMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type OrderBookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    : skip bytes &size=12;   # padding
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    nominal_value: uint64;
+};
+
+type CombinationOrderBookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    : skip bytes &size=12;   # padding
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    nominal_value: uint64;
+    leg_1_symbol: bytes &size=32;
+    leg_1_side: uint8 &convert=Leg1Side($$);
+    leg_1_ratio: uint32;
+    leg_2_symbol: bytes &size=32;
+    leg_2_side: uint8 &convert=Leg2Side($$);
+    leg_2_ratio: uint32;
+    leg_3_symbol: bytes &size=32;
+    leg_3_side: uint8 &convert=Leg3Side($$);
+    leg_3_ratio: uint32;
+    leg_4_symbol: bytes &size=32;
+    leg_4_side: uint8 &convert=Leg4Side($$);
+    leg_4_ratio: uint32;
+};
+
+type TickSizeTableEntryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    tick_size: uint64;
+    price_from: int32;
+    price_to: int32;
+};
+
+type OrderBookStateMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    state_name: bytes &size=20;
+};
+
+type AddOrderMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_book_position: uint32;
+    quantity: uint64;
+    price: int32;
+    order_attributes: bitfield(16) {
+        reserved_bits_1_to_13: 0..12;
+        bait_implied_order: 13;
+        reserved_bits_15_to_16: 14..15;
+    } &byte-order=spicy::ByteOrder::Big;
+    lot_type: uint8 &convert=LotType($$);
+};
+
+type EndOfSnapshotMessage = unit {
+    itch_sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    SecondsMessage = 0x54,
+    OrderBookDirectoryMessage = 0x52,
+    CombinationOrderBookDirectoryMessage = 0x4d,
+    TickSizeTableEntryMessage = 0x4c,
+    OrderBookStateMessage = 0x4f,
+    AddOrderMessage = 0x41,
+    EndOfSnapshotMessage = 0x47,
+};
+
+type FinancialProduct = enum {
+    Option = 1,
+    Forward = 2,
+    Future = 3,
+    Fra = 4,
+    Cash = 5,
+    Payment = 6,
+    ExchangeRate = 7,
+    InterestRateSwap = 8,
+    Repo = 9,
+    SyntheticBoxLegOrReference = 10,
+    StandardCombination = 11,
+    Guarantee = 12,
+    OtcGeneral = 13,
+    EquityWarrant = 14,
+    SecurityLending = 15,
+};
+
+type Leg1Side = enum {
+    AsDefined = 0x42,
+    Opposite = 0x43,
+};
+
+type Leg2Side = enum {
+    AsDefined = 0x42,
+    Opposite = 0x43,
+};
+
+type Leg3Side = enum {
+    AsDefined = 0x42,
+    Opposite = 0x43,
+};
+
+type Leg4Side = enum {
+    AsDefined = 0x42,
+    Opposite = 0x43,
+};
+
+type Side = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type LotType = enum {
+    RoundLot = 2,
+};
+

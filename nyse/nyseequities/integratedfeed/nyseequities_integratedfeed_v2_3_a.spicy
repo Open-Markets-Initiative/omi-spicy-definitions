@@ -41,14 +41,14 @@ type Message = unit {
         MessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
         MessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
         MessageType::DeleteOrderMessage -> delete_order_message: DeleteOrderMessage;
-        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
-        MessageType::CrossTradeMessage -> cross_trade_message: CrossTradeMessage;
-        MessageType::CrossCorrectionMessage -> cross_correction_message: CrossCorrectionMessage;
-        MessageType::RetailPriceImprovementMessage -> retail_price_improvement_message: RetailPriceImprovementMessage;
-        MessageType::AddOrderRefreshMessage -> add_order_refresh_message: AddOrderRefreshMessage;
-        MessageType::ImbalanceMessage -> imbalance_message: ImbalanceMessage;
         MessageType::OrderExecutionMessage -> order_execution_message: OrderExecutionMessage;
         MessageType::NonDisplayedTradeMessage -> non_displayed_trade_message: NonDisplayedTradeMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        MessageType::RetailPriceImprovementMessage -> retail_price_improvement_message: RetailPriceImprovementMessage;
+        MessageType::CrossTradeMessage -> cross_trade_message: CrossTradeMessage;
+        MessageType::CrossCorrectionMessage -> cross_correction_message: CrossCorrectionMessage;
+        MessageType::ImbalanceMessage -> imbalance_message: ImbalanceMessage;
+        MessageType::AddOrderRefreshMessage -> add_order_refresh_message: AddOrderRefreshMessage;
         MessageType::StockSummaryMessage -> stock_summary_message: StockSummaryMessage;
         * -> unknown: bytes &eod;
     };
@@ -211,74 +211,6 @@ type DeleteOrderMessage = unit {
     num_parity_splits: uint8;
 };
 
-type TradeCancelMessage = unit {
-    source_time_ns: uint32;
-    symbol_index: uint32;
-    symbol_seq_num: uint32;
-    trade_id: uint32;
-};
-
-type CrossTradeMessage = unit {
-    source_time_ns: uint32;
-    symbol_index: uint32;
-    symbol_seq_num: uint32;
-    cross_id: uint32;
-    price: uint32;
-    volume: uint32;
-    cross_type: uint8 &convert=CrossType($$);
-};
-
-type CrossCorrectionMessage = unit {
-    source_time_ns: uint32;
-    symbol_index: uint32;
-    symbol_seq_num: uint32;
-    cross_id: uint32;
-    volume: uint32;
-};
-
-type RetailPriceImprovementMessage = unit {
-    source_time_ns: uint32;
-    symbol_index: uint32;
-    symbol_seq_num: uint32;
-    rpi_indicator: uint8 &convert=RpiIndicator($$);
-};
-
-type AddOrderRefreshMessage = unit {
-    source_time: uint32;
-    source_time_ns: uint32;
-    symbol_index: uint32;
-    symbol_seq_num: uint32;
-    order_id: uint64;
-    price: uint32;
-    volume: uint32;
-    side: uint8 &convert=Side($$);
-    firm_id: bytes &size=5;
-    num_parity_splits: uint8;
-};
-
-type ImbalanceMessage = unit {
-    source_time: uint32;
-    source_time_ns: uint32;
-    symbol_index: uint32;
-    symbol_seq_num: uint32;
-    reference_price: uint32;
-    paired_qty: uint32;
-    total_imbalance_qty: uint32;
-    market_imbalance_qty: uint32;
-    auction_time: uint16;
-    auction_type: uint8 &convert=AuctionType($$);
-    imbalance_side: uint8 &convert=ImbalanceSide($$);
-    continuous_book_clearing_price: uint32;
-    closing_only_clearing_price: uint32;
-    ssr_filing_price: uint32;
-    indicative_match_price: uint32;
-    upper_collar: uint32;
-    lower_collar: uint32;
-    auction_status: uint8 &convert=AuctionStatus($$);
-    freeze_status: uint8 &convert=FreezeStatus($$);
-    num_extensions: uint8;
-};
-
 type OrderExecutionMessage = unit {
     source_time_ns: uint32;
     symbol_index: uint32;
@@ -301,6 +233,77 @@ type NonDisplayedTradeMessage = unit {
     volume: uint32;
     printable_flag: uint8 &convert=PrintableFlag($$);
     db_exec_id: uint32;
+};
+
+type TradeCancelMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    trade_id: uint32;
+};
+
+type RetailPriceImprovementMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    rpi_indicator: uint8 &convert=RpiIndicator($$);
+};
+
+type CrossTradeMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    cross_id: uint32;
+    price: uint32;
+    volume: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+};
+
+type CrossCorrectionMessage = unit {
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    cross_id: uint32;
+    volume: uint32;
+};
+
+type ImbalanceMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    reference_price: uint32;
+    paired_qty: uint32;
+    total_imbalance_qty: uint32;
+    market_imbalance_qty: uint32;
+    auction_time: uint16;
+    auction_type: uint8 &convert=AuctionType($$);
+    imbalance_side: uint8 &convert=ImbalanceSide($$);
+    continuous_book_clearing_price: uint32;
+    auction_interest_clearing_price: uint32;
+    ssr_filing_price: uint32;
+    indicative_match_price: uint32;
+    upper_collar: uint32;
+    lower_collar: uint32;
+    auction_status: uint8 &convert=AuctionStatus($$);
+    freeze_status: uint8 &convert=FreezeStatus($$);
+    num_extensions: uint8;
+    unpaired_qty: uint32;
+    unpaired_side: uint8 &convert=UnpairedSide($$);
+    significant_imbalance: uint8 &convert=SignificantImbalance($$);
+};
+
+type AddOrderRefreshMessage = unit {
+    source_time: uint32;
+    source_time_ns: uint32;
+    symbol_index: uint32;
+    symbol_seq_num: uint32;
+    order_id: uint64;
+    price: uint32;
+    volume: uint32;
+    side: uint8 &convert=Side($$);
+    firm_id: bytes &size=5;
+    num_parity_splits: uint8;
 };
 
 type StockSummaryMessage = unit {
@@ -345,14 +348,14 @@ type MessageType = enum {
     ModifyOrderMessage = 101,
     ReplaceOrderMessage = 104,
     DeleteOrderMessage = 102,
-    TradeCancelMessage = 112,
-    CrossTradeMessage = 111,
-    CrossCorrectionMessage = 113,
-    RetailPriceImprovementMessage = 114,
-    AddOrderRefreshMessage = 106,
-    ImbalanceMessage = 105,
     OrderExecutionMessage = 103,
     NonDisplayedTradeMessage = 110,
+    TradeCancelMessage = 112,
+    RetailPriceImprovementMessage = 114,
+    CrossTradeMessage = 111,
+    CrossCorrectionMessage = 113,
+    ImbalanceMessage = 105,
+    AddOrderRefreshMessage = 106,
     StockSummaryMessage = 223,
 };
 
@@ -361,45 +364,39 @@ type MarketId = enum {
     NyseArcaEquities = 3,
     NyseArcaOptions = 4,
     NyseBonds = 5,
-    GlobalOtc = 6,
     NyseAmexOptions = 8,
     NyseAmericanEquities = 9,
     NyseNationalEquities = 10,
+    NyseChicago = 11,
 };
 
 type ExchangeCode = enum {
     NyseAmerican = 0x41,
-    NyseNational = 0x43,
+    Ltse = 0x4c,
     Nyse = 0x4e,
     NyseArca = 0x50,
     Nasdaq = 0x51,
     Iex = 0x56,
-    Bats = 0x5a,
-    GlobalOtc = 0x42,
-    Otcbb = 0x55,
+    Cboe = 0x5a,
 };
 
 type SecurityType = enum {
-    CommonStock = 0x41,
-    PreferredStock = 0x42,
-    Warrant = 0x43,
-    Right = 0x44,
-    CorporateBond = 0x45,
-    TreasuryBond = 0x46,
-    StructuredProduct = 0x47,
-    AdrCommon = 0x48,
-    AdrPreferred = 0x49,
-    AdrWarrants = 0x4a,
-    AdrRights = 0x4b,
-    AdrCorporateBond = 0x4c,
-    NyRegisteredShare = 0x4d,
-    GlobalRegisteredShare = 0x4e,
-    Index = 0x4f,
-    Fund = 0x50,
-    Basket = 0x51,
-    Unit = 0x52,
-    LiquidatingTrust = 0x53,
-    Unknown = 0x55,
+    Adr = 0x41,
+    CommonStock = 0x43,
+    Debentures = 0x44,
+    Etf = 0x45,
+    Foreign = 0x46,
+    UsDepositaryShares = 0x48,
+    Units = 0x49,
+    IndexLinkedNotes = 0x4c,
+    MiscliquidTrust = 0x4d,
+    OrdinaryShares = 0x4f,
+    PreferredStock = 0x50,
+    Rights = 0x52,
+    SharesOfBeneficiaryInterest = 0x53,
+    Test = 0x54,
+    ClosedEndFund = 0x55,
+    Warrant = 0x57,
 };
 
 type PriceResolution = enum {
@@ -416,7 +413,6 @@ type RoundLot = enum {
 type Status = enum {
     MessageWasAccepted = 0x30,
     RejectedDueToAnInvalidSourceId = 0x31,
-    InvalidSequenceRange = 0x32,
     MaximumSequenceRange = 0x33,
     MaximumRequestInADay = 0x34,
     MaximumRefreshRequestsInADay = 0x35,
@@ -431,10 +427,8 @@ type RetransmitMethod = enum {
 };
 
 type SecurityStatus = enum {
-    OpeningDelay = 0x33,
     TradingHalt = 0x34,
     Resume = 0x35,
-    NoOpennoResume = 0x36,
     ShortSaleRestrictionActivatedDay1 = 0x41,
     ShortSaleRestrictionContinuedDay2 = 0x43,
     ShortSaleRestrictionDeactivated = 0x44,
@@ -443,22 +437,24 @@ type SecurityStatus = enum {
     CoreSession = 0x4f,
     LateSessionNonNyseOnly = 0x4c,
     Closed = 0x58,
-    Time = 0x54,
     PriceIndication = 0x49,
     PreOpeningPriceIndication = 0x47,
-    Rule15Indication = 0x52,
 };
 
 type HaltCondition = enum {
     SecurityNotDelayedhalted = 0x7e,
-    NotDelayedhaltedNyseTapeAOnly = 0x20,
     NewsDissemination = 0x44,
     OrderImbalance = 0x49,
     NewsPending = 0x50,
     LuldPause = 0x4d,
-    RelatedSecurityNotUsed = 0x53,
     EquipmentChangeover = 0x58,
-    NoOpenNoResume = 0x5a,
+    AdditionalInformationRequested = 0x41,
+    RegulatoryConcern = 0x43,
+    MergerEffective = 0x45,
+    EtfComponentPricesNotAvailable = 0x46,
+    CorporateAction = 0x4e,
+    NewSecurityOffering = 0x4f,
+    IntradayIndicativeValueNotAvailable = 0x56,
     MarketWideCircuitBreakerHaltLevel1 = 0x31,
     MarketWideCircuitBreakerHaltLevel2 = 0x32,
     MarketWideCircuitBreakerHaltLevel3 = 0x33,
@@ -468,21 +464,22 @@ type SsrTriggeringExchangeId = enum {
     NyseAmerican = 0x41,
     NasdaqOmxBx = 0x42,
     NyseNational = 0x43,
-    Finra = 0x44,
-    Ise = 0x49,
-    Edga = 0x4a,
-    Edgx = 0x4b,
-    Chx = 0x4d,
+    MiamiPearl = 0x48,
+    NasdaqIse = 0x49,
+    CboeEdga = 0x4a,
+    CboeEdgx = 0x4b,
+    Ltse = 0x4c,
+    NyseChicago = 0x4d,
     Nyse = 0x4e,
     NyseArca = 0x50,
     Nasdaq = 0x51,
-    Cts = 0x53,
     NasdaqOmx = 0x54,
+    Memx = 0x55,
     Iex = 0x56,
     Cbsx = 0x57,
     NasdaqOmxPsx = 0x58,
-    BatsY = 0x59,
-    Bats = 0x5a,
+    CboeByx = 0x59,
+    CboeBzx = 0x5a,
 };
 
 type SsrState = enum {
@@ -508,48 +505,60 @@ type PositionChange = enum {
     Lost = 1,
 };
 
-type CrossType = enum {
-    EarlyOpening = 0x45,
-    Opening = 0x4f,
-    Reopening = 0x35,
-    Closing = 0x36,
+type PrintableFlag = enum {
+    NotPrinted = 0,
+    Printed = 1,
 };
 
 type RpiIndicator = enum {
-    NoRetailInterest = 0,
-    InterestOnBid = 0x41,
-    InterestOnOffer = 0x42,
-    InterestOnBidAndOffer = 0x43,
+    NoRetailInterest = 0x20,
+    RetailInterestOnTheBidSide = 0x41,
+    RetailInterestOnTheOfferSide = 0x42,
+    RetailInterestOnTheBidAndOfferSides = 0x43,
+};
+
+type CrossType = enum {
+    MarketCenterEarlyOpeningAuction = 0x45,
+    MarketCenterOpeningAuction = 0x4f,
+    MarketCenterReopeningAuction = 0x35,
+    MarketCenterClosingAuction = 0x36,
 };
 
 type AuctionType = enum {
-    EarlyOpening = 0x4f,
-    CoreOpening = 0x4d,
-    Reopening = 0x48,
-    Closing = 0x43,
-    RegulatoryImbalance = 0x52,
+    EarlyOpeningAuctionNonNyseOnly = 0x4f,
+    CoreOpeningAuction = 0x4d,
+    ReopeningAuctionHaltResume = 0x48,
+    ClosingAuction = 0x43,
+    ExtremeClosingImbalance = 0x50,
+    RegulatoryClosingImbalance = 0x52,
 };
 
 type ImbalanceSide = enum {
-    NoImbalance = 0,
+    NoImbalance = 0x20,
     BuySide = 0x42,
     SellSide = 0x53,
 };
 
 type AuctionStatus = enum {
-    WillRunOpenClose = 0,
-    WillRunInterest = 1,
-    WillNotRunImbalance = 2,
-    WillNotRunTransitionToClosing = 3,
+    WillRunAsAlwaysForOpenAndClose = 0,
+    WillRunInterestExistsInsideOrAtTheCollarsOrIsFullyPairedOff = 1,
+    WillNotRunBecauseThereIsAnImbalanceThroughTheCollars = 2,
+    WillNotRunWillTransitionToTheClosingAuctionInstead = 3,
 };
 
 type FreezeStatus = enum {
-    NoImbalanceFreeze = 0,
-    ImbalanceFreeze = 1,
+    ImbalanceFreezeNotInEffect = 0,
+    ImbalanceFreezeIsInEffect = 1,
 };
 
-type PrintableFlag = enum {
-    NotPrinted = 0,
-    Printed = 1,
+type UnpairedSide = enum {
+    NotApplicable = 0x20,
+    BuySide = 0x42,
+    SellSide = 0x53,
+};
+
+type SignificantImbalance = enum {
+    Default = 0x20,
+    TheCurrentImbalanceIsSignificant = 0x59,
 };
 

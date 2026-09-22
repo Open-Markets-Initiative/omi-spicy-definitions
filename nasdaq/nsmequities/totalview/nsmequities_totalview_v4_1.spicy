@@ -21,6 +21,7 @@ type Message = unit {
         MessageType::TimestampMessage -> timestamp_message: TimestampMessage;
         MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
         MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
         MessageType::RegShoShortSalePriceTestRestrictedIndicatorMessage -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
         MessageType::MarketParticipantPositionMessage -> market_participant_position_message: MarketParticipantPositionMessage;
         MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
@@ -58,6 +59,16 @@ type StockDirectoryMessage = unit {
     stock: bytes &size=8;
     market_category: uint8 &convert=MarketCategory($$);
     financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    round_lot_size: uint32;
+    round_lots_only: uint8 &convert=RoundLotsOnly($$);
+};
+
+type StockTradingActionMessage = unit {
+    nanoseconds: uint32;
+    stock: bytes &size=8;
+    trading_state: uint8 &convert=TradingState($$);
+    reserved: bytes &size=1;
+    reason: bytes &size=4;
 };
 
 type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
@@ -176,6 +187,7 @@ type MessageType = enum {
     TimestampMessage = 0x54,
     SystemEventMessage = 0x53,
     StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
     RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
     MarketParticipantPositionMessage = 0x4c,
     AddOrderMessage = 0x41,
@@ -198,10 +210,10 @@ type EventCode = enum {
     StartOfMarketHours = 0x51,
     EndOfMarketHours = 0x4d,
     EndOfSystemHours = 0x45,
-    EndOfMessage = 0x43,
-    Halt = 0x41,
-    QuoteOnlyPeriod = 0x52,
-    Resumption = 0x42,
+    EndOfMessages = 0x43,
+    EmergencyMarketConditionHalt = 0x41,
+    EmergencyMarketConditionQuoteOnlyPeriod = 0x52,
+    EmergencyMarketConditionResumption = 0x42,
 };
 
 type MarketCategory = enum {
@@ -215,14 +227,31 @@ type MarketCategory = enum {
 };
 
 type FinancialStatusIndicator = enum {
-    Delinquent = 0x44,
-    Deficient = 0x45,
+    Deficient = 0x44,
+    Delinquent = 0x45,
     Bankrupt = 0x51,
     Suspended = 0x53,
     DeficientAndBankrupt = 0x47,
     DeficientAndDelinquent = 0x48,
     DelinquentAndBankrupt = 0x4a,
     DeficientDelinquentAndBankrupt = 0x4b,
+    InCompliance = 0x20,
+};
+
+type RoundLotsOnly = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    QuotationOnly = 0x51,
+    Trading = 0x54,
+};
+
+type Reason = enum {
+    ReasonNotAvailable = 0,
 };
 
 type RegShoAction = enum {
@@ -233,13 +262,14 @@ type RegShoAction = enum {
 
 type PrimaryMarketMaker = enum {
     Primary = 0x59,
-    Nonprimary = 0x4e,
+    NonPrimary = 0x4e,
 };
 
 type MarketMakerMode = enum {
     Normal = 0x4e,
     Passive = 0x50,
     Syndicate = 0x53,
+    PreSyndicate = 0x52,
     Penalty = 0x4c,
 };
 
@@ -257,7 +287,7 @@ type Side = enum {
 };
 
 type Printable = enum {
-    Nonprintable = 0x4e,
+    NonPrintable = 0x4e,
     Printable_x59 = 0x59,
 };
 
