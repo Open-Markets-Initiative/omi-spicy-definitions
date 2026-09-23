@@ -1,0 +1,119 @@
+module NasdaqNsmequitiesTotalviewItchV10Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesTotalviewV10 = unit {
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+    switch ( self.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+    soup_lf: uint8;
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=10;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_header: SequencedMessageHeader;
+    switch ( self.sequenced_message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SequencedMessageHeader = unit {
+    time_stamp: bytes &size=7;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type AddOrderMessage = unit {
+    order_reference_number: bytes &size=9;
+    side: uint8 &convert=Side($$);
+    shares: bytes &size=9;
+    stock: bytes &size=6;
+    price: bytes &size=20;
+    display: uint8 &convert=Display($$);
+};
+
+type OrderExecutedMessage = unit {
+    order_reference_number: bytes &size=9;
+    executed_shares: bytes &size=9;
+    match_number: bytes &size=9;
+    contra_broker_code: bytes &size=4;
+};
+
+type OrderCancelMessage = unit {
+    order_reference_number: bytes &size=9;
+    canceled_shares: bytes &size=9;
+};
+
+type TradeMessage = unit {
+    order_reference_number: bytes &size=9;
+    side: uint8 &convert=Side($$);
+    shares: bytes &size=9;
+    stock: bytes &size=6;
+    price: bytes &size=20;
+    match_number: bytes &size=9;
+    contra_broker_code: bytes &size=4;
+};
+
+type BrokenTradeMessage = unit {
+    match_number: bytes &size=9;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    AddOrderMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderCancelMessage = 0x58,
+    TradeMessage = 0x50,
+    BrokenTradeMessage = 0x42,
+};
+
+type EventCode = enum {
+    StartOfSession = 0x53,
+    EndOfSession = 0x45,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type Display = enum {
+    Displayed = 0x59,
+};
+
