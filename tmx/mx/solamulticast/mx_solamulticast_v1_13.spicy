@@ -1,0 +1,817 @@
+module TmxMxSolamulticastHsvfV113;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MxSolamulticastV113 = unit {
+    hsvf_stx: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::OptionTradeMessage -> option_trade_message: OptionTradeMessage;
+        MessageType::FutureOptionsTradeMessage -> future_options_trade_message: FutureOptionsTradeMessage;
+        MessageType::FuturesTradeMessage -> futures_trade_message: FuturesTradeMessage;
+        MessageType::StrategyTradeMessage -> strategy_trade_message: StrategyTradeMessage;
+        MessageType::OptionRequestForQuoteMessage -> option_request_for_quote_message: OptionRequestForQuoteMessage;
+        MessageType::FutureOptionsRequestForQuoteMessage -> future_options_request_for_quote_message: FutureOptionsRequestForQuoteMessage;
+        MessageType::FutureRequestForQuoteMessage -> future_request_for_quote_message: FutureRequestForQuoteMessage;
+        MessageType::StrategyRequestForQuoteMessage -> strategy_request_for_quote_message: StrategyRequestForQuoteMessage;
+        MessageType::InstrumentScheduleNoticeOptionMessage -> instrument_schedule_notice_option_message: InstrumentScheduleNoticeOptionMessage;
+        MessageType::InstrumentScheduleNoticeFuturesOptionMessage -> instrument_schedule_notice_futures_option_message: InstrumentScheduleNoticeFuturesOptionMessage;
+        MessageType::InstrumentScheduleNoticeFutureMessage -> instrument_schedule_notice_future_message: InstrumentScheduleNoticeFutureMessage;
+        MessageType::InstrumentScheduleNoticeStrategyMessage -> instrument_schedule_notice_strategy_message: InstrumentScheduleNoticeStrategyMessage;
+        MessageType::OptionQuoteMessage -> option_quote_message: OptionQuoteMessage;
+        MessageType::FutureOptionsQuoteMessage -> future_options_quote_message: FutureOptionsQuoteMessage;
+        MessageType::FuturesQuoteMessage -> futures_quote_message: FuturesQuoteMessage;
+        MessageType::StrategyQuoteMessage -> strategy_quote_message: StrategyQuoteMessage;
+        MessageType::OptionMarketDepthMessage -> option_market_depth_message: OptionMarketDepthMessage;
+        MessageType::FutureOptionsMarketDepthMessage -> future_options_market_depth_message: FutureOptionsMarketDepthMessage;
+        MessageType::FuturesMarketDepthMessage -> futures_market_depth_message: FuturesMarketDepthMessage;
+        MessageType::StrategyMarketDepthMessage -> strategy_market_depth_message: StrategyMarketDepthMessage;
+        MessageType::OptionTradeCancellationMessage -> option_trade_cancellation_message: OptionTradeCancellationMessage;
+        MessageType::FutureOptionsTradeCancellationMessage -> future_options_trade_cancellation_message: FutureOptionsTradeCancellationMessage;
+        MessageType::FutureTradeCancellationMessage -> future_trade_cancellation_message: FutureTradeCancellationMessage;
+        MessageType::StrategyTradeCancellationMessage -> strategy_trade_cancellation_message: StrategyTradeCancellationMessage;
+        MessageType::OptionInstrumentKeysMessage -> option_instrument_keys_message: OptionInstrumentKeysMessage;
+        MessageType::FutureOptionsInstrumentKeysMessage -> future_options_instrument_keys_message: FutureOptionsInstrumentKeysMessage;
+        MessageType::UnderlyingInstrumentKeysMessage -> underlying_instrument_keys_message: UnderlyingInstrumentKeysMessage;
+        MessageType::FuturesInstrumentKeysMessage -> futures_instrument_keys_message: FuturesInstrumentKeysMessage;
+        MessageType::StrategyInstrumentKeysMessage -> strategy_instrument_keys_message: StrategyInstrumentKeysMessage;
+        MessageType::OptionSummaryMessage -> option_summary_message: OptionSummaryMessage;
+        MessageType::FutureOptionsSummaryMessage -> future_options_summary_message: FutureOptionsSummaryMessage;
+        MessageType::FuturesSummaryMessage -> futures_summary_message: FuturesSummaryMessage;
+        MessageType::StrategySummaryMessage -> strategy_summary_message: StrategySummaryMessage;
+        MessageType::BeginningOfOptionsSummaryMessage -> beginning_of_options_summary_message: BeginningOfOptionsSummaryMessage;
+        MessageType::BeginningOfFutureOptionsSummaryMessage -> beginning_of_future_options_summary_message: BeginningOfFutureOptionsSummaryMessage;
+        MessageType::BeginningOfFuturesSummaryMessage -> beginning_of_futures_summary_message: BeginningOfFuturesSummaryMessage;
+        MessageType::BeginningOfStrategySummaryMessage -> beginning_of_strategy_summary_message: BeginningOfStrategySummaryMessage;
+        MessageType::FuturesTradeCorrectionMessage -> futures_trade_correction_message: FuturesTradeCorrectionMessage;
+        MessageType::GroupStatusMessage -> group_status_message: GroupStatusMessage;
+        MessageType::GroupStatusStrategiesMessage -> group_status_strategies_message: GroupStatusStrategiesMessage;
+        MessageType::FutureDeliverablesMessage -> future_deliverables_message: FutureDeliverablesMessage;
+        MessageType::BulletinsMessage -> bulletins_message: BulletinsMessage;
+        MessageType::EndOfSalesMessage -> end_of_sales_message: EndOfSalesMessage;
+        MessageType::TickTableMessage -> tick_table_message: TickTableMessage;
+        MessageType::EndOfTransmissionMessage -> end_of_transmission_message: EndOfTransmissionMessage;
+        MessageType::CircuitAssuranceMessage -> circuit_assurance_message: CircuitAssuranceMessage;
+        * -> unknown: bytes &eod;
+    };
+    hsvf_etx: uint8;
+};
+
+type MessageHeader = unit {
+    sequence_number: bytes &size=10;
+    message_type: bytes &size=2;
+    message_timestamp: bytes &size=20;
+};
+
+type OptionTradeMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type OptionSymbol = unit {
+    root: bytes &size=6;
+    expiry_month: uint8 &convert=ExpiryMonth($$);
+    strike_price: bytes &size=7;
+    strike_price_fraction_indicator: bytes &size=1;
+    expiry_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+};
+
+type FutureOptionsTradeMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type FutureOptionSymbol = unit {
+    root: bytes &size=6;
+    symbol_month: bytes &size=1;
+    symbol_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+    call_put_code: uint8 &convert=CallPutCode($$);
+    strike_price: bytes &size=7;
+    strike_price_fraction_indicator: bytes &size=1;
+};
+
+type FuturesTradeMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type FutureProduct = unit {
+    root: bytes &size=6;
+    symbol_month: bytes &size=1;
+    symbol_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+};
+
+type StrategyTradeMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    symbol_strategy: bytes &size=30;
+    volume: bytes &size=8;
+    trade_price_sign: bytes &size=1;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type OptionRequestForQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    requested_size: bytes &size=8;
+    requested_market_side: uint8 &convert=RequestedMarketSide($$);
+};
+
+type FutureOptionsRequestForQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    requested_size: bytes &size=8;
+    requested_market_side: uint8 &convert=RequestedMarketSide($$);
+};
+
+type FutureRequestForQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    requested_size: bytes &size=8;
+    requested_market_side: uint8 &convert=RequestedMarketSide($$);
+};
+
+type StrategyRequestForQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    symbol_strategy: bytes &size=30;
+    requested_size: bytes &size=8;
+    requested_market_side: uint8 &convert=RequestedMarketSide($$);
+};
+
+type InstrumentScheduleNoticeOptionMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type InstrumentScheduleNoticeFuturesOptionMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type InstrumentScheduleNoticeFutureMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type InstrumentScheduleNoticeStrategyMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    strategy_symbol: bytes &size=30;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type OptionQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    instrument_status_marker: bytes &size=1;
+};
+
+type FutureOptionsQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    instrument_status_marker: bytes &size=1;
+};
+
+type FuturesQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    instrument_status_marker: bytes &size=1;
+};
+
+type StrategyQuoteMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    symbol_strategy: bytes &size=30;
+    bid_price_sign: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_sign: bytes &size=1;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    instrument_status_marker: bytes &size=1;
+};
+
+type OptionMarketDepthMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    instrument_status_marker: bytes &size=1;
+    number_of_levels: bytes &size=1;
+    option_market_depth_level: OptionMarketDepthLevel[self.number_of_levels];
+};
+
+type OptionMarketDepthLevel = unit {
+    level_of_market_depth: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type FutureOptionsMarketDepthMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    instrument_status_marker: bytes &size=1;
+    number_of_levels: bytes &size=1;
+    future_options_market_depth_trading_instrument: FutureOptionsMarketDepthTradingInstrument[self.number_of_levels];
+};
+
+type FutureOptionsMarketDepthTradingInstrument = unit {
+    level_of_market_depth: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type FuturesMarketDepthMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    instrument_status_marker: bytes &size=1;
+    number_of_levels: bytes &size=1;
+    futures_market_depth_trading_instrument: FuturesMarketDepthTradingInstrument[self.number_of_levels];
+};
+
+type FuturesMarketDepthTradingInstrument = unit {
+    level_of_market_depth: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type StrategyMarketDepthMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    symbol_strategy: bytes &size=30;
+    instrument_status_marker: bytes &size=1;
+    number_of_levels: bytes &size=1;
+    strategy_market_depth_trading_instrument: StrategyMarketDepthTradingInstrument[self.number_of_levels];
+};
+
+type StrategyMarketDepthTradingInstrument = unit {
+    level_of_market_depth: bytes &size=1;
+    bid_price_sign: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price_sign: bytes &size=1;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type OptionTradeCancellationMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type FutureOptionsTradeCancellationMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    volume: bytes &size=8;
+    price: bytes &size=7;
+    price_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type FutureTradeCancellationMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type StrategyTradeCancellationMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    symbol_strategy: bytes &size=30;
+    volume: bytes &size=8;
+    trade_price_sign: bytes &size=1;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type OptionInstrumentKeysMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    strike_price_currency: bytes &size=3;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price_options: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: bytes &size=1;
+    minimum_threshold_price_options: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: bytes &size=1;
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    option_marker: bytes &size=2;
+    underlying_symbol_root: bytes &size=12;
+    contract_size: bytes &size=8;
+    tick_value: bytes &size=7;
+    tick_value_fraction_indicator: bytes &size=1;
+    currency: bytes &size=3;
+    delivery_type: uint8 &convert=DeliveryType($$);
+    last_trading_datetime: bytes &size=14;
+};
+
+type FutureOptionsInstrumentKeysMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    strike_price_currency: bytes &size=3;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price_options: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: bytes &size=1;
+    minimum_threshold_price_options: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: bytes &size=1;
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: bytes &size=1;
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    contract_size: bytes &size=8;
+    tick_value: bytes &size=7;
+    tick_value_fraction_indicator: bytes &size=1;
+    currency: bytes &size=3;
+    delivery_type: uint8 &convert=DeliveryType($$);
+    underlying_root_symbol: bytes &size=6;
+    underlying_symbol_month: bytes &size=1;
+    underlying_symbol_year: bytes &size=2;
+    last_trading_datetime: bytes &size=14;
+};
+
+type UnderlyingInstrumentKeysMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+};
+
+type FuturesInstrumentKeysMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    expiry_date: bytes &size=6;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price_futures: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: bytes &size=1;
+    minimum_threshold_price_futures: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: bytes &size=1;
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: bytes &size=1;
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    contract_size: bytes &size=8;
+    tick_value: bytes &size=7;
+    tick_value_fraction_indicator: bytes &size=1;
+    currency: bytes &size=3;
+    underlying_symbol: bytes &size=12;
+    delivery_type: uint8 &convert=DeliveryType($$);
+    associated_product: AssociatedProduct;
+};
+
+type AssociatedProduct = unit {
+    root_symbol: bytes &size=6;
+    symbol_month: bytes &size=1;
+    symbol_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+};
+
+type StrategyInstrumentKeysMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    strategy_symbol: bytes &size=30;
+    expiry_year: bytes &size=2;
+    delivery_month: bytes &size=1;
+    expiry_day: bytes &size=2;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price_options: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: bytes &size=1;
+    minimum_threshold_price_options: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: bytes &size=1;
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: bytes &size=1;
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    strategy_allow_implied: uint8 &convert=StrategyAllowImplied($$);
+    strategy_code: bytes &size=2;
+    strategy_type: uint8 &convert=StrategyType($$);
+    last_trading_datetime: bytes &size=14;
+    number_of_legs: bytes &size=2;
+    strategy_instrument_leg: StrategyInstrumentLeg[self.number_of_legs];
+};
+
+type StrategyInstrumentLeg = unit {
+    leg_group_instrument: bytes &size=2;
+    leg_instrument: bytes &size=4;
+    leg_ratio_or_delta: bytes &size=4;
+    leg_ratio_or_delta_fraction_indicator: bytes &size=1;
+    leg_price: bytes &size=7;
+    leg_price_fraction_indicator: bytes &size=1;
+};
+
+type OptionSummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    option_symbol: OptionSymbol;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    last_price: bytes &size=7;
+    last_price_fraction_indicator: bytes &size=1;
+    open_interest: bytes &size=7;
+    open_interest_date: bytes &size=6;
+    tick: uint8 &convert=Tick($$);
+    volume: bytes &size=8;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    open_price: bytes &size=7;
+    open_price_fraction_indicator: bytes &size=1;
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: bytes &size=1;
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: bytes &size=1;
+    option_marker: bytes &size=2;
+    settlement_price: bytes &size=7;
+    settlement_price_fraction_indicator_options: bytes &size=1;
+    previous_settlement_price: bytes &size=7;
+    previous_settlement_price_fraction_indicator: bytes &size=1;
+    reason: uint8 &convert=Reason($$);
+};
+
+type FutureOptionsSummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_option_symbol: FutureOptionSymbol;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    last_price: bytes &size=7;
+    open_interest: bytes &size=7;
+    open_interest_date: bytes &size=6;
+    tick: uint8 &convert=Tick($$);
+    volume: bytes &size=8;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    opening_price: bytes &size=7;
+    opening_price_fraction_indicator: bytes &size=1;
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: bytes &size=1;
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: bytes &size=1;
+    settlement_price: bytes &size=7;
+    settlement_price_fraction_indicator_futures: bytes &size=1;
+    previous_settlement_price: bytes &size=7;
+    previous_settlement_price_fraction_indicator: bytes &size=1;
+    reason: uint8 &convert=Reason($$);
+};
+
+type FuturesSummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    last_price: bytes &size=7;
+    last_price_fraction_indicator: bytes &size=1;
+    open_price: bytes &size=7;
+    open_price_fraction_indicator: bytes &size=1;
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: bytes &size=1;
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: bytes &size=1;
+    settlement_price: bytes &size=7;
+    settlement_price_fraction_indicator_futures: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    volume: bytes &size=8;
+    previous_settlement: bytes &size=7;
+    previous_settlement_fraction_indicator: bytes &size=1;
+    open_interest: bytes &size=7;
+    open_interest_date: bytes &size=6;
+    reason: uint8 &convert=Reason($$);
+    external_price_at_source: bytes &size=7;
+    external_price_fraction_indicator: bytes &size=1;
+};
+
+type StrategySummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    strategy_symbol: bytes &size=30;
+    bid_price_sign: bytes &size=1;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_sign: bytes &size=1;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    last_price_sign: bytes &size=1;
+    last_price: bytes &size=7;
+    last_price_fraction_indicator: bytes &size=1;
+    open_price_sign: bytes &size=1;
+    open_price: bytes &size=7;
+    open_price_fraction_indicator: bytes &size=1;
+    high_price_sign: bytes &size=1;
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: bytes &size=1;
+    low_price_sign: bytes &size=1;
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    volume: bytes &size=8;
+    reason: uint8 &convert=Reason($$);
+};
+
+type BeginningOfOptionsSummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+};
+
+type BeginningOfFutureOptionsSummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+};
+
+type BeginningOfFuturesSummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+};
+
+type BeginningOfStrategySummaryMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+};
+
+type FuturesTradeCorrectionMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: bytes &size=1;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type GroupStatusMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    root_symbol: bytes &size=6;
+    group_status: bytes &size=1;
+};
+
+type GroupStatusStrategiesMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    group_instrument: bytes &size=2;
+    group_status: bytes &size=1;
+};
+
+type FutureDeliverablesMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    future_product: FutureProduct;
+    number_of_bonds: bytes &size=2;
+    bond_definition: BondDefinition[self.number_of_bonds];
+};
+
+type BondDefinition = unit {
+    maturity_date: bytes &size=8;
+    coupon: bytes &size=7;
+    coupon_fraction_indicator: bytes &size=1;
+    outstanding_bond_value: bytes &size=8;
+    conversion_factor: bytes &size=7;
+    conversion_factor_fraction_indicator: bytes &size=1;
+};
+
+type BulletinsMessage = unit {
+    : skip bytes &size=1;   # padding
+    bulletin_type: uint8 &convert=BulletinType($$);
+    switch ( self.bulletin_type ) {
+        BulletinType::RegularTextBulletin -> regular_text_bulletin: RegularTextBulletin;
+        BulletinType::SpecialTextBulletin -> special_text_bulletin: SpecialTextBulletin;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RegularTextBulletin = unit {
+    regular_bulletin_contents: bytes &size=79;
+    continue_marker: bytes &size=1;
+};
+
+type SpecialTextBulletin = unit {
+    symbol_bulletin: bytes &size=30;
+    special_bulletin_contents: bytes &size=49;
+    continue_marker: bytes &size=1;
+};
+
+type EndOfSalesMessage = unit {
+    : skip bytes &size=1;   # padding
+    time_field: bytes &size=6;
+};
+
+type TickTableMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    tick_table_name: bytes &size=50;
+    tick_table_short_name: bytes &size=2;
+    number_of_entries: bytes &size=2;
+    tick_entry: TickEntry[self.number_of_entries];
+};
+
+type TickEntry = unit {
+    min_price: bytes &size=7;
+    min_price_fraction_indicator: bytes &size=1;
+    tick_price: bytes &size=7;
+    tick_price_fraction_indicator: bytes &size=1;
+};
+
+type EndOfTransmissionMessage = unit {
+    exchange_id: uint8 &convert=ExchangeId($$);
+    time_field: bytes &size=6;
+};
+
+type CircuitAssuranceMessage = unit {
+    time_field: bytes &size=6;
+};
+
+type MessageType = enum {
+    OptionTradeMessage = 0x43,
+    OptionRequestForQuoteMessage = 0x44,
+    InstrumentScheduleNoticeOptionMessage = 0x45,
+    OptionQuoteMessage = 0x46,
+    OptionMarketDepthMessage = 0x48,
+    OptionTradeCancellationMessage = 0x49,
+    OptionInstrumentKeysMessage = 0x4a,
+    OptionSummaryMessage = 0x4e,
+    BeginningOfOptionsSummaryMessage = 0x51,
+    EndOfSalesMessage = 0x53,
+    EndOfTransmissionMessage = 0x55,
+    CircuitAssuranceMessage = 0x56,
+};
+
+type ExchangeId = enum {
+    Montreal = 0x51,
+};
+
+type ExpiryMonth = enum {
+    January = 0x41,
+    February = 0x42,
+    March = 0x43,
+    April = 0x44,
+    May = 0x45,
+    June = 0x46,
+    July = 0x47,
+    August = 0x48,
+    September = 0x49,
+    October = 0x4a,
+    November = 0x4b,
+    December = 0x4c,
+};
+
+type CallPutCode = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type RequestedMarketSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    Both = 0x32,
+};
+
+type OptionType = enum {
+    American = 0x41,
+    European = 0x45,
+};
+
+type DeliveryType = enum {
+    Cash = 0x43,
+    Physical = 0x50,
+};
+
+type StrategyAllowImplied = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type StrategyType = enum {
+    Classic = 0x43,
+    Strip = 0x53,
+    CoveredRegular = 0x56,
+    CoveredReferenceFixed = 0x52,
+};
+
+type Tick = enum {
+    Uptick = 0x2b,
+    Downtick = 0x2d,
+};
+
+type Reason = enum {
+    StartOfDay = 0x53,
+    EndOfDay = 0x45,
+    InstrumentNewOrUpdate = 0x55,
+    TradeCancellation = 0x43,
+};
+
+type BulletinType = enum {
+    RegularTextBulletin = 0x31,
+    SpecialTextBulletin = 0x32,
+};
+

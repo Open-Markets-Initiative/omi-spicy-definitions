@@ -1,0 +1,316 @@
+module MiaxMiaxoptionsComplextopofmarketMachV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MiaxoptionsComplextopofmarketV11 = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    sequence_number: uint64;
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+    session_number: uint8;
+    payload: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::SeriesUpdate -> series_update: SeriesUpdate;
+        MessageType::ComplexStrategyDefinitionMessage -> complex_strategy_definition_message: ComplexStrategyDefinitionMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::CompactComplexTopOfMarketBidMessage -> compact_complex_top_of_market_bid_message: CompactComplexTopOfMarketBidMessage;
+        MessageType::CompactComplexTopOfMarketOfferMessage -> compact_complex_top_of_market_offer_message: CompactComplexTopOfMarketOfferMessage;
+        MessageType::WideComplexTopOfMarketBidMessage -> wide_complex_top_of_market_bid_message: WideComplexTopOfMarketBidMessage;
+        MessageType::WideComplexTopOfMarketOfferMessage -> wide_complex_top_of_market_offer_message: WideComplexTopOfMarketOfferMessage;
+        MessageType::CompactComplexDoubleSidedTopOfMarketMessage -> compact_complex_double_sided_top_of_market_message: CompactComplexDoubleSidedTopOfMarketMessage;
+        MessageType::WideComplexDoubleSidedTopOfMarketMessage -> wide_complex_double_sided_top_of_market_message: WideComplexDoubleSidedTopOfMarketMessage;
+        MessageType::StrategyTradeMessage -> strategy_trade_message: StrategyTradeMessage;
+        MessageType::UnderlyingTradingStatusMessage -> underlying_trading_status_message: UnderlyingTradingStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32;
+};
+
+type SeriesUpdate = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    underlying_symbol: bytes &size=11;
+    security_symbol: bytes &size=6;
+    expiration_date: bytes &size=8;
+    strike_price: uint32;
+    call_or_put: uint8 &convert=CallOrPut($$);
+    opening_time: bytes &size=8;
+    closing_time: bytes &size=8;
+    restricted_option: uint8 &convert=RestrictedOption($$);
+    long_term_option: uint8 &convert=LongTermOption($$);
+    active_on_miax: uint8 &convert=ActiveOnMiax($$);
+    miax_bbo_posting_increment_indicator: uint8 &convert=MiaxBboPostingIncrementIndicator($$);
+    liquidity_acceptance_increment_indicator: uint8 &convert=LiquidityAcceptanceIncrementIndicator($$);
+    opening_underlying_market_code: uint8 &convert=OpeningUnderlyingMarketCode($$);
+    priority_quote_width: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type ComplexStrategyDefinitionMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    underlying_symbol: bytes &size=11;
+    active_on_miax: uint8 &convert=ActiveOnMiax($$);
+    : skip bytes &size=1;   # padding
+    update_reason: uint8 &convert=UpdateReason($$);
+    : skip bytes &size=10;   # padding
+    number_of_legs: uint8;
+    leg_definition: LegDefinition[self.number_of_legs];
+};
+
+type LegDefinition = unit {
+    product_id: uint32;
+    leg_ratio_qty: uint16;
+    leg_side: uint8 &convert=LegSide($$);
+    : skip bytes &size=8;   # padding
+};
+
+type SystemStateMessage = unit {
+    nanoseconds: uint32;
+    c_to_m_version: bytes &size=8;
+    session_id: uint32;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type CompactComplexTopOfMarketBidMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    compact_price: int16;
+    compact_size: uint16;
+    top_of_market_quote_condition: uint8 &convert=TopOfMarketQuoteCondition($$);
+};
+
+type CompactComplexTopOfMarketOfferMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    compact_price: int16;
+    compact_size: uint16;
+    : skip bytes &size=2;   # padding
+    top_of_market_quote_condition: uint8 &convert=TopOfMarketQuoteCondition($$);
+};
+
+type WideComplexTopOfMarketBidMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    wide_price: int64;
+    wide_size: uint32;
+    : skip bytes &size=4;   # padding
+    top_of_market_quote_condition: uint8 &convert=TopOfMarketQuoteCondition($$);
+};
+
+type WideComplexTopOfMarketOfferMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    wide_price: int64;
+    wide_size: uint32;
+    : skip bytes &size=4;   # padding
+    top_of_market_quote_condition: uint8 &convert=TopOfMarketQuoteCondition($$);
+};
+
+type CompactComplexDoubleSidedTopOfMarketMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    compact_bid: CompactBid;
+    compact_offer: CompactOffer;
+};
+
+type CompactBid = unit {
+    compact_bid_price: int16;
+    compact_bid_size: uint16;
+    : skip bytes &size=2;   # padding
+    bid_condition: uint8 &convert=BidCondition($$);
+};
+
+type CompactOffer = unit {
+    compact_offer_price: int16;
+    compact_offer_size: uint16;
+    : skip bytes &size=2;   # padding
+    offer_condition: uint8 &convert=OfferCondition($$);
+};
+
+type WideComplexDoubleSidedTopOfMarketMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    wide_bid: WideBid;
+    wide_offer: WideOffer;
+};
+
+type WideBid = unit {
+    wide_bid_price: int64;
+    wide_bid_size: uint32;
+    : skip bytes &size=4;   # padding
+    bid_condition: uint8 &convert=BidCondition($$);
+};
+
+type WideOffer = unit {
+    wide_offer_price: int64;
+    wide_offer_size: uint32;
+    : skip bytes &size=4;   # padding
+    offer_condition: uint8 &convert=OfferCondition($$);
+};
+
+type StrategyTradeMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    trade_id: uint32;
+    net_price: int64;
+    trade_size: uint32;
+    trade_condition: uint8 &convert=TradeCondition($$);
+    : skip bytes &size=16;   # padding
+};
+
+type UnderlyingTradingStatusMessage = unit {
+    nanoseconds: uint32;
+    underlying_symbol: bytes &size=11;
+    trading_status: uint8 &convert=TradingStatus($$);
+    event_reason: uint8 &convert=EventReason($$);
+    seconds_part: uint32;
+    expected_event_time_nano_seconds_part: uint32;
+};
+
+type PacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 0x31,
+    SeriesUpdate = 0x50,
+    ComplexStrategyDefinitionMessage = 0x43,
+    SystemStateMessage = 0x53,
+    CompactComplexTopOfMarketBidMessage = 0x62,
+    CompactComplexTopOfMarketOfferMessage = 0x6f,
+    WideComplexTopOfMarketBidMessage = 0x65,
+    WideComplexTopOfMarketOfferMessage = 0x66,
+    CompactComplexDoubleSidedTopOfMarketMessage = 0x6d,
+    WideComplexDoubleSidedTopOfMarketMessage = 0x77,
+    StrategyTradeMessage = 0x74,
+    UnderlyingTradingStatusMessage = 0x48,
+};
+
+type CallOrPut = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type RestrictedOption = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type LongTermOption = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type ActiveOnMiax = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+};
+
+type MiaxBboPostingIncrementIndicator = enum {
+    Penny = 0x50,
+    Nickel = 0x4e,
+    Dime = 0x44,
+};
+
+type LiquidityAcceptanceIncrementIndicator = enum {
+    Penny = 0x50,
+    Nickel = 0x4e,
+    Dime = 0x44,
+};
+
+type OpeningUnderlyingMarketCode = enum {
+    NyseAmex = 0x41,
+    NasdaqOmxBx = 0x42,
+    Nse = 0x43,
+    FinraAdf = 0x44,
+    MarketIndependent = 0x45,
+    Ise = 0x49,
+    Edga = 0x4a,
+    Edgx = 0x4b,
+    Cse = 0x4d,
+    NyseEuronext = 0x4e,
+    NyseArca = 0x50,
+    NasdaqOmxUtp = 0x51,
+    NasdaqOmxCta = 0x54,
+    Iex = 0x56,
+    NasdaqOmxPhlx = 0x58,
+    BatsY = 0x59,
+    Bats = 0x5a,
+};
+
+type UpdateReason = enum {
+    NewStrategyCreated = 0x4e,
+    Updated = 0x55,
+};
+
+type LegSide = enum {
+    Bid = 0x42,
+    Ask = 0x41,
+};
+
+type SystemStatus = enum {
+    StartOfSystemHours = 0x53,
+    EndOfSystemHours = 0x43,
+    StartTestSession = 0x31,
+    EndOfTestSession = 0x32,
+};
+
+type TopOfMarketQuoteCondition = enum {
+    Halted = 0x48,
+    Resumed = 0x52,
+    Opened = 0x4f,
+};
+
+type BidCondition = enum {
+    Regular = 0x41,
+    TradingHalt = 0x54,
+    Wide = 0x57,
+    SimpleAuction = 0x53,
+    ComplexAuction = 0x43,
+    SimpleMarketProtection = 0x4d,
+    LegMarketProtection = 0x4c,
+};
+
+type OfferCondition = enum {
+    Regular = 0x41,
+    TradingHalt = 0x54,
+    Wide = 0x57,
+    SimpleAuction = 0x53,
+    ComplexAuction = 0x43,
+    SimpleMarketProtection = 0x4d,
+    LegMarketProtection = 0x4c,
+};
+
+type TradeCondition = enum {
+    Matched = 0x53,
+    Legged = 0x4c,
+};
+
+type TradingStatus = enum {
+    Halted = 0x48,
+    Resumed = 0x52,
+    Opened = 0x4f,
+};
+
+type EventReason = enum {
+    Automatic = 0x41,
+    Manual = 0x4d,
+};
+

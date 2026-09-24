@@ -1,0 +1,326 @@
+module MiaxMiaxoptionsTopofmarketMachV25Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MiaxoptionsTopofmarketV25 = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    sequence_number: uint64;
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+    session_number: uint8;
+    payload: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::SimpleSeriesUpdateMessage -> simple_series_update_message: SimpleSeriesUpdateMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::SimpleTopOfMarketBestBidOrOfferCompactBidMessage -> simple_top_of_market_best_bid_or_offer_compact_bid_message: SimpleTopOfMarketBestBidOrOfferCompactBidMessage;
+        MessageType::SimpleTopOfMarketBestBidOrOfferCompactOfferMessage -> simple_top_of_market_best_bid_or_offer_compact_offer_message: SimpleTopOfMarketBestBidOrOfferCompactOfferMessage;
+        MessageType::SimpleTopOfMarketBestBidOrOfferWideBidMessage -> simple_top_of_market_best_bid_or_offer_wide_bid_message: SimpleTopOfMarketBestBidOrOfferWideBidMessage;
+        MessageType::SimpleTopOfMarketBestBidOrOfferWideOfferMessage -> simple_top_of_market_best_bid_or_offer_wide_offer_message: SimpleTopOfMarketBestBidOrOfferWideOfferMessage;
+        MessageType::SimpleDoubleSidedTopOfMarketBestBidOrOfferCompactMessage -> simple_double_sided_top_of_market_best_bid_or_offer_compact_message: SimpleDoubleSidedTopOfMarketBestBidOrOfferCompactMessage;
+        MessageType::SimpleDoubleSidedTopOfMarketBestBidOrOfferWideMessage -> simple_double_sided_top_of_market_best_bid_or_offer_wide_message: SimpleDoubleSidedTopOfMarketBestBidOrOfferWideMessage;
+        MessageType::LastSaleMessage -> last_sale_message: LastSaleMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        MessageType::UnderlyingTradingStatusNotificationMessage -> underlying_trading_status_notification_message: UnderlyingTradingStatusNotificationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32;
+};
+
+type SimpleSeriesUpdateMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    underlying_symbol: bytes &size=11;
+    security_symbol: bytes &size=6;
+    expiration_date: bytes &size=8;
+    strike_price: uint32;
+    call_or_put: uint8 &convert=CallOrPut($$);
+    opening_time: bytes &size=8;
+    closing_time: bytes &size=8;
+    restricted_option: uint8 &convert=RestrictedOption($$);
+    long_term_option: uint8 &convert=LongTermOption($$);
+    active_on_miax: uint8 &convert=ActiveOnMiax($$);
+    miax_bbo_posting_increment_indicator: uint8 &convert=MiaxBboPostingIncrementIndicator($$);
+    liquidity_acceptance_increment_indicator: uint8 &convert=LiquidityAcceptanceIncrementIndicator($$);
+    opening_underlying_market_code: uint8 &convert=OpeningUnderlyingMarketCode($$);
+    priority_quote_width: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type SystemStateMessage = unit {
+    nanoseconds: uint32;
+    to_m_version: bytes &size=8;
+    session_id: uint32;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type SimpleTopOfMarketBestBidOrOfferCompactBidMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    mbbo_price_short: uint16;
+    mbbo_size_short: uint16;
+    mbbo_priority_customer_size_short: uint16;
+    mbbo_condition: uint8 &convert=MbboCondition($$);
+};
+
+type SimpleTopOfMarketBestBidOrOfferCompactOfferMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    mbbo_price_short: uint16;
+    mbbo_size_short: uint16;
+    mbbo_priority_customer_size_short: uint16;
+    mbbo_condition: uint8 &convert=MbboCondition($$);
+};
+
+type SimpleTopOfMarketBestBidOrOfferWideBidMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    mbbo_price_long: uint32;
+    mbbo_size_long: uint32;
+    mbbo_priority_customer_size_long: uint32;
+    mbbo_condition: uint8 &convert=MbboCondition($$);
+};
+
+type SimpleTopOfMarketBestBidOrOfferWideOfferMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    mbbo_price_long: uint32;
+    mbbo_size_long: uint32;
+    mbbo_priority_customer_size_long: uint32;
+    mbbo_condition: uint8 &convert=MbboCondition($$);
+};
+
+type SimpleDoubleSidedTopOfMarketBestBidOrOfferCompactMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    bid_priority_customer_size_short: uint16;
+    bid_condition: uint8 &convert=BidCondition($$);
+    offer_price_short: uint16;
+    offer_size_short: uint16;
+    offer_priority_customer_size_short: uint16;
+    offer_condition: uint8 &convert=OfferCondition($$);
+};
+
+type SimpleDoubleSidedTopOfMarketBestBidOrOfferWideMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    bid_price_long: uint32;
+    bid_size_long: uint32;
+    bid_priority_customer_size_long: uint32;
+    bid_condition: uint8 &convert=BidCondition($$);
+    offer_price_long: uint32;
+    offer_size_long: uint32;
+    offer_priority_customer_size_long: uint32;
+    offer_condition: uint8 &convert=OfferCondition($$);
+};
+
+type LastSaleMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    trade_id: uint32;
+    correction_number: uint8;
+    reference_trade_id: uint32;
+    reference_correction_number: uint8;
+    trade_price: uint32;
+    trade_size: uint32;
+    trade_condition: uint8 &convert=TradeCondition($$);
+};
+
+type TradeCancelMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    trade_id: uint32;
+    correction_number: uint8;
+    trade_price: uint32;
+    trade_size: uint32;
+    trade_condition: uint8 &convert=TradeCondition($$);
+};
+
+type UnderlyingTradingStatusNotificationMessage = unit {
+    nanoseconds: uint32;
+    underlying_symbol: bytes &size=11;
+    trading_status: uint8 &convert=TradingStatus($$);
+    event_reason: uint8 &convert=EventReason($$);
+    expected_event_time_seconds_part: uint32;
+    expected_event_time_nano_seconds_part: uint32;
+};
+
+type PacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 0x31,
+    SimpleSeriesUpdateMessage = 0x50,
+    SystemStateMessage = 0x53,
+    SimpleTopOfMarketBestBidOrOfferCompactBidMessage = 0x42,
+    SimpleTopOfMarketBestBidOrOfferCompactOfferMessage = 0x4f,
+    SimpleTopOfMarketBestBidOrOfferWideBidMessage = 0x62,
+    SimpleTopOfMarketBestBidOrOfferWideOfferMessage = 0x6f,
+    SimpleDoubleSidedTopOfMarketBestBidOrOfferCompactMessage = 0x64,
+    SimpleDoubleSidedTopOfMarketBestBidOrOfferWideMessage = 0x44,
+    LastSaleMessage = 0x54,
+    TradeCancelMessage = 0x58,
+    UnderlyingTradingStatusNotificationMessage = 0x48,
+};
+
+type CallOrPut = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type RestrictedOption = enum {
+    AcceptPositionClosing = 0x59,
+    AcceptOpenAndClose = 0x4e,
+};
+
+type LongTermOption = enum {
+    FarMonthExpiration = 0x59,
+    NearMonthExpiration = 0x4e,
+};
+
+type ActiveOnMiax = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+};
+
+type MiaxBboPostingIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyOrNickel = 0x4e,
+    NickelOrDime = 0x44,
+};
+
+type LiquidityAcceptanceIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyOrNickel = 0x4e,
+    NickelOrDime = 0x44,
+};
+
+type OpeningUnderlyingMarketCode = enum {
+    NyseAmex = 0x41,
+    NasdaqOmxBx = 0x42,
+    NationalStockExchange = 0x43,
+    FinraAdf = 0x44,
+    MarketIndependent = 0x45,
+    MiaxPearlEquities = 0x48,
+    InternationalSecuritiesExchange = 0x49,
+    EdgaExchangeInc = 0x4a,
+    EdgxExchangeInc = 0x4b,
+    Ltse = 0x4c,
+    ChicagoStockExchange = 0x4d,
+    NyseEuronext = 0x4e,
+    NyseArcaExchange = 0x50,
+    NasdaqOmxUtp = 0x51,
+    NasdaqOmxCta = 0x54,
+    Memx = 0x55,
+    Iex = 0x56,
+    CboeStockExchange = 0x57,
+    NasdaqOmxPhlx = 0x58,
+    BatsY = 0x59,
+    Bats = 0x5a,
+};
+
+type SystemStatus = enum {
+    StartOfSystemHours = 0x53,
+    EndOfSystemHours = 0x43,
+    StartOfTestSession = 0x31,
+    EndOfTestSession = 0x32,
+};
+
+type MbboCondition = enum {
+    Regular = 0x41,
+    PublicCustomerInterest = 0x42,
+    NotFirm = 0x43,
+    Reserved = 0x52,
+    TradingHalt = 0x54,
+};
+
+type BidCondition = enum {
+    Regular = 0x41,
+    PublicCustomerInterest = 0x42,
+    NotFirm = 0x43,
+    Reserved = 0x52,
+    TradingHalt = 0x54,
+};
+
+type OfferCondition = enum {
+    Regular = 0x41,
+    PublicCustomerInterest = 0x42,
+    NotFirm = 0x43,
+    Reserved = 0x52,
+    TradingHalt = 0x54,
+};
+
+type TradeCondition = enum {
+    Regular = 0x20,
+    CancelOfTradePreviouslyReportedOtherThanAsTheLastOrOpening = 0x41,
+    LateAndIsOutOfSequence = 0x42,
+    CancelOfTheLastReportedTrade = 0x43,
+    LateAndIsInCorrectSequence = 0x44,
+    CancelOfTheFirstReportedTrade = 0x45,
+    LateReportOfTheOpeningTradeAndIsOutOfSequence = 0x46,
+    CancelOfTheOnlyReportedTrade = 0x47,
+    LateReportOfTheOpeningTradeAndIsInCorrectSequence = 0x48,
+    Auto = 0x49,
+    ReopeningOfAnOption = 0x4a,
+    Reserved = 0x4b,
+    ABuyAndASellInTheSameClass = 0x4c,
+    ABuyAndASellInAPutAndACall = 0x4d,
+    Reserved_x4e = 0x4e,
+    Reserved_x4f = 0x4f,
+    BuyOrSellOfACallOrPut = 0x50,
+    BuyOfACallAndASellOfAPutForTheSameUnderlyingStockOrIndex = 0x51,
+    ExecutionOfAnOrderWhichWasStoppedAtAPriceThatDidNotConstituteATradeThroughOnAnotherMarketAtTheTimeOfTheStop = 0x52,
+    ExecutionOfAnIsoOrder = 0x53,
+    Reserved_x54 = 0x54,
+    TradeThroughExempt = 0x58,
+    PairedPrime = 0x61,
+    IsoPairedPrime = 0x62,
+    PrimeCustomerToCustomerCrossOrPrimeQcc = 0x63,
+    Reserved_x64 = 0x64,
+    Reserved_x65 = 0x65,
+    ComplexTransactionThatIsNotComplexStockTiedAndDoesNotInvolveLegging = 0x66,
+    ComplexPrimeTransactionThatIsNotComplexStockTiedAndDoesNotInvolveLegging = 0x67,
+    ComplexPrimeCustomerToCustomerCrossOrComplexPrimeQccTransactionThatIsNotComplexStockTied = 0x68,
+    Reserved_x69 = 0x69,
+    ComplexLeggingTransactionThatIsNotComplexStockTied = 0x6a,
+    ComplexPrimeStockTiedTransactionThatDoesNotInvolveLegging = 0x6b,
+    ComplexPrimeLeggingTransactionThatIsNotComplexStockTied = 0x6c,
+    Reserved_x6d = 0x6d,
+    ComplexStockTiedTransactionThatDoesNotInvolveLegging = 0x6e,
+    ComplexCustomerToCustomerCrossStockTiedOrComplexQccStockTiedTransaction = 0x6f,
+    Reserved_x70 = 0x70,
+    Reserved_x71 = 0x71,
+    Reserved_x72 = 0x72,
+    Reserved_x73 = 0x73,
+    Reserved_x74 = 0x74,
+};
+
+type TradingStatus = enum {
+    Halted = 0x48,
+    Resumed = 0x52,
+    Opened = 0x4f,
+};
+
+type EventReason = enum {
+    Automatic = 0x41,
+    Manual = 0x4d,
+};
+

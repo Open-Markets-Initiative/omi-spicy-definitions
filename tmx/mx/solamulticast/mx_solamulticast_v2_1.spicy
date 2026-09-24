@@ -1,0 +1,41 @@
+module TmxMxSolamulticastHsvfV21;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MxSolamulticastV21 = unit {
+    hsvf_stx: uint8;
+    messageheader: Messageheader;
+    switch ( self.messageheader.message_type ) {
+        0 -> login_message: LoginMessage;
+        0 -> retransmission_request_message: RetransmissionRequestMessage;
+        0 -> error_message: ErrorMessage;
+        * -> unknown: bytes &eod;
+    };
+    hsvf_etx: uint8;
+};
+
+type Messageheader = unit {
+    sequence_number: bytes &size=9;
+    message_type: bytes &size=2;
+};
+
+type LoginMessage = unit {
+    user: bytes &size=16;
+    pwd: bytes &size=16;
+    timestamp: bytes &size=6;
+    protocol: bytes &size=2;
+};
+
+type RetransmissionRequestMessage = unit {
+    line: bytes &size=2;
+    start: bytes &size=9;
+    end_field: bytes &size=9;
+};
+
+type ErrorMessage = unit {
+    error_code: bytes &size=4;
+    error_msg: bytes &size=80;
+};
+

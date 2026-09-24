@@ -1,0 +1,112 @@
+module NyseNationalequitiesIntegratedfeedrequestPillarV25G;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NationalequitiesIntegratedfeedrequestV25G = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msgs];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msgs: uint8;
+    seq_num: uint32;
+    send_time: SendTime;
+};
+
+type SendTime = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::RequestResponseMessage -> request_response_message: RequestResponseMessage;
+        MessageType::HeartbeatResponseMessage -> heartbeat_response_message: HeartbeatResponseMessage;
+        MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
+        MessageType::RefreshRequestMessage -> refresh_request_message: RefreshRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type RetransmissionRequestMessage = unit {
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type RequestResponseMessage = unit {
+    request_seq_num: uint32;
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+    status: uint8 &convert=Status($$);
+};
+
+type HeartbeatResponseMessage = unit {
+    source_id: bytes &size=10;
+};
+
+type SymbolIndexMappingRequestMessage = unit {
+    symbol_index: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+    retransmit_method: uint8;
+};
+
+type RefreshRequestMessage = unit {
+    symbol_index: uint32;
+    source_id: bytes &size=10;
+    product_id: uint8;
+    channel_id: uint8;
+};
+
+type DeliveryFlag = enum {
+    Heartbeat = 1,
+    PillarFailover = 10,
+    OriginalMessage = 11,
+    SequenceNumberResetMessage = 12,
+    OneRetransmissionPacket = 13,
+    RetransmissionSequenceMessage = 15,
+    OneRefreshPacket = 17,
+    RefreshSequenceStart = 18,
+    RefreshSequenceMessage = 19,
+    RefreshSequenceEnd = 20,
+    MessageUnavailable = 21,
+};
+
+type MessageType = enum {
+    RetransmissionRequestMessage = 10,
+    RequestResponseMessage = 11,
+    HeartbeatResponseMessage = 12,
+    SymbolIndexMappingRequestMessage = 13,
+    RefreshRequestMessage = 15,
+};
+
+type Status = enum {
+    MessageWasAccepted = 0x30,
+    RejectedDueToAnInvalidSourceId = 0x31,
+    RejectedDueToMaximumSequenceRangeSeeThresholdLimits = 0x33,
+    RejectedDueToMaximumRequestInADay = 0x34,
+    RejectedDueToMaximumNumberOfRefreshRequestsInADay = 0x35,
+    RejectedRequestMessageSeqNumTtlTimeToLiveIsTooOldUseRefreshToRecoverCurrentStateIfNecessary = 0x36,
+    RejectedDueToAnInvalidChannelId = 0x37,
+    RejectedDueToAnInvalidProductId = 0x38,
+    RejectedDueTo1InvalidMsgTypeOr2MismatchBetweenMsgTypeAndMsgSize = 0x39,
+};
+

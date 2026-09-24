@@ -1,0 +1,679 @@
+module BoxBoxoptionsSolamulticastHsvfV15;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BoxoptionsSolamulticastV15 = unit {
+    hsvf_stx: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::EndOfTransmissionMessage -> end_of_transmission_message: EndOfTransmissionMessage;
+        MessageType::CircuitAssuranceMessage -> circuit_assurance_message: CircuitAssuranceMessage;
+        MessageType::SystemTimestampMessage -> system_timestamp_message: SystemTimestampMessage;
+        MessageType::OptionTradeMessage -> option_trade_message: OptionTradeMessage;
+        MessageType::ComplexOrderInstrumentTradeMessage -> complex_order_instrument_trade_message: ComplexOrderInstrumentTradeMessage;
+        MessageType::OptionRequestForQuoteMessage -> option_request_for_quote_message: OptionRequestForQuoteMessage;
+        MessageType::OptionQuoteMessage -> option_quote_message: OptionQuoteMessage;
+        MessageType::ComplexOrderQuoteMessage -> complex_order_quote_message: ComplexOrderQuoteMessage;
+        MessageType::GroupOpeningTimeMessage -> group_opening_time_message: GroupOpeningTimeMessage;
+        MessageType::GroupStatusMessage -> group_status_message: GroupStatusMessage;
+        MessageType::StrategiesGroupStatusMessage -> strategies_group_status_message: StrategiesGroupStatusMessage;
+        MessageType::OptionMarketDepthMessage -> option_market_depth_message: OptionMarketDepthMessage;
+        MessageType::ComplexOrderMarketDepthMessage -> complex_order_market_depth_message: ComplexOrderMarketDepthMessage;
+        MessageType::OptionTradeCancellationMessage -> option_trade_cancellation_message: OptionTradeCancellationMessage;
+        MessageType::ComplexOrderTradeCancellationMessage -> complex_order_trade_cancellation_message: ComplexOrderTradeCancellationMessage;
+        MessageType::OptionInstrumentKeysMessage -> option_instrument_keys_message: OptionInstrumentKeysMessage;
+        MessageType::ComplexOrderInstrumentKeysMessage -> complex_order_instrument_keys_message: ComplexOrderInstrumentKeysMessage;
+        MessageType::BulletinsMessage -> bulletins_message: BulletinsMessage;
+        MessageType::OptionSummaryMessage -> option_summary_message: OptionSummaryMessage;
+        MessageType::ComplexOrderSummaryMessage -> complex_order_summary_message: ComplexOrderSummaryMessage;
+        MessageType::BeginningOfOptionsSummaryMessage -> beginning_of_options_summary_message: BeginningOfOptionsSummaryMessage;
+        MessageType::BeginningOfComplexOrderSummaryMessage -> beginning_of_complex_order_summary_message: BeginningOfComplexOrderSummaryMessage;
+        MessageType::EndOfSalesMessage -> end_of_sales_message: EndOfSalesMessage;
+        MessageType::OptionImprovementProcessBeginningMessage -> option_improvement_process_beginning_message: OptionImprovementProcessBeginningMessage;
+        MessageType::ComplexOrderImprovementProcessBeginningMessageMessage -> complex_order_improvement_process_beginning_message_message: ComplexOrderImprovementProcessBeginningMessageMessage;
+        MessageType::MarketSheetInitialAndImprovementOrderMessage -> market_sheet_initial_and_improvement_order_message: MarketSheetInitialAndImprovementOrderMessage;
+        MessageType::ComplexOrderMarketSheetInitialAndImprovementOrderMessage -> complex_order_market_sheet_initial_and_improvement_order_message: ComplexOrderMarketSheetInitialAndImprovementOrderMessage;
+        MessageType::InitialAndImprovementOrderMessage -> initial_and_improvement_order_message: InitialAndImprovementOrderMessage;
+        MessageType::ComplexOrderInitialAndImprovementOrderMessage -> complex_order_initial_and_improvement_order_message: ComplexOrderInitialAndImprovementOrderMessage;
+        * -> unknown: bytes &eod;
+    };
+    hsvf_etx: uint8;
+};
+
+type MessageHeader = unit {
+    sequence_number: bytes &size=9;
+    message_type: bytes &size=2;
+};
+
+type EndOfTransmissionMessage = unit {
+    exchange_id: bytes &size=1;
+    time_field: bytes &size=6;
+};
+
+type CircuitAssuranceMessage = unit {
+    time_field: bytes &size=6;
+};
+
+type SystemTimestampMessage = unit {
+    trading_engine_timestamp: bytes &size=9;
+};
+
+type OptionTradeMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    volume: bytes &size=8;
+    trade_price: bytes &size=6;
+    trade_price_fraction_indicator: bytes &size=1;
+    net_change_sign: uint8 &convert=NetChangeSign($$);
+    net_change: bytes &size=6;
+    net_change_fraction_indicator: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    timestamp: bytes &size=6;
+    open_interest: bytes &size=7;
+    : skip bytes &size=1;   # padding
+    price_indicator_marker: uint8 &convert=PriceIndicatorMarker($$);
+};
+
+type InstrumentDescription = unit {
+    root_symbol: bytes &size=6;
+    expiry_month_code: uint8 &convert=ExpiryMonthCode($$);
+    : skip bytes &size=1;   # padding
+    strike_price: bytes &size=7;
+    strike_price_fraction_indicator: bytes &size=1;
+    expiry_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+};
+
+type ComplexOrderInstrumentTradeMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    volume: bytes &size=8;
+    trade_price_sign: bytes &size=1;
+    trade_price: bytes &size=6;
+    trade_price_fraction_indicator: bytes &size=1;
+    net_change_sign: uint8 &convert=NetChangeSign($$);
+    net_change: bytes &size=6;
+    net_change_fraction_indicator: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    timestamp: bytes &size=6;
+    price_indicator_marker: uint8 &convert=PriceIndicatorMarker($$);
+};
+
+type OptionRequestForQuoteMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    requested_size: bytes &size=8;
+};
+
+type OptionQuoteMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    bid_price: bytes &size=6;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price: bytes &size=6;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
+    public_customer_bid_size: bytes &size=5;
+    public_customer_ask_size: bytes &size=5;
+};
+
+type ComplexOrderQuoteMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    bid_price_sign: bytes &size=1;
+    bid_price: bytes &size=6;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_sign: uint8 &convert=AskPriceSign($$);
+    ask_price: bytes &size=6;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
+    public_customer_bid_size: bytes &size=5;
+    public_customer_ask_size: bytes &size=5;
+};
+
+type GroupOpeningTimeMessage = unit {
+    exchange_id: bytes &size=1;
+    root_symbol: bytes &size=6;
+    group_status: uint8 &convert=GroupStatus($$);
+    scheduled_time: bytes &size=6;
+};
+
+type GroupStatusMessage = unit {
+    exchange_id: bytes &size=1;
+    root_symbol: bytes &size=6;
+    group_status: uint8 &convert=GroupStatus($$);
+};
+
+type StrategiesGroupStatusMessage = unit {
+    exchange_id: bytes &size=1;
+    group_of_the_complex_order_instrument: bytes &size=2;
+    group_status: uint8 &convert=GroupStatus($$);
+};
+
+type OptionMarketDepthMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
+    number_of_levels: bytes &size=1;
+    market_depth_level: MarketDepthLevel[self.number_of_levels];
+};
+
+type MarketDepthLevel = unit {
+    level_of_market_depth: uint8 &convert=LevelOfMarketDepth($$);
+    bid_price: bytes &size=6;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price: bytes &size=6;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type ComplexOrderMarketDepthMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
+    number_of_levels: bytes &size=1;
+    complex_market_depth_level: ComplexMarketDepthLevel[self.number_of_levels];
+};
+
+type ComplexMarketDepthLevel = unit {
+    level_of_market_depth: uint8 &convert=LevelOfMarketDepth($$);
+    bid_price_sign: bytes &size=1;
+    bid_price: bytes &size=6;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price_sign: uint8 &convert=AskPriceSign($$);
+    ask_price: bytes &size=6;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type OptionTradeCancellationMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    volume: bytes &size=8;
+    trade_price: bytes &size=6;
+    trade_price_fraction_indicator: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    timestamp: bytes &size=6;
+    open_interest: bytes &size=7;
+    : skip bytes &size=1;   # padding
+    price_indicator_marker: uint8 &convert=PriceIndicatorMarker($$);
+};
+
+type ComplexOrderTradeCancellationMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    volume: bytes &size=8;
+    trade_price_sign: bytes &size=1;
+    trade_price: bytes &size=6;
+    trade_price_fraction_indicator: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    timestamp: bytes &size=6;
+    price_indicator_marker: uint8 &convert=PriceIndicatorMarker($$);
+};
+
+type OptionInstrumentKeysMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    strike_price_currency: bytes &size=3;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: bytes &size=1;
+    minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: bytes &size=1;
+    tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    market_flow_indicator: MarketFlowIndicator;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    option_marker: OptionMarker;
+    underlying_symbol_root: bytes &size=10;
+};
+
+type MarketFlowIndicator = unit {
+    type_of_instrument: uint8 &convert=TypeOfInstrument($$);
+    type_of_underlying: uint8 &convert=TypeOfUnderlying($$);
+};
+
+type OptionMarker = unit {
+    type_of_market: bytes &size=1;
+    type_of_options: bytes &size=1;
+};
+
+type ComplexOrderInstrumentKeysMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    expiry_year: bytes &size=2;
+    delivery_month: uint8 &convert=DeliveryMonth($$);
+    expiry_day: bytes &size=2;
+    max_number_of_contracts_per_order: bytes &size=6;
+    min_number_of_contracts_per_order: bytes &size=6;
+    max_threshold_price_sign: uint8 &convert=MaxThresholdPriceSign($$);
+    max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: bytes &size=1;
+    min_threshold_price_sign: uint8 &convert=MinThresholdPriceSign($$);
+    min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: bytes &size=1;
+    tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: bytes &size=1;
+    : skip bytes &size=2;   # padding
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    complex_order_instrument_allow_implied: uint8 &convert=ComplexOrderInstrumentAllowImplied($$);
+    number_of_legs: bytes &size=2;
+    instrument_leg: InstrumentLeg[self.number_of_legs];
+};
+
+type InstrumentLeg = unit {
+    leg_ratio_sign: uint8 &convert=LegRatioSign($$);
+    leg_ratio: bytes &size=8;
+    leg_symbol: bytes &size=30;
+};
+
+type BulletinsMessage = unit {
+    : skip bytes &size=1;   # padding
+    bulletin_type: uint8 &convert=BulletinType($$);
+    bulletin_contents: bytes &size=79;
+    continue_marker: uint8 &convert=ContinueMarker($$);
+};
+
+type OptionSummaryMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    bid_price: bytes &size=6;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price: bytes &size=6;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    last_price: bytes &size=6;
+    last_price_fraction_indicator: bytes &size=1;
+    open_interest: bytes &size=7;
+    tick: uint8 &convert=Tick($$);
+    volume: bytes &size=8;
+    net_change_sign: uint8 &convert=NetChangeSign($$);
+    net_change: bytes &size=6;
+    net_change_fraction_indicator: bytes &size=1;
+    open_price: bytes &size=6;
+    open_price_fraction_indicator: bytes &size=1;
+    high_price: bytes &size=6;
+    high_price_fraction_indicator: bytes &size=1;
+    low_price: bytes &size=6;
+    low_price_fraction_indicator: bytes &size=1;
+    option_marker: OptionMarker;
+    underlying_symbol: bytes &size=10;
+    reference_price: bytes &size=6;
+    reference_price_fraction_indicator: bytes &size=1;
+};
+
+type ComplexOrderSummaryMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    bid_price_sign: bytes &size=1;
+    bid_price: bytes &size=6;
+    bid_price_fraction_indicator: bytes &size=1;
+    bid_size: bytes &size=5;
+    ask_price_sign: uint8 &convert=AskPriceSign($$);
+    ask_price: bytes &size=6;
+    ask_price_fraction_indicator: bytes &size=1;
+    ask_size: bytes &size=5;
+    last_price_sign: bytes &size=1;
+    last_price: bytes &size=6;
+    last_price_fraction_indicator: bytes &size=1;
+    open_price_sign: uint8 &convert=OpenPriceSign($$);
+    open_price: bytes &size=6;
+    open_price_fraction_indicator: bytes &size=1;
+    high_price_sign: uint8 &convert=HighPriceSign($$);
+    high_price: bytes &size=6;
+    high_price_fraction_indicator: bytes &size=1;
+    low_price_sign: uint8 &convert=LowPriceSign($$);
+    low_price: bytes &size=6;
+    low_price_fraction_indicator: bytes &size=1;
+    net_change_sign: uint8 &convert=NetChangeSign($$);
+    net_change: bytes &size=6;
+    net_change_fraction_indicator: bytes &size=1;
+    volume: bytes &size=8;
+};
+
+type BeginningOfOptionsSummaryMessage = unit {
+    exchange_id: bytes &size=1;
+};
+
+type BeginningOfComplexOrderSummaryMessage = unit {
+    exchange_id: bytes &size=1;
+};
+
+type EndOfSalesMessage = unit {
+    : skip bytes &size=1;   # padding
+    time_field: bytes &size=6;
+};
+
+type OptionImprovementProcessBeginningMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    improvement_phase_sequential_number: bytes &size=6;
+    initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: bytes &size=1;
+    initial_order_quantity: bytes &size=8;
+    initial_order_side: uint8 &convert=InitialOrderSide($$);
+    improvement_phase_expiry_time: bytes &size=8;
+    improvement_process_expiry_duration: bytes &size=4;
+    minimum_quantity_for_improvement_order: bytes &size=8;
+    percentage_assured_to_initial_order: bytes &size=8;
+    auction_type: uint8 &convert=AuctionType($$);
+    : skip bytes &size=1;   # padding
+};
+
+type ComplexOrderImprovementProcessBeginningMessageMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    improvement_phase_sequential_number: bytes &size=6;
+    initial_order_price_sign: uint8 &convert=InitialOrderPriceSign($$);
+    initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: bytes &size=1;
+    initial_order_quantity: bytes &size=8;
+    initial_order_side: uint8 &convert=InitialOrderSide($$);
+    improvement_phase_expiry_time: bytes &size=8;
+    improvement_process_expiry_duration: bytes &size=4;
+    minimum_quantity_for_improvement_order: bytes &size=8;
+    percentage_assured_to_initial_order: bytes &size=8;
+    auction_type: uint8 &convert=AuctionType($$);
+};
+
+type MarketSheetInitialAndImprovementOrderMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    order_side: uint8 &convert=OrderSide($$);
+    type_of_order: uint8 &convert=TypeOfOrder($$);
+    : skip bytes &size=1;   # padding
+    limit_fraction_indicator: bytes &size=1;
+    order_quantity: bytes &size=8;
+    order_sequence_number: bytes &size=6;
+    improvement_phase_sequential_number: bytes &size=6;
+    type_of_clearing_account: uint8 &convert=TypeOfClearingAccount($$);
+    : skip bytes &size=1;   # padding
+    end_of_the_exposition: bytes &size=8;
+    auction_type: uint8 &convert=AuctionType($$);
+    firm_id: bytes &size=4;
+    cmta: bytes &size=4;
+};
+
+type ComplexOrderMarketSheetInitialAndImprovementOrderMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    order_side: uint8 &convert=OrderSide($$);
+    type_of_order: uint8 &convert=TypeOfOrder($$);
+    limit_entered_for_an_order_sign: uint8 &convert=LimitEnteredForAnOrderSign($$);
+    : skip bytes &size=1;   # padding
+    limit_fraction_indicator: bytes &size=1;
+    order_quantity: bytes &size=8;
+    order_sequence_number: bytes &size=6;
+    improvement_phase_sequential_number: bytes &size=6;
+    type_of_clearing_account: uint8 &convert=TypeOfClearingAccount($$);
+    : skip bytes &size=1;   # padding
+    end_of_the_exposition: bytes &size=8;
+    auction_type: uint8 &convert=AuctionType($$);
+    firm_id: bytes &size=4;
+    cmta: bytes &size=4;
+};
+
+type InitialAndImprovementOrderMessage = unit {
+    exchange_id: bytes &size=1;
+    instrument_description: InstrumentDescription;
+    deletion_type: uint8 &convert=DeletionType($$);
+    order_sequence_number: bytes &size=6;
+    improvement_order_side: uint8 &convert=ImprovementOrderSide($$);
+    improvement_phase_sequential_number: bytes &size=6;
+    auction_type: uint8 &convert=AuctionType($$);
+};
+
+type ComplexOrderInitialAndImprovementOrderMessage = unit {
+    exchange_id: bytes &size=1;
+    complex_order_instrument_symbol: bytes &size=30;
+    deletion_type: uint8 &convert=DeletionType($$);
+    order_sequence_number: bytes &size=6;
+    order_side: uint8 &convert=OrderSide($$);
+    improvement_phase_sequential_number: bytes &size=6;
+    auction_type: uint8 &convert=AuctionType($$);
+};
+
+type MessageType = enum {
+    EndOfTransmissionMessage = 0x55,
+    CircuitAssuranceMessage = 0x56,
+    SystemTimestampMessage = 0x5a,
+    OptionTradeMessage = 0x43,
+    OptionRequestForQuoteMessage = 0x44,
+    OptionQuoteMessage = 0x46,
+    OptionMarketDepthMessage = 0x48,
+    OptionTradeCancellationMessage = 0x49,
+    OptionInstrumentKeysMessage = 0x4a,
+    BulletinsMessage = 0x4c,
+    OptionSummaryMessage = 0x4e,
+    BeginningOfOptionsSummaryMessage = 0x51,
+    EndOfSalesMessage = 0x53,
+    OptionImprovementProcessBeginningMessage = 0x4d,
+    MarketSheetInitialAndImprovementOrderMessage = 0x4f,
+    InitialAndImprovementOrderMessage = 0x54,
+};
+
+type ExpiryMonthCode = enum {
+    JanuaryPut = 0x4d,
+    FebruaryPut = 0x4e,
+    MarchPut = 0x4f,
+    AprilPut = 0x50,
+    MayPut = 0x51,
+    JunePut = 0x52,
+    JulyPut = 0x53,
+    AugustPut = 0x54,
+    SeptemberPut = 0x55,
+    OctoberPut = 0x56,
+    NovemberPut = 0x57,
+};
+
+type NetChangeSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type PriceIndicatorMarker = enum {
+    AsOfTrade = 0x41,
+    TradesPerformedAtTheEndOfAPipAllocationPhase = 0x43,
+    LateTrade = 0x4c,
+    TradesPerformedDuringTheOpening = 0x4f,
+    ReferencePrice = 0x53,
+    TradesResultingFromTheTransmissionOfAnIsoInboundOrder = 0x57,
+    TradesPerformedWhenTheMarketIsCrossed = 0x58,
+    ContingentTradePriceOfTheTradeWasNotControlledAgainstTheNbbo = 0x47,
+    TradeInvolvingAnImpliedOrderOrLegTradeOfAComplexOrderInstrument = 0x49,
+    TradeDoneOnAComplexOrderInstrument = 0x50,
+};
+
+type InstrumentStatusMarker = enum {
+    PreopeningPhase = 0x59,
+    OpeningPhase = 0x4f,
+    OpenedForTrading = 0x54,
+    ForbiddenPhase = 0x46,
+    TradingHalted = 0x48,
+    ReservedPhase = 0x52,
+    SuspendedPhase = 0x53,
+    Frozen = 0x5a,
+    SurveillanceInterventionPhase = 0x41,
+    Closed = 0x43,
+    BeginningOfDayInquiries = 0x42,
+};
+
+type AskPriceSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type GroupStatus = enum {
+    PreopeningPhase = 0x59,
+    OpeningPhase = 0x4f,
+    OpenedForTrading = 0x54,
+    ForbiddenPhase = 0x46,
+    TradingHalted = 0x48,
+    SurveillanceInterventionPhase = 0x41,
+    Closed = 0x43,
+    BeginningOfDayInquiries = 0x42,
+};
+
+type LevelOfMarketDepth = enum {
+    Level1 = 0x31,
+    Level2 = 0x32,
+    Level3 = 0x33,
+    Level4 = 0x34,
+    Level5 = 0x35,
+    Level6 = 0x36,
+    ImpliedPrice = 0x41,
+    PublicCustomerVolume = 0x50,
+};
+
+type OptionType = enum {
+    American = 0x41,
+    European = 0x45,
+};
+
+type TypeOfInstrument = enum {
+    Options = 0x4f,
+    LongTerm = 0x4c,
+};
+
+type TypeOfUnderlying = enum {
+    Index = 0x58,
+    Equities = 0x45,
+};
+
+type DeliveryMonth = enum {
+    JanuaryPut = 0x4d,
+    FebruaryPut = 0x4e,
+    MarchPut = 0x4f,
+    AprilPut = 0x50,
+    MayPut = 0x51,
+    JunePut = 0x52,
+    JulyPut = 0x53,
+    AugustPut = 0x54,
+    SeptemberPut = 0x55,
+    OctoberPut = 0x56,
+    NovemberPut = 0x57,
+};
+
+type MaxThresholdPriceSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type MinThresholdPriceSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type ComplexOrderInstrumentAllowImplied = enum {
+    No = 0x4e,
+    ContinuousImplied = 0x43,
+    SnapshotImplied = 0x53,
+};
+
+type LegRatioSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type BulletinType = enum {
+    Regular = 0x31,
+    Special = 0x32,
+};
+
+type ContinueMarker = enum {
+    BulletinContinuesInNextRecord = 0x30,
+    BulletinEnded = 0x31,
+};
+
+type Tick = enum {
+    Uptick = 0x2b,
+    Downtick = 0x2d,
+};
+
+type OpenPriceSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type HighPriceSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type LowPriceSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type InitialOrderSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type AuctionType = enum {
+    RegularPip = 0x47,
+    Solicitation = 0x42,
+    Facilitation = 0x43,
+    ExposedOrder = 0x46,
+};
+
+type InitialOrderPriceSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type OrderSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TypeOfOrder = enum {
+    InitialOrder = 0x41,
+    ExposedOrder = 0x50,
+};
+
+type TypeOfClearingAccount = enum {
+    PublicCustomer = 0x36,
+    BrokerDealer = 0x37,
+    MarketMaker = 0x38,
+    ProfessionalCustomer = 0x54,
+    BrokerDealerClearedAsCustomer = 0x57,
+    AwayMarketMaker = 0x58,
+};
+
+type LimitEnteredForAnOrderSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+
+type DeletionType = enum {
+    PreciseOrder = 0x31,
+    AllPreviousOrdersInTheSpecifiedSide = 0x32,
+    AllOrders = 0x33,
+};
+
+type ImprovementOrderSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

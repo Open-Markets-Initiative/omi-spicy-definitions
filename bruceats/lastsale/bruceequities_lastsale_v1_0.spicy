@@ -1,0 +1,126 @@
+module BruceatsBruceequitiesLastsaleItchV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BruceequitiesLastsaleV10 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectory -> stock_directory: StockDirectory;
+        MessageType::StockTradingAction -> stock_trading_action: StockTradingAction;
+        MessageType::RegShoShortSalePriceTestRestrictedIndicator -> reg_sho_short_sale_price_test_restricted_indicator: RegShoShortSalePriceTestRestrictedIndicator;
+        MessageType::TradeReportMessage -> trade_report_message: TradeReportMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectory = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    round_lot_size: uint32;
+    authenticity: uint8 &convert=Authenticity($$);
+};
+
+type StockTradingAction = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    trading_state: uint8 &convert=TradingState($$);
+};
+
+type RegShoShortSalePriceTestRestrictedIndicator = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type TradeReportMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    match_id: uint64;
+    price: uint64;
+    size: uint32;
+};
+
+type TradeCancelMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    match_id: uint64;
+    price: uint64;
+    size: uint32;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectory = 0x52,
+    StockTradingAction = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicator = 0x59,
+    TradeReportMessage = 0x54,
+    TradeCancelMessage = 0x58,
+};
+
+type EventCode = enum {
+    StartOfTransmissions = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfTransmissions = 0x43,
+};
+
+type MarketCategory = enum {
+    NyseAmerican = 0x41,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x51,
+    InvestorsExchangeLlc = 0x56,
+    CboeBzx = 0x5a,
+    NotAvailable = 0x20,
+};
+
+type Authenticity = enum {
+    LiveProduction = 0x50,
+    Test = 0x54,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInPlace = 0x30,
+    RegShoRestrictionInEffect = 0x31,
+    RegShoRestrictionRemainsInEffect = 0x32,
+};
+

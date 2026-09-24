@@ -1,0 +1,645 @@
+module SmallxSmallfuturesOrderbookfeedSbeV22;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SmallfuturesOrderbookfeedV22 = unit {
+    packet_header: PacketHeader;
+    sbe_frame: SbeFrame[] &eod;
+};
+
+type PacketHeader = unit {
+    channel_id: uint8;
+    incarnation: int16;
+    source: uint8;
+    packet_flags: bitfield(8) {
+        incarnation_end: 0;
+        retransmission: 1;
+        administrative: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    message_sequence: int32;
+    message_count: uint8;
+};
+
+type SbeFrame = unit {
+    frame_length: uint16;
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::InstrumentTradingStatusIncrementalMessage -> instrument_trading_status_incremental_message: InstrumentTradingStatusIncrementalMessage;
+        TemplateId::TradesIncrementalMessage -> trades_incremental_message: TradesIncrementalMessage;
+        TemplateId::TradeCorrectMessage -> trade_correct_message: TradeCorrectMessage;
+        TemplateId::TradeBustMessage -> trade_bust_message: TradeBustMessage;
+        TemplateId::OrderBookIncrementalMessage -> order_book_incremental_message: OrderBookIncrementalMessage;
+        TemplateId::MarketSummaryIncrementalMessage -> market_summary_incremental_message: MarketSummaryIncrementalMessage;
+        TemplateId::OrderBookSnapshotMessage -> order_book_snapshot_message: OrderBookSnapshotMessage;
+        TemplateId::MarketSummarySnapshotMessage -> market_summary_snapshot_message: MarketSummarySnapshotMessage;
+        TemplateId::IndexValueSnapshotMessage -> index_value_snapshot_message: IndexValueSnapshotMessage;
+        TemplateId::SingleInstrumentDefinitionIncrementalV2Message -> single_instrument_definition_incremental_v_2_message: SingleInstrumentDefinitionIncrementalV2Message;
+        TemplateId::MultilegDefinitionIncrementalV2Message -> multileg_definition_incremental_v_2_message: MultilegDefinitionIncrementalV2Message;
+        TemplateId::SingleInstrumentDefinitionSnapshotV2Message -> single_instrument_definition_snapshot_v_2_message: SingleInstrumentDefinitionSnapshotV2Message;
+        TemplateId::MultilegDefinitionSnapshotV2Message -> multileg_definition_snapshot_v_2_message: MultilegDefinitionSnapshotV2Message;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type InstrumentTradingStatusIncrementalMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type TradesIncrementalMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    last_trade_price: int64;
+    last_trade_size: int64;
+    last_trade_time_timestamp_optional: int64;
+    total_volume_quantity: int64;
+    incremental_trade_groups: IncrementalTradeGroups;
+};
+
+type IncrementalTradeGroups = unit {
+    group_dimension: GroupDimension;
+    incremental_trade_group: IncrementalTradeGroup[self.group_dimension.num_in_group];
+};
+
+type GroupDimension = unit {
+    block_length: uint16;
+    num_in_group: uint8;
+};
+
+type IncrementalTradeGroup = unit {
+    trade_id: int64;
+    price: int64;
+    size: int64;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    buy_order_id: int64;
+    sell_order_id: int64;
+    trade_conditions: bitfield(16) {
+        synthetic: 0;
+        auction: 1;
+        reserved_14: 2..15;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type TradeCorrectMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    last_trade_price: int64;
+    last_trade_size: int64;
+    last_trade_time_timestamp_optional: int64;
+    total_volume_quantity: int64;
+    trade_correct_groups: TradeCorrectGroups;
+};
+
+type TradeCorrectGroups = unit {
+    group_dimension: GroupDimension;
+    trade_correct_group: TradeCorrectGroup[self.group_dimension.num_in_group];
+};
+
+type TradeCorrectGroup = unit {
+    trade_update_action: uint8 &convert=TradeUpdateAction($$);
+    trade_id: int64;
+    time_field: int64;
+    price: int64;
+    size: int64;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    buy_order_id: int64;
+    sell_order_id: int64;
+    trade_conditions: bitfield(16) {
+        synthetic: 0;
+        auction: 1;
+        reserved_14: 2..15;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type TradeBustMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    last_trade_price: int64;
+    last_trade_size: int64;
+    last_trade_time_timestamp_optional: int64;
+    total_volume_quantity: int64;
+    trade_bust_groups: TradeBustGroups;
+};
+
+type TradeBustGroups = unit {
+    group_dimension: GroupDimension;
+    trade_bust_group: TradeBustGroup[self.group_dimension.num_in_group];
+};
+
+type TradeBustGroup = unit {
+    trade_id: int64;
+    time_field: int64;
+    price: int64;
+    size: int64;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    buy_order_id: int64;
+    sell_order_id: int64;
+    trade_conditions: bitfield(16) {
+        synthetic: 0;
+        auction: 1;
+        reserved_14: 2..15;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type OrderBookIncrementalMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    incremetal_orders_groups: IncremetalOrdersGroups;
+};
+
+type IncremetalOrdersGroups = unit {
+    group_dimension: GroupDimension;
+    incremetal_orders_group: IncremetalOrdersGroup[self.group_dimension.num_in_group];
+};
+
+type IncremetalOrdersGroup = unit {
+    order_update_action: uint8 &convert=OrderUpdateAction($$);
+    order_id: int64;
+    trade_id_optional: int64;
+    side: uint8 &convert=Side($$);
+    price_optional: int64;
+    size: int64;
+    order_priority_optional: int64;
+    order_attributes: bitfield(16) {
+        implied: 0;
+        reserved_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type MarketSummaryIncrementalMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    open_price: int64;
+    open_price_type: uint8 &convert=OpenPriceType($$);
+    high_price: int64;
+    low_price: int64;
+    close_price: int64;
+    open_interest: int64;
+    settlement_price: int64;
+    settlement_price_type: uint8 &convert=SettlementPriceType($$);
+};
+
+type OrderBookSnapshotMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    snapshot_message_instructions: bitfield(16) {
+        unused_snapshot_message_instructions_0: 0;
+        unused_snapshot_message_instructions_1: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        unused_snapshot_message_instructions_6: 6;
+        snapshot_begin: 7;
+        snapshot_end: 8;
+        reserved_7: 9..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    snapshot_instruments_count: int32;
+    last_incremental_message_seq: int64;
+    snaphot_orders_groups: SnaphotOrdersGroups;
+};
+
+type SnaphotOrdersGroups = unit {
+    group_dimension: GroupDimension;
+    snaphot_orders_group: SnaphotOrdersGroup[self.group_dimension.num_in_group];
+};
+
+type SnaphotOrdersGroup = unit {
+    order_id: int64;
+    side: uint8 &convert=Side($$);
+    price: int64;
+    size: int64;
+    order_priority: int64;
+    order_attributes: bitfield(16) {
+        implied: 0;
+        reserved_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    time_field: int64;
+};
+
+type MarketSummarySnapshotMessage = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    snapshot_message_instructions: bitfield(16) {
+        unused_snapshot_message_instructions_0: 0;
+        unused_snapshot_message_instructions_1: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        unused_snapshot_message_instructions_6: 6;
+        snapshot_begin: 7;
+        snapshot_end: 8;
+        reserved_7: 9..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    snapshot_instruments_count: int32;
+    last_incremental_message_seq: int64;
+    last_trade_price: int64;
+    last_trade_size: int64;
+    last_trade_time_timestamp: int64;
+    total_volume_quantity_optional: int64;
+    open_price: int64;
+    open_price_type: uint8 &convert=OpenPriceType($$);
+    high_price: int64;
+    low_price: int64;
+    close_price: int64;
+    open_interest: int64;
+    settlement_price: int64;
+    settlement_price_type: uint8 &convert=SettlementPriceType($$);
+};
+
+type IndexValueSnapshotMessage = unit {
+    instrument_id: int32;
+    transact_time: int64;
+    snapshot_message_instructions: bitfield(16) {
+        unused_snapshot_message_instructions_0: 0;
+        unused_snapshot_message_instructions_1: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        unused_snapshot_message_instructions_6: 6;
+        snapshot_begin: 7;
+        snapshot_end: 8;
+        reserved_7: 9..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    index_count: int32;
+    index_symbol: bytes &size=20;
+    value: int64;
+    session_date: uint16;
+    open_price: int64;
+    high_price: int64;
+    low_price: int64;
+    close_price: int64;
+};
+
+type SingleInstrumentDefinitionIncrementalV2Message = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    instrument_update_action: uint8 &convert=InstrumentUpdateAction($$);
+    symbol: bytes &size=25;
+    product: bytes &size=8;
+    description: bytes &size=120;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    maturity_date: uint16;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    expiration_date: uint16;
+    cfi_code: bytes &size=6;
+    currency: bytes &size=3;
+    price_increment: int64;
+    price_multiplier: int64;
+    underlying_symbol: bytes &size=25;
+    underlying_instrument_id: int32;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    strike_price: int64;
+    shares_per_contract: int64;
+    expiration_style: uint8 &convert=ExpirationStyle($$);
+    exercise_style: uint8 &convert=ExerciseStyle($$);
+    delivery: uint8 &convert=Delivery($$);
+};
+
+type MultilegDefinitionIncrementalV2Message = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    incremental_message_instructions: bitfield(16) {
+        transaction_begin: 0;
+        transaction_end: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        book_reset: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    instrument_update_action: uint8 &convert=InstrumentUpdateAction($$);
+    spread_symbol: bytes &size=120;
+    description: bytes &size=120;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    maturity_date: uint16;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    expiration_date: uint16;
+    cfi_code: bytes &size=6;
+    currency: bytes &size=3;
+    price_increment: int64;
+    price_multiplier: int64;
+    strategy_type: uint8 &convert=StrategyType($$);
+    legs_groups: LegsGroups;
+};
+
+type LegsGroups = unit {
+    group_dimension: GroupDimension;
+    legs_group: LegsGroup[self.group_dimension.num_in_group];
+};
+
+type LegsGroup = unit {
+    leg_instrument_id: int32;
+    leg_symbol: bytes &size=25;
+    leg_product: bytes &size=8;
+    leg_ratio_quantity: int64;
+    leg_side: uint8 &convert=LegSide($$);
+};
+
+type SingleInstrumentDefinitionSnapshotV2Message = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    snapshot_message_instructions: bitfield(16) {
+        unused_snapshot_message_instructions_0: 0;
+        unused_snapshot_message_instructions_1: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        unused_snapshot_message_instructions_6: 6;
+        snapshot_begin: 7;
+        snapshot_end: 8;
+        reserved_7: 9..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    snapshot_instruments_count: int32;
+    last_incremental_message_seq: int64;
+    symbol: bytes &size=25;
+    product: bytes &size=8;
+    description: bytes &size=120;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    maturity_date: uint16;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    expiration_date: uint16;
+    cfi_code: bytes &size=6;
+    currency: bytes &size=3;
+    price_increment: int64;
+    price_multiplier: int64;
+    underlying_symbol: bytes &size=25;
+    underlying_instrument_id: int32;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    strike_price: int64;
+    shares_per_contract: int64;
+    expiration_style: uint8 &convert=ExpirationStyle($$);
+    exercise_style: uint8 &convert=ExerciseStyle($$);
+    delivery: uint8 &convert=Delivery($$);
+};
+
+type MultilegDefinitionSnapshotV2Message = unit {
+    instrument_id: int32;
+    instrument_message_no: int64;
+    transact_time: int64;
+    trading_session_date: uint16;
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    snapshot_message_instructions: bitfield(16) {
+        unused_snapshot_message_instructions_0: 0;
+        unused_snapshot_message_instructions_1: 1;
+        instrument_begin: 2;
+        instrument_end: 3;
+        book_begin: 4;
+        book_end: 5;
+        unused_snapshot_message_instructions_6: 6;
+        snapshot_begin: 7;
+        snapshot_end: 8;
+        reserved_7: 9..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    snapshot_instruments_count: int32;
+    last_incremental_message_seq: int64;
+    spread_symbol: bytes &size=120;
+    description: bytes &size=120;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    maturity_date: uint16;
+    first_trading_session_date: uint16;
+    last_trading_session_date: uint16;
+    expiration_date: uint16;
+    cfi_code: bytes &size=6;
+    currency: bytes &size=3;
+    price_increment: int64;
+    price_multiplier: int64;
+    strategy_type: uint8 &convert=StrategyType($$);
+    legs_groups: LegsGroups;
+};
+
+type TemplateId = enum {
+    InstrumentTradingStatusIncrementalMessage = 3,
+    TradesIncrementalMessage = 4,
+    TradeCorrectMessage = 5,
+    TradeBustMessage = 6,
+    OrderBookIncrementalMessage = 7,
+    MarketSummaryIncrementalMessage = 8,
+    OrderBookSnapshotMessage = 11,
+    MarketSummarySnapshotMessage = 12,
+    IndexValueSnapshotMessage = 13,
+    SingleInstrumentDefinitionIncrementalV2Message = 14,
+    MultilegDefinitionIncrementalV2Message = 15,
+    SingleInstrumentDefinitionSnapshotV2Message = 16,
+    MultilegDefinitionSnapshotV2Message = 17,
+};
+
+type InstrumentTradingStatus = enum {
+    Closed = 0x43,
+    PreOpen = 0x50,
+    PreOpenNc = 0x4e,
+    Open = 0x4f,
+    Paused = 0x55,
+    Halted = 0x48,
+};
+
+type AggressorSide = enum {
+    NoAggressor = 0x4e,
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TradeUpdateAction = enum {
+    New = 0x4e,
+    Delete = 0x44,
+};
+
+type OrderUpdateAction = enum {
+    New = 0x4e,
+    Update = 0x55,
+    Delete = 0x44,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OpenPriceType = enum {
+    Indicative = 0x49,
+    Traded = 0x54,
+    NoPrice = 0x4e,
+};
+
+type SettlementPriceType = enum {
+    Final = 0x46,
+    Preliminary = 0x50,
+    NoPrice = 0x4e,
+};
+
+type InstrumentUpdateAction = enum {
+    Add = 0x41,
+    Delete = 0x44,
+    Modify = 0x4d,
+};
+
+type InstrumentType = enum {
+    Futures = 0x46,
+    Option = 0x4f,
+    Mleg = 0x4d,
+};
+
+type PutOrCall = enum {
+    Put = 0x50,
+    Call = 0x43,
+    NotOption = 0x4e,
+};
+
+type ExpirationStyle = enum {
+    Standard = 0x53,
+    Daily = 0x44,
+    Weekly = 0x57,
+    Quaterly = 0x51,
+};
+
+type ExerciseStyle = enum {
+    European = 0x45,
+    American = 0x41,
+    NotOption = 0x4e,
+};
+
+type Delivery = enum {
+    Cash = 0x43,
+    Physical = 0x50,
+};
+
+type StrategyType = enum {
+    Custom = 0,
+    FuturesCalendar = 1,
+    FuturesInterCommodity = 2,
+    Covered = 3,
+    OptionButterfly = 4,
+    OptionVertical = 5,
+    OptionStrangle = 6,
+    OptionStraddle = 7,
+    OptionDiagonal = 8,
+    OptionCalendar = 9,
+    OptionIronCondor = 10,
+    ProtectivePut = 11,
+};
+
+type LegSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

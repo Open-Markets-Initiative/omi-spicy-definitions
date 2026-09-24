@@ -1,0 +1,219 @@
+module NasdaqNtxoptionsDepthofmarketGlimpseV21Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NtxoptionsDepthofmarketV21 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::DerivativeDirectoryMessage -> derivative_directory_message: DerivativeDirectoryMessage;
+        SequencedMessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        SequencedMessageType::AddOrderShortFormMessage -> add_order_short_form_message: AddOrderShortFormMessage;
+        SequencedMessageType::AddOrderLongFormMessage -> add_order_long_form_message: AddOrderLongFormMessage;
+        SequencedMessageType::AddQuoteShortFormMessage -> add_quote_short_form_message: AddQuoteShortFormMessage;
+        SequencedMessageType::AddQuoteLongFormMessage -> add_quote_long_form_message: AddQuoteLongFormMessage;
+        SequencedMessageType::SnapshotMessage -> snapshot_message: SnapshotMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type DerivativeDirectoryMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    security_symbol: bytes &size=6;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_date: uint8;
+    explicit_strike_price: uint32;
+    option_type: uint8 &convert=OptionType($$);
+    underlying_symbol: bytes &size=13;
+    closing_type: uint8 &convert=ClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+    isin: bytes &size=12;
+    tick_size_table_id: uint16;
+    price_notation: bytes &size=1;
+    volume_notation: bytes &size=1;
+    financial_product: uint16;
+    market_segment_id: bytes &size=1;
+    trading_currency: bytes &size=3;
+    mic: bytes &size=4;
+    instrument_long_name: bytes &size=16;
+};
+
+type TradingActionMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type AddOrderShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_reference_number: uint64;
+    market_side: uint8 &convert=MarketSide($$);
+    order_capacity: bytes &size=1;
+    price_short: uint16;
+    volume_short: uint16;
+    rank: uint16;
+};
+
+type AddOrderLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_reference_number: uint64;
+    market_side: uint8 &convert=MarketSide($$);
+    order_capacity: bytes &size=1;
+    price_long: uint32;
+    volume_long: uint32;
+    rank: uint16;
+};
+
+type AddQuoteShortFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    bid_reference_number: uint64;
+    ask_reference_number: uint64;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    ask_price_short: uint16;
+    ask_size_short: uint16;
+};
+
+type AddQuoteLongFormMessage = unit {
+    tracking_number: uint16;
+    timestamp: uint64;
+    instrument_id: uint32;
+    bid_reference_number: uint64;
+    ask_reference_number: uint64;
+    bid_price_long: uint32;
+    bid_size_long: uint32;
+    ask_price_long: uint32;
+    ask_size_long: uint32;
+};
+
+type SnapshotMessage = unit {
+    sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    DerivativeDirectoryMessage = 0x52,
+    TradingActionMessage = 0x48,
+    AddOrderShortFormMessage = 0x61,
+    AddOrderLongFormMessage = 0x41,
+    AddQuoteShortFormMessage = 0x6a,
+    AddQuoteLongFormMessage = 0x4a,
+    SnapshotMessage = 0x4d,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    EndOfNormalHoursProcessing = 0x4e,
+    EndOfLateHoursProcessing = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type OptionType = enum {
+    CallOption = 0x43,
+    PutOption = 0x50,
+    Na = 0x4e,
+};
+
+type ClosingType = enum {
+    NormalHours = 0x4e,
+    LateHours = 0x4c,
+};
+
+type Tradable = enum {
+    InstrumentIsTradable = 0x59,
+    InstrumentIsNotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    BuySideTradingSuspended = 0x42,
+    SellSideTradingSuspended = 0x53,
+    PreOpen = 0x49,
+    OpeningAuction = 0x4f,
+    ReOpening = 0x52,
+    ContinuousTrading = 0x54,
+    Closed = 0x58,
+};
+
+type MarketSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    BuyAon = 0x58,
+    SellAon = 0x59,
+};
+

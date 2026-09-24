@@ -1,0 +1,344 @@
+module NsxaustraliaNetsMarketdatafeedItchV4255Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsxaustraliaNetsMarketdatafeedV4255 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::TimestampMessage -> timestamp_message: TimestampMessage;
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::PriceTickSizeMessage -> price_tick_size_message: PriceTickSizeMessage;
+        SequencedMessageType::QuantityTickSizeMessage -> quantity_tick_size_message: QuantityTickSizeMessage;
+        SequencedMessageType::OrderbookDirectoryMessage -> orderbook_directory_message: OrderbookDirectoryMessage;
+        SequencedMessageType::OrderbookTradingActionMessage -> orderbook_trading_action_message: OrderbookTradingActionMessage;
+        SequencedMessageType::OrderbookAttributeMessage -> orderbook_attribute_message: OrderbookAttributeMessage;
+        SequencedMessageType::FirmDirectoryMessage -> firm_directory_message: FirmDirectoryMessage;
+        SequencedMessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        SequencedMessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        SequencedMessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        SequencedMessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        SequencedMessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        SequencedMessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        SequencedMessageType::IndicativePriceQuantityMessage -> indicative_price_quantity_message: IndicativePriceQuantityMessage;
+        SequencedMessageType::TradeMessage -> trade_message: TradeMessage;
+        SequencedMessageType::NewsMessage -> news_message: NewsMessage;
+        SequencedMessageType::IndexMemberDirectoryMessage -> index_member_directory_message: IndexMemberDirectoryMessage;
+        SequencedMessageType::IndexValueMessage -> index_value_message: IndexValueMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TimestampMessage = unit {
+    nanosecond: uint64;
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint32;
+    group: bytes &size=20;
+    product: bytes &size=12;
+    orderbook: uint32;
+    event_code: bytes &size=12;
+    event_status: uint8 &convert=EventStatus($$);
+    scheduled_time: uint64;
+};
+
+type PriceTickSizeMessage = unit {
+    timestamp: uint32;
+    tick_size_table_id: uint32;
+    tick_size: uint64;
+    price_start: uint64;
+};
+
+type QuantityTickSizeMessage = unit {
+    timestamp: uint32;
+    tick_size_table_id: uint32;
+    tick_size: uint64;
+    quantity_start: uint64;
+};
+
+type OrderbookDirectoryMessage = unit {
+    timestamp: uint32;
+    orderbook: uint32;
+    isin: bytes &size=12;
+    security_code: bytes &size=100;
+    security_name: bytes &size=100;
+    currency: bytes &size=3;
+    board: bytes &size=20;
+    product: bytes &size=12;
+    minimum_quantity: uint64;
+    quantity_tick_size_table_id: uint32;
+    quantity_decimals: uint32;
+    price_tick_size_table_id: uint32;
+    price_decimals: uint32;
+    listing: uint64;
+    expiry: uint64;
+    asset_type: uint8 &convert=AssetType($$);
+    settle_date: uint32;
+    reference_alpha_12: bytes &size=12;
+    remarks: bytes &size=8;
+};
+
+type OrderbookTradingActionMessage = unit {
+    timestamp: uint32;
+    orderbook: uint32;
+    trading_state: uint8 &convert=TradingState($$);
+    reason: uint8 &convert=Reason($$);
+};
+
+type OrderbookAttributeMessage = unit {
+    timestamp: uint32;
+    orderbook: uint32;
+    attribute_value: int64;
+    attribute_type: uint8 &convert=AttributeType($$);
+    reason: uint8 &convert=Reason($$);
+};
+
+type FirmDirectoryMessage = unit {
+    timestamp: uint32;
+    firm_id: uint32;
+    firm_code: bytes &size=30;
+};
+
+type AddOrderMessage = unit {
+    timestamp: uint32;
+    order_number: uint64;
+    order_verb: uint8 &convert=OrderVerb($$);
+    quantity: uint64;
+    orderbook: uint32;
+    price: int64;
+    firm_id: uint32;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint32;
+    order_number: uint64;
+    executed_quantity: uint64;
+    match_number: uint64;
+    printable: uint8 &convert=Printable($$);
+    aggressor_firm_id: uint32;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    timestamp: uint32;
+    order_number: uint64;
+    executed_quantity: uint64;
+    match_number: uint64;
+    printable: uint8 &convert=Printable($$);
+    execution_price: int64;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint32;
+    match_number: uint64;
+    reason: uint8 &convert=Reason($$);
+};
+
+type OrderDeleteMessage = unit {
+    timestamp: uint32;
+    order_number: uint64;
+};
+
+type OrderReplaceMessage = unit {
+    timestamp: uint32;
+    original_order_number: uint64;
+    new_order_number: uint64;
+    quantity: uint64;
+    price: int64;
+};
+
+type IndicativePriceQuantityMessage = unit {
+    timestamp: uint32;
+    theoretical_opening_quantity: uint64;
+    orderbook: uint32;
+    best_bid: int64;
+    best_offer: int64;
+    theoretical_opening_price: int64;
+    cross_type: uint8 &convert=CrossType($$);
+    best_bid_size: uint64;
+    best_offer_size: uint64;
+};
+
+type TradeMessage = unit {
+    timestamp: uint32;
+    executed_quantity: uint64;
+    orderbook: uint32;
+    printable: uint8 &convert=Printable($$);
+    execution_price: int64;
+    match_number: uint64;
+    trade_indicator: uint8 &convert=TradeIndicator($$);
+    buy_firm_id: uint32;
+    sell_firm_id: uint32;
+    trade_source: uint8 &convert=TradeSource($$);
+};
+
+type NewsMessage = unit {
+    timestamp: uint32;
+    orderbook: uint32;
+    news_id: uint32;
+    firm_code: bytes &size=30;
+    title: bytes &size=81;
+    reference_null_terminated_char_256: bytes &size=256;
+    news_text: bytes &size=512;
+};
+
+type IndexMemberDirectoryMessage = unit {
+    timestamp: uint32;
+    index_orderbook: uint32;
+    member_orderbook: uint32;
+    weight: uint64;
+};
+
+type IndexValueMessage = unit {
+    timestamp: uint32;
+    index_orderbook: uint32;
+    index_value: uint64;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    TimestampMessage = 0x54,
+    SystemEventMessage = 0x53,
+    PriceTickSizeMessage = 0x4c,
+    QuantityTickSizeMessage = 0x4d,
+    OrderbookDirectoryMessage = 0x52,
+    OrderbookTradingActionMessage = 0x48,
+    OrderbookAttributeMessage = 0x58,
+    FirmDirectoryMessage = 0x46,
+    AddOrderMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    BrokenTradeMessage = 0x42,
+    OrderDeleteMessage = 0x44,
+    OrderReplaceMessage = 0x55,
+    IndicativePriceQuantityMessage = 0x49,
+    TradeMessage = 0x50,
+    NewsMessage = 0x4e,
+    IndexMemberDirectoryMessage = 0x59,
+    IndexValueMessage = 0x5a,
+};
+
+type EventStatus = enum {
+    Scheduled = 0x53,
+    Canceled = 0x43,
+    Triggered = 0x54,
+};
+
+type AssetType = enum {
+    Debt = 0x44,
+    Equity = 0x45,
+    Index = 0x49,
+};
+
+type TradingState = enum {
+    NormalTrading = 0x54,
+    Suspended = 0x56,
+};
+
+type Reason = enum {
+    NormalTrading = 0x4e,
+    HaltedDueToExtremeTradeRange = 0x48,
+    Supervisory = 0x53,
+};
+
+type AttributeType = enum {
+    PreviousDayClose = 0x52,
+    ClosePrice = 0x43,
+    EtrUpperLimitPercentage = 0x44,
+    EtrLowerLimitPercentage = 0x64,
+    AotUpperLimitPercentage = 0x50,
+    AotLowerLimitPercentage = 0x70,
+    AotReferencePrice = 0x41,
+    EtrReferencePrice = 0x42,
+};
+
+type OrderVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type Printable = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type CrossType = enum {
+    OpeningAuction = 0x4f,
+    IntradayAuction = 0x49,
+    ClosingAuction = 0x43,
+};
+
+type TradeIndicator = enum {
+    BlockSpecial = 0x42,
+};
+
+type TradeSource = enum {
+    Autotrade = 0x41,
+    BestExecution = 0x42,
+    OffMarketAutomaticCrossing = 0x43,
+    DirectedReportingOrOffMarketTradesCrossing = 0x44,
+    SpecialCrossingLessThanAMarketableParcel = 0x45,
+    ForwardDelivery = 0x46,
+    ApprovedIndexCrossing = 0x49,
+    BuyBackSales = 0x4b,
+    MarriageCrossing = 0x4d,
+    TradesIncludingCrossingsOutsideOfMarketHours = 0x4e,
+    ForeignResidentsOrRecognisedOverseasExchange = 0x4f,
+    BlockSpecialCrossingOrLoanSecurities = 0x50,
+    SpecialCrossingLessThanAMarketableParcel_x51 = 0x51,
+    Strategy = 0x52,
+    ShortSales = 0x53,
+    ForForeignToForeignSecurities = 0x55,
+    BookValueSwitchSales = 0x56,
+    PortfolioSpecialCrossing = 0x58,
+    Special = 0x59,
+    SpecialCrossingUnderwritingDisposalOrExchangeApproval = 0x5a,
+};
+

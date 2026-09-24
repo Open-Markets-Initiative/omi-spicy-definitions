@@ -1,0 +1,618 @@
+module SiacCqsOutputCtaV210A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SiacCqsOutputV210A = unit {
+    block_header: BlockHeader;
+    message: Message[self.block_header.messages_in_block];
+    block_pad_byte: uint8;
+};
+
+type BlockHeader = unit {
+    version: uint8;
+    block_size: uint16;
+    data_feed_indicator: bytes &size=1;
+    retransmission_indicator: bytes &size=1;
+    block_sequence_number: uint32;
+    messages_in_block: uint8;
+    sip_block_timestamp: SipBlockTimestamp;
+    block_checksum: uint16;
+};
+
+type SipBlockTimestamp = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_length: uint16;
+    message_category: uint8 &convert=MessageCategory($$);
+    switch ( self.message_category ) {
+        MessageCategory::Administrative -> administrative_message: AdministrativeMessage;
+        MessageCategory::Control -> control_message: ControlMessage;
+        MessageCategory::MarketStatus -> market_status_message: MarketStatusMessage;
+        MessageCategory::Quote -> quote_message: QuoteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type AdministrativeMessage = unit {
+    administrative_message_type: uint8 &convert=AdministrativeMessageType($$);
+    administrative_message_payload: SymbolReferenceDataMessage;
+};
+
+type SymbolReferenceDataMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+    security_symbol: bytes &size=11;
+    prior_security_symbol: bytes &size=11;
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    primary_listing_market_previous_closing_price: uint64;
+    consolidated_closing_price: uint64;
+    round_lot_size: uint16;
+    reserved: bytes &size=1;
+    luld_tier: uint8 &convert=LuldTier($$);
+    luld_leverage_ratio: uint32;
+    test: uint8 &convert=Test($$);
+    ipo: uint8 &convert=Ipo($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    halt_reason: bytes &size=1;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    second_reserved: bytes &size=1;
+    third_reserved: bytes &size=1;
+    reserved_128: bytes &size=128;
+};
+
+type Timestamp1 = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type ControlMessage = unit {
+    control_message_type: uint8 &convert=ControlMessageType($$);
+    switch ( self.control_message_type ) {
+        ControlMessageType::StartOfDay -> start_of_day_message: StartOfDayMessage;
+        ControlMessageType::FinraClose -> finra_close_message: FinraCloseMessage;
+        ControlMessageType::ResetBlockSequenceNumber -> reset_block_sequence_number_message: ResetBlockSequenceNumberMessage;
+        ControlMessageType::FinraOpen -> finra_open_message: FinraOpenMessage;
+        ControlMessageType::DisasterRecoveryDataCenterActivation -> disaster_recovery_data_center_activation_message: DisasterRecoveryDataCenterActivationMessage;
+        ControlMessageType::LineIntegrity -> line_integrity_message: LineIntegrityMessage;
+        ControlMessageType::EndOfDay -> end_of_day_message: EndOfDayMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type StartOfDayMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type FinraCloseMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type ResetBlockSequenceNumberMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type FinraOpenMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type DisasterRecoveryDataCenterActivationMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type LineIntegrityMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type EndOfDayMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type MarketStatusMessage = unit {
+    market_status_message_type: uint8 &convert=MarketStatusMessageType($$);
+    switch ( self.market_status_message_type ) {
+        MarketStatusMessageType::MarketWideCircuitBreakerDeclineLevelStatus -> market_wide_circuit_breaker_decline_level_status_message: MarketWideCircuitBreakerDeclineLevelStatusMessage;
+        MarketStatusMessageType::MarketWideCircuitBreakerStatus -> market_wide_circuit_breaker_status_message: MarketWideCircuitBreakerStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MarketWideCircuitBreakerDeclineLevelStatusMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+    mwcb_level_1: int64;
+    mwcb_level_2: int64;
+    mwcb_level_3: int64;
+    reserved: bytes &size=1;
+};
+
+type MarketWideCircuitBreakerStatusMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+    market_wide_circuit_breaker_level_indicator: uint8 &convert=MarketWideCircuitBreakerLevelIndicator($$);
+    reserved: bytes &size=1;
+};
+
+type QuoteMessage = unit {
+    quote_message_type: uint8 &convert=QuoteMessageType($$);
+    switch ( self.quote_message_type ) {
+        QuoteMessageType::AuctionStatus -> auction_status_message: AuctionStatusMessage;
+        QuoteMessageType::LongQuote -> long_quote_message: LongQuoteMessage;
+        QuoteMessageType::ShortQuote -> short_quote_message: ShortQuoteMessage;
+        QuoteMessageType::SpecialLongQuote -> special_long_quote_message: SpecialLongQuoteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type AuctionStatusMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    auction_collar_reference_price: uint64;
+    auction_collar_upper_threshold_price: uint64;
+    auction_collar_lower_threshold_price: uint64;
+    number_of_extensions: uint8;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    reserved_62: bytes &size=62;
+};
+
+type LongQuoteMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    security_status_indicator: uint8 &convert=SecurityStatusIndicator($$);
+    bid_price_lower_limit_price_band: uint64;
+    bid_size_long: uint32;
+    offer_price_upper_limit_price_band: uint64;
+    offer_size_long: uint32;
+    retail_interest_indicator: uint8 &convert=RetailInterestIndicator($$);
+    settlement_condition: uint8 &convert=SettlementCondition($$);
+    market_condition: uint8 &convert=MarketCondition($$);
+    finra_market_maker_id: bytes &size=4;
+    finra_bbo_indicator: uint8 &convert=FinraBboIndicator($$);
+    timestamp_2: Timestamp2;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    sip_generated_message_identifier: uint8 &convert=SipGeneratedMessageIdentifier($$);
+    limit_up_limit_down_luld_indicator: uint8 &convert=LimitUpLimitDownLuldIndicator($$);
+    national_bbo_luld_indicator: uint8 &convert=NationalBboLuldIndicator($$);
+    national_bbo_indicator: uint8 &convert=NationalBboIndicator($$);
+    national_best_bid_long_appendage: NationalBestBidLongAppendage;
+    national_best_offer_long_appendage: NationalBestOfferLongAppendage;
+    national_best_bid_and_offer_long_appendage: NationalBestBidAndOfferLongAppendage;
+    national_best_bid_short_appendage: NationalBestBidShortAppendage;
+    national_best_offer_short_appendage: NationalBestOfferShortAppendage;
+    national_best_bid_and_offer_short_appendage: NationalBestBidAndOfferShortAppendage;
+};
+
+type Timestamp2 = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type NationalBestBidLongAppendage = unit {
+    best_bid_participant_id: bytes &size=1;
+    best_bid_quote_condition: bytes &size=1;
+    best_bid_price_long: uint64;
+    best_bid_size_long: uint32;
+    finra_best_bid_market_maker_id: bytes &size=4;
+};
+
+type NationalBestOfferLongAppendage = unit {
+    best_offer_participant_id: bytes &size=1;
+    best_offer_quote_condition: bytes &size=1;
+    best_offer_price_long: uint64;
+    best_offer_size_long: uint32;
+    finra_best_offer_market_maker_id: bytes &size=4;
+};
+
+type NationalBestBidAndOfferLongAppendage = unit {
+    best_bid_participant_id: bytes &size=1;
+    best_bid_quote_condition: bytes &size=1;
+    best_bid_price_long: uint64;
+    best_bid_size_long: uint32;
+    finra_best_bid_market_maker_id: bytes &size=4;
+    best_offer_participant_id: bytes &size=1;
+    best_offer_quote_condition: bytes &size=1;
+    best_offer_price_long: uint64;
+    best_offer_size_long: uint32;
+    finra_best_offer_market_maker_id: bytes &size=4;
+};
+
+type NationalBestBidShortAppendage = unit {
+    best_bid_participant_id: bytes &size=1;
+    best_bid_price_short: uint16;
+    best_bid_size_short: uint16;
+};
+
+type NationalBestOfferShortAppendage = unit {
+    best_offer_participant_id: bytes &size=1;
+    best_offer_price_short: uint16;
+    best_offer_size_short: uint16;
+};
+
+type NationalBestBidAndOfferShortAppendage = unit {
+    best_bid_participant_id: bytes &size=1;
+    best_bid_price_short: uint16;
+    best_bid_size_short: uint16;
+    best_offer_participant_id: bytes &size=1;
+    best_offer_price_short: uint16;
+    best_offer_size_short: uint16;
+};
+
+type ShortQuoteMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+    security_symbol: bytes &size=11;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    offer_price_short: uint16;
+    offer_size_short: uint16;
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    national_bbo_indicator: uint8 &convert=NationalBboIndicator($$);
+    national_best_bid_long_appendage: NationalBestBidLongAppendage;
+    national_best_offer_long_appendage: NationalBestOfferLongAppendage;
+    national_best_bid_and_offer_long_appendage: NationalBestBidAndOfferLongAppendage;
+    national_best_bid_short_appendage: NationalBestBidShortAppendage;
+    national_best_offer_short_appendage: NationalBestOfferShortAppendage;
+    national_best_bid_and_offer_short_appendage: NationalBestBidAndOfferShortAppendage;
+};
+
+type SpecialLongQuoteMessage = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    security_status_indicator: uint8 &convert=SecurityStatusIndicator($$);
+    bid_price_long: uint64;
+    bid_size_long: uint32;
+    offer_price_long: uint64;
+    offer_size_long: uint32;
+    retail_interest_indicator: uint8 &convert=RetailInterestIndicator($$);
+    settlement_condition: uint8 &convert=SettlementCondition($$);
+    market_condition: uint8 &convert=MarketCondition($$);
+    finra_market_maker_id: bytes &size=4;
+    finra_best_bid_quote_condition: bytes &size=1;
+    finra_best_bid_price: uint64;
+    finra_best_bid_size: uint32;
+    finra_best_bid_market_maker_id: bytes &size=4;
+    finra_best_offer_quote_condition: bytes &size=1;
+    finra_best_offer_price: uint64;
+    finra_best_offer_size: uint32;
+    finra_best_offer_market_maker_id: bytes &size=4;
+    timestamp_2: Timestamp2;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    sip_generated_message_identifier: uint8 &convert=SipGeneratedMessageIdentifier($$);
+    finra_bbo_luld_indicator: uint8 &convert=FinraBboLuldIndicator($$);
+    national_bbo_luld_indicator: uint8 &convert=NationalBboLuldIndicator($$);
+    national_bbo_indicator: uint8 &convert=NationalBboIndicator($$);
+    national_best_bid_long_appendage: NationalBestBidLongAppendage;
+    national_best_offer_long_appendage: NationalBestOfferLongAppendage;
+    national_best_bid_and_offer_long_appendage: NationalBestBidAndOfferLongAppendage;
+    national_best_bid_short_appendage: NationalBestBidShortAppendage;
+    national_best_offer_short_appendage: NationalBestOfferShortAppendage;
+    national_best_bid_and_offer_short_appendage: NationalBestBidAndOfferShortAppendage;
+};
+
+type MessageCategory = enum {
+    Administrative = 0x41,
+    Control = 0x43,
+    MarketStatus = 0x4d,
+    Quote = 0x51,
+};
+
+type AdministrativeMessageType = enum {
+    SymbolReferenceData = 0x53,
+};
+
+type ParticipantId = enum {
+    NyseAmerican = 0x41,
+    NasdaqOmxBx = 0x42,
+    NyseNational = 0x43,
+    FinraAdf = 0x44,
+    N24X = 0x47,
+    Miax = 0x48,
+    Ise = 0x49,
+    CboeEdga = 0x4a,
+    CboeEdgx = 0x4b,
+    Ltse = 0x4c,
+    NyseTexas = 0x4d,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Cqs = 0x53,
+    Nasdaq = 0x54,
+    Memx = 0x55,
+    Iex = 0x56,
+    Cbsx = 0x57,
+    NasdaqOmxPsx = 0x58,
+    CboeByx = 0x59,
+    CboeBzx = 0x5a,
+};
+
+type PrimaryListingMarketParticipantId = enum {
+    PrimaryListingMarketParticipantIdNotApplicable = 0x20,
+    NyseAmerican = 0x41,
+    NasdaqOmxBx = 0x42,
+    NyseNational = 0x43,
+    FinraAdf = 0x44,
+    N24X = 0x47,
+    MiaxPearl = 0x48,
+    Ise = 0x49,
+    CboeEdga = 0x4a,
+    CboeEdgx = 0x4b,
+    Ltse = 0x4c,
+    NyseTexas = 0x4d,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x54,
+    MembersExchange = 0x55,
+    Iex = 0x56,
+    Cbsx = 0x57,
+    NasdaqOmxPsx = 0x58,
+    CboeByx = 0x59,
+    CboeBzx = 0x5a,
+};
+
+type LuldTier = enum {
+    LuldNotApplicable = 0x30,
+    LuldTier1Security = 0x31,
+    LuldTier2Security = 0x32,
+};
+
+type Test = enum {
+    NotATestSymbol = 0x30,
+    TestSymbol = 0x31,
+};
+
+type Ipo = enum {
+    NotAnIpoSymbol = 0x30,
+    IpoSymbol = 0x31,
+};
+
+type FinancialStatusIndicator = enum {
+    FinancialStatusNotApplicable = 0x30,
+    Bankrupt = 0x31,
+    BelowContinuingListingStandards = 0x32,
+    BankruptAndBelowContinuingListingStandards = 0x33,
+    LateFiling = 0x34,
+    BankruptAndLateFiling = 0x35,
+    BelowContinuingListingStandardsAndLateFiling = 0x36,
+    BankruptBelowContinuingListingStandardsAndLateFiling = 0x37,
+    CreationsSuspended = 0x38,
+    RedemptionsSuspended = 0x39,
+    Liquidation = 0x41,
+};
+
+type ShortSaleRestrictionIndicator = enum {
+    ShortSaleRestrictionNotInEffect = 0x20,
+    ShortSaleRestrictionActivated = 0x41,
+    ShortSaleRestrictionContinued = 0x43,
+    ShortSaleRestrictionDeactivated = 0x44,
+    ShortSaleRestrictionInEffect = 0x45,
+};
+
+type InstrumentType = enum {
+    CtaEligibleEquity = 0x30,
+    LocalIssue = 0x31,
+    CorporateBond = 0x32,
+    GovernmentBond = 0x33,
+};
+
+type ControlMessageType = enum {
+    StartOfDay = 0x41,
+    FinraClose = 0x43,
+    ResetBlockSequenceNumber = 0x4c,
+    FinraOpen = 0x4f,
+    DisasterRecoveryDataCenterActivation = 0x50,
+    LineIntegrity = 0x54,
+    EndOfDay = 0x5a,
+};
+
+type MarketStatusMessageType = enum {
+    MarketWideCircuitBreakerDeclineLevelStatus = 0x4b,
+    MarketWideCircuitBreakerStatus = 0x4c,
+};
+
+type MarketWideCircuitBreakerLevelIndicator = enum {
+    MwcbNotApplicable = 0x20,
+    Level1Breached = 0x31,
+    Level2Breached = 0x32,
+    Level3Breached = 0x33,
+};
+
+type QuoteMessageType = enum {
+    AuctionStatus = 0x41,
+    LongQuote = 0x4c,
+    ShortQuote = 0x51,
+    SpecialLongQuote = 0x53,
+};
+
+type QuoteCondition = enum {
+    QuoteConditionNotApplicable = 0x20,
+    SlowQuoteOnOfferSide = 0x41,
+    SlowQuoteOnBidSide = 0x42,
+    Closing = 0x43,
+    SlowQuoteDueToLrpOrGapQuoteOnTheBidSide = 0x45,
+    SlowQuoteDueToLrpOrGapQuoteOnTheOfferSide = 0x46,
+    SlowQuoteOnTheBidAndOfferSides = 0x48,
+    ClosedMarketMaker = 0x4c,
+    NonFirmQuote = 0x4e,
+    OpeningQuote = 0x4f,
+    Regular = 0x52,
+    SlowQuoteDueToLrpOrGapQuoteOnBothSides = 0x55,
+    SlowQuoteDueToSetSlowListOnBothSides = 0x57,
+    OnDemandIntraDayAuction = 0x34,
+};
+
+type SecurityStatusIndicator = enum {
+    SecurityStatusIndicatorNotApplicable = 0x20,
+    AdditionalInformationRequested = 0x41,
+    RegulatoryConcern = 0x43,
+    NewsReleased = 0x44,
+    MergerEffective = 0x45,
+    EtfComponentPricesNotAvailable = 0x46,
+    TradingRangeIndication = 0x47,
+    OrderImbalance = 0x49,
+    LimitUpLimitDownTradingPause = 0x4d,
+    CorporateAction = 0x4e,
+    NewSecurityOffering = 0x4f,
+    NewsPending = 0x50,
+    IntradayIndicativeValueNotAvailable = 0x56,
+    Resume = 0x54,
+    Operational = 0x58,
+    SupPennyTrading = 0x59,
+    Reserved = 0x5a,
+    LimitUpLimitDownPriceBand = 0x30,
+    MarketWideCircuitBreakerLevel1Breached = 0x31,
+    MarketWideCircuitBreakerLevel2Breached = 0x32,
+    MarketWideCircuitBreakerLevel3Breached = 0x33,
+    RepublishedLimitUpLimitDownPriceBand = 0x39,
+};
+
+type RetailInterestIndicator = enum {
+    RetailInterestIndicatorNotApplicable = 0x20,
+    RetailInterestOnBidQuote = 0x41,
+    RetailInterestOnOfferQuote = 0x42,
+    RetailInterestOnBothTheBidAndOfferQuotes = 0x43,
+};
+
+type SettlementCondition = enum {
+    RegularWaySettlement = 0x20,
+    CashSettlement = 0x41,
+    NextDaySettlement = 0x42,
+};
+
+type MarketCondition = enum {
+    NormalAuctionMarket = 0x20,
+    CrossedMarket = 0x41,
+    LockedMarket = 0x42,
+};
+
+type FinraBboIndicator = enum {
+    FinraBboIndicatorNotApplicable = 0x20,
+    NoFinraBboChange = 0x41,
+    NoFinraBboExists = 0x42,
+};
+
+type SipGeneratedMessageIdentifier = enum {
+    SipGeneratedMessageNotApplicable = 0x20,
+    ConsolidatedQuotationSystem = 0x53,
+};
+
+type LimitUpLimitDownLuldIndicator = enum {
+    LimitUpLimitDownNotApplicable = 0x20,
+    BidPriceAboveUpperLimitPriceBand = 0x41,
+    OfferPriceBelowLowerLimitPriceBand = 0x42,
+};
+
+type NationalBboLuldIndicator = enum {
+    LimitUpLimitDownNotApplicable = 0x20,
+    NationalBestBidAndorNationalBestOfferAreExecutable = 0x41,
+    NationalBestBidBelowLowerLimitPriceBand = 0x42,
+    NationalBestOfferAboveUpperLimitPriceBand = 0x43,
+    NationalBestBidBelowLowerAndNationalBestOfferAboveUpperLimitPriceBand = 0x44,
+    NationalBestBidEqualsUpperLimitPriceBand = 0x45,
+    NationalBestOfferEqualsLowerLimitPriceBand = 0x46,
+    NationalBestBidInLimitStateAndNationalBestOfferNonExecutable = 0x47,
+    NationalBestBidNonExecutableAndNationalBestOfferInLimitState = 0x48,
+    NationalBestBidEqualsUpperAndNationalBestOfferEqualsLowerLimitPriceBand = 0x49,
+};
+
+type NationalBboIndicator = enum {
+    QuoteNotIncludedInBbo = 0x20,
+    NoBestBidChangeNoBestOfferChange = 0x41,
+    NoBestBidChangeQuoteContainsBestOffer = 0x42,
+    NoBestBidChangeBestOfferShortAppendage = 0x43,
+    NoBestBidChangeBestOfferLongAppendage = 0x44,
+    NoBestBidChangeNoBestOffer = 0x45,
+    QuoteContainsBestBidNoBestOfferChange = 0x46,
+    QuoteContainsBestBidQuoteContainsBestOffer = 0x47,
+    QuoteContainsBestBidBestOfferShortAppendage = 0x48,
+    QuoteContainsBestBidBestOfferLongAppendage = 0x49,
+    QuoteContainsBestBidNoBestOffer = 0x4a,
+    NoBestBidNoBestOfferChange = 0x4b,
+    NoBestBidQuoteContainsBestOffer = 0x4c,
+    NoBestBidBestOfferShortAppendage = 0x4d,
+    NoBestBidBestOfferLongAppendage = 0x4e,
+    NoBestBidNoBestOffer = 0x4f,
+    BestBidShortAppendageNoBestOfferChange = 0x50,
+    BestBidLongAppendageNoBestOfferChange = 0x51,
+    BestBidShortAppendageQuoteContainsBestOffer = 0x52,
+    BestBidLongAppendageQuoteContainsBestOffer = 0x53,
+    BestBidShortAppendageBestOfferShortAppendage = 0x54,
+    BestBidLongAppendageBestOfferLongAppendage = 0x55,
+    BestBidShortAppendageNoBestOffer = 0x56,
+    BestBidLongAppendageNoBestOffer = 0x57,
+};
+
+type FinraBboLuldIndicator = enum {
+    LimitUpLimitDownNotApplicable = 0x20,
+    FinraBestBidAndFinraBestOfferAreExecutable = 0x41,
+    FinraBestBidOutsidePriceBand = 0x42,
+    FinraBestOfferOutsidePriceBand = 0x43,
+    FinraBestBidAndFinraBestOfferOutsidePriceBand = 0x44,
+};
+

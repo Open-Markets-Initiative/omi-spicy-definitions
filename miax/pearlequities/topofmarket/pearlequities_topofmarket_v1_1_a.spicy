@@ -1,0 +1,173 @@
+module MiaxPearlequitiesTopofmarketMachV11A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type PearlequitiesTopofmarketV11A = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    sequence_number: uint64;
+    mach_packet_length: uint16;
+    mach_packet_type: uint8 &convert=MachPacketType($$);
+    session_number: uint8;
+    payload: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::SymbolUpdateMessage -> symbol_update_message: SymbolUpdateMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::SecurityTradingStatusNotificationMessage -> security_trading_status_notification_message: SecurityTradingStatusNotificationMessage;
+        MessageType::CompactTopOfMarketBestBidAndOfferMessage -> compact_top_of_market_best_bid_and_offer_message: CompactTopOfMarketBestBidAndOfferMessage;
+        MessageType::WideTopOfMarketBestBidAndOfferMessage -> wide_top_of_market_best_bid_and_offer_message: WideTopOfMarketBestBidAndOfferMessage;
+        MessageType::LastSaleMessage -> last_sale_message: LastSaleMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32;
+};
+
+type SymbolUpdateMessage = unit {
+    nanoseconds: uint32;
+    symbol_id: uint32;
+    ticker_symbol: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    test_security_indicator: uint8 &convert=TestSecurityIndicator($$);
+    : skip bytes &size=1;   # padding
+    lot_size: uint16;
+    opening_time: bytes &size=8;
+    closing_time: bytes &size=8;
+    primary_market_code: uint8 &convert=PrimaryMarketCode($$);
+};
+
+type SystemStateMessage = unit {
+    nanoseconds: uint32;
+    to_m_version: bytes &size=8;
+    session_id: uint8;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type SecurityTradingStatusNotificationMessage = unit {
+    nanoseconds: uint32;
+    symbol_id: uint32;
+    trading_status: uint8 &convert=TradingStatus($$);
+    market_state: uint8 &convert=MarketState($$);
+    short_sale_restriction: uint8 &convert=ShortSaleRestriction($$);
+};
+
+type CompactTopOfMarketBestBidAndOfferMessage = unit {
+    nanoseconds: uint32;
+    symbol_id: uint32;
+    bid_price: uint16;
+    bid_size: uint16;
+    offer_price: uint16;
+    offer_size: uint16;
+};
+
+type WideTopOfMarketBestBidAndOfferMessage = unit {
+    nanoseconds: uint32;
+    symbol_id: uint32;
+    bid_price: uint16;
+    bid_size: uint16;
+    offer_price: uint16;
+    offer_size: uint16;
+};
+
+type LastSaleMessage = unit {
+    nanoseconds: uint32;
+    symbol_id: uint32;
+    trade_id: uint64;
+    correction_number: uint8;
+    price: uint64;
+    size: uint32;
+    flags: bytes &eod;
+};
+
+type TradeCancelMessage = unit {
+    nanoseconds: uint32;
+    symbol_id: uint32;
+    trade_id: uint64;
+    correction_number: uint8;
+    price: uint64;
+    size: uint32;
+};
+
+type MachPacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 49,
+    SymbolUpdateMessage = 1,
+    SystemStateMessage = 83,
+    SecurityTradingStatusNotificationMessage = 4,
+    CompactTopOfMarketBestBidAndOfferMessage = 2,
+    WideTopOfMarketBestBidAndOfferMessage = 3,
+    LastSaleMessage = 10,
+    TradeCancelMessage = 11,
+};
+
+type TestSecurityIndicator = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type PrimaryMarketCode = enum {
+    NyseAmerican = 0x41,
+    NasdaqBx = 0x42,
+    NyseNational = 0x43,
+    MiaxPearlEquities = 0x48,
+    NasdaqIse = 0x49,
+    CboeEdgaExchange = 0x4a,
+    CboeEdgxExchange = 0x4b,
+    LongTermStockExchange = 0x4c,
+    NyseChicago = 0x4d,
+    NewYorkStockExchange = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x51,
+    MembersExchange = 0x55,
+    InvestorsExchange = 0x56,
+    CboeStockExchange = 0x57,
+    NasdaqPhlx = 0x58,
+    CboeByxExchange = 0x59,
+    CboeBzxExchange = 0x5a,
+};
+
+type SystemStatus = enum {
+    Start = 0x53,
+    End = 0x43,
+    Start_x31 = 0x31,
+    End_x32 = 0x32,
+};
+
+type TradingStatus = enum {
+    PreOpen = 1,
+    Trading = 2,
+    Halt = 3,
+    OperationalHalt = 4,
+    Closed = 5,
+};
+
+type MarketState = enum {
+    PreOpening = 1,
+    EarlyTrading = 2,
+    RegularTrading = 3,
+    AfterHoursTrading = 4,
+};
+
+type ShortSaleRestriction = enum {
+    SsrInEffect = 0x59,
+    SsrNotInEffect = 0x4e,
+};
+

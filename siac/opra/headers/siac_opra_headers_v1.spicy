@@ -1,0 +1,93 @@
+module SiacOpraHeadersUdpV1;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SiacOpraHeadersV1 = unit {
+    block_header: BlockHeader;
+    message: Message[self.block_header.messages_in_block];
+    block_pad_byte: uint8;
+};
+
+type BlockHeader = unit {
+    version: uint8;
+    block_size: uint16;
+    data_feed_indicator: bytes &size=1;
+    retransmission_indicator: uint8 &convert=RetransmissionIndicator($$);
+    session_indicator: uint8;
+    block_sequence_number: uint32;
+    messages_in_block: uint8;
+    block_timestamp: BlockTimestamp;
+    block_checksum: uint16;
+};
+
+type BlockTimestamp = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    message_category: uint8;
+    switch ( self.message_category ) {
+        0x43 -> administrative_message: AdministrativeMessage;
+        0x48 -> control_message: ControlMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type AdministrativeMessage = unit {
+    message_type: bytes &size=1;
+    message_indicator: bytes &size=1;
+    transaction_id: uint32;
+    participant_reference_number: uint32;
+    message_data_length: uint16;
+    message_data: bytes &size=self.message_data_length;
+};
+
+type ControlMessage = unit {
+    control_message_type: uint8 &convert=ControlMessageType($$);
+    message_indicator: bytes &size=1;
+    transaction_id: uint32;
+    participant_reference_number: uint32;
+};
+
+type RetransmissionIndicator = enum {
+    NotRetransmitted = 0x20,
+    Retransmitted = 0x56,
+};
+
+type ParticipantId = enum {
+    Amex = 0x41,
+    Box = 0x42,
+    Cboe = 0x43,
+    Emerald = 0x44,
+    Edgx = 0x45,
+    Gemx = 0x48,
+    Ise = 0x49,
+    Mrx = 0x4a,
+    Miax = 0x4d,
+    Nyse = 0x4e,
+    Opra = 0x4f,
+    Pearl = 0x50,
+    Nasd = 0x51,
+    Bx = 0x54,
+    Memx = 0x55,
+    C2 = 0x57,
+    Phlx = 0x58,
+    Bats = 0x5a,
+};
+
+type ControlMessageType = enum {
+    StartOfDay = 0x43,
+    StartOfSummary = 0x45,
+    EndOfSummary = 0x46,
+    EndOfDay = 0x4a,
+    ResetBlockSequenceNumber = 0x4b,
+    StartOfOpenInterest = 0x4c,
+    EndOfOpenInterest = 0x4d,
+    LineIntegrity = 0x4e,
+    DisasterRecoveryDataCenterActivation = 0x50,
+};
+

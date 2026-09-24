@@ -1,0 +1,854 @@
+module SiacCtsOutputCtaV211Hft;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SiacCtsOutputV211Hft = unit {
+    block_header: BlockHeader;
+    message: Message[self.block_header.messages_in_block];
+    block_pad_byte: uint8;
+};
+
+type BlockHeader = unit {
+    version: uint8;
+    block_size: uint16;
+    data_feed_indicator: bytes &size=1;
+    retransmission_indicator: bytes &size=1;
+    block_sequence_number: uint32;
+    messages_in_block: uint8;
+    sip_block_timestamp: SipBlockTimestamp;
+    block_checksum: uint16;
+};
+
+type SipBlockTimestamp = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    message_payload: FractionalTradeCancelErrorMessage;
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_category: bytes &size=1;
+    message_type: bytes &size=1;
+    participant_id: uint8 &convert=ParticipantId($$);
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    transaction_id: uint32;
+    participant_reference_number: int64;
+};
+
+type Timestamp1 = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type SymbolReferenceDataMessage = unit {
+    security_symbol: bytes &size=11;
+    prior_security_symbol: bytes &size=11;
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    primary_listing_market_previous_closing_price: uint64;
+    consolidated_closing_price: uint64;
+    round_lot_size: uint16;
+    minimum_price_increment_indicator: uint8 &convert=MinimumPriceIncrementIndicator($$);
+    luld_tier: uint8 &convert=LuldTier($$);
+    luld_leverage_ratio: uint32;
+    test: uint8 &convert=Test($$);
+    ipo: uint8 &convert=Ipo($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    halt_reason: uint8 &convert=HaltReason($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    reserved_1: bytes &size=1;
+    reserved_2: bytes &size=1;
+    reserved_128: bytes &size=128;
+};
+
+type IndexMessage = unit {
+    index_symbol: bytes &size=11;
+    index_value: int64;
+};
+
+type BidAndOfferIndexMessage = unit {
+    index_symbol: bytes &size=11;
+    bid_index_value: int64;
+    offer_index_value: int64;
+};
+
+type MarketWideCircuitBreakerDeclineLevelStatusMessage = unit {
+    mwcb_level_1: int64;
+    mwcb_level_2: int64;
+    mwcb_level_3: int64;
+    reserved: bytes &size=1;
+};
+
+type MarketWideCircuitBreakerStatusMessage = unit {
+    market_wide_circuit_breaker_level_indicator: uint8 &convert=MarketWideCircuitBreakerLevelIndicator($$);
+    reserved: bytes &size=1;
+};
+
+type ApproximateAdjustedVolumeMarketCenterMessage = unit {
+    number_of_participants: uint8;
+    approximate_volume_participant: ApproximateVolumeParticipant;
+};
+
+type ApproximateVolumeParticipant = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    trade_total_volume: uint64;
+};
+
+type FractionalApproximateAdjustedVolumeMarketCenterMessage = unit {
+    number_of_participants: uint8;
+    participant: Participant;
+};
+
+type Participant = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    fractional_trade_total_volume: uint64;
+};
+
+type ApproximateTradesAndTotalDollarValueMessage = unit {
+    total_trades: uint32;
+    dollar_value: uint64;
+};
+
+type CrossingSessionSummaryMessage = unit {
+    crossing_session_i_total_trades_volume: uint64;
+    crossing_session_ii_dollar_value: uint64;
+    crossing_session_ii_total_trades_volume: uint64;
+};
+
+type PriorDayTradeCorrectionMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    corrected_sale_condition: bytes &size=4;
+    corrected_trade_price: uint64;
+    corrected_trade_volume: uint32;
+    corrected_sellers_sale_days: uint8;
+    corrected_stop_stock_indicator: bytes &size=1;
+    corrected_trade_through_exempt_indicator: bytes &size=1;
+    corrected_short_sale_restriction_indicator: bytes &size=1;
+    corrected_prior_day_trade_date_and_time: uint64;
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    original_sale_condition: bytes &size=4;
+    original_trade_price: uint64;
+    original_trade_volume: uint32;
+    original_sellers_sale_days: uint8;
+    original_stop_stock_indicator: bytes &size=1;
+    original_trade_through_exempt_indicator: bytes &size=1;
+    original_short_sale_restriction_indicator: bytes &size=1;
+    original_prior_day_trade_date_and_time: uint64;
+};
+
+type PriorDayTradeMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    trade_volume: uint32;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    prior_day_trade_date_and_time: uint64;
+};
+
+type SaleCondition4 = unit {
+    category_1: uint8 &convert=Category1($$);
+    category_2: uint8 &convert=Category2($$);
+    category_3: uint8 &convert=Category3($$);
+    category_4: uint8 &convert=Category4($$);
+};
+
+type PriorDayTradeCancelErrorMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    trade_volume: uint32;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    prior_day_trade_date_and_time: uint64;
+    cancel_error_action: uint8 &convert=CancelErrorAction($$);
+};
+
+type FractionalPriorDayTradeCorrectionMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    fractional_trade_volume: uint64;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    prior_day_trade_date_and_time: uint64;
+};
+
+type FractionalPriorDayTradeMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    fractional_trade_volume: uint64;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    prior_day_trade_date_and_time: uint64;
+};
+
+type FractionalPriorDayTradeCancelErrorMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    fractional_trade_volume: uint64;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    prior_day_trade_date_and_time: uint64;
+    cancel_error_action: uint8 &convert=CancelErrorAction($$);
+};
+
+type ConsolidatedStartOfDaySummaryMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    payload_participant_id: bytes &size=1;
+    previous_close_price_date: uint32;
+    previous_close_price: uint64;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    number_of_participants: uint8;
+};
+
+type ParticipantStartOfDaySummaryMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    payload_participant_id: bytes &size=1;
+    previous_close_price_date: uint32;
+    previous_close_price: uint64;
+};
+
+type ConsolidatedEndOfDaySummaryMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    last_participant_id: bytes &size=1;
+    previous_close_price_date: uint32;
+    last_price: uint64;
+    high_price: uint64;
+    low_price: uint64;
+    total_volume: uint64;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    number_of_participants: uint8;
+};
+
+type FractionalConsolidatedEndOfDaySummaryMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    last_participant_id: bytes &size=1;
+    previous_close_price_date: uint32;
+    last_price: uint64;
+    high_price: uint64;
+    low_price: uint64;
+    fractional_total_volume: uint64;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    number_of_participants: uint8;
+};
+
+type ParticipantEndOfDaySummaryMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    payload_participant_id: bytes &size=1;
+    previous_close_price_date: uint32;
+    last_price: uint64;
+    high_price: uint64;
+    low_price: uint64;
+    open_price: uint64;
+    total_volume: uint64;
+    tick: uint8 &convert=Tick($$);
+};
+
+type FractionalParticipantEndOfDaySummaryMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    payload_participant_id: bytes &size=1;
+    previous_close_price_date: uint32;
+    last_price: uint64;
+    high_price: uint64;
+    low_price: uint64;
+    open_price: uint64;
+    fractional_total_volume: uint64;
+    tick: uint8 &convert=Tick($$);
+};
+
+type AuctionStatusMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    auction_collar_reference_price: uint64;
+    auction_collar_upper_threshold_price: uint64;
+    auction_collar_lower_threshold_price: uint64;
+    number_of_extensions: uint8;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    reserved_62: bytes &size=62;
+};
+
+type TradeCorrectionMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    corrected_sale_condition: bytes &size=4;
+    corrected_trade_price: uint64;
+    corrected_trade_volume: uint32;
+    corrected_sellers_sale_days: uint8;
+    corrected_stop_stock_indicator: bytes &size=1;
+    corrected_trade_through_exempt_indicator: bytes &size=1;
+    corrected_short_sale_restriction_indicator: bytes &size=1;
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    timestamp_2: Timestamp2;
+    original_participant_reference_number: int64;
+    original_sale_condition: bytes &size=4;
+    original_trade_price: uint64;
+    original_trade_volume: uint32;
+    original_sellers_sale_days: uint8;
+    original_stop_stock_indicator: bytes &size=1;
+    original_trade_through_exempt_indicator: bytes &size=1;
+    original_short_sale_restriction_indicator: bytes &size=1;
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    consolidated_previous_close_price_date: uint32;
+    consolidated_last_participant_id: bytes &size=1;
+    consolidated_last_price: uint64;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_total_volume: uint32;
+    consolidated_tick: bytes &size=1;
+    participant_previous_close_price_date: uint32;
+    participant_last_price: uint64;
+    participant_high_price: uint64;
+    participant_low_price: uint64;
+    participant_open_price: uint64;
+    participant_total_volume: uint32;
+    participant_tick: bytes &size=1;
+};
+
+type Timestamp2 = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type LongTradeMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    trade_volume: uint32;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    timestamp_2: Timestamp2;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    held_trade_indicator: uint8 &convert=HeldTradeIndicator($$);
+    consolidated_high_low_last_indicator: uint8 &convert=ConsolidatedHighLowLastIndicator($$);
+    participant_open_high_low_last_indicator: uint8 &convert=ParticipantOpenHighLowLastIndicator($$);
+};
+
+type ShortTradeMessage = unit {
+    security_symbol_5: bytes &size=5;
+    sale_condition_1: uint8 &convert=SaleCondition1($$);
+    sale_condition_category: uint8 &convert=SaleConditionCategory($$);
+    trade_price_2: uint16;
+    trade_volume_2: uint16;
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    consolidated_high_low_last_indicator: uint8 &convert=ConsolidatedHighLowLastIndicator($$);
+    participant_open_high_low_last_indicator: uint8 &convert=ParticipantOpenHighLowLastIndicator($$);
+};
+
+type TradeCancelErrorMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    trade_volume: uint32;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    original_participant_reference_number: int64;
+    timestamp_2: Timestamp2;
+    cancel_error_action: uint8 &convert=CancelErrorAction($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    consolidated_previous_close_price_date: uint32;
+    consolidated_last_participant_id: bytes &size=1;
+    consolidated_last_price: uint64;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_total_volume: uint32;
+    consolidated_tick: bytes &size=1;
+    participant_previous_close_price_date: uint32;
+    participant_last_price: uint64;
+    participant_high_price: uint64;
+    participant_low_price: uint64;
+    participant_open_price: uint64;
+    participant_total_volume: uint32;
+    participant_tick: bytes &size=1;
+};
+
+type FractionalTradeCorrectionMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    corrected_sale_condition: bytes &size=4;
+    corrected_trade_price: uint64;
+    corrected_fractional_trade_volume: uint64;
+    corrected_sellers_sale_days: uint8;
+    corrected_stop_stock_indicator: bytes &size=1;
+    corrected_trade_through_exempt_indicator: bytes &size=1;
+    corrected_short_sale_restriction_indicator: bytes &size=1;
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    timestamp_2: Timestamp2;
+    original_participant_reference_number: int64;
+    original_sale_condition: bytes &size=4;
+    original_trade_price: uint64;
+    original_fractional_trade_volume: uint64;
+    original_sellers_sale_days: uint8;
+    original_stop_stock_indicator: bytes &size=1;
+    original_trade_through_exempt_indicator: bytes &size=1;
+    original_short_sale_restriction_indicator: bytes &size=1;
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    consolidated_previous_close_price_date: uint32;
+    consolidated_last_participant_id: bytes &size=1;
+    consolidated_last_price: uint64;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_fractional_total_volume: uint64;
+    consolidated_tick: bytes &size=1;
+    participant_previous_close_price_date: uint32;
+    participant_last_price: uint64;
+    participant_high_price: uint64;
+    participant_low_price: uint64;
+    participant_open_price: uint64;
+    participant_fractional_total_volume: uint64;
+    participant_tick: bytes &size=1;
+};
+
+type FractionalLongTradeMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    fractional_trade_volume: uint64;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    timestamp_2: Timestamp2;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    held_trade_indicator: uint8 &convert=HeldTradeIndicator($$);
+    consolidated_high_low_last_indicator: uint8 &convert=ConsolidatedHighLowLastIndicator($$);
+    participant_open_high_low_last_indicator: uint8 &convert=ParticipantOpenHighLowLastIndicator($$);
+};
+
+type TradingStatusMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    last_price: uint64;
+    high_indication_price_upper_limit_price_band: uint64;
+    low_indication_price_lower_limit_price_band: uint64;
+    buy_volume: uint32;
+    sell_volume: uint32;
+    security_status: uint8 &convert=SecurityStatus($$);
+    halt_reason: uint8 &convert=HaltReason($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    limit_up_limit_down_luld_indicator: uint8 &convert=LimitUpLimitDownLuldIndicator($$);
+};
+
+type FractionalShortTradeMessage = unit {
+    security_symbol_5: bytes &size=5;
+    sale_condition_1: uint8 &convert=SaleCondition1($$);
+    sale_condition_category: uint8 &convert=SaleConditionCategory($$);
+    trade_price_2: uint16;
+    fractional_trade_volume_4: uint32;
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    consolidated_high_low_last_indicator: uint8 &convert=ConsolidatedHighLowLastIndicator($$);
+    participant_open_high_low_last_indicator: uint8 &convert=ParticipantOpenHighLowLastIndicator($$);
+};
+
+type FractionalTradeCancelErrorMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    sale_condition_4: SaleCondition4;
+    trade_price: uint64;
+    fractional_trade_volume: uint64;
+    sellers_sale_days: uint8;
+    stop_stock_indicator: uint8 &convert=StopStockIndicator($$);
+    trade_through_exempt_indicator: uint8 &convert=TradeThroughExemptIndicator($$);
+    trade_reporting_facility_id: uint8 &convert=TradeReportingFacilityId($$);
+    original_participant_reference_number: int64;
+    timestamp_2: Timestamp2;
+    cancel_error_action: uint8 &convert=CancelErrorAction($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    consolidated_previous_close_price_date: uint32;
+    consolidated_last_participant_id: bytes &size=1;
+    consolidated_last_price: uint64;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_fractional_total_volume: uint64;
+    consolidated_tick: bytes &size=1;
+    participant_previous_close_price_date: uint32;
+    participant_last_price: uint64;
+    participant_high_price: uint64;
+    participant_low_price: uint64;
+    participant_open_price: uint64;
+    participant_fractional_total_volume: uint64;
+    participant_tick: bytes &size=1;
+};
+
+type ParticipantId = enum {
+    NyseAmericanLlcNyseAmerican = 0x41,
+    NasdaqOmxBxIncNasdaqOmxBx = 0x42,
+    NyseNationalIncNyseNational = 0x43,
+    FinraAlternativeDisplayFacilityAdf = 0x44,
+    TexasStockExchangeLlcTxse = 0x46,
+    N24XNationalExchangeLlcN24X = 0x47,
+    MiaxPearlExchangeLlcMiax = 0x48,
+    InternationalSecuritiesExchangeLlcIse = 0x49,
+    CboeEdgaExchangeIncCboeEdga = 0x4a,
+    CboeEdgxExchangeIncCboeEdgx = 0x4b,
+    LongTermStockExchangeIncLtse = 0x4c,
+    NyseTexasIncNyseTexas = 0x4d,
+    NewYorkStockExchangeLlcNyse = 0x4e,
+    NyseArcaIncNyseArca = 0x50,
+    ConsolidatedTapeSystemCts = 0x53,
+    NasdaqStockMarketLlcNasdaq = 0x54,
+    MembersExchangeLlcMemx = 0x55,
+    InvestorsExchangeLlcIex = 0x56,
+    CboeStockExchangeIncCbsx = 0x57,
+    NasdaqOmxPsxIncNasdaqOmxPsx = 0x58,
+    CboeByxExchangeIncCboeByx = 0x59,
+    CboeBzxExchangeIncCboeBzx = 0x5a,
+};
+
+type PrimaryListingMarketParticipantId = enum {
+    PrimaryListingMarketParticipantIdNotApplicable = 0x20,
+    NyseAmerican = 0x41,
+    NasdaqBx = 0x42,
+    NyseNational = 0x43,
+    FinraAdf = 0x44,
+    TexasStockExchange = 0x46,
+    N24X = 0x47,
+    MiaxPearl = 0x48,
+    Ise = 0x49,
+    CboeEdga = 0x4a,
+    CboeEdgx = 0x4b,
+    Ltse = 0x4c,
+    NyseTexas = 0x4d,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x54,
+    MembersExchange = 0x55,
+    Iex = 0x56,
+    Cbsx = 0x57,
+    NasdaqOmxPsx = 0x58,
+    CboeByx = 0x59,
+    CboeBzx = 0x5a,
+};
+
+type MinimumPriceIncrementIndicator = enum {
+    PennyMpi001 = 0x31,
+    HalfPennyMpi0005 = 0x32,
+};
+
+type LuldTier = enum {
+    LuldNotApplicable = 0x30,
+    LuldTier1Security = 0x31,
+    LuldTier2Security = 0x32,
+};
+
+type Test = enum {
+    NotATestSymbol = 0x30,
+    TestSymbol = 0x31,
+};
+
+type Ipo = enum {
+    NotAnIpoSymbol = 0x30,
+    IpoSymbol = 0x31,
+};
+
+type FinancialStatusIndicator = enum {
+    FinancialStatusNotApplicable = 0x30,
+    Bankrupt = 0x31,
+    BelowContinuingListingStandards = 0x32,
+    BankruptBelowContinuingListingStandards = 0x33,
+    LateFiling = 0x34,
+    BankruptLateFiling = 0x35,
+    BelowContinuingListingStandardsLateFiling = 0x36,
+    BankruptBelowContinuingListingStandardsLateFiling = 0x37,
+    CreationsSuspendedForExchangeTradedProducts = 0x38,
+    RedemptionsSuspendedForExchangeTradedProducts = 0x39,
+    LiquidationForExchangeTradedProducts = 0x41,
+};
+
+type ShortSaleRestrictionIndicator = enum {
+    ShortSaleRestrictionNotInEffect = 0x20,
+    ShortSaleRestrictionActivated = 0x41,
+    ShortSaleRestrictionContinued = 0x43,
+    ShortSaleRestrictionDeactivated = 0x44,
+    ShortSaleRestrictionInEffect = 0x45,
+};
+
+type HaltReason = enum {
+    HaltReasonNotApplicable = 0x20,
+    AdditionalInformationRequested = 0x41,
+    RegulatoryConcern = 0x43,
+    NewsReleased = 0x44,
+    MergerEffective = 0x45,
+    EtfComponentPricesNotAvailable = 0x46,
+    OrderImbalance = 0x49,
+    LimitUpLimitDownLuldTradingPause = 0x4d,
+    CorporateAction = 0x4e,
+    NewSecurityOffering = 0x4f,
+    NewsPending = 0x50,
+    IntradayIndicativeValueNotAvailable = 0x56,
+    Operational = 0x58,
+    SubPennyTrading = 0x59,
+    MarketWideCircuitBreakerLevel1Breached = 0x31,
+    MarketWideCircuitBreakerLevel2Breached = 0x32,
+    MarketWideCircuitBreakerLevel3Breached = 0x33,
+};
+
+type InstrumentType = enum {
+    CtaEligibleEquity = 0x30,
+    LocalIssue = 0x31,
+    CorporateBond = 0x32,
+    GovernmentBond = 0x33,
+};
+
+type MarketWideCircuitBreakerLevelIndicator = enum {
+    MwcbNotApplicable = 0x20,
+    Level1Breached = 0x31,
+    Level2Breached = 0x32,
+    Level3Breached = 0x33,
+};
+
+type TradeReportingFacilityId = enum {
+    TrfNotApplicable = 0x20,
+    NotCurrentlyActiveA = 0x41,
+    FinraNasdaqTrfChicago = 0x42,
+    NotCurrentlyActiveC = 0x43,
+    NotCurrentlyActiveD = 0x44,
+    NotCurrentlyActiveI = 0x49,
+    NotCurrentlyActiveJ = 0x4a,
+    NotCurrentlyActiveK = 0x4b,
+    NotCurrentlyActiveM = 0x4d,
+    FinraNyseTrf = 0x4e,
+    NotCurrentlyActiveP = 0x50,
+    FinraNasdaqTrfCarteret = 0x54,
+    NotCurrentlyActiveV = 0x56,
+    NotCurrentlyActiveW = 0x57,
+    NotCurrentlyActiveX = 0x58,
+    NotCurrentlyActiveY = 0x59,
+    NotCurrentlyActiveZ = 0x5a,
+};
+
+type Category1 = enum {
+    RegularSettlement = 0x20,
+    CashTradeSameDayClearing = 0x43,
+    Reserved = 0x4e,
+    Seller = 0x52,
+};
+
+type Category2 = enum {
+    NoTradeThroughExemptReason = 0x20,
+    IntermarketSweepOrder = 0x46,
+    DerivativelyPriced = 0x34,
+    MarketCenterReopeningTrade = 0x35,
+    MarketCenterClosingTrade = 0x36,
+    QualifiedContingentTrade = 0x37,
+    Reserved8 = 0x38,
+    CorrectedConsolidatedClosePriceAsPerListingMarket = 0x39,
+};
+
+type Category3 = enum {
+    NotExtendedHoursOrSoldOutOfSequence = 0x20,
+    SoldLastLateReporting = 0x4c,
+    MarketCenterOpeningTrade = 0x4f,
+    ExtendedHoursTrade = 0x54,
+    ExtendedHoursSoldOutOfSequence = 0x55,
+    SoldOutOfSequence = 0x5a,
+};
+
+type Category4 = enum {
+    NoSroRequiredTradeDetail = 0x20,
+    AveragePriceTrade = 0x42,
+    AutomaticExecution = 0x45,
+    PriceVariationTrade = 0x48,
+    OddLotTrade = 0x49,
+    Rule127NyseOnlyOrRule155NyseAmericanOnly = 0x4b,
+    MarketCenterOfficialClose = 0x4d,
+    PriorReferencePrice = 0x50,
+    MarketCenterOfficialOpen = 0x51,
+    ContingentTrade = 0x56,
+    CrossPeriodicAuctionTrade = 0x58,
+};
+
+type StopStockIndicator = enum {
+    StopStockNotApplicable = 0x30,
+    StopStock = 0x31,
+};
+
+type TradeThroughExemptIndicator = enum {
+    NotATradeThroughExemption = 0x30,
+    TradeThroughExemption = 0x31,
+};
+
+type CancelErrorAction = enum {
+    Cancel = 0x31,
+    Error = 0x32,
+};
+
+type Tick = enum {
+    TickNotApplicable = 0x20,
+    UpTick = 0x31,
+    DownTick = 0x32,
+    ZeroUpTick = 0x33,
+    ZeroDownTick = 0x34,
+};
+
+type HeldTradeIndicator = enum {
+    HeldTradeIndicatorNotApplicable = 0x20,
+    HeldTradeNotALastSaleForParticipantOrConsolidated = 0x41,
+    HeldTradeLastSaleForParticipantButNotConsolidated = 0x42,
+    HeldTradeLastSaleForParticipantAndConsolidated = 0x43,
+};
+
+type ConsolidatedHighLowLastIndicator = enum {
+    None_x41 = 0x41,
+    High = 0x42,
+    Low = 0x43,
+    Last = 0x44,
+    HighLast = 0x45,
+    LowLast = 0x46,
+    HighLowLast = 0x47,
+    HighLow = 0x48,
+};
+
+type ParticipantOpenHighLowLastIndicator = enum {
+    None_x41 = 0x41,
+    High = 0x42,
+    Low = 0x43,
+    Last = 0x44,
+    HighLast = 0x45,
+    LowLast = 0x46,
+    Unused = 0x47,
+    Open = 0x48,
+    OpenHigh = 0x49,
+    OpenLow = 0x4a,
+    OpenHighLowLast = 0x4b,
+    OpenLast = 0x4c,
+    OpenHighLow = 0x4d,
+    OpenHighLast = 0x4e,
+    OpenLowLast = 0x4f,
+    HighLow = 0x50,
+    HighLowLast = 0x51,
+};
+
+type SaleCondition1 = enum {
+    RegularSale = 0x20,
+    AveragePriceTrade = 0x42,
+    CashTradeSameDayClearing = 0x43,
+    AutomaticExecution = 0x45,
+    IntermarketSweepOrder = 0x46,
+    PriceVariationTrade = 0x48,
+    OddLotTrade = 0x49,
+    Rule127NyseOnlyOrRule155NyseAmericanOnly = 0x4b,
+    SoldLastLateReporting = 0x4c,
+    MarketCenterOfficialClose = 0x4d,
+    ReservedN = 0x4e,
+    MarketCenterOpeningTrade = 0x4f,
+    PriorReferencePrice = 0x50,
+    MarketCenterOfficialOpen = 0x51,
+    Seller = 0x52,
+    ExtendedHoursTrade = 0x54,
+    ExtendedHoursSoldOutOfSequence = 0x55,
+    ContingentTrade = 0x56,
+    CrossPeriodicAuctionTrade = 0x58,
+    SoldOutOfSequence = 0x5a,
+    DerivativelyPriced = 0x34,
+    MarketCenterReopeningTrade = 0x35,
+    MarketCenterClosingTrade = 0x36,
+    QualifiedContingentTrade = 0x37,
+    Reserved8 = 0x38,
+    CorrectedConsolidatedClosePriceAsPerListingMarket = 0x39,
+};
+
+type SaleConditionCategory = enum {
+    SaleConditionCategoryNotApplicable = 0x20,
+    SaleConditionCategory1 = 0x31,
+    SaleConditionCategory2 = 0x32,
+    SaleConditionCategory3 = 0x33,
+    SaleConditionCategory4 = 0x34,
+};
+
+type SecurityStatus = enum {
+    SecurityStatusNotApplicable = 0x20,
+    Reserved1 = 0x31,
+    TradingHalt = 0x32,
+    Resume = 0x33,
+    Reserved4 = 0x34,
+    PriceIndication = 0x35,
+    TradingRangeIndication = 0x36,
+    MarketImbalanceBuy = 0x37,
+    MarketImbalanceSell = 0x38,
+    ClosingImbalanceBuy = 0x39,
+    ClosingImbalanceSell = 0x41,
+    ReservedB = 0x42,
+    NoMarketImbalance = 0x43,
+    NoClosingImbalance = 0x44,
+    ShortSaleRestriction = 0x45,
+    LimitUpLimitDown = 0x46,
+};
+
+type LimitUpLimitDownLuldIndicator = enum {
+    LimitUpLimitDownNotApplicable = 0x20,
+    LimitUpLimitDownPriceBand = 0x41,
+    RepublishedLimitUpLimitDownPriceBand = 0x42,
+    NationalBestBidLimitStateEntered = 0x43,
+    NationalBestBidLimitStateExited = 0x44,
+    NationalBestOfferLimitStateEntered = 0x45,
+    NationalBestOfferLimitStateExited = 0x46,
+    NationalBestBidAndNationalBestOfferLimitStateEntered = 0x47,
+    NationalBestBidAndNationalBestOfferLimitStateExited = 0x48,
+    NationalBestBidLimitStateEnteredAndNationalBestOfferLimitStateExited = 0x49,
+    NationalBestBidLimitStateExitedAndNationalBestOfferLimitStateEntered = 0x4a,
+};
+

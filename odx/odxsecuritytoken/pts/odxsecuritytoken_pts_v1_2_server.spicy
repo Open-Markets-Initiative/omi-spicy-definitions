@@ -1,0 +1,203 @@
+module OdxOdxsecuritytokenPtsItchV12Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type OdxsecuritytokenPtsV12 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::TimestampSecondsMessage -> seconds_message: SecondsMessage;
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::PriceTickSizeMessage -> price_tick_size_message: PriceTickSizeMessage;
+        SequencedMessageType::OrderbookDirectoryMessage -> orderbook_directory_message: OrderbookDirectoryMessage;
+        SequencedMessageType::TradingStateMessage -> trading_state_message: TradingStateMessage;
+        SequencedMessageType::OrderAddedMessage -> order_added_message: OrderAddedMessage;
+        SequencedMessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        SequencedMessageType::OrderDeletedMessage -> order_deleted_message: OrderDeletedMessage;
+        SequencedMessageType::OrderReplacedMessage -> order_replaced_message: OrderReplacedMessage;
+        SequencedMessageType::OrderBookStateMessage -> order_book_state_message: OrderBookStateMessage;
+        SequencedMessageType::EquilibriumPriceUpdateMessage -> equilibrium_price_update_message: EquilibriumPriceUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SecondsMessage = unit {
+    seconds: uint32;
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    group: bytes &size=4;
+    system_event: uint8 &convert=SystemEvent($$);
+};
+
+type PriceTickSizeMessage = unit {
+    nanoseconds: uint32;
+    price_tick_size_table_id: uint32;
+    price_tick_size: uint32;
+    price_start: uint32;
+};
+
+type OrderbookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    orderbook_id: bytes &size=4;
+    orderbook_code: bytes &size=12;
+    exchange_symbol: bytes &size=12;
+    group: bytes &size=4;
+    round_lot_size: uint32;
+    price_tick_size_table_id: uint32;
+    price_decimals: uint32;
+    upper_price_limit: uint32;
+    lower_price_limit: uint32;
+    restriction_of_market_order: uint8 &convert=RestrictionOfMarketOrder($$);
+    attention_flag: uint8 &convert=AttentionFlag($$);
+    termination_flag: uint8 &convert=TerminationFlag($$);
+};
+
+type TradingStateMessage = unit {
+    nanoseconds: uint32;
+    orderbook_id: bytes &size=4;
+    group: bytes &size=4;
+    trading_state: uint8 &convert=TradingState($$);
+};
+
+type OrderAddedMessage = unit {
+    nanoseconds: uint32;
+    order_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    quantity: uint32;
+    orderbook_id: bytes &size=4;
+    group: bytes &size=4;
+    price: uint32;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    nanoseconds: uint32;
+    order_number: uint64;
+    executed_quantity: uint32;
+    match_number: uint64;
+    trade_price: uint32;
+    occurred_as_cross: uint8 &convert=OccurredAsCross($$);
+};
+
+type OrderDeletedMessage = unit {
+    nanoseconds: uint32;
+    order_number: uint64;
+};
+
+type OrderReplacedMessage = unit {
+    nanoseconds: uint32;
+    original_order_number: uint64;
+    new_order_number: uint64;
+    quantity: uint32;
+    price: uint32;
+};
+
+type OrderBookStateMessage = unit {
+    nanoseconds: uint32;
+    orderbook_id: bytes &size=4;
+    state_name: bytes &size=20;
+};
+
+type EquilibriumPriceUpdateMessage = unit {
+    nanoseconds: uint32;
+    orderbook_id: bytes &size=4;
+    equilibrium_price: uint32;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    TimestampSecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    PriceTickSizeMessage = 0x4c,
+    OrderbookDirectoryMessage = 0x52,
+    TradingStateMessage = 0x48,
+    OrderAddedMessage = 0x41,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderDeletedMessage = 0x44,
+    OrderReplacedMessage = 0x55,
+    OrderBookStateMessage = 0x4f,
+    EquilibriumPriceUpdateMessage = 0x5a,
+};
+
+type SystemEvent = enum {
+    StartOfMessages = 0x4f,
+    EndOfMessages = 0x43,
+};
+
+type RestrictionOfMarketOrder = enum {
+    True_x59 = 0x59,
+    False_x4e = 0x4e,
+};
+
+type AttentionFlag = enum {
+    True_x59 = 0x59,
+    False_x4e = 0x4e,
+};
+
+type TerminationFlag = enum {
+    True_x59 = 0x59,
+    False_x4e = 0x4e,
+};
+
+type TradingState = enum {
+    Trading = 0x54,
+    Suspended = 0x56,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OccurredAsCross = enum {
+    TradeOccurredAtTheCross = 0x59,
+};
+

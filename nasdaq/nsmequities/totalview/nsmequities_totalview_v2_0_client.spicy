@@ -5,14 +5,18 @@ import spicy;
 %byte-order = spicy::ByteOrder::Big;
 
 public type NsmequitiesTotalviewV20 = unit {
-    client_packet_type: uint8 &convert=ClientPacketType($$);
-    switch ( self.client_packet_type ) {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
         ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
         ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
         ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
         * -> unknown: bytes &eod;
     };
     soup_lf: uint8;
+};
+
+type ClientPacketHeader = unit {
+    client_packet_type: uint8 &convert=ClientPacketType($$);
 };
 
 type DebugPacket = unit {

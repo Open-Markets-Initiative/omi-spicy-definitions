@@ -1,0 +1,477 @@
+module SiacCqsInputCtaV29B;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SiacCqsInputV29B = unit {
+    block_separator: uint16;
+    block_header: BlockHeader;
+    message: Message[self.block_header.messages_in_block];
+    block_pad_byte: uint8;
+};
+
+type BlockHeader = unit {
+    version: uint8;
+    block_size: uint16;
+    block_sequence_number: uint32;
+    messages_in_block: uint8;
+    block_checksum: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        MessageCategory::Administrative -> administrative_message: AdministrativeMessage;
+        MessageCategory::Control -> control_message: ControlMessage;
+        MessageCategory::Quote -> quote_message: QuoteMessage;
+        MessageCategory::Trade -> trade_message: TradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_category: uint8 &convert=MessageCategory($$);
+    message_type: bytes &size=1;
+    participant_id: bytes &size=1;
+    timestamp_1: Timestamp1;
+    message_id: uint8;
+    : skip bytes &size=4;   # padding
+    participant_reference_number: int64;
+};
+
+type Timestamp1 = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type AdministrativeMessage = unit {
+    administrative_message_type: uint8;
+    switch ( self.administrative_message_type ) {
+        0x52 -> rejection_message: RejectionMessage;
+        0x50 -> partial_rejection_message: PartialRejectionMessage;
+        0x57 -> warning_message: WarningMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RejectionMessage = unit {
+    error_code: uint8;
+    block_sequence_number: uint32;
+    participant_reference_number: int64;
+    message_id: uint8;
+};
+
+type PartialRejectionMessage = unit {
+    error_code: uint8;
+    block_sequence_number: uint32;
+    participant_reference_number: int64;
+    message_id: uint8;
+    odd_lot_quote_appendage_type: uint8 &convert=OddLotQuoteAppendageType($$);
+    count_of_odd_lot_bid_appendages: uint8;
+    count_of_odd_lot_offer_appendages: uint8;
+    partial_reject_odd_lot_bid_short_quote_appendage: PartialRejectOddLotBidShortQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    partial_reject_odd_lot_offer_short_quote_appendage: PartialRejectOddLotOfferShortQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+    partial_reject_odd_lot_bid_long_quote_appendage: PartialRejectOddLotBidLongQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    partial_reject_odd_lot_offer_long_quote_appendage: PartialRejectOddLotOfferLongQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+    partial_reject_odd_lot_bid_extended_quote_appendage: PartialRejectOddLotBidExtendedQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    partial_reject_odd_lot_offer_extended_quote_appendage: PartialRejectOddLotOfferExtendedQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+};
+
+type PartialRejectOddLotBidShortQuoteAppendage = unit {
+    odd_lot_quote_price_2: uint16;
+    odd_lot_quote_size: uint8;
+};
+
+type PartialRejectOddLotOfferShortQuoteAppendage = unit {
+    odd_lot_quote_price_2: uint16;
+    odd_lot_quote_size: uint8;
+};
+
+type PartialRejectOddLotBidLongQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+};
+
+type PartialRejectOddLotOfferLongQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+};
+
+type PartialRejectOddLotBidExtendedQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+    odd_lot_finra_market_maker_id: bytes &size=4;
+};
+
+type PartialRejectOddLotOfferExtendedQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+    odd_lot_finra_market_maker_id: bytes &size=4;
+};
+
+type WarningMessage = unit {
+    previous_block_sequence_number: uint32;
+    previous_participant_reference_number: int64;
+};
+
+type ControlMessage = unit {
+    control_message_type: uint8;
+    switch ( self.control_message_type ) {
+        0x4e -> sequence_information_and_message_count_response_message: SequenceInformationAndMessageCountResponseMessage;
+        0x52 -> odd_lot_refresh_request_message: OddLotRefreshRequestMessage;
+        0x35 -> test_message: TestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SequenceInformationAndMessageCountResponseMessage = unit {
+    current_block_sequence_number: uint32;
+    last_participant_reference_number: int64;
+    message_count: uint64;
+};
+
+type OddLotRefreshRequestMessage = unit {
+    security_symbol_begin_range: bytes &size=11;
+    security_symbol_end_range: bytes &size=11;
+    reserved_8: bytes &size=8;
+};
+
+type TestMessage = unit {
+    data: bytes &size=256;
+};
+
+type QuoteMessage = unit {
+    quote_message_type: uint8;
+    switch ( self.quote_message_type ) {
+        0x41 -> auction_status_message: AuctionStatusMessage;
+        0x51 -> short_quote_message: ShortQuoteMessage;
+        0x4c -> long_quote_message: LongQuoteMessage;
+        0x53 -> special_long_quote_message: SpecialLongQuoteMessage;
+        0x50 -> round_lot_short_quote_message: RoundLotShortQuoteMessage;
+        0x4b -> round_lot_long_quote_message: RoundLotLongQuoteMessage;
+        0x55 -> round_lot_finra_adf_quote_message: RoundLotFinraAdfQuoteMessage;
+        0x52 -> odd_lot_short_quote_message: OddLotShortQuoteMessage;
+        0x4d -> odd_lot_long_quote_message: OddLotLongQuoteMessage;
+        0x54 -> odd_lot_finra_adf_quote_message: OddLotFinraAdfQuoteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type AuctionStatusMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    auction_collar_reference_price: uint64;
+    auction_collar_upper_threshold_price: uint64;
+    auction_collar_lower_threshold_price: uint64;
+    number_of_extensions: uint8;
+    reserved_62: bytes &size=62;
+};
+
+type ShortQuoteMessage = unit {
+    security_symbol_short: bytes &size=5;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    offer_price_short: uint16;
+    offer_size_short: uint16;
+    reserved_2: bytes &size=2;
+};
+
+type LongQuoteMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    security_status_indicator: bytes &size=1;
+    bid_price: uint64;
+    bid_size: uint32;
+    offer_price: uint64;
+    offer_size: uint32;
+    retail_interest_indicator: uint8 &convert=RetailInterestIndicator($$);
+    settlement_condition: uint8 &convert=SettlementCondition($$);
+    market_condition: uint8 &convert=MarketCondition($$);
+    finra_market_maker_id: bytes &size=4;
+    finra_bbo_indicator: uint8 &convert=FinraBboIndicator($$);
+    timestamp_2: Timestamp2;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+};
+
+type Timestamp2 = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type SpecialLongQuoteMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    security_status_indicator: bytes &size=1;
+    bid_price: uint64;
+    bid_size: uint32;
+    offer_price: uint64;
+    offer_size: uint32;
+    retail_interest_indicator: uint8 &convert=RetailInterestIndicator($$);
+    settlement_condition: uint8 &convert=SettlementCondition($$);
+    market_condition: uint8 &convert=MarketCondition($$);
+    finra_market_maker_id: bytes &size=4;
+    finra_best_bid_quote_condition: bytes &size=1;
+    finra_best_bid_price: uint64;
+    finra_best_bid_size: uint32;
+    finra_best_bid_market_maker_id: bytes &size=4;
+    finra_best_offer_quote_condition: bytes &size=1;
+    finra_best_offer_price: uint64;
+    finra_best_offer_size: uint32;
+    finra_best_offer_market_maker_id: bytes &size=4;
+    timestamp_2: Timestamp2;
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+};
+
+type RoundLotShortQuoteMessage = unit {
+    security_symbol_short: bytes &size=5;
+    round_lot_bid_price_short: uint16;
+    round_lot_bid_size_short: uint16;
+    round_lot_offer_price_short: uint16;
+    round_lot_offer_size_short: uint16;
+    clear_prior_odd_lot_quotes: uint8 &convert=ClearPriorOddLotQuotes($$);
+    count_of_odd_lot_bid_appendages: uint8;
+    count_of_odd_lot_offer_appendages: uint8;
+    odd_lot_bid_short_quote_appendage: OddLotBidShortQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    odd_lot_offer_short_quote_appendage: OddLotOfferShortQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+};
+
+type OddLotBidShortQuoteAppendage = unit {
+    odd_lot_quote_price_2: uint16;
+    odd_lot_quote_size: uint8;
+};
+
+type OddLotOfferShortQuoteAppendage = unit {
+    odd_lot_quote_price_2: uint16;
+    odd_lot_quote_size: uint8;
+};
+
+type RoundLotLongQuoteMessage = unit {
+    security_symbol: bytes &size=11;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    round_lot_bid_price: uint64;
+    round_lot_bid_size: uint32;
+    round_lot_offer_price: uint64;
+    round_lot_offer_size: uint32;
+    retail_interest_indicator: uint8 &convert=RetailInterestIndicator($$);
+    settlement_condition: uint8 &convert=SettlementCondition($$);
+    market_condition: uint8 &convert=MarketCondition($$);
+    finra_market_maker_id: bytes &size=4;
+    finra_bbo_indicator: uint8 &convert=FinraBboIndicator($$);
+    timestamp_2: Timestamp2;
+    clear_prior_odd_lot_quotes: uint8 &convert=ClearPriorOddLotQuotes($$);
+    count_of_odd_lot_bid_appendages: uint8;
+    count_of_odd_lot_offer_appendages: uint8;
+    odd_lot_bid_long_quote_appendage: OddLotBidLongQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    odd_lot_offer_long_quote_appendage: OddLotOfferLongQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+};
+
+type OddLotBidLongQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+};
+
+type OddLotOfferLongQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+};
+
+type RoundLotFinraAdfQuoteMessage = unit {
+    security_symbol: bytes &size=11;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    round_lot_bid_price: uint64;
+    round_lot_bid_size: uint32;
+    round_lot_offer_price: uint64;
+    round_lot_offer_size: uint32;
+    retail_interest_indicator: uint8 &convert=RetailInterestIndicator($$);
+    settlement_condition: uint8 &convert=SettlementCondition($$);
+    market_condition: uint8 &convert=MarketCondition($$);
+    finra_market_maker_id: bytes &size=4;
+    finra_best_bid_quote_condition: bytes &size=1;
+    finra_best_bid_price: uint64;
+    finra_best_bid_size: uint32;
+    finra_best_bid_market_maker_id: bytes &size=4;
+    finra_best_offer_quote_condition: bytes &size=1;
+    finra_best_offer_price: uint64;
+    finra_best_offer_size: uint32;
+    finra_best_offer_market_maker_id: bytes &size=4;
+    timestamp_2: Timestamp2;
+    clear_prior_odd_lot_quotes: uint8 &convert=ClearPriorOddLotQuotes($$);
+    count_of_odd_lot_bid_appendages: uint8;
+    count_of_odd_lot_offer_appendages: uint8;
+    odd_lot_bid_extended_quote_appendage: OddLotBidExtendedQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    odd_lot_offer_extended_quote_appendage: OddLotOfferExtendedQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+};
+
+type OddLotBidExtendedQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+    odd_lot_finra_market_maker_id: bytes &size=4;
+};
+
+type OddLotOfferExtendedQuoteAppendage = unit {
+    odd_lot_quote_price: uint64;
+    odd_lot_quote_size: uint8;
+    odd_lot_finra_market_maker_id: bytes &size=4;
+};
+
+type OddLotShortQuoteMessage = unit {
+    security_symbol_short: bytes &size=5;
+    clear_prior_odd_lot_quotes: uint8 &convert=ClearPriorOddLotQuotes($$);
+    count_of_odd_lot_bid_appendages: uint8;
+    count_of_odd_lot_offer_appendages: uint8;
+    odd_lot_bid_short_quote_appendage: OddLotBidShortQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    odd_lot_offer_short_quote_appendage: OddLotOfferShortQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+};
+
+type OddLotLongQuoteMessage = unit {
+    security_symbol: bytes &size=11;
+    clear_prior_odd_lot_quotes: uint8 &convert=ClearPriorOddLotQuotes($$);
+    count_of_odd_lot_bid_appendages: uint8;
+    count_of_odd_lot_offer_appendages: uint8;
+    odd_lot_bid_long_quote_appendage: OddLotBidLongQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    odd_lot_offer_long_quote_appendage: OddLotOfferLongQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+};
+
+type OddLotFinraAdfQuoteMessage = unit {
+    security_symbol: bytes &size=11;
+    clear_prior_odd_lot_quotes: uint8 &convert=ClearPriorOddLotQuotes($$);
+    count_of_odd_lot_bid_appendages: uint8;
+    count_of_odd_lot_offer_appendages: uint8;
+    odd_lot_bid_extended_quote_appendage: OddLotBidExtendedQuoteAppendage[self.count_of_odd_lot_bid_appendages];
+    odd_lot_offer_extended_quote_appendage: OddLotOfferExtendedQuoteAppendage[self.count_of_odd_lot_offer_appendages];
+};
+
+type TradeMessage = unit {
+    trade_message_type: uint8;
+    trade_message_payload: TradingStatusMessage;
+};
+
+type TradingStatusMessage = unit {
+    security_symbol: bytes &size=11;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    last_price_opening_reopening_luld_reference_price: uint64;
+    high_indication_price_upper_limit_price_band: uint64;
+    low_indication_price_lower_limit_price_band: uint64;
+    buy_volume: uint32;
+    sell_volume: uint32;
+    security_status: uint8 &convert=SecurityStatus($$);
+    halt_reason: uint8 &convert=HaltReason($$);
+    short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
+    trading_status_id: uint32;
+};
+
+type MessageCategory = enum {
+    Administrative = 0x41,
+    Control = 0x43,
+    Quote = 0x51,
+    Trade = 0x54,
+};
+
+type OddLotQuoteAppendageType = enum {
+    OddLotQuoteShortAppendage = 0x53,
+    OddLotQuoteLongAppendage = 0x4c,
+    OddLotQuoteExtendedAppendage = 0x45,
+};
+
+type InstrumentType = enum {
+    CtaEligibleEquity = 0x30,
+    LocalIssue = 0x31,
+    CorporateBond = 0x32,
+    GovernmentBond = 0x33,
+};
+
+type QuoteCondition = enum {
+    SlowQuoteOnOfferSide = 0x41,
+    SlowQuoteOnBidSide = 0x42,
+    Closing = 0x43,
+    SlowQuoteDueToLrpOrGapQuoteOnTheBidSide = 0x45,
+    SlowQuoteDueToLrpOrGapQuoteOnTheOfferSide = 0x46,
+    SlowQuoteOnTheBidAndOfferSides = 0x48,
+    ClosedMarketMakerFinra = 0x4c,
+    NonFirmQuote = 0x4e,
+    OpeningQuote = 0x4f,
+    Regular = 0x52,
+    SlowQuoteDueToLrpOrGapQuoteOnBothSides = 0x55,
+    SlowQuoteDueToSetSlowListOnBothSides = 0x57,
+    OnDemandIntraDayAuction = 0x34,
+};
+
+type RetailInterestIndicator = enum {
+    RetailInterestNotApplicable = 0x20,
+    RetailInterestOnBidQuote = 0x41,
+    RetailInterestOnOfferQuote = 0x42,
+    RetailInterestOnBothTheBidAndOfferQuotes = 0x43,
+};
+
+type SettlementCondition = enum {
+    RegularWaySettlement = 0x20,
+    CashOnlySettlement = 0x41,
+    NextDayOnlySettlement = 0x42,
+};
+
+type MarketCondition = enum {
+    NormalAuctionMarket = 0x20,
+    CrossedMarket = 0x41,
+    LockedMarket = 0x42,
+};
+
+type FinraBboIndicator = enum {
+    FinraBboIndicatorNotApplicable = 0x20,
+    NoFinraBboChange = 0x41,
+    NoFinraBboExists = 0x42,
+};
+
+type ShortSaleRestrictionIndicator = enum {
+    ShortSaleRestrictionNotApplicable = 0x20,
+    ShortSaleRestrictionActivated = 0x41,
+    ShortSaleRestrictionContinued = 0x43,
+    ShortSaleRestrictionDeactivated = 0x44,
+};
+
+type ClearPriorOddLotQuotes = enum {
+    NotApplicable = 0x20,
+    ClearAllPreviousOddLotBids = 0x42,
+    ClearAllPreviousOddLotOffers = 0x53,
+    ClearAllPreviousOddLotBidsAndOffers = 0x58,
+};
+
+type SecurityStatus = enum {
+    SecurityStatusNotApplicable = 0x20,
+    TradingHalt = 0x32,
+    Resume = 0x33,
+    PriceIndication = 0x35,
+    TradingRangeIndication = 0x36,
+    MarketImbalanceBuy = 0x37,
+    MarketImbalanceSell = 0x38,
+    ClosingImbalanceBuy = 0x39,
+    ClosingImbalanceSell = 0x41,
+    NoMarketImbalance = 0x43,
+    NoClosingImbalance = 0x44,
+    ShortSaleRestriction = 0x45,
+    LimitUpLimitDownLuldReferencePrice = 0x46,
+};
+
+type HaltReason = enum {
+    HaltReasonNotApplicable = 0x20,
+    AdditionalInformationRequested = 0x41,
+    RegulatoryConcern = 0x43,
+    NewsReleased = 0x44,
+    MergerEffective = 0x45,
+    EtfComponentPricesNotAvailable = 0x46,
+    OrderImbalance = 0x49,
+    LimitUpLimitDownLuldTradingPause = 0x4d,
+    CorporateAction = 0x4e,
+    NewSecurityOffering = 0x4f,
+    NewsPending = 0x50,
+    IntradayIndicativeValueNotAvailable = 0x56,
+    Operational = 0x58,
+    SubPennyTrading = 0x59,
+    MarketWideCircuitBreakerLevel1Breached = 0x31,
+    MarketWideCircuitBreakerLevel2Breached = 0x32,
+    MarketWideCircuitBreakerLevel3Breached = 0x33,
+};
+

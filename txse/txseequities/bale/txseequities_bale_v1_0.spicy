@@ -1,0 +1,285 @@
+module TxseTxseequitiesBaleRakeV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type TxseequitiesBaleV10 = unit {
+    udp_header: UdpHeader;
+    udp_sequenced_message: UdpSequencedMessage[self.udp_header.message_count];
+};
+
+type UdpHeader = unit {
+    session: uint64;
+    sequence: uint64;
+    message_count: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+};
+
+type UdpSequencedMessage = unit {
+    message_length: uint16;
+    stream_id: uint8;
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        MessageType::DefineSymbolMessage -> define_symbol_message: DefineSymbolMessage;
+        MessageType::SymbolStatusMessage -> symbol_status_message: SymbolStatusMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::TopOfBookMessage -> top_of_book_message: TopOfBookMessage;
+        MessageType::AuctionPreambleMessage -> auction_preamble_message: AuctionPreambleMessage;
+        MessageType::AuctionBandWindowMessage -> auction_band_window_message: AuctionBandWindowMessage;
+        MessageType::AuctionPrintMessage -> auction_print_message: AuctionPrintMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TradingSessionStatusMessage = unit {
+    trading_session_status_presence_bits: bitfield(8) {
+        has_trading_session_status_operational_halt_reason: 0;
+        has_trading_session_status_regulatory_halt_reason: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    market_hours_state: int8 &convert=MarketHoursState($$);
+    session_trading_state: int8 &convert=SessionTradingState($$);
+    trading_session_status_operational_halt_reason: int8 &convert=TradingSessionStatusOperationalHaltReason($$);
+    trading_session_status_regulatory_halt_reason: int8 &convert=TradingSessionStatusRegulatoryHaltReason($$);
+};
+
+type DefineSymbolMessage = unit {
+    transact_time: int64;
+    symbol_id: int16;
+    symbol: bytes &size=8;
+    suffix: bytes &size=8;
+    matching_engine_id: int8;
+    define_symbol_bit_fields: bitfield(8) {
+        is_test: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    lot_size: int32;
+    listing_market: int8;
+};
+
+type SymbolStatusMessage = unit {
+    symbol_status_presence_bits: bitfield(8) {
+        has_symbol_status_operational_halt_reason: 0;
+        has_symbol_status_regulatory_halt_reason: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    symbol_id: int16;
+    symbol_trading_state: int8 &convert=SymbolTradingState($$);
+    short_sale_restriction_state: int8 &convert=ShortSaleRestrictionState($$);
+    symbol_status_operational_halt_reason: int8 &convert=SymbolStatusOperationalHaltReason($$);
+    symbol_status_regulatory_halt_reason: int8 &convert=SymbolStatusRegulatoryHaltReason($$);
+};
+
+type TradeMessage = unit {
+    transact_time: int64;
+    symbol_id: int16;
+    price: int64;
+    qty: int32;
+    trade_through_exemption_reason: int8 &convert=TradeThroughExemptionReason($$);
+};
+
+type TopOfBookMessage = unit {
+    transact_time: int64;
+    symbol_id: int16;
+    bid_price: int64;
+    bid_qty: int32;
+    ask_price: int64;
+    ask_qty: int32;
+};
+
+type AuctionPreambleMessage = unit {
+    transact_time: int64;
+    symbol_id: int16;
+    auction_type: int8 &convert=AuctionType($$);
+    auction_start: int64;
+    matched_shares: int32;
+    excess_auction_side: int8 &convert=ExcessAuctionSide($$);
+    reserved_8: int64;
+};
+
+type AuctionBandWindowMessage = unit {
+    transact_time: int64;
+    symbol_id: int16;
+    auction_type: int8 &convert=AuctionType($$);
+    auction_start: int64;
+    extension_cycle_count: int8;
+    lower_participation_band: int64;
+    buy_shares_at_lower: int32;
+    sell_shares_at_lower: int32;
+    upper_participation_band: int64;
+    buy_shares_at_upper: int32;
+    sell_shares_at_upper: int32;
+    reserved_8: int64;
+};
+
+type AuctionPrintMessage = unit {
+    transact_time: int64;
+    symbol_id: int16;
+    auction_type: int8 &convert=AuctionType($$);
+    auction_price: int64;
+    matched_shares: int32;
+    exec_id: int64;
+};
+
+type PacketType = enum {
+    SequencedData = 0,
+    Heartbeat = 1,
+    StartOfSession = 2,
+    EndOfSession = 3,
+    GapFillRequest = 4,
+    GapFillResponse = 5,
+};
+
+type MessageType = enum {
+    TradingSessionStatusMessage = 105,
+    DefineSymbolMessage = 115,
+    SymbolStatusMessage = 121,
+    TradeMessage = 120,
+    TopOfBookMessage = 113,
+    AuctionPreambleMessage = 117,
+    AuctionBandWindowMessage = 118,
+    AuctionPrintMessage = 110,
+};
+
+type MarketHoursState = enum {
+    ClosedBeforeHours = 0,
+    EarlySession = 1,
+    RegularSession = 2,
+    AfterHoursSession = 3,
+    ClosedAfterHours = 4,
+};
+
+type SessionTradingState = enum {
+    Closed = 0,
+    Trading = 1,
+    Halted = 2,
+};
+
+type TradingSessionStatusOperationalHaltReason = enum {
+    Administrative = 0,
+};
+
+type TradingSessionStatusRegulatoryHaltReason = enum {
+    ReasonNotAvailable = 0,
+    NewsPending = 1,
+    NewsDissemination = 2,
+    InfoRequested = 3,
+    OrderImbalance = 4,
+    ExtraordinaryMarketActivity = 5,
+    LuldPause = 6,
+    NonCompliance = 7,
+    FilingsNotCurrent = 8,
+    SecSuspension = 9,
+    RegulatoryConcern = 10,
+    SubPennyTrading = 11,
+    Etf = 12,
+    IpoNotTrading = 13,
+    CorporateAction = 14,
+    CircuitBreakerL1 = 15,
+    CircuitBreakerL2 = 16,
+    CircuitBreakerL3 = 17,
+    CircuitBreakerCarryover = 18,
+    MergerEffective = 19,
+    NewSecurityOffering = 20,
+    IndicativeValueNotAvailable = 21,
+    QuotationNotAvailable = 22,
+    SingleStockTradingPause = 23,
+    Operational = 24,
+    LuldPauseStraddle = 25,
+    NewsResumptionTimes = 26,
+    SingleStockTradingPauseQuoting = 27,
+    QualificationsIssuesResolved = 28,
+    FilingRequirementsSatisfied = 29,
+    IssuerNewsNotForthcoming = 30,
+    QualificationsHaltEnded = 31,
+    QualificationsHaltConcluded = 32,
+    RegulatoryAuthorityHaltConcluded = 33,
+    NewIssueAvailable = 34,
+    IssueAvailable = 35,
+    IpoQuotationReleased = 36,
+    IpoPositioningWindowExtension = 37,
+    CircuitBreakerQuotationResumption = 38,
+};
+
+type SymbolTradingState = enum {
+    Trading = 1,
+    Halted = 2,
+    ResumePending = 3,
+};
+
+type ShortSaleRestrictionState = enum {
+    None_0 = 0,
+    Activated = 1,
+    Continued = 2,
+    Deactivated = 3,
+    InEffect = 4,
+};
+
+type SymbolStatusOperationalHaltReason = enum {
+    Administrative = 0,
+};
+
+type SymbolStatusRegulatoryHaltReason = enum {
+    ReasonNotAvailable = 0,
+    NewsPending = 1,
+    NewsDissemination = 2,
+    InfoRequested = 3,
+    OrderImbalance = 4,
+    ExtraordinaryMarketActivity = 5,
+    LuldPause = 6,
+    NonCompliance = 7,
+    FilingsNotCurrent = 8,
+    SecSuspension = 9,
+    RegulatoryConcern = 10,
+    SubPennyTrading = 11,
+    Etf = 12,
+    IpoNotTrading = 13,
+    CorporateAction = 14,
+    CircuitBreakerL1 = 15,
+    CircuitBreakerL2 = 16,
+    CircuitBreakerL3 = 17,
+    CircuitBreakerCarryover = 18,
+    MergerEffective = 19,
+    NewSecurityOffering = 20,
+    IndicativeValueNotAvailable = 21,
+    QuotationNotAvailable = 22,
+    SingleStockTradingPause = 23,
+    Operational = 24,
+    LuldPauseStraddle = 25,
+    NewsResumptionTimes = 26,
+    SingleStockTradingPauseQuoting = 27,
+    QualificationsIssuesResolved = 28,
+    FilingRequirementsSatisfied = 29,
+    IssuerNewsNotForthcoming = 30,
+    QualificationsHaltEnded = 31,
+    QualificationsHaltConcluded = 32,
+    RegulatoryAuthorityHaltConcluded = 33,
+    NewIssueAvailable = 34,
+    IssueAvailable = 35,
+    IpoQuotationReleased = 36,
+    IpoPositioningWindowExtension = 37,
+    CircuitBreakerQuotationResumption = 38,
+};
+
+type TradeThroughExemptionReason = enum {
+    None_0 = 0,
+    IntermarketSweep = 1,
+};
+
+type AuctionType = enum {
+    Opening = 1,
+    Closing = 2,
+    Halt = 3,
+    Ipo = 4,
+};
+
+type ExcessAuctionSide = enum {
+    Equal = 0,
+    Buy = 1,
+    Sell = 2,
+};
+

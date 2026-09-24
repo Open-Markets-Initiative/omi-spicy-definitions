@@ -1,0 +1,1284 @@
+module TxseTxseequitiesSeedRakeV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type TxseequitiesSeedV10 = unit {
+    rake_tcp_message: RakeTcpMessage[] &eod;
+};
+
+type RakeTcpMessage = unit {
+    rake_message_header: RakeMessageHeader;
+    switch ( self.rake_message_header.packet_type ) {
+        PacketType::LogonRequestPacket -> logon_request_packet: LogonRequestPacket;
+        PacketType::TcpUnsequencedMessage -> tcp_unsequenced_message: TcpUnsequencedMessage;
+        PacketType::DebugMessage -> debug_message: DebugMessage(self.rake_message_header.message_length);
+        PacketType::LogonResponseMessage -> logon_response_message: LogonResponseMessage;
+        PacketType::TcpSequencedMessage -> tcp_sequenced_message: TcpSequencedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RakeMessageHeader = unit {
+    message_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+};
+
+type LogonRequestPacket = unit {
+    session: uint64;
+    sender_comp: bytes &size=8;
+    token: bytes &size=8;
+    next_sequence_number: uint64;
+};
+
+type TcpUnsequencedMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::LimitOrderMessage -> limit_order_message: LimitOrderMessage;
+        MessageType::MarketOrderMessage -> market_order_message: MarketOrderMessage;
+        MessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
+        MessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        MessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
+        MessageType::MassCancelMessage -> mass_cancel_message: MassCancelMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type LimitOrderMessage = unit {
+    limit_order_presence_bits: bitfield(32) {
+        scope: 0;
+        has_limit_order_self_match_instruction: 1;
+        has_limit_order_price_slide_instruction: 2;
+        has_limit_order_min_qty: 3;
+        has_limit_order_max_floor_qty: 4;
+        has_limit_order_max_replenish_qty_range: 5;
+        has_limit_order_max_replenish_time_range: 6;
+        has_limit_order_reference_price_target: 7;
+        has_limit_order_expire_time: 8;
+        has_limit_order_user_data: 9;
+        has_limit_order_mpid: 10;
+        has_limit_order_member_group: 11;
+        has_limit_order_locate_broker: 12;
+        reserved_19: 13..31;
+    } &byte-order=spicy::ByteOrder::Little;
+    cl_ord_id: int64;
+    order_qty: int32;
+    limit_order_bit_fields: bitfield(32) {
+        side: 0..2;
+        is_locate_required: 3;
+        time_in_force: 4..7;
+        order_capacity: 8..10;
+        is_iso: 11;
+        is_hidden: 12;
+        is_post_only: 13;
+        cancel_at_entry_if_crossed: 14;
+        reserved_17: 15..31;
+    } &byte-order=spicy::ByteOrder::Little;
+    symbol_id: int16;
+    price: int64;
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    limit_order_self_match_instruction: int8 &convert=LimitOrderSelfMatchInstruction($$);
+    limit_order_price_slide_instruction: int8 &convert=LimitOrderPriceSlideInstruction($$);
+    limit_order_min_qty: int32;
+    limit_order_max_floor_qty: int32;
+    limit_order_max_replenish_qty_range: int32;
+    limit_order_max_replenish_time_range: int64;
+    limit_order_reference_price_target: int16;
+    limit_order_expire_time: int64;
+    limit_order_user_data: int64;
+    limit_order_mpid: bytes &size=4;
+    limit_order_member_group: bytes &size=2;
+    limit_order_locate_broker: bytes &size=4;
+};
+
+type MarketOrderMessage = unit {
+    market_order_presence_bits: bitfield(16) {
+        scope: 0;
+        has_market_order_self_match_instruction: 1;
+        has_market_order_user_data: 2;
+        has_market_order_mpid: 3;
+        has_market_order_member_group: 4;
+        has_market_order_locate_broker: 5;
+        reserved_10: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    cl_ord_id: int64;
+    order_qty: int32;
+    market_order_bit_fields: bitfield(16) {
+        side: 0..2;
+        is_locate_required: 3;
+        time_in_force: 4..7;
+        order_capacity: 8..10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    symbol_id: int16;
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    market_order_self_match_instruction: int8 &convert=MarketOrderSelfMatchInstruction($$);
+    market_order_user_data: int64;
+    market_order_mpid: bytes &size=4;
+    market_order_member_group: bytes &size=2;
+    market_order_locate_broker: bytes &size=4;
+};
+
+type CancelOrderMessage = unit {
+    orig_cl_ord_id: int64;
+};
+
+type ModifyOrderMessage = unit {
+    modify_order_presence_bits: bitfield(8) {
+        has_modify_order_order_qty: 0;
+        has_modify_order_bit_fields: 1;
+        has_modify_order_locate_broker: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    cl_ord_id: int64;
+    orig_cl_ord_id: int64;
+    modify_order_order_qty: int32;
+    modify_order_bit_fields: bitfield(8) {
+        side: 0..2;
+        is_locate_required: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    modify_order_locate_broker: bytes &size=4;
+};
+
+type ReplaceOrderMessage = unit {
+    replace_order_presence_bits: bitfield(16) {
+        has_replace_order_price: 0;
+        has_replace_order_order_qty: 1;
+        has_replace_order_max_floor_qty: 2;
+        scope: 3;
+        has_replace_order_self_match_instruction: 4;
+        has_replace_order_price_slide_instruction: 5;
+        has_replace_order_reference_price_target: 6;
+        has_replace_order_locate_broker: 7;
+        reserved_8: 8..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    cl_ord_id: int64;
+    orig_cl_ord_id: int64;
+    replace_order_bit_fields: bitfield(16) {
+        side: 0..2;
+        is_locate_required: 3;
+        is_iso: 4;
+        is_post_only: 5;
+        cancel_at_entry_if_crossed: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    replace_order_price: int64;
+    replace_order_order_qty: int32;
+    replace_order_max_floor_qty: int32;
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    replace_order_self_match_instruction: int8 &convert=ReplaceOrderSelfMatchInstruction($$);
+    replace_order_price_slide_instruction: int8 &convert=ReplaceOrderPriceSlideInstruction($$);
+    replace_order_reference_price_target: int16;
+    replace_order_locate_broker: bytes &size=4;
+};
+
+type MassCancelMessage = unit {
+    mass_cancel_presence_bits: bitfield(8) {
+        has_mass_cancel_mpid: 0;
+        has_mass_cancel_sender_comp: 1;
+        has_mass_cancel_member_group: 2;
+        has_mass_cancel_cl_ord_id: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mass_cancel_request_id: int64;
+    mass_cancel_scope: int8 &convert=MassCancelScope($$);
+    mass_cancel_bit_fields: bitfield(8) {
+        exclude_auction_orders: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mass_cancel_mpid: bytes &size=4;
+    mass_cancel_sender_comp: bytes &size=8;
+    mass_cancel_member_group: bytes &size=2;
+    mass_cancel_cl_ord_id: int64;
+};
+
+type DebugMessage = unit(message_length: uint16) {
+    text: bytes &size=message_length - 1;
+};
+
+type LogonResponseMessage = unit {
+    session: uint64;
+    next_sequence_number: uint64;
+    highest_known_sequence_number: uint64;
+    logon_response_code: uint8 &convert=LogonResponseCode($$);
+    number_stream_ids: uint8;
+    instance: uint32;
+};
+
+type TcpSequencedMessage = unit {
+    stream_id: uint8;
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        MessageType::DefineSymbolMessage -> define_symbol_message: DefineSymbolMessage;
+        MessageType::SymbolStatusMessage -> symbol_status_message: SymbolStatusMessage;
+        MessageType::LimitOrderAcceptedMessage -> limit_order_accepted_message: LimitOrderAcceptedMessage;
+        MessageType::LimitOrderRejectedMessage -> limit_order_rejected_message: LimitOrderRejectedMessage;
+        MessageType::MarketOrderAcceptedMessage -> market_order_accepted_message: MarketOrderAcceptedMessage;
+        MessageType::MarketOrderRejectedMessage -> market_order_rejected_message: MarketOrderRejectedMessage;
+        MessageType::OrderCanceledMessage -> order_canceled_message: OrderCanceledMessage;
+        MessageType::CancelRejectedMessage -> cancel_rejected_message: CancelRejectedMessage;
+        MessageType::OrderModifiedMessage -> order_modified_message: OrderModifiedMessage;
+        MessageType::ModifyRejectedMessage -> modify_rejected_message: ModifyRejectedMessage;
+        MessageType::OrderReplacedMessage -> order_replaced_message: OrderReplacedMessage;
+        MessageType::ReplaceRejectedMessage -> replace_rejected_message: ReplaceRejectedMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderRestatedMessage -> order_restated_message: OrderRestatedMessage;
+        MessageType::SelfMatchPreventedMessage -> self_match_prevented_message: SelfMatchPreventedMessage;
+        MessageType::MassCancelAcceptedMessage -> mass_cancel_accepted_message: MassCancelAcceptedMessage;
+        MessageType::MassCancelRejectedMessage -> mass_cancel_rejected_message: MassCancelRejectedMessage;
+        MessageType::MassCancelResultMessage -> mass_cancel_result_message: MassCancelResultMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TradingSessionStatusMessage = unit {
+    trading_session_status_presence_bits: bitfield(8) {
+        has_trading_session_status_operational_halt_reason: 0;
+        has_trading_session_status_regulatory_halt_reason: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    market_hours_state: int8 &convert=MarketHoursState($$);
+    session_trading_state: int8 &convert=SessionTradingState($$);
+    trading_session_status_operational_halt_reason: int8 &convert=TradingSessionStatusOperationalHaltReason($$);
+    trading_session_status_regulatory_halt_reason: int8 &convert=TradingSessionStatusRegulatoryHaltReason($$);
+};
+
+type DefineSymbolMessage = unit {
+    transact_time: int64;
+    symbol_id: int16;
+    symbol: bytes &size=8;
+    suffix: bytes &size=8;
+    matching_engine_id: int8;
+    define_symbol_bit_fields: bitfield(8) {
+        is_test: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    lot_size: int32;
+    listing_market: int8 &convert=ListingMarket($$);
+};
+
+type SymbolStatusMessage = unit {
+    symbol_status_presence_bits: bitfield(8) {
+        has_symbol_status_operational_halt_reason: 0;
+        has_symbol_status_regulatory_halt_reason: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    symbol_id: int16;
+    symbol_trading_state: int8 &convert=SymbolTradingState($$);
+    short_sale_restriction_state: int8 &convert=ShortSaleRestrictionState($$);
+    symbol_status_operational_halt_reason: int8 &convert=SymbolStatusOperationalHaltReason($$);
+    symbol_status_regulatory_halt_reason: int8 &convert=SymbolStatusRegulatoryHaltReason($$);
+};
+
+type LimitOrderAcceptedMessage = unit {
+    limit_order_accepted_presence_bits: bitfield(32) {
+        has_limit_order_accepted_self_match_scope: 0;
+        has_limit_order_accepted_self_match_instruction: 1;
+        has_limit_order_accepted_price_slide_instruction: 2;
+        has_limit_order_accepted_min_qty: 3;
+        has_limit_order_accepted_max_floor_qty: 4;
+        has_limit_order_accepted_max_replenish_qty_range: 5;
+        has_limit_order_accepted_max_replenish_time_range: 6;
+        has_limit_order_accepted_reference_price_target: 7;
+        has_limit_order_accepted_expire_time: 8;
+        has_limit_order_accepted_user_data: 9;
+        has_limit_order_accepted_mpid: 10;
+        has_limit_order_accepted_member_group: 11;
+        has_limit_order_accepted_locate_broker: 12;
+        has_limit_order_accepted_rank_price: 13;
+        has_limit_order_accepted_display_price: 14;
+        reserved_17: 15..31;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    order_id: int64;
+    cl_ord_id: int64;
+    order_qty: int32;
+    limit_order_accepted_bit_fields: bitfield(32) {
+        side: 0..2;
+        is_locate_required: 3;
+        time_in_force: 4..7;
+        order_capacity: 8..10;
+        is_iso: 11;
+        is_hidden: 12;
+        is_post_only: 13;
+        cancel_at_entry_if_crossed: 14;
+        reserved_17: 15..31;
+    } &byte-order=spicy::ByteOrder::Little;
+    symbol_id: int16;
+    price: int64;
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    limit_order_accepted_self_match_instruction: int8 &convert=LimitOrderAcceptedSelfMatchInstruction($$);
+    limit_order_accepted_price_slide_instruction: int8 &convert=LimitOrderAcceptedPriceSlideInstruction($$);
+    limit_order_accepted_min_qty: int32;
+    limit_order_accepted_max_floor_qty: int32;
+    limit_order_accepted_max_replenish_qty_range: int32;
+    limit_order_accepted_max_replenish_time_range: int64;
+    limit_order_accepted_reference_price_target: int16;
+    limit_order_accepted_expire_time: int64;
+    limit_order_accepted_user_data: int64;
+    limit_order_accepted_mpid: bytes &size=4;
+    limit_order_accepted_member_group: bytes &size=2;
+    limit_order_accepted_locate_broker: bytes &size=4;
+    limit_order_accepted_rank_price: int64;
+    limit_order_accepted_display_price: int64;
+};
+
+type LimitOrderRejectedMessage = unit {
+    limit_order_rejected_presence_bits: bitfield(32) {
+        scope: 0;
+        has_limit_order_rejected_self_match_instruction: 1;
+        has_limit_order_rejected_price_slide_instruction: 2;
+        has_limit_order_rejected_min_qty: 3;
+        has_limit_order_rejected_max_floor_qty: 4;
+        has_limit_order_rejected_max_replenish_qty_range: 5;
+        has_limit_order_rejected_max_replenish_time_range: 6;
+        has_limit_order_rejected_reference_price_target: 7;
+        has_limit_order_rejected_expire_time: 8;
+        has_limit_order_rejected_user_data: 9;
+        has_limit_order_rejected_mpid: 10;
+        has_limit_order_rejected_member_group: 11;
+        has_limit_order_rejected_locate_broker: 12;
+        reserved_19: 13..31;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    cl_ord_id: int64;
+    order_qty: int32;
+    limit_order_rejected_bit_fields: bitfield(32) {
+        side: 0..2;
+        is_locate_required: 3;
+        time_in_force: 4..7;
+        order_capacity: 8..10;
+        is_iso: 11;
+        is_hidden: 12;
+        is_post_only: 13;
+        cancel_at_entry_if_crossed: 14;
+        reserved_17: 15..31;
+    } &byte-order=spicy::ByteOrder::Little;
+    symbol_id: int16;
+    price: int64;
+    limit_order_rejected_reason: int8 &convert=LimitOrderRejectedReason($$);
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    limit_order_rejected_self_match_instruction: int8 &convert=LimitOrderRejectedSelfMatchInstruction($$);
+    limit_order_rejected_price_slide_instruction: int8 &convert=LimitOrderRejectedPriceSlideInstruction($$);
+    limit_order_rejected_min_qty: int32;
+    limit_order_rejected_max_floor_qty: int32;
+    limit_order_rejected_max_replenish_qty_range: int32;
+    limit_order_rejected_max_replenish_time_range: int64;
+    limit_order_rejected_reference_price_target: int16;
+    limit_order_rejected_expire_time: int64;
+    limit_order_rejected_user_data: int64;
+    limit_order_rejected_mpid: bytes &size=4;
+    limit_order_rejected_member_group: bytes &size=2;
+    limit_order_rejected_locate_broker: bytes &size=4;
+};
+
+type MarketOrderAcceptedMessage = unit {
+    market_order_accepted_presence_bits: bitfield(16) {
+        scope: 0;
+        has_market_order_accepted_self_match_instruction: 1;
+        has_market_order_accepted_user_data: 2;
+        has_market_order_accepted_mpid: 3;
+        has_market_order_accepted_member_group: 4;
+        has_market_order_accepted_locate_broker: 5;
+        reserved_10: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    order_id: int64;
+    cl_ord_id: int64;
+    order_qty: int32;
+    market_order_accepted_bit_fields: bitfield(16) {
+        side: 0..2;
+        is_locate_required: 3;
+        time_in_force: 4..7;
+        order_capacity: 8..10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    symbol_id: int16;
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    market_order_accepted_self_match_instruction: int8 &convert=MarketOrderAcceptedSelfMatchInstruction($$);
+    market_order_accepted_user_data: int64;
+    market_order_accepted_mpid: bytes &size=4;
+    market_order_accepted_member_group: bytes &size=2;
+    market_order_accepted_locate_broker: bytes &size=4;
+};
+
+type MarketOrderRejectedMessage = unit {
+    market_order_rejected_presence_bits: bitfield(16) {
+        scope: 0;
+        has_market_order_rejected_self_match_instruction: 1;
+        has_market_order_rejected_user_data: 2;
+        has_market_order_rejected_mpid: 3;
+        has_market_order_rejected_member_group: 4;
+        has_market_order_rejected_locate_broker: 5;
+        reserved_10: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    cl_ord_id: int64;
+    order_qty: int32;
+    market_order_rejected_bit_fields: bitfield(16) {
+        side: 0..2;
+        is_locate_required: 3;
+        time_in_force: 4..7;
+        order_capacity: 8..10;
+        reserved_5: 11..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    symbol_id: int16;
+    market_order_rejected_reason: int8 &convert=MarketOrderRejectedReason($$);
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    market_order_rejected_self_match_instruction: int8 &convert=MarketOrderRejectedSelfMatchInstruction($$);
+    market_order_rejected_user_data: int64;
+    market_order_rejected_mpid: bytes &size=4;
+    market_order_rejected_member_group: bytes &size=2;
+    market_order_rejected_locate_broker: bytes &size=4;
+};
+
+type OrderCanceledMessage = unit {
+    transact_time: int64;
+    order_id: int64;
+    orig_cl_ord_id: int64;
+    cancel_reason: int8 &convert=CancelReason($$);
+};
+
+type CancelRejectedMessage = unit {
+    transact_time: int64;
+    orig_cl_ord_id: int64;
+    cancel_rejected_reason: int8 &convert=CancelRejectedReason($$);
+};
+
+type OrderModifiedMessage = unit {
+    order_modified_presence_bits: bitfield(8) {
+        has_order_modified_order_qty: 0;
+        has_order_modified_bit_fields: 1;
+        has_order_modified_locate_broker: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    order_id: int64;
+    cl_ord_id: int64;
+    orig_cl_ord_id: int64;
+    leaves_qty: int32;
+    order_modified_order_qty: int32;
+    order_modified_bit_fields: bitfield(8) {
+        side: 0..2;
+        is_locate_required: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    order_modified_locate_broker: bytes &size=4;
+};
+
+type ModifyRejectedMessage = unit {
+    modify_rejected_presence_bits: bitfield(8) {
+        has_modify_rejected_order_qty: 0;
+        has_modify_rejected_bit_fields: 1;
+        has_modify_rejected_locate_broker: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    cl_ord_id: int64;
+    orig_cl_ord_id: int64;
+    modify_rejected_reason: int8 &convert=ModifyRejectedReason($$);
+    modify_rejected_order_qty: int32;
+    modify_rejected_bit_fields: bitfield(8) {
+        side: 0..2;
+        is_locate_required: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    modify_rejected_locate_broker: bytes &size=4;
+};
+
+type OrderReplacedMessage = unit {
+    order_replaced_presence_bits: bitfield(16) {
+        has_order_replaced_price: 0;
+        has_order_replaced_order_qty: 1;
+        has_order_replaced_max_floor_qty: 2;
+        scope: 3;
+        has_order_replaced_self_match_instruction: 4;
+        has_order_replaced_price_slide_instruction: 5;
+        has_order_replaced_reference_price_target: 6;
+        has_order_replaced_locate_broker: 7;
+        has_order_replaced_rank_price: 8;
+        has_order_replaced_display_price: 9;
+        reserved_6: 10..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    order_id: int64;
+    cl_ord_id: int64;
+    orig_cl_ord_id: int64;
+    order_replaced_bit_fields: bitfield(16) {
+        side: 0..2;
+        is_locate_required: 3;
+        is_iso: 4;
+        is_post_only: 5;
+        cancel_at_entry_if_crossed: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    leaves_qty: int32;
+    order_replaced_price: int64;
+    order_replaced_order_qty: int32;
+    order_replaced_max_floor_qty: int32;
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    order_replaced_self_match_instruction: int8 &convert=OrderReplacedSelfMatchInstruction($$);
+    order_replaced_price_slide_instruction: int8 &convert=OrderReplacedPriceSlideInstruction($$);
+    order_replaced_reference_price_target: int16;
+    order_replaced_locate_broker: bytes &size=4;
+    order_replaced_rank_price: int64;
+    order_replaced_display_price: int64;
+};
+
+type ReplaceRejectedMessage = unit {
+    replace_rejected_presence_bits: bitfield(16) {
+        has_replace_rejected_price: 0;
+        has_replace_rejected_order_qty: 1;
+        has_replace_rejected_max_floor_qty: 2;
+        scope: 3;
+        has_replace_rejected_self_match_instruction: 4;
+        has_replace_rejected_price_slide_instruction: 5;
+        has_replace_rejected_reference_price_target: 6;
+        has_replace_rejected_locate_broker: 7;
+        reserved_8: 8..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    cl_ord_id: int64;
+    orig_cl_ord_id: int64;
+    replace_rejected_bit_fields: bitfield(16) {
+        side: 0..2;
+        is_locate_required: 3;
+        is_iso: 4;
+        is_post_only: 5;
+        cancel_at_entry_if_crossed: 6;
+        reserved_9: 7..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    replace_rejected_reason: int8 &convert=ReplaceRejectedReason($$);
+    replace_rejected_price: int64;
+    replace_rejected_order_qty: int32;
+    replace_rejected_max_floor_qty: int32;
+    self_match_scope: int8 &convert=SelfMatchScope($$);
+    replace_rejected_self_match_instruction: int8 &convert=ReplaceRejectedSelfMatchInstruction($$);
+    replace_rejected_price_slide_instruction: int8 &convert=ReplaceRejectedPriceSlideInstruction($$);
+    replace_rejected_reference_price_target: int16;
+    replace_rejected_locate_broker: bytes &size=4;
+};
+
+type OrderExecutedMessage = unit {
+    transact_time: int64;
+    order_id: int64;
+    cl_ord_id: int64;
+    exec_price: int64;
+    exec_id: int64;
+    exec_qty: int32;
+    leaves_qty: int32;
+    liquidity_indicator: int8 &convert=LiquidityIndicator($$);
+};
+
+type OrderRestatedMessage = unit {
+    order_restated_presence_bits: bitfield(8) {
+        has_order_restated_rank_price: 0;
+        has_order_restated_display_price: 1;
+        has_display_qty: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    order_id: int64;
+    cl_ord_id: int64;
+    restatement_reason: int8 &convert=RestatementReason($$);
+    order_restated_rank_price: int64;
+    order_restated_display_price: int64;
+    display_qty: int32;
+};
+
+type SelfMatchPreventedMessage = unit {
+    transact_time: int64;
+    order_id: int64;
+    cl_ord_id: int64;
+    exec_price: int64;
+    exec_id: int64;
+    exec_qty: int32;
+    canceled_qty: int32;
+    leaves_qty: int32;
+    liquidity_indicator: int8 &convert=LiquidityIndicator($$);
+};
+
+type MassCancelAcceptedMessage = unit {
+    mass_cancel_accepted_presence_bits: bitfield(8) {
+        has_mass_cancel_accepted_mpid: 0;
+        has_mass_cancel_accepted_sender_comp: 1;
+        has_mass_cancel_accepted_member_group: 2;
+        has_mass_cancel_accepted_cl_ord_id: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    mass_cancel_request_id: int64;
+    mass_cancel_accepted_scope: int8 &convert=MassCancelAcceptedScope($$);
+    mass_cancel_accepted_bit_fields: bitfield(8) {
+        exclude_auction_orders: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mass_cancel_id: int64;
+    mass_cancel_accepted_mpid: bytes &size=4;
+    mass_cancel_accepted_sender_comp: bytes &size=8;
+    mass_cancel_accepted_member_group: bytes &size=2;
+    mass_cancel_accepted_cl_ord_id: int64;
+};
+
+type MassCancelRejectedMessage = unit {
+    mass_cancel_rejected_presence_bits: bitfield(8) {
+        has_mass_cancel_rejected_mpid: 0;
+        has_mass_cancel_rejected_sender_comp: 1;
+        has_mass_cancel_rejected_member_group: 2;
+        has_mass_cancel_rejected_cl_ord_id: 3;
+        reserved_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    transact_time: int64;
+    mass_cancel_request_id: int64;
+    mass_cancel_rejected_scope: int8 &convert=MassCancelRejectedScope($$);
+    mass_cancel_rejected_bit_fields: bitfield(8) {
+        exclude_auction_orders: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mass_cancel_rejected_reason: int8 &convert=MassCancelRejectedReason($$);
+    mass_cancel_rejected_mpid: bytes &size=4;
+    mass_cancel_rejected_sender_comp: bytes &size=8;
+    mass_cancel_rejected_member_group: bytes &size=2;
+    mass_cancel_rejected_cl_ord_id: int64;
+};
+
+type MassCancelResultMessage = unit {
+    transact_time: int64;
+    mass_cancel_request_id: int64;
+    mass_cancel_id: int64;
+    canceled_count: int32;
+};
+
+type PacketType = enum {
+    LogonRequestPacket = 53,
+    MemberHeartbeatPacket = 55,
+    TcpUnsequencedMessage = 54,
+    DebugMessage = 48,
+    EndOfSessionMessage = 52,
+    LogonResponseMessage = 49,
+    ServerHeartbeatMessage = 51,
+    TcpSequencedMessage = 50,
+};
+
+type MessageType = enum {
+    LimitOrderMessage = 76,
+    MarketOrderMessage = 65,
+    CancelOrderMessage = 67,
+    ModifyOrderMessage = 77,
+    ReplaceOrderMessage = 82,
+    MassCancelMessage = 86,
+    TradingSessionStatusMessage = 105,
+    DefineSymbolMessage = 115,
+    SymbolStatusMessage = 121,
+    LimitOrderAcceptedMessage = 73,
+    LimitOrderRejectedMessage = 85,
+    MarketOrderAcceptedMessage = 68,
+    MarketOrderRejectedMessage = 84,
+    OrderCanceledMessage = 88,
+    CancelRejectedMessage = 87,
+    OrderModifiedMessage = 89,
+    ModifyRejectedMessage = 78,
+    OrderReplacedMessage = 74,
+    ReplaceRejectedMessage = 75,
+    OrderExecutedMessage = 69,
+    OrderRestatedMessage = 70,
+    SelfMatchPreventedMessage = 90,
+    MassCancelAcceptedMessage = 79,
+    MassCancelRejectedMessage = 80,
+    MassCancelResultMessage = 81,
+};
+
+type Side = enum {
+    Buy = 0,
+    LongSell = 1,
+    ShortSell = 2,
+    ShortExempt = 3,
+};
+
+type TimeInForce = enum {
+    Sys = 1,
+    Ioc = 2,
+    Gtt = 3,
+    Day = 4,
+    Rho = 5,
+    AtTheOpen = 6,
+    AtTheClose = 7,
+};
+
+type OrderCapacity = enum {
+    Agency = 1,
+    Principal = 2,
+    RisklessPrincipal = 3,
+};
+
+type SelfMatchScope = enum {
+    ByMember = 0,
+    ByMpid = 1,
+    ByMemberGroup = 2,
+    ByMpidAndMemberGroup = 3,
+};
+
+type LimitOrderSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type LimitOrderPriceSlideInstruction = enum {
+    NoPriceSlide = 0,
+    SinglePriceSlideOnLockAndCross = 1,
+    MultiplePriceSlidesOnLockAndCross = 2,
+    SinglePriceSlideLockOnly = 3,
+};
+
+type MarketOrderSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type ReplaceOrderSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type ReplaceOrderPriceSlideInstruction = enum {
+    NoPriceSlide = 0,
+    SinglePriceSlideOnLockAndCross = 1,
+    MultiplePriceSlidesOnLockAndCross = 2,
+    SinglePriceSlideLockOnly = 3,
+};
+
+type MassCancelScope = enum {
+    ByMemberOwnedSenderComps = 0,
+    ByMemberOwnedMpids = 1,
+};
+
+type LogonResponseCode = enum {
+    Success = 0,
+    IncorrectSenderComp = 1,
+    IncorrectSession = 2,
+    InvalidNextSequence = 3,
+    InvalidConfiguration = 4,
+    IncorrectToken = 5,
+};
+
+type MarketHoursState = enum {
+    ClosedBeforeHours = 0,
+    EarlySession = 1,
+    RegularSession = 2,
+    AfterHoursSession = 3,
+    ClosedAfterHours = 4,
+};
+
+type SessionTradingState = enum {
+    Closed = 0,
+    Trading = 1,
+    Halted = 2,
+};
+
+type TradingSessionStatusOperationalHaltReason = enum {
+    Administrative = 0,
+};
+
+type TradingSessionStatusRegulatoryHaltReason = enum {
+    ReasonNotAvailable = 0,
+    NewsPending = 1,
+    NewsDissemination = 2,
+    InfoRequested = 3,
+    OrderImbalance = 4,
+    ExtraordinaryMarketActivity = 5,
+    LuldPause = 6,
+    NonCompliance = 7,
+    FilingsNotCurrent = 8,
+    SecSuspension = 9,
+    RegulatoryConcern = 10,
+    SubPennyTrading = 11,
+    Etf = 12,
+    IpoNotTrading = 13,
+    CorporateAction = 14,
+    CircuitBreakerL1 = 15,
+    CircuitBreakerL2 = 16,
+    CircuitBreakerL3 = 17,
+    CircuitBreakerCarryover = 18,
+    MergerEffective = 19,
+    NewSecurityOffering = 20,
+    IndicativeValueNotAvailable = 21,
+    QuotationNotAvailable = 22,
+    SingleStockTradingPause = 23,
+    Operational = 24,
+    LuldPauseStraddle = 25,
+    NewsResumptionTimes = 26,
+    SingleStockTradingPauseQuoting = 27,
+    QualificationsIssuesResolved = 28,
+    FilingRequirementsSatisfied = 29,
+    IssuerNewsNotForthcoming = 30,
+    QualificationsHaltEnded = 31,
+    QualificationsHaltConcluded = 32,
+    RegulatoryAuthorityHaltConcluded = 33,
+    NewIssueAvailable = 34,
+    IssueAvailable = 35,
+    IpoQuotationReleased = 36,
+    IpoPositioningWindowExtension = 37,
+    CircuitBreakerQuotationResumption = 38,
+};
+
+type ListingMarket = enum {
+    NotAvailable = 0,
+    Txse = 70,
+};
+
+type SymbolTradingState = enum {
+    Trading = 1,
+    Halted = 2,
+    ResumePending = 3,
+};
+
+type ShortSaleRestrictionState = enum {
+    None_0 = 0,
+    Activated = 1,
+    Continued = 2,
+    Deactivated = 3,
+    InEffect = 4,
+};
+
+type SymbolStatusOperationalHaltReason = enum {
+    Administrative = 0,
+};
+
+type SymbolStatusRegulatoryHaltReason = enum {
+    ReasonNotAvailable = 0,
+    NewsPending = 1,
+    NewsDissemination = 2,
+    InfoRequested = 3,
+    OrderImbalance = 4,
+    ExtraordinaryMarketActivity = 5,
+    LuldPause = 6,
+    NonCompliance = 7,
+    FilingsNotCurrent = 8,
+    SecSuspension = 9,
+    RegulatoryConcern = 10,
+    SubPennyTrading = 11,
+    Etf = 12,
+    IpoNotTrading = 13,
+    CorporateAction = 14,
+    CircuitBreakerL1 = 15,
+    CircuitBreakerL2 = 16,
+    CircuitBreakerL3 = 17,
+    CircuitBreakerCarryover = 18,
+    MergerEffective = 19,
+    NewSecurityOffering = 20,
+    IndicativeValueNotAvailable = 21,
+    QuotationNotAvailable = 22,
+    SingleStockTradingPause = 23,
+    Operational = 24,
+    LuldPauseStraddle = 25,
+    NewsResumptionTimes = 26,
+    SingleStockTradingPauseQuoting = 27,
+    QualificationsIssuesResolved = 28,
+    FilingRequirementsSatisfied = 29,
+    IssuerNewsNotForthcoming = 30,
+    QualificationsHaltEnded = 31,
+    QualificationsHaltConcluded = 32,
+    RegulatoryAuthorityHaltConcluded = 33,
+    NewIssueAvailable = 34,
+    IssueAvailable = 35,
+    IpoQuotationReleased = 36,
+    IpoPositioningWindowExtension = 37,
+    CircuitBreakerQuotationResumption = 38,
+};
+
+type LimitOrderAcceptedSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type LimitOrderAcceptedPriceSlideInstruction = enum {
+    NoPriceSlide = 0,
+    SinglePriceSlideOnLockAndCross = 1,
+    MultiplePriceSlidesOnLockAndCross = 2,
+    SinglePriceSlideLockOnly = 3,
+};
+
+type LimitOrderRejectedReason = enum {
+    InvalidClientOrderId = 1,
+    DuplicateClientOrderId = 2,
+    UnknownOriginalClientOrderId = 3,
+    NoLongerOnBook = 4,
+    InvalidSymbol = 5,
+    InvalidPrice = 6,
+    InvalidOrderQuantity = 7,
+    InvalidReferencePriceTarget = 8,
+    InvalidIsHiddenFlag = 9,
+    InvalidOrderType = 10,
+    InvalidSide = 11,
+    InvalidMaxFloorQuantity = 12,
+    InvalidMaxReplenishQuantityRange = 13,
+    InvalidMaxReplenishTimeRange = 14,
+    InvalidMinimumQuantity = 15,
+    InvalidLocateRequiredFlag = 16,
+    InvalidTimeInForce = 17,
+    ModificationNotPermitted = 18,
+    InvalidMpid = 19,
+    InvalidSenderComp = 20,
+    InvalidIsPostOnlyFlag = 21,
+    InvalidExpireTime = 22,
+    InvalidForTradingSession = 23,
+    InvalidForTradingStatus = 24,
+    InvalidForSymbolStatus = 25,
+    InvalidIsIsoFlag = 26,
+    TradingDisabledForMpidOnPort = 27,
+    TradingDisabledForNonTestSymbols = 28,
+    TradingDisabledForOrderCapacity = 29,
+    TradingDisabledForIso = 30,
+    MaximumOrderQuantityBreached = 31,
+    MaximumPriceBreached = 32,
+    MaximumNotionalBreached = 33,
+    InvalidMassCancelRequestId = 34,
+    SymbolOnRestrictedList = 35,
+    LuldBandBreached = 36,
+    InvalidPriceIncrement = 37,
+    AuctionOrderNotCancelable = 38,
+    InvalidForAuctionOrder = 39,
+};
+
+type LimitOrderRejectedSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type LimitOrderRejectedPriceSlideInstruction = enum {
+    NoPriceSlide = 0,
+    SinglePriceSlideOnLockAndCross = 1,
+    MultiplePriceSlidesOnLockAndCross = 2,
+    SinglePriceSlideLockOnly = 3,
+};
+
+type MarketOrderAcceptedSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type MarketOrderRejectedReason = enum {
+    InvalidClientOrderId = 1,
+    DuplicateClientOrderId = 2,
+    UnknownOriginalClientOrderId = 3,
+    NoLongerOnBook = 4,
+    InvalidSymbol = 5,
+    InvalidPrice = 6,
+    InvalidOrderQuantity = 7,
+    InvalidReferencePriceTarget = 8,
+    InvalidIsHiddenFlag = 9,
+    InvalidOrderType = 10,
+    InvalidSide = 11,
+    InvalidMaxFloorQuantity = 12,
+    InvalidMaxReplenishQuantityRange = 13,
+    InvalidMaxReplenishTimeRange = 14,
+    InvalidMinimumQuantity = 15,
+    InvalidLocateRequiredFlag = 16,
+    InvalidTimeInForce = 17,
+    ModificationNotPermitted = 18,
+    InvalidMpid = 19,
+    InvalidSenderComp = 20,
+    InvalidIsPostOnlyFlag = 21,
+    InvalidExpireTime = 22,
+    InvalidForTradingSession = 23,
+    InvalidForTradingStatus = 24,
+    InvalidForSymbolStatus = 25,
+    InvalidIsIsoFlag = 26,
+    TradingDisabledForMpidOnPort = 27,
+    TradingDisabledForNonTestSymbols = 28,
+    TradingDisabledForOrderCapacity = 29,
+    TradingDisabledForIso = 30,
+    MaximumOrderQuantityBreached = 31,
+    MaximumPriceBreached = 32,
+    MaximumNotionalBreached = 33,
+    InvalidMassCancelRequestId = 34,
+    SymbolOnRestrictedList = 35,
+    LuldBandBreached = 36,
+    InvalidPriceIncrement = 37,
+    AuctionOrderNotCancelable = 38,
+    InvalidForAuctionOrder = 39,
+};
+
+type MarketOrderRejectedSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type CancelReason = enum {
+    RequestedByUser = 1,
+    RelatedToTimeInForce = 2,
+    RelatedToMinQty = 3,
+    RegNmsViolationNoSlide = 4,
+    MarketableReserve = 5,
+    SelfMatchPrevention = 6,
+    ReplenishmentCanceledDueToReserve = 7,
+    RelatedToOrderType = 8,
+    CanceledDueToCrossedMarkets = 9,
+    CanceledDueToMassCancelRequest = 10,
+    ExchangeLockedOrCrossedNoSlide = 11,
+    RegShoViolationNoSlide = 12,
+    LuldBreachedNoSlide = 13,
+    CanceledAsPriceBreachedLuld = 14,
+    CanceledOnDisconnect = 15,
+    AuctionOrderPostCross = 16,
+    PegReferencePriceBreachesLimitPrice = 17,
+    OddLotNotExecutable = 18,
+};
+
+type CancelRejectedReason = enum {
+    InvalidClientOrderId = 1,
+    DuplicateClientOrderId = 2,
+    UnknownOriginalClientOrderId = 3,
+    NoLongerOnBook = 4,
+    InvalidSymbol = 5,
+    InvalidPrice = 6,
+    InvalidOrderQuantity = 7,
+    InvalidReferencePriceTarget = 8,
+    InvalidIsHiddenFlag = 9,
+    InvalidOrderType = 10,
+    InvalidSide = 11,
+    InvalidMaxFloorQuantity = 12,
+    InvalidMaxReplenishQuantityRange = 13,
+    InvalidMaxReplenishTimeRange = 14,
+    InvalidMinimumQuantity = 15,
+    InvalidLocateRequiredFlag = 16,
+    InvalidTimeInForce = 17,
+    ModificationNotPermitted = 18,
+    InvalidMpid = 19,
+    InvalidSenderComp = 20,
+    InvalidIsPostOnlyFlag = 21,
+    InvalidExpireTime = 22,
+    InvalidForTradingSession = 23,
+    InvalidForTradingStatus = 24,
+    InvalidForSymbolStatus = 25,
+    InvalidIsIsoFlag = 26,
+    TradingDisabledForMpidOnPort = 27,
+    TradingDisabledForNonTestSymbols = 28,
+    TradingDisabledForOrderCapacity = 29,
+    TradingDisabledForIso = 30,
+    MaximumOrderQuantityBreached = 31,
+    MaximumPriceBreached = 32,
+    MaximumNotionalBreached = 33,
+    InvalidMassCancelRequestId = 34,
+    SymbolOnRestrictedList = 35,
+    LuldBandBreached = 36,
+    InvalidPriceIncrement = 37,
+    AuctionOrderNotCancelable = 38,
+    InvalidForAuctionOrder = 39,
+};
+
+type ModifyRejectedReason = enum {
+    InvalidClientOrderId = 1,
+    DuplicateClientOrderId = 2,
+    UnknownOriginalClientOrderId = 3,
+    NoLongerOnBook = 4,
+    InvalidSymbol = 5,
+    InvalidPrice = 6,
+    InvalidOrderQuantity = 7,
+    InvalidReferencePriceTarget = 8,
+    InvalidIsHiddenFlag = 9,
+    InvalidOrderType = 10,
+    InvalidSide = 11,
+    InvalidMaxFloorQuantity = 12,
+    InvalidMaxReplenishQuantityRange = 13,
+    InvalidMaxReplenishTimeRange = 14,
+    InvalidMinimumQuantity = 15,
+    InvalidLocateRequiredFlag = 16,
+    InvalidTimeInForce = 17,
+    ModificationNotPermitted = 18,
+    InvalidMpid = 19,
+    InvalidSenderComp = 20,
+    InvalidIsPostOnlyFlag = 21,
+    InvalidExpireTime = 22,
+    InvalidForTradingSession = 23,
+    InvalidForTradingStatus = 24,
+    InvalidForSymbolStatus = 25,
+    InvalidIsIsoFlag = 26,
+    TradingDisabledForMpidOnPort = 27,
+    TradingDisabledForNonTestSymbols = 28,
+    TradingDisabledForOrderCapacity = 29,
+    TradingDisabledForIso = 30,
+    MaximumOrderQuantityBreached = 31,
+    MaximumPriceBreached = 32,
+    MaximumNotionalBreached = 33,
+    InvalidMassCancelRequestId = 34,
+    SymbolOnRestrictedList = 35,
+    LuldBandBreached = 36,
+    InvalidPriceIncrement = 37,
+    AuctionOrderNotCancelable = 38,
+    InvalidForAuctionOrder = 39,
+};
+
+type OrderReplacedSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type OrderReplacedPriceSlideInstruction = enum {
+    NoPriceSlide = 0,
+    SinglePriceSlideOnLockAndCross = 1,
+    MultiplePriceSlidesOnLockAndCross = 2,
+    SinglePriceSlideLockOnly = 3,
+};
+
+type ReplaceRejectedReason = enum {
+    InvalidClientOrderId = 1,
+    DuplicateClientOrderId = 2,
+    UnknownOriginalClientOrderId = 3,
+    NoLongerOnBook = 4,
+    InvalidSymbol = 5,
+    InvalidPrice = 6,
+    InvalidOrderQuantity = 7,
+    InvalidReferencePriceTarget = 8,
+    InvalidIsHiddenFlag = 9,
+    InvalidOrderType = 10,
+    InvalidSide = 11,
+    InvalidMaxFloorQuantity = 12,
+    InvalidMaxReplenishQuantityRange = 13,
+    InvalidMaxReplenishTimeRange = 14,
+    InvalidMinimumQuantity = 15,
+    InvalidLocateRequiredFlag = 16,
+    InvalidTimeInForce = 17,
+    ModificationNotPermitted = 18,
+    InvalidMpid = 19,
+    InvalidSenderComp = 20,
+    InvalidIsPostOnlyFlag = 21,
+    InvalidExpireTime = 22,
+    InvalidForTradingSession = 23,
+    InvalidForTradingStatus = 24,
+    InvalidForSymbolStatus = 25,
+    InvalidIsIsoFlag = 26,
+    TradingDisabledForMpidOnPort = 27,
+    TradingDisabledForNonTestSymbols = 28,
+    TradingDisabledForOrderCapacity = 29,
+    TradingDisabledForIso = 30,
+    MaximumOrderQuantityBreached = 31,
+    MaximumPriceBreached = 32,
+    MaximumNotionalBreached = 33,
+    InvalidMassCancelRequestId = 34,
+    SymbolOnRestrictedList = 35,
+    LuldBandBreached = 36,
+    InvalidPriceIncrement = 37,
+    AuctionOrderNotCancelable = 38,
+    InvalidForAuctionOrder = 39,
+};
+
+type ReplaceRejectedSelfMatchInstruction = enum {
+    NoSelfMatchPrevention = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    CancelSmallest = 4,
+    DecrementAndCancel = 5,
+};
+
+type ReplaceRejectedPriceSlideInstruction = enum {
+    NoPriceSlide = 0,
+    SinglePriceSlideOnLockAndCross = 1,
+    MultiplePriceSlidesOnLockAndCross = 2,
+    SinglePriceSlideLockOnly = 3,
+};
+
+type LiquidityIndicator = enum {
+    RemovedHiddenLiquidity = 0,
+    RemovedDisplayedLiquidity = 1,
+    AddedHiddenLiquidity = 2,
+    AddedDisplayedLiquidity = 3,
+    Auction = 4,
+};
+
+type RestatementReason = enum {
+    ReserveReplenished = 1,
+    Repriced = 2,
+    PostAuction = 3,
+};
+
+type MassCancelAcceptedScope = enum {
+    ByMemberOwnedSenderComps = 0,
+    ByMemberOwnedMpids = 1,
+};
+
+type MassCancelRejectedScope = enum {
+    ByMemberOwnedSenderComps = 0,
+    ByMemberOwnedMpids = 1,
+};
+
+type MassCancelRejectedReason = enum {
+    InvalidClientOrderId = 1,
+    DuplicateClientOrderId = 2,
+    UnknownOriginalClientOrderId = 3,
+    NoLongerOnBook = 4,
+    InvalidSymbol = 5,
+    InvalidPrice = 6,
+    InvalidOrderQuantity = 7,
+    InvalidReferencePriceTarget = 8,
+    InvalidIsHiddenFlag = 9,
+    InvalidOrderType = 10,
+    InvalidSide = 11,
+    InvalidMaxFloorQuantity = 12,
+    InvalidMaxReplenishQuantityRange = 13,
+    InvalidMaxReplenishTimeRange = 14,
+    InvalidMinimumQuantity = 15,
+    InvalidLocateRequiredFlag = 16,
+    InvalidTimeInForce = 17,
+    ModificationNotPermitted = 18,
+    InvalidMpid = 19,
+    InvalidSenderComp = 20,
+    InvalidIsPostOnlyFlag = 21,
+    InvalidExpireTime = 22,
+    InvalidForTradingSession = 23,
+    InvalidForTradingStatus = 24,
+    InvalidForSymbolStatus = 25,
+    InvalidIsIsoFlag = 26,
+    TradingDisabledForMpidOnPort = 27,
+    TradingDisabledForNonTestSymbols = 28,
+    TradingDisabledForOrderCapacity = 29,
+    TradingDisabledForIso = 30,
+    MaximumOrderQuantityBreached = 31,
+    MaximumPriceBreached = 32,
+    MaximumNotionalBreached = 33,
+    InvalidMassCancelRequestId = 34,
+    SymbolOnRestrictedList = 35,
+    LuldBandBreached = 36,
+    InvalidPriceIncrement = 37,
+    AuctionOrderNotCancelable = 38,
+    InvalidForAuctionOrder = 39,
+};
+

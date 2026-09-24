@@ -1,0 +1,78 @@
+module TxseTxseequitiesFramingTcpV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type TxseequitiesFramingV10 = unit {
+    rake_tcp_message: RakeTcpMessage[] &eod;
+};
+
+type RakeTcpMessage = unit {
+    rake_message_header: RakeMessageHeader;
+    switch ( self.rake_message_header.packet_type ) {
+        PacketType::LogonRequestPacket -> logon_request_packet: LogonRequestPacket;
+        PacketType::TcpUnsequencedMessage -> tcp_unsequenced_message: TcpUnsequencedMessage(self.rake_message_header.message_length);
+        PacketType::DebugMessage -> debug_message: DebugMessage(self.rake_message_header.message_length);
+        PacketType::LogonResponseMessage -> logon_response_message: LogonResponseMessage;
+        PacketType::TcpSequencedMessage -> tcp_sequenced_message: TcpSequencedMessage(self.rake_message_header.message_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RakeMessageHeader = unit {
+    message_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+};
+
+type LogonRequestPacket = unit {
+    session: uint64;
+    sender_comp: bytes &size=8;
+    token: bytes &size=8;
+    next_sequence_number: uint64;
+};
+
+type TcpUnsequencedMessage = unit(message_length: uint16) {
+    message_type: uint8;
+    unsequenced_message: bytes &size=message_length - 2;
+};
+
+type DebugMessage = unit(message_length: uint16) {
+    text: bytes &size=message_length - 1;
+};
+
+type LogonResponseMessage = unit {
+    session: uint64;
+    next_sequence_number: uint64;
+    highest_known_sequence_number: uint64;
+    logon_response_code: uint8 &convert=LogonResponseCode($$);
+    number_stream_ids: uint8;
+    instance: uint32;
+};
+
+type TcpSequencedMessage = unit(message_length: uint16) {
+    stream_id: uint8;
+    message_type: uint8;
+    sequenced_message: bytes &size=message_length - 3;
+};
+
+type PacketType = enum {
+    LogonRequestPacket = 53,
+    MemberHeartbeatPacket = 55,
+    TcpUnsequencedMessage = 54,
+    DebugMessage = 48,
+    EndOfSessionMessage = 52,
+    LogonResponseMessage = 49,
+    ServerHeartbeatMessage = 51,
+    TcpSequencedMessage = 50,
+};
+
+type LogonResponseCode = enum {
+    Success = 0,
+    IncorrectSenderComp = 1,
+    IncorrectSession = 2,
+    InvalidNextSequence = 3,
+    InvalidConfiguration = 4,
+    IncorrectToken = 5,
+};
+

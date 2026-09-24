@@ -1,0 +1,191 @@
+module MiaxMiaxoptionsMpfMachV11Tcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MiaxoptionsMpfV11 = unit {
+    sesm_tcp_packet: SesmTcpPacket[] &eod;
+};
+
+type SesmTcpPacket = unit {
+    sesm_packet_header: SesmPacketHeader;
+    switch ( self.sesm_packet_header.sesm_packet_type ) {
+        SesmPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        SesmPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        SesmPacketType::LoginRequest -> login_request: LoginRequest;
+        SesmPacketType::LoginResponse -> login_response: LoginResponse;
+        SesmPacketType::SynchronizationComplete -> synchronization_complete: SynchronizationComplete;
+        SesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
+        SesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::TestPacket -> test_packet: TestPacket(self.sesm_packet_header.sesm_packet_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SesmPacketHeader = unit {
+    sesm_packet_length: uint16;
+    sesm_packet_type: uint8 &convert=SesmPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    sequence_number: uint64;
+    matching_engine_id: uint8;
+    sequenced_message_type: bytes &size=1;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::RefreshRequestMessage -> refresh_request_message: RefreshRequestMessage;
+        UnsequencedMessageType::RefreshResponseMessage -> refresh_response_message: RefreshResponseMessage;
+        UnsequencedMessageType::EndOfRefreshNotificationMessage -> end_of_refresh_notification_message: EndOfRefreshNotificationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RefreshRequestMessage = unit {
+    refresh_message_type: uint8 &convert=RefreshMessageType($$);
+};
+
+type RefreshResponseMessage = unit {
+    sequence_number: uint64;
+    application_message: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::SymbolDefinitionMessage -> symbol_definition_message: SymbolDefinitionMessage;
+        MessageType::IndexValueMessage -> index_value_message: IndexValueMessage;
+        MessageType::SyntheticFutureValueMessage -> synthetic_future_value_message: SyntheticFutureValueMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32;
+};
+
+type SymbolDefinitionMessage = unit {
+    nanoseconds: uint32;
+    synthetic_future_symbol: bytes &size=8;
+    settlement_date: bytes &size=8;
+    symbol_status: uint8 &convert=SymbolStatus($$);
+    : skip bytes &size=16;   # padding
+};
+
+type IndexValueMessage = unit {
+    nanoseconds: uint32;
+    symbol: bytes &size=5;
+    value: uint32;
+};
+
+type SyntheticFutureValueMessage = unit {
+    nanoseconds: uint32;
+    synthetic_future_symbol: bytes &size=8;
+    value: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type EndOfRefreshNotificationMessage = unit {
+    refresh_message_type: uint8 &convert=RefreshMessageType($$);
+};
+
+type LoginRequest = unit {
+    sesm_version: bytes &size=5;
+    username: bytes &size=5;
+    computer_id: bytes &size=8;
+    application_protocol: bytes &size=8;
+    requested_trading_session_id: uint8;
+    requested_sequence_number: uint64;
+};
+
+type LoginResponse = unit {
+    number_of_matching_engines: uint8;
+    login_status: uint8 &convert=LoginStatus($$);
+    trading_session_id: uint8;
+    highest_sequence_number: uint64;
+};
+
+type SynchronizationComplete = unit {
+    number_of_matching_engines: uint8;
+};
+
+type RetransmissionRequest = unit {
+    start_sequence_number: uint64;
+    end_sequence_number: uint64;
+};
+
+type LogoutRequest = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type GoodbyePacket = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type TestPacket = unit(sesm_packet_length: uint16) {
+    test_text: bytes &size=sesm_packet_length - 1;
+};
+
+type SesmPacketType = enum {
+    SequencedDataPacket = 0x73,
+    UnsequencedDataPacket = 0x55,
+    LoginRequest = 0x6c,
+    LoginResponse = 0x72,
+    SynchronizationComplete = 0x63,
+    RetransmissionRequest = 0x61,
+    LogoutRequest = 0x58,
+    GoodbyePacket = 0x47,
+    TradingSessionUpdate = 0x75,
+    ServerHeartbeat = 0x30,
+    ClientHeartbeat = 0x31,
+    TestPacket = 0x54,
+};
+
+type UnsequencedMessageType = enum {
+    RefreshRequestMessage = 0x52,
+    RefreshResponseMessage = 0x72,
+    EndOfRefreshNotificationMessage = 0x45,
+};
+
+type RefreshMessageType = enum {
+    IndexUpdateRefresh = 0x49,
+    SyntheticFutureValues = 0x5a,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 0x31,
+    SymbolDefinitionMessage = 0x73,
+    IndexValueMessage = 0x49,
+    SyntheticFutureValueMessage = 0x5a,
+};
+
+type SymbolStatus = enum {
+    ActiveFuture = 0x41,
+    InactiveFuture = 0x49,
+};
+
+type LoginStatus = enum {
+    Successful = 0x20,
+    InvalidTradingSessionRequested = 0x53,
+    NoActiveTradingSessionExists = 0x55,
+    Rejected = 0x58,
+    InvalidStartSequenceNumberRequested = 0x4e,
+    IncompatibleSessionProtocolVersion = 0x49,
+    IncompatibleApplicationProtocolVersion = 0x41,
+    RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
+};
+
+type LogoutReason = enum {
+    GracefulLogout = 0x20,
+    BadPacket = 0x42,
+    TimedOut = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+

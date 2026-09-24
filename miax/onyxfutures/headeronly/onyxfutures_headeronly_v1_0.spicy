@@ -1,0 +1,30 @@
+module MiaxOnyxfuturesHeaderonlyMachV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type OnyxfuturesHeaderonlyV10 = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    sequence_number: uint64;
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+    session_number: uint8;
+    payload: ApplicationMessage(self.packet_length);
+};
+
+type ApplicationMessage = unit(packet_length: uint16) {
+    message_type: uint8;
+    data: bytes &size=packet_length - 13;
+};
+
+type PacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+

@@ -1,0 +1,432 @@
+module MiaxOnyxfuturesExpressinterfaceFeiV10C;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type OnyxfuturesExpressinterfaceV10C = unit {
+    sesm_tcp_packet: SesmTcpPacket[] &eod;
+};
+
+type SesmTcpPacket = unit {
+    sesm_packet_header: SesmPacketHeader;
+    switch ( self.sesm_packet_header.sesm_packet_type ) {
+        SesmPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        SesmPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        SesmPacketType::LoginRequest -> login_request: LoginRequest;
+        SesmPacketType::LoginResponse -> login_response: LoginResponse;
+        SesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
+        SesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.sesm_packet_header.sesm_packet_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SesmPacketHeader = unit {
+    sesm_packet_length: uint16;
+    sesm_packet_type: uint8 &convert=SesmPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    sequence_number: uint64;
+    sequenced_message_type: bytes &size=2;
+    switch ( self.sequenced_message_type ) {
+        0 -> new_order_response_message: NewOrderResponseMessage;
+        0 -> modify_order_response: ModifyOrderResponse;
+        0 -> cancel_order_response: CancelOrderResponse;
+        0 -> mass_cancel_response: MassCancelResponse;
+        0 -> strategy_creation_response_message: StrategyCreationResponseMessage;
+        0 -> system_state_notification_message: SystemStateNotificationMessage;
+        0 -> new_order_notification: NewOrderNotification;
+        0 -> modify_order_notification: ModifyOrderNotification;
+        0 -> cancel_reduce_size_order_notification: CancelReduceSizeOrderNotification;
+        0 -> order_status_update_notification: OrderStatusUpdateNotification;
+        0 -> simple_execution_notification: SimpleExecutionNotification;
+        0 -> complex_execution_notification: ComplexExecutionNotification;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NewOrderResponseMessage = unit {
+    matching_engine: uint64;
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    order_id: uint64;
+    status: bytes &size=1;
+    : skip bytes &size=10;   # padding
+};
+
+type ModifyOrderResponse = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    order_id: uint64;
+    leaves_qty: uint32;
+    status: bytes &size=1;
+    : skip bytes &size=10;   # padding
+};
+
+type CancelOrderResponse = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    original_client_order: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    order_id: uint64;
+    status: bytes &size=1;
+};
+
+type MassCancelResponse = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    status: bytes &size=1;
+    : skip bytes &size=10;   # padding
+};
+
+type StrategyCreationResponseMessage = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    instrument_id_string_20: bytes &size=20;
+    status: bytes &size=1;
+    : skip bytes &size=16;   # padding
+};
+
+type SystemStateNotificationMessage = unit {
+    matching_engine_time: uint64;
+    version: bytes &size=8;
+    session_id: uint8;
+    system_status: bytes &size=1;
+    : skip bytes &size=8;   # padding
+};
+
+type NewOrderNotification = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    order_id: uint64;
+    client_send_time: uint64;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    account: bytes &size=16;
+    client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size_binary_u_4: uint32;
+    order_instructions: bitfield(16) {
+        side: 0;
+        unused_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_type: bytes &size=1;
+    self_trade_protection: bitfield(8) {
+        self_trade_protection_level: 0..2;
+        self_trade_protection_instruction: 3..5;
+        unused_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: bytes &size=1;
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        unused_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    min_qty: uint32;
+    order_expiry_date: uint16;
+    trading_collar_dollar_value: int64;
+    cti_code: bytes &size=1;
+    text_memo: bytes &size=20;
+    : skip bytes &size=32;   # padding
+};
+
+type ModifyOrderNotification = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    order_id: uint64;
+    client_send_time: uint64;
+    leaves_qty: uint32;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size_binary_s_4: int32;
+    order_expiry_date: uint16;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: bytes &size=1;
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        unused_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=32;   # padding
+};
+
+type CancelReduceSizeOrderNotification = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    order_id: uint64;
+    client_send_time: uint64;
+    leaves_qty: uint32;
+    cancel_reason: bytes &size=1;
+    last_price: int64;
+    last_size: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type OrderStatusUpdateNotification = unit {
+    matching_engine_time: uint64;
+    instrument_id_binary_u_4: uint32;
+    order_id: uint64;
+    update_status: bytes &size=1;
+    : skip bytes &size=32;   # padding
+};
+
+type SimpleExecutionNotification = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    instrument_id_binary_u_4: uint32;
+    client_order_id: bytes &size=20;
+    simple_trade_id: uint64;
+    complex_trade_id: uint64;
+    execution_id: uint64;
+    trade_date: uint16;
+    correction_number: uint8;
+    trade_status: bytes &size=1;
+    last_price: int64;
+    last_size: uint32;
+    order_instructions: bitfield(16) {
+        side: 0;
+        unused_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    cti_code: bytes &size=1;
+    text_memo: bytes &size=20;
+    liquidity_indicator: bytes &size=3;
+    : skip bytes &size=32;   # padding
+};
+
+type ComplexExecutionNotification = unit {
+    matching_engine_time: uint64;
+    mp_id: bytes &size=5;
+    instrument_id_binary_u_4: uint32;
+    client_order_id: bytes &size=20;
+    complex_trade_id: uint64;
+    trade_date: uint16;
+    last_net_price: int64;
+    last_size: uint32;
+    order_instructions: bitfield(16) {
+        side: 0;
+        unused_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=32;   # padding
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: bytes &size=2;
+    switch ( self.unsequenced_message_type ) {
+        0 -> new_order_request_message: NewOrderRequestMessage;
+        0 -> new_order_response_message: NewOrderResponseMessage;
+        0 -> modify_order_request_message: ModifyOrderRequestMessage;
+        0 -> modify_order_response: ModifyOrderResponse;
+        0 -> cancel_order_request_message: CancelOrderRequestMessage;
+        0 -> cancel_order_response: CancelOrderResponse;
+        0 -> mass_cancel_request: MassCancelRequest;
+        0 -> mass_cancel_response: MassCancelResponse;
+        0 -> strategy_creation_request: StrategyCreationRequest;
+        0 -> strategy_creation_response_message: StrategyCreationResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NewOrderRequestMessage = unit {
+    client_send_time: uint64;
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    account: bytes &size=16;
+    client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size_binary_u_4: uint32;
+    order_instructions: bitfield(16) {
+        side: 0;
+        unused_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_type: bytes &size=1;
+    self_trade_protection: bitfield(8) {
+        self_trade_protection_level: 0..2;
+        self_trade_protection_instruction: 3..5;
+        unused_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: bytes &size=1;
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        unused_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    min_qty: uint32;
+    order_expiry_date: uint16;
+    trading_collar_dollar_value: int64;
+    cti_code: bytes &size=1;
+    text_memo: bytes &size=20;
+    : skip bytes &size=32;   # padding
+};
+
+type ModifyOrderRequestMessage = unit {
+    client_send_time: uint64;
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size_binary_s_4: int32;
+    order_expiry_date: uint16;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: bytes &size=1;
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        unused_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=32;   # padding
+};
+
+type CancelOrderRequestMessage = unit {
+    client_send_time: uint64;
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    order_id: uint64;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id_binary_u_4: uint32;
+    : skip bytes &size=10;   # padding
+};
+
+type MassCancelRequest = unit {
+    client_send_time: uint64;
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    : skip bytes &size=10;   # padding
+    client_order_id: bytes &size=20;
+    scope: bytes &size=1;
+    action: bytes &size=1;
+    product_group_code: bytes &size=6;
+    product_type: bytes &size=1;
+    purge_group: bytes &size=1;
+    : skip bytes &size=9;   # padding
+};
+
+type StrategyCreationRequest = unit {
+    client_send_time: uint64;
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    : skip bytes &size=16;   # padding
+    number_of_legs: uint8;
+    strategy_leg: StrategyLeg[self.number_of_legs];
+};
+
+type StrategyLeg = unit {
+    instrument_id_binary_u_4: uint32;
+    leg_ratio: int32;
+    : skip bytes &size=8;   # padding
+};
+
+type LoginRequest = unit {
+    sesm_version: bytes &size=5;
+    username: bytes &size=5;
+    computer_id: bytes &size=8;
+    application_protocol: bytes &size=8;
+    requested_session: uint8;
+    requested_sequence_number: uint64;
+};
+
+type LoginResponse = unit {
+    login_status: uint8 &convert=LoginStatus($$);
+    session_id: uint8;
+    highest_sequence_number: uint64;
+};
+
+type RetransmissionRequest = unit {
+    start_sequence_number: uint64;
+    end_sequence_number: uint64;
+};
+
+type LogoutRequest = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type GoodbyePacket = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type SesmPacketType = enum {
+    SequencedDataPacket = 0x53,
+    UnsequencedDataPacket = 0x55,
+    LoginRequest = 0x4c,
+    LoginResponse = 0x52,
+    SynchronizationComplete = 0x43,
+    RetransmissionRequest = 0x41,
+    LogoutRequest = 0x58,
+    GoodbyePacket = 0x47,
+    EndOfSession = 0x45,
+    ServerHeartbeat = 0x30,
+    ClientHeartbeat = 0x31,
+};
+
+type TimeInForce = enum {
+    Ioc = 0x49,
+    Day = 0x44,
+    Fok = 0x46,
+    Gtc = 0x43,
+    Gtd = 0x58,
+};
+
+type LoginStatus = enum {
+    Successful = 0x20,
+    Rejected = 0x58,
+    RequestedSessionIsNotAvailable = 0x53,
+    InvalidStartSequenceNumberRequested = 0x4e,
+    IncompatibleSessionProtocolVersion = 0x49,
+    IncompatibleApplicationProtocolVersion = 0x41,
+    RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
+};
+
+type LogoutReason = enum {
+    GracefulLogout = 0x20,
+    BadPacket = 0x42,
+    TimedOut = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+

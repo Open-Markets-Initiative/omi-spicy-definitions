@@ -1,0 +1,422 @@
+module SiacOpraInputObiV50I;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SiacOpraInputV50I = unit {
+    block_separator: uint16;
+    block_header: BlockHeader;
+    message: Message[self.block_header.messages_in_block];
+    block_pad_byte: uint8;
+};
+
+type BlockHeader = unit {
+    version: uint8;
+    block_size: uint16;
+    reserved: uint8;
+    second_reserved: uint8;
+    third_reserved: uint8;
+    block_sequence_number: uint32;
+    messages_in_block: uint8;
+    block_timestamp: BlockTimestamp;
+    block_checksum: uint16;
+};
+
+type BlockTimestamp = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        MessageCategory::EquityAndIndexLastSale -> equity_and_index_last_sale_category: EquityAndIndexLastSaleCategory;
+        MessageCategory::EquityAndIndexEndOfDaySummary -> equity_and_index_end_of_day_summary_category: EquityAndIndexEndOfDaySummaryCategory;
+        MessageCategory::LongEquityAndIndexQuote -> long_equity_and_index_quote_category: LongEquityAndIndexQuoteCategory;
+        MessageCategory::ShortEquityAndIndexQuote -> short_equity_and_index_quote_category: ShortEquityAndIndexQuoteCategory;
+        MessageCategory::Administrative -> administrative_category: AdministrativeCategory;
+        MessageCategory::Control -> control_category: ControlCategory;
+        MessageCategory::SequenceNumberStatus -> sequence_number_status_category: SequenceNumberStatusCategory;
+        MessageCategory::UnderlyingValueMessage -> underlying_value_message_category: UnderlyingValueMessageCategory;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    participant_id: uint8 &convert=ParticipantId($$);
+    message_category: uint8 &convert=MessageCategory($$);
+};
+
+type EquityAndIndexLastSaleCategory = unit {
+    equity_and_index_last_sale_message_type: uint8 &convert=EquityAndIndexLastSaleMessageType($$);
+    equity_and_index_last_sale_message_payload: EquityAndIndexLastSaleMessage;
+};
+
+type EquityAndIndexLastSaleMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    security_symbol: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    expiration_block: ExpirationBlock;
+    strike_price_denominator_code: uint8 &convert=StrikePriceDenominatorCode($$);
+    strike_price: int32;
+    volume: uint32;
+    premium_price_denominator_code: uint8 &convert=PremiumPriceDenominatorCode($$);
+    premium_price: int32;
+    trade_identifier: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type ExpirationBlock = unit {
+    expiration_month: uint8 &convert=ExpirationMonth($$);
+    expiration_day: uint8;
+    expiration_year: uint8;
+};
+
+type EquityAndIndexEndOfDaySummaryCategory = unit {
+    equity_and_index_end_of_day_summary_message_type: uint8 &convert=EquityAndIndexEndOfDaySummaryMessageType($$);
+    equity_and_index_end_of_day_summary_message_payload: EquityAndIndexEndOfDaySummaryMessage;
+};
+
+type EquityAndIndexEndOfDaySummaryMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    security_symbol: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    expiration_block: ExpirationBlock;
+    strike_price_denominator_code: uint8 &convert=StrikePriceDenominatorCode($$);
+    strike_price: int32;
+    volume: uint32;
+    open_interest_volume: uint32;
+    premium_price_denominator_code: uint8 &convert=PremiumPriceDenominatorCode($$);
+    open_price: int32;
+    high_price: int32;
+    low_price: int32;
+    last_price: int32;
+    net_change: int32;
+    underlying_price_denominator_code: uint8 &convert=UnderlyingPriceDenominatorCode($$);
+    underlying_price: int64;
+    bid_price: int32;
+    offer_price: int32;
+};
+
+type LongEquityAndIndexQuoteCategory = unit {
+    long_equity_and_index_quote_message_type: uint8 &convert=LongEquityAndIndexQuoteMessageType($$);
+    long_equity_and_index_quote_message_payload: LongEquityAndIndexQuoteMessage;
+};
+
+type LongEquityAndIndexQuoteMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    security_symbol: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    expiration_block: ExpirationBlock;
+    strike_price_denominator_code: uint8 &convert=StrikePriceDenominatorCode($$);
+    strike_price: int32;
+    premium_price_denominator_code: uint8 &convert=PremiumPriceDenominatorCode($$);
+    bid_price: int32;
+    bid_size: uint32;
+    offer_price: int32;
+    offer_size: uint32;
+};
+
+type ShortEquityAndIndexQuoteCategory = unit {
+    short_equity_and_index_quote_message_type: uint8 &convert=ShortEquityAndIndexQuoteMessageType($$);
+    short_equity_and_index_quote_message_payload: ShortEquityAndIndexQuoteMessage;
+};
+
+type ShortEquityAndIndexQuoteMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    security_symbol_short: bytes &size=4;
+    expiration_block: ExpirationBlock;
+    strike_price_short: uint16;
+    bid_price_short: uint16;
+    bid_size_short: uint16;
+    offer_price_short: uint16;
+    offer_size_short: uint16;
+};
+
+type AdministrativeCategory = unit {
+    administrative_message_type: uint8 &convert=AdministrativeMessageType($$);
+    administrative_message_payload: AdministrativeMessage;
+};
+
+type AdministrativeMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    message_data_length: uint16;
+    message_data: bytes &size=self.message_data_length;
+};
+
+type ControlCategory = unit {
+    control_message_type: uint8 &convert=ControlMessageType($$);
+    control_message_payload: ControlMessage;
+};
+
+type ControlMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+};
+
+type SequenceNumberStatusCategory = unit {
+    sequence_number_status_message_type: uint8;
+    switch ( self.sequence_number_status_message_type ) {
+        0x4c -> block_sequence_number_status_inquiry_request_message: BlockSequenceNumberStatusInquiryRequestMessage;
+        0x4d -> block_sequence_number_status_response_message: BlockSequenceNumberStatusResponseMessage;
+        0x52 -> message_count_status_inquiry_request_message: MessageCountStatusInquiryRequestMessage;
+        0x53 -> message_count_status_response_message: MessageCountStatusResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type BlockSequenceNumberStatusInquiryRequestMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+};
+
+type BlockSequenceNumberStatusResponseMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    block_sequence_number: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type MessageCountStatusInquiryRequestMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type MessageCountStatusResponseMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    message_count: uint64;
+};
+
+type UnderlyingValueMessageCategory = unit {
+    underlying_value_message_message_type: uint8;
+    switch ( self.underlying_value_message_message_type ) {
+        0x20 -> underlying_value_last_sale_message: UnderlyingValueLastSaleMessage;
+        0x49 -> underlying_value_bid_and_offer_message: UnderlyingValueBidAndOfferMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type UnderlyingValueLastSaleMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    security_symbol: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    index_value_denominator_code: uint8 &convert=IndexValueDenominatorCode($$);
+    index_value: int32;
+    : skip bytes &size=4;   # padding
+};
+
+type UnderlyingValueBidAndOfferMessage = unit {
+    session_indicator: uint8 &convert=SessionIndicator($$);
+    participant_reference_number: uint32;
+    security_symbol: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    index_value_denominator_code: uint8 &convert=IndexValueDenominatorCode($$);
+    bid_index_value: int32;
+    offer_index_value: int32;
+};
+
+type ParticipantId = enum {
+    Amex = 0x41,
+    Box = 0x42,
+    Cboe = 0x43,
+    Emerald = 0x44,
+    Edgx = 0x45,
+    Mx2 = 0x47,
+    Gemx = 0x48,
+    Ise = 0x49,
+    Mrx = 0x4a,
+    Miax = 0x4d,
+    Nyse = 0x4e,
+    Opra = 0x4f,
+    Pearl = 0x50,
+    Nasd = 0x51,
+    Sphr = 0x53,
+    Bx = 0x54,
+    Memx = 0x55,
+    Iex = 0x56,
+    C2 = 0x57,
+    Phlx = 0x58,
+    Bats = 0x5a,
+};
+
+type MessageCategory = enum {
+    EquityAndIndexLastSale = 0x61,
+    EquityAndIndexEndOfDaySummary = 0x66,
+    LongEquityAndIndexQuote = 0x6b,
+    ShortEquityAndIndexQuote = 0x71,
+    Administrative = 0x43,
+    Control = 0x48,
+    SequenceNumberStatus = 0x4e,
+    UnderlyingValueMessage = 0x59,
+};
+
+type EquityAndIndexLastSaleMessageType = enum {
+    Canc = 0x41,
+    Oseq = 0x42,
+    Cncl = 0x43,
+    Late = 0x44,
+    Cnco = 0x45,
+    Open = 0x46,
+    Cnol = 0x47,
+    Opnl = 0x48,
+    Auto = 0x49,
+    Reop = 0x4a,
+    Isoi = 0x53,
+    Slan = 0x61,
+    Slai = 0x62,
+    Slcn = 0x63,
+    Scli = 0x64,
+    Slft = 0x65,
+    Mlet = 0x66,
+    Mlat = 0x67,
+    Mlct = 0x68,
+    Mlft = 0x69,
+    Mesl = 0x6a,
+    Tlat = 0x6b,
+    Masl = 0x6c,
+    Mfsl = 0x6d,
+    Tlet = 0x6e,
+    Tlct = 0x6f,
+    Tlft = 0x70,
+    Tesl = 0x71,
+    Tasl = 0x72,
+    Tfsl = 0x73,
+    Cbmo = 0x74,
+    Mctp = 0x75,
+    Exht = 0x76,
+};
+
+type SessionIndicator = enum {
+    Regular = 0,
+    GthMonday = 1,
+    GthTuesday = 2,
+    GthWednesday = 3,
+    GthThursday = 4,
+    GthFriday = 5,
+};
+
+type ExpirationMonth = enum {
+    CallJanuary = 0x41,
+    CallFebruary = 0x42,
+    CallMarch = 0x43,
+    CallApril = 0x44,
+    CallMay = 0x45,
+    CallJune = 0x46,
+    CallJuly = 0x47,
+    CallAugust = 0x48,
+    CallSeptember = 0x49,
+    CallOctober = 0x4a,
+    CallNovember = 0x4b,
+    CallDecember = 0x4c,
+    PutJanuary = 0x4d,
+    PutFebruary = 0x4e,
+    PutMarch = 0x4f,
+    PutApril = 0x50,
+    PutMay = 0x51,
+    PutJune = 0x52,
+    PutJuly = 0x53,
+    PutAugust = 0x54,
+    PutSeptember = 0x55,
+    PutOctober = 0x56,
+    PutNovember = 0x57,
+    PutDecember = 0x58,
+};
+
+type StrikePriceDenominatorCode = enum {
+    Ten = 0x41,
+    Hundred = 0x42,
+    Thousand = 0x43,
+    TenThousand = 0x44,
+    HundredThousand = 0x45,
+    NoFraction = 0x49,
+};
+
+type PremiumPriceDenominatorCode = enum {
+    Ten = 0x41,
+    Hundred = 0x42,
+    Thousand = 0x43,
+    TenThousand = 0x44,
+    HundredThousand = 0x45,
+    Million = 0x46,
+    TenMillion = 0x47,
+    NoFraction = 0x49,
+};
+
+type EquityAndIndexEndOfDaySummaryMessageType = enum {
+    EndOfDaySummary = 0x20,
+};
+
+type UnderlyingPriceDenominatorCode = enum {
+    Ten = 0x41,
+    Hundred = 0x42,
+    Thousand = 0x43,
+    TenThousand = 0x44,
+    HundredThousand = 0x45,
+    Million = 0x46,
+    TenMillion = 0x47,
+    HundredMillion = 0x48,
+    NoFraction = 0x49,
+};
+
+type LongEquityAndIndexQuoteMessageType = enum {
+    RegularTrading = 0x20,
+    NonFirmQuote = 0x46,
+    IndicativeValue = 0x49,
+    Rotation = 0x52,
+    TradingHalted = 0x54,
+    EligibleForAutomaticExecution = 0x41,
+    BidContainsCustomerTradingInterest = 0x42,
+    OfferContainsCustomerTradingInterest = 0x4f,
+    BothBidAndOfferContainCustomerTradingInterest = 0x43,
+    OfferSideOfQuoteNotFirmBidSideFirm = 0x58,
+    BidSideOfQuoteNotFirmOfferSideFirm = 0x59,
+};
+
+type ShortEquityAndIndexQuoteMessageType = enum {
+    RegularTrading = 0x20,
+    NonFirmQuote = 0x46,
+    IndicativeValue = 0x49,
+    Rotation = 0x52,
+    TradingHalted = 0x54,
+    EligibleForAutomaticExecution = 0x41,
+    BidContainsCustomerTradingInterest = 0x42,
+    OfferContainsCustomerTradingInterest = 0x4f,
+    BothBidAndOfferContainCustomerTradingInterest = 0x43,
+    OfferSideOfQuoteNotFirmBidSideFirm = 0x58,
+    BidSideOfQuoteNotFirmOfferSideFirm = 0x59,
+};
+
+type AdministrativeMessageType = enum {
+    Administrative = 0x20,
+};
+
+type ControlMessageType = enum {
+    StartOfDay = 0x43,
+    StartOfSummary = 0x45,
+    EndOfSummary = 0x46,
+    EndOfDay = 0x4a,
+    LineIntegrity = 0x4f,
+};
+
+type IndexValueDenominatorCode = enum {
+    Ten = 0x41,
+    Hundred = 0x42,
+    Thousand = 0x43,
+    TenThousand = 0x44,
+    HundredThousand = 0x45,
+    Million = 0x46,
+    TenMillion = 0x47,
+    NoFraction = 0x49,
+};
+

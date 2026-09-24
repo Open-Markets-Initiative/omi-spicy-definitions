@@ -1,0 +1,311 @@
+module TmxTsxalphaQuantumfeedlevel2XmtV21;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type TsxalphaQuantumfeedlevel2V21 = unit {
+    frame_header: FrameHeader;
+    body: Body[self.frame_header.num_body];
+};
+
+type FrameHeader = unit {
+    start_of_frame: uint8 &convert=StartOfFrame($$);
+    protocol_name: uint8 &convert=ProtocolName($$);
+    protocol_version: bytes &size=1;
+    message_length: uint16;
+    session_id: uint32;
+    ack_required_poss_dup: uint8 &convert=AckRequiredPossDup($$);
+    num_body: uint8;
+};
+
+type Body = unit {
+    body_header: BodyHeader;
+    body_message: BodyMessage(self.body_header.msg_type);
+};
+
+type BodyHeader = unit {
+    msg_length: uint16;
+    msg_type: uint8 &convert=MsgType($$);
+};
+
+type BodyMessage = unit(msg_type: MsgType) {
+    business_header: BusinessHeader;
+    switch ( msg_type ) {
+        MsgType::SymbolStatusMessage -> symbol_status_message: SymbolStatusMessage;
+        MsgType::OrderBookMessage -> order_book_message: OrderBookMessage;
+        MsgType::MarketStateUpdateMessage -> market_state_update_message: MarketStateUpdateMessage;
+        MsgType::OrderBookedMessage -> order_booked_message: OrderBookedMessage;
+        MsgType::OrderCancelledMessage -> order_cancelled_message: OrderCancelledMessage;
+        MsgType::OrderPriceTimeAssignedMessage -> order_price_time_assigned_message: OrderPriceTimeAssignedMessage;
+        MsgType::StockStatusMessage -> stock_status_message: StockStatusMessage;
+        MsgType::TradeReportMessage -> trade_report_message: TradeReportMessage;
+        MsgType::TradeReportTermsMessage -> trade_report_terms_message: TradeReportTermsMessage;
+        MsgType::TradeCancelledMessage -> trade_cancelled_message: TradeCancelledMessage;
+        MsgType::TradeCancelledTermsMessage -> trade_cancelled_terms_message: TradeCancelledTermsMessage;
+        MsgType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        MsgType::TradeCorrectionTermsMessage -> trade_correction_terms_message: TradeCorrectionTermsMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type BusinessHeader = unit {
+    msg_version: uint8;
+    source_id: bytes &size=1;
+    stream_id: uint16;
+    sequence_0: uint8;
+    sequence_1: uint32;
+};
+
+type SymbolStatusMessage = unit {
+    symbol: bytes &size=12;
+    stock_group: uint8;
+    listing_market: uint8 &convert=ListingMarket($$);
+    product_type: uint8 &convert=ProductType($$);
+    cusip: bytes &size=12;
+    board_lot: uint16;
+    currency: uint8 &convert=Currency($$);
+    face_value: uint64;
+    last_sale: uint64;
+    min_po_qty: uint32;
+    stock_state: bytes &size=2;
+    test_symbol: uint8 &convert=TestSymbol($$);
+};
+
+type OrderBookMessage = unit {
+    symbol: bytes &size=12;
+    broker_number: uint16;
+    order_side: uint8 &convert=OrderSide($$);
+    order_id: uint64;
+    price: uint64;
+    volume: uint32;
+    priority_time_stamp: uint64;
+};
+
+type MarketStateUpdateMessage = unit {
+    market_state: uint8 &convert=MarketState($$);
+    stock_group: uint8;
+    trading_system_time_stamp: uint64;
+};
+
+type OrderBookedMessage = unit {
+    symbol: bytes &size=12;
+    broker_number: uint16;
+    order_side: uint8 &convert=OrderSide($$);
+    order_id: uint64;
+    price: uint64;
+    volume: uint32;
+    priority_time_stamp: uint64;
+    trading_system_time_stamp: uint64;
+};
+
+type OrderCancelledMessage = unit {
+    symbol: bytes &size=12;
+    broker_number: uint16;
+    order_side: uint8 &convert=OrderSide($$);
+    order_id: uint64;
+    trading_system_time_stamp: uint64;
+};
+
+type OrderPriceTimeAssignedMessage = unit {
+    symbol: bytes &size=12;
+    broker_number: uint16;
+    order_side: uint8 &convert=OrderSide($$);
+    order_id: uint64;
+    price: uint64;
+    volume: uint32;
+    priority_time_stamp: uint64;
+    trading_system_time_stamp: uint64;
+};
+
+type StockStatusMessage = unit {
+    symbol: bytes &size=12;
+    comment: bytes &size=40;
+    stock_state: bytes &size=2;
+    trading_system_time_stamp: uint64;
+};
+
+type TradeReportMessage = unit {
+    symbol: bytes &size=12;
+    trade_number: uint32;
+    price: uint64;
+    volume: uint32;
+    buy_broker_number: uint16;
+    buy_order_id: uint64;
+    buy_display_volume: uint32;
+    sell_broker_number: uint16;
+    sell_order_id: uint64;
+    sell_display_volume: uint32;
+    bypass: uint8 &convert=Bypass($$);
+    trade_time_stamp: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    is_dark: bytes &size=1;
+    trading_system_time_stamp: uint64;
+};
+
+type TradeReportTermsMessage = unit {
+    symbol: bytes &size=12;
+    trade_number: uint32;
+    price: uint64;
+    volume: uint32;
+    buy_broker_number: uint16;
+    buy_order_id: uint64;
+    buy_display_volume: uint32;
+    sell_broker_number: uint16;
+    sell_order_id: uint64;
+    sell_display_volume: uint32;
+    trade_time_stamp: uint32;
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+    settlement_date: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    trading_system_time_stamp: uint64;
+};
+
+type TradeCancelledMessage = unit {
+    symbol: bytes &size=12;
+    trade_number: uint32;
+    trading_system_time_stamp: uint64;
+};
+
+type TradeCancelledTermsMessage = unit {
+    symbol: bytes &size=12;
+    trade_number: uint32;
+    trading_system_time_stamp: uint64;
+};
+
+type TradeCorrectionMessage = unit {
+    symbol: bytes &size=12;
+    trade_number: uint32;
+    price: uint64;
+    volume: uint32;
+    buy_broker_number: uint16;
+    sell_broker_number: uint16;
+    initiated_by: uint8 &convert=InitiatedBy($$);
+    orig_trade_number: uint32;
+    bypass: uint8 &convert=Bypass($$);
+    trade_time_stamp: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    is_dark: bytes &size=1;
+    trading_system_time_stamp: uint64;
+};
+
+type TradeCorrectionTermsMessage = unit {
+    symbol: bytes &size=12;
+    trade_number: uint32;
+    price: uint64;
+    volume: uint32;
+    buy_broker_number: uint16;
+    sell_broker_number: uint16;
+    initiated_by: uint8 &convert=InitiatedBy($$);
+    orig_trade_number: uint32;
+    trade_time_stamp: uint32;
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+    settlement_date: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    trading_system_time_stamp: uint64;
+};
+
+type StartOfFrame = enum {
+    NewFrame = 2,
+};
+
+type ProtocolName = enum {
+    Xmt = 0x58,
+};
+
+type AckRequiredPossDup = enum {
+    Unused = 0x30,
+};
+
+type MsgType = enum {
+    SymbolStatusMessage = 0x4a,
+    OrderBookMessage = 0x47,
+    MarketStateUpdateMessage = 0x45,
+    OrderBookedMessage = 0x50,
+    OrderCancelledMessage = 0x51,
+    OrderPriceTimeAssignedMessage = 0x52,
+    StockStatusMessage = 0x49,
+    TradeReportMessage = 0x53,
+    TradeReportTermsMessage = 0x70,
+    TradeCancelledMessage = 0x54,
+    TradeCancelledTermsMessage = 0x71,
+    TradeCorrectionMessage = 0x55,
+    TradeCorrectionTermsMessage = 0x72,
+};
+
+type ListingMarket = enum {
+    Tsx = 0x54,
+    Tsxv = 0x56,
+};
+
+type ProductType = enum {
+    Debenture = 0x42,
+    Equity = 0x45,
+    MutualFund = 0x4d,
+    Etf = 0x46,
+};
+
+type Currency = enum {
+    Usd = 0x55,
+    Cad = 0x43,
+};
+
+type StockState = enum {
+    Authorized = 0x41,
+    Inhibited = 0x49,
+};
+
+type TestSymbol = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type OrderSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type MarketState = enum {
+    Preopen = 0x50,
+    Opening = 0x4f,
+    Open = 0x53,
+    Closed = 0x43,
+    ExtendedHoursOpen = 0x52,
+    ExtendedHoursClose = 0x46,
+    ExtendedHoursCxls = 0x4e,
+    MocImbalance = 0x4d,
+    CcpDetermination = 0x41,
+    PriceMovementExtension = 0x45,
+    Closing = 0x4c,
+};
+
+type Bypass = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type CrossType = enum {
+    Internal = 0x49,
+    Basis = 0x42,
+    Contingent = 0x43,
+    DerivativeRelated = 0x44,
+    Regular = 0x52,
+    VolumeWeightedAveragePrice = 0x56,
+    Default = 0x20,
+};
+
+type SettlementTerms = enum {
+    Cash = 0x43,
+    Nn = 0x4e,
+    Ms = 0x4d,
+    Ct = 0x54,
+    XalidSettlementDate = 0x44,
+    NoSettlementTerms = 0x20,
+};
+
+type InitiatedBy = enum {
+    BuySide = 0x42,
+    SellSide = 0x53,
+    BothSides = 0x43,
+};
+

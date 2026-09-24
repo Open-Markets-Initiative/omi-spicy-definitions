@@ -1,0 +1,73 @@
+module MiaxMiaxoptionsMpfMachV11Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MiaxoptionsMpfV11 = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    sequence_number: uint64;
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+    session_number: uint8;
+    payload: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::SymbolDefinitionMessage -> symbol_definition_message: SymbolDefinitionMessage;
+        MessageType::IndexValueMessage -> index_value_message: IndexValueMessage;
+        MessageType::SyntheticFutureValueMessage -> synthetic_future_value_message: SyntheticFutureValueMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32;
+};
+
+type SymbolDefinitionMessage = unit {
+    nanoseconds: uint32;
+    synthetic_future_symbol: bytes &size=8;
+    settlement_date: bytes &size=8;
+    symbol_status: uint8 &convert=SymbolStatus($$);
+    : skip bytes &size=16;   # padding
+};
+
+type IndexValueMessage = unit {
+    nanoseconds: uint32;
+    symbol: bytes &size=5;
+    value: uint32;
+};
+
+type SyntheticFutureValueMessage = unit {
+    nanoseconds: uint32;
+    synthetic_future_symbol: bytes &size=8;
+    value: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type PacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 0x31,
+    SymbolDefinitionMessage = 0x73,
+    IndexValueMessage = 0x49,
+    SyntheticFutureValueMessage = 0x5a,
+};
+
+type SymbolStatus = enum {
+    ActiveFuture = 0x41,
+    InactiveFuture = 0x49,
+};
+

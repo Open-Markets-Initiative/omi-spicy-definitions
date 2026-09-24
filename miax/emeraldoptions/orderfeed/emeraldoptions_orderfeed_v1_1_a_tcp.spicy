@@ -1,0 +1,392 @@
+module MiaxEmeraldoptionsOrderfeedMachV11ATcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type EmeraldoptionsOrderfeedV11A = unit {
+    sesm_tcp_packet: SesmTcpPacket[] &eod;
+};
+
+type SesmTcpPacket = unit {
+    sesm_packet_header: SesmPacketHeader;
+    switch ( self.sesm_packet_header.sesm_packet_type ) {
+        SesmPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        SesmPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        SesmPacketType::LoginRequest -> login_request: LoginRequest;
+        SesmPacketType::LoginResponse -> login_response: LoginResponse;
+        SesmPacketType::SynchronizationComplete -> synchronization_complete: SynchronizationComplete;
+        SesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
+        SesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::TestPacket -> test_packet: TestPacket(self.sesm_packet_header.sesm_packet_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SesmPacketHeader = unit {
+    sesm_packet_length: uint16;
+    sesm_packet_type: uint8 &convert=SesmPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    sequence_number: uint64;
+    matching_engine_id: uint8;
+    sequenced_message_type: bytes &size=1;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::RefreshRequestMessage -> refresh_request_message: RefreshRequestMessage;
+        UnsequencedMessageType::RefreshResponseMessage -> refresh_response_message: RefreshResponseMessage;
+        UnsequencedMessageType::EndOfRefreshNotificationMessage -> end_of_refresh_notification_message: EndOfRefreshNotificationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RefreshRequestMessage = unit {
+    refresh_message_type: uint8 &convert=RefreshMessageType($$);
+};
+
+type RefreshResponseMessage = unit {
+    sequence_number: uint64;
+    application_message: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::SimpleSeriesUpdateMessage -> simple_series_update_message: SimpleSeriesUpdateMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::UnderlyingTradingStatusNotificationMessage -> underlying_trading_status_notification_message: UnderlyingTradingStatusNotificationMessage;
+        MessageType::SimpleOrderMessage -> simple_order_message: SimpleOrderMessage;
+        MessageType::ComplexStrategyDefinitionUpdateMessage -> complex_strategy_definition_update_message: ComplexStrategyDefinitionUpdateMessage;
+        MessageType::ComplexOrderMessage -> complex_order_message: ComplexOrderMessage;
+        MessageType::OrderCloseMessage -> order_close_message: OrderCloseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32;
+};
+
+type SimpleSeriesUpdateMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    underlying_symbol: bytes &size=11;
+    security_symbol: bytes &size=6;
+    expiration_date: bytes &size=8;
+    strike_price: uint32;
+    call_or_put: uint8 &convert=CallOrPut($$);
+    opening_time: bytes &size=8;
+    closing_time: bytes &size=8;
+    restricted_option: uint8 &convert=RestrictedOption($$);
+    long_term_option: uint8 &convert=LongTermOption($$);
+    active_on_emerald: uint8 &convert=ActiveOnEmerald($$);
+    emerald_bbo_posting_increment_indicator: uint8 &convert=EmeraldBboPostingIncrementIndicator($$);
+    liquidity_acceptance_increment_indicator: uint8 &convert=LiquidityAcceptanceIncrementIndicator($$);
+    opening_underlying_market_code: uint8 &convert=OpeningUnderlyingMarketCode($$);
+    priority_quote_width: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type SystemStateMessage = unit {
+    nanoseconds: uint32;
+    mor_version: bytes &size=8;
+    session_id: uint32;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type UnderlyingTradingStatusNotificationMessage = unit {
+    nanoseconds: uint32;
+    underlying_symbol: bytes &size=11;
+    trading_status: uint8 &convert=TradingStatus($$);
+    event_reason: uint8 &convert=EventReason($$);
+    expected_event_time_seconds_part: uint32;
+    expected_event_time_nano_seconds_part: uint32;
+};
+
+type SimpleOrderMessage = unit {
+    nanoseconds: uint32;
+    action: uint8 &convert=Action($$);
+    product_id: uint32;
+    order_id: uint64;
+    order_side: uint8 &convert=OrderSide($$);
+    order_type: uint8 &convert=OrderType($$);
+    order_price_short: uint32;
+    order_original_volume: uint32;
+    remaining_volume_open: uint32;
+    time_in_force_tif: uint8 &convert=TimeInForceTif($$);
+    origin: uint8 &convert=Origin($$);
+    openclose_indicator: uint8 &convert=OpencloseIndicator($$);
+    route_instruction: uint8 &convert=RouteInstruction($$);
+    attributed_id: bytes &size=4;
+    priority_customer_volume: uint32;
+    : skip bytes &size=28;   # padding
+};
+
+type ComplexStrategyDefinitionUpdateMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    underlying_symbol: bytes &size=11;
+    active_on_emerald: uint8 &convert=ActiveOnEmerald($$);
+    : skip bytes &size=1;   # padding
+    update_reason: uint8 &convert=UpdateReason($$);
+    : skip bytes &size=10;   # padding
+    number_of_legs: uint8;
+    leg_definition_0: bytes &eod;
+};
+
+type ComplexOrderMessage = unit {
+    nanoseconds: uint32;
+    action: uint8 &convert=Action($$);
+    strategy_id: uint32;
+    order_id: uint64;
+    order_side: uint8 &convert=OrderSide($$);
+    order_type: uint8 &convert=OrderType($$);
+    order_price_long: int64;
+    order_original_volume: uint32;
+    remaining_volume_open: uint32;
+    time_in_force_tif: uint8 &convert=TimeInForceTif($$);
+    origin: uint8 &convert=Origin($$);
+    attributed_id: bytes &size=4;
+    : skip bytes &size=28;   # padding
+};
+
+type OrderCloseMessage = unit {
+    nanoseconds: uint32;
+    simple_or_complex_order: uint8 &convert=SimpleOrComplexOrder($$);
+    order_id: uint64;
+};
+
+type EndOfRefreshNotificationMessage = unit {
+    refresh_message_type: uint8 &convert=RefreshMessageType($$);
+};
+
+type LoginRequest = unit {
+    sesm_version: bytes &size=5;
+    username: bytes &size=5;
+    computer_id: bytes &size=8;
+    application_protocol: bytes &size=8;
+    requested_trading_session_id: uint8;
+    requested_sequence_number: uint64;
+};
+
+type LoginResponse = unit {
+    number_of_matching_engines: uint8;
+    login_status: uint8 &convert=LoginStatus($$);
+    trading_session_id: uint8;
+    highest_sequence_number: uint64;
+};
+
+type SynchronizationComplete = unit {
+    number_of_matching_engines: uint8;
+};
+
+type RetransmissionRequest = unit {
+    start_sequence_number: uint64;
+    end_sequence_number: uint64;
+};
+
+type LogoutRequest = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type GoodbyePacket = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type TestPacket = unit(sesm_packet_length: uint16) {
+    test_text: bytes &size=sesm_packet_length - 1;
+};
+
+type SesmPacketType = enum {
+    SequencedDataPacket = 0x73,
+    UnsequencedDataPacket = 0x55,
+    LoginRequest = 0x6c,
+    LoginResponse = 0x72,
+    SynchronizationComplete = 0x63,
+    RetransmissionRequest = 0x61,
+    LogoutRequest = 0x58,
+    GoodbyePacket = 0x47,
+    TradingSessionUpdate = 0x75,
+    ServerHeartbeat = 0x30,
+    ClientHeartbeat = 0x31,
+    TestPacket = 0x54,
+};
+
+type UnsequencedMessageType = enum {
+    RefreshRequestMessage = 0x52,
+    RefreshResponseMessage = 0x72,
+    EndOfRefreshNotificationMessage = 0x45,
+};
+
+type RefreshMessageType = enum {
+    SeriesUpdateRefresh = 0x50,
+    UnderlyingTradingStatusRefresh = 0x55,
+    SystemStateRefresh = 0x53,
+    ComplexStrategyDefinitionRefresh = 0x43,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 0x31,
+    SimpleSeriesUpdateMessage = 0x50,
+    SystemStateMessage = 0x53,
+    UnderlyingTradingStatusNotificationMessage = 0x48,
+    SimpleOrderMessage = 0x46,
+    ComplexStrategyDefinitionUpdateMessage = 0x43,
+    ComplexOrderMessage = 0x52,
+    OrderCloseMessage = 0x78,
+};
+
+type CallOrPut = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type RestrictedOption = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type LongTermOption = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type ActiveOnEmerald = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+};
+
+type EmeraldBboPostingIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyOrNickel = 0x4e,
+    NickelOrDime = 0x44,
+};
+
+type LiquidityAcceptanceIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyOrNickel = 0x4e,
+    NickelOrDime = 0x44,
+};
+
+type OpeningUnderlyingMarketCode = enum {
+    NyseAmex = 0x41,
+    NasdaqOmxBx = 0x42,
+    NationalStockExchange = 0x43,
+    FinraAdf = 0x44,
+    MarketIndependent = 0x45,
+    MiaxPearlEquities = 0x48,
+    InternationalSecuritiesExchange = 0x49,
+    EdgaExchangeInc = 0x4a,
+    EdgxExchangeInc = 0x4b,
+    Ltse = 0x4c,
+    ChicagoStockExchange = 0x4d,
+    NyseEuronext = 0x4e,
+    NyseArcaExchange = 0x50,
+    NasdaqOmxUtp = 0x51,
+    NasdaqOmxCta = 0x54,
+    Memx = 0x55,
+    Iex = 0x56,
+    CboeStockExchange = 0x57,
+    NasdaqOmxPhlx = 0x58,
+    BatsYExchangeInc = 0x59,
+    BatsExchangeInc = 0x5a,
+};
+
+type SystemStatus = enum {
+    StartOfSystemHours = 0x53,
+    EndOfSystemHours = 0x43,
+    StartOfTestSession = 0x31,
+    EndOfTestSession = 0x32,
+};
+
+type TradingStatus = enum {
+    Halted = 0x48,
+    Resumed = 0x52,
+    Opened = 0x4f,
+};
+
+type EventReason = enum {
+    Automatic = 0x41,
+    Manual = 0x4d,
+};
+
+type Action = enum {
+    Open = 0x4f,
+};
+
+type OrderSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OrderType = enum {
+    Market = 0x4d,
+    Limit = 0x4c,
+};
+
+type TimeInForceTif = enum {
+    Aoc = 0x41,
+    Gtc = 0x47,
+    Opg = 0x4f,
+    Day = 0x44,
+    Sao = 0x53,
+};
+
+type Origin = enum {
+    PriorityCustomer = 0x30,
+    Firm = 0x31,
+    BrokerDealer = 0x32,
+    MarketMaker = 0x34,
+    NonMemberMarketMaker = 0x35,
+    NonPriorityCustomer = 0x38,
+    NotApplicable = 0x20,
+};
+
+type OpencloseIndicator = enum {
+    Open = 0x4f,
+    Close = 0x43,
+    NotApplicable = 0x20,
+};
+
+type RouteInstruction = enum {
+    Routable = 0x52,
+    DoNotRoute = 0x44,
+    PostOnly = 0x50,
+};
+
+type UpdateReason = enum {
+    NewStrategyCreated = 0x4e,
+    Updated = 0x55,
+};
+
+type SimpleOrComplexOrder = enum {
+    SimpleOrder = 0x46,
+    ComplexOrder = 0x52,
+};
+
+type LoginStatus = enum {
+    Successful = 0x20,
+    InvalidTradingSessionRequested = 0x53,
+    NoActiveTradingSessionExists = 0x55,
+    Rejected = 0x58,
+    InvalidStartSequenceNumberRequested = 0x4e,
+    IncompatibleSessionProtocolVersion = 0x49,
+    IncompatibleApplicationProtocolVersion = 0x41,
+    RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
+};
+
+type LogoutReason = enum {
+    GracefulLogout = 0x20,
+    BadPacket = 0x42,
+    TimedOut = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+

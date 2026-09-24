@@ -1,0 +1,305 @@
+module MiaxMiaxoptionsAisMachV26Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MiaxoptionsAisV26 = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    sequence_number: uint64;
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+    session_number: uint8;
+    payload: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::SimpleSeriesUpdateMessage -> simple_series_update_message: SimpleSeriesUpdateMessage;
+        MessageType::ComplexStrategyDefinitionUpdateMessage -> complex_strategy_definition_update_message: ComplexStrategyDefinitionUpdateMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::SimpleLiquiditySeekingEventNotificationMessage -> simple_liquidity_seeking_event_notification_message: SimpleLiquiditySeekingEventNotificationMessage;
+        MessageType::ComplexLiquiditySeekingEventNotificationMessage -> complex_liquidity_seeking_event_notification_message: ComplexLiquiditySeekingEventNotificationMessage;
+        MessageType::UnderlyingTradingStatusNotificationMessage -> underlying_trading_status_notification_message: UnderlyingTradingStatusNotificationMessage;
+        MessageType::TheoreticalSettlementReferencePriceNotificationMessage -> theoretical_settlement_reference_price_notification_message: TheoreticalSettlementReferencePriceNotificationMessage;
+        MessageType::TheoreticalSettlementPriceNotificationMessage -> theoretical_settlement_price_notification_message: TheoreticalSettlementPriceNotificationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32;
+};
+
+type SimpleSeriesUpdateMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    underlying_symbol: bytes &size=11;
+    security_symbol: bytes &size=6;
+    expiration_date: bytes &size=8;
+    strike_price: uint32;
+    call_or_put: uint8 &convert=CallOrPut($$);
+    opening_time: bytes &size=8;
+    closing_time: bytes &size=8;
+    restricted_option: uint8 &convert=RestrictedOption($$);
+    long_term_option: uint8 &convert=LongTermOption($$);
+    active_on_miax: uint8 &convert=ActiveOnMiax($$);
+    miax_bbo_posting_increment_indicator: uint8 &convert=MiaxBboPostingIncrementIndicator($$);
+    liquidity_acceptance_increment_indicator: uint8 &convert=LiquidityAcceptanceIncrementIndicator($$);
+    opening_underlying_market_code: uint8 &convert=OpeningUnderlyingMarketCode($$);
+    priority_quote_width: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type ComplexStrategyDefinitionUpdateMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    underlying_symbol: bytes &size=11;
+    active_on_miax: uint8 &convert=ActiveOnMiax($$);
+    : skip bytes &size=1;   # padding
+    update_reason: uint8 &convert=UpdateReason($$);
+    : skip bytes &size=10;   # padding
+    number_of_legs: uint8;
+    leg_definition_0: bytes &eod;
+};
+
+type SystemStateMessage = unit {
+    nanoseconds: uint32;
+    ais_version: bytes &size=8;
+    session_id: uint32;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type SimpleLiquiditySeekingEventNotificationMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    event_type: uint8 &convert=EventType($$);
+    event_id: uint32;
+    price_short: uint32;
+    imbalance_side: uint8 &convert=ImbalanceSide($$);
+    quantity_1: uint32;
+    quantity_2: uint32;
+    quantity_3: uint32;
+    quantity_4: uint32;
+    attributable_id: bytes &size=4;
+    origin: uint8 &convert=Origin($$);
+    : skip bytes &size=7;   # padding
+};
+
+type ComplexLiquiditySeekingEventNotificationMessage = unit {
+    nanoseconds: uint32;
+    strategy_id: uint32;
+    event_type: uint8 &convert=EventType($$);
+    event_id: uint32;
+    side: uint8 &convert=Side($$);
+    price_long: int64;
+    matched_quantity: uint32;
+    imbalance_quantity_signed: int32;
+    attributable_id: bytes &size=4;
+    origin: uint8 &convert=Origin($$);
+    : skip bytes &size=7;   # padding
+};
+
+type UnderlyingTradingStatusNotificationMessage = unit {
+    nanoseconds: uint32;
+    underlying_symbol: bytes &size=11;
+    trading_status: uint8 &convert=TradingStatus($$);
+    event_reason: uint8 &convert=EventReason($$);
+    expected_event_time_seconds_part: uint32;
+    expected_event_time_nano_seconds_part: uint32;
+};
+
+type TheoreticalSettlementReferencePriceNotificationMessage = unit {
+    nanoseconds: uint32;
+    product_id: uint32;
+    underlying_symbol: bytes &size=11;
+    security_symbol: bytes &size=6;
+    expiration_date: bytes &size=8;
+    strike_price: uint32;
+    call_or_put: uint8 &convert=CallOrPut($$);
+    option_state: uint8 &convert=OptionState($$);
+    prior_day_reference_price: uint32;
+    settlement_reference_price: uint32;
+    settlement_reference_price_type: uint8 &convert=SettlementReferencePriceType($$);
+    sao_buy_quantity_1: uint32;
+    sao_sell_quantity_1: uint32;
+    sao_buy_quantity_2: uint32;
+    sao_sell_quantity_2: uint32;
+    non_sao_buy_quantity: uint32;
+    non_sao_sell_quantity: uint32;
+    total_buy_quantity: uint32;
+    total_sell_quantity: uint32;
+    imbalance_side: uint8 &convert=ImbalanceSide($$);
+    imbalance_quantity_unsigned: uint32;
+    must_fill_quantity: uint32;
+    matched_quantity: uint32;
+    opening_condition: uint8 &convert=OpeningCondition($$);
+    mbb: uint32;
+    mbo: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type TheoreticalSettlementPriceNotificationMessage = unit {
+    nanoseconds: uint32;
+    settlement_symbol: bytes &size=8;
+    theoretical_settlement_price: uint32;
+    : skip bytes &size=16;   # padding
+};
+
+type PacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 0x31,
+    SimpleSeriesUpdateMessage = 0x50,
+    ComplexStrategyDefinitionUpdateMessage = 0x43,
+    SystemStateMessage = 0x53,
+    SimpleLiquiditySeekingEventNotificationMessage = 0x4c,
+    ComplexLiquiditySeekingEventNotificationMessage = 0x6c,
+    UnderlyingTradingStatusNotificationMessage = 0x48,
+    TheoreticalSettlementReferencePriceNotificationMessage = 0x4d,
+    TheoreticalSettlementPriceNotificationMessage = 0x4e,
+};
+
+type CallOrPut = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type RestrictedOption = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type LongTermOption = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type ActiveOnMiax = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+};
+
+type MiaxBboPostingIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyOrNickel = 0x4e,
+    NickelOrDime = 0x44,
+};
+
+type LiquidityAcceptanceIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyOrNickel = 0x4e,
+    NickelOrDime = 0x44,
+};
+
+type OpeningUnderlyingMarketCode = enum {
+    NyseAmex = 0x41,
+    NasdaqOmxBx = 0x42,
+    NationalStockExchange = 0x43,
+    FinraAdf = 0x44,
+    MarketIndependent = 0x45,
+    MiaxPearlEquities = 0x48,
+    InternationalSecuritiesExchange = 0x49,
+    EdgaExchangeInc = 0x4a,
+    EdgxExchangeInc = 0x4b,
+    Ltse = 0x4c,
+    ChicagoStockExchange = 0x4d,
+    NyseEuronext = 0x4e,
+    NyseArcaExchange = 0x50,
+    NasdaqOmxUtp = 0x51,
+    NasdaqOmxCta = 0x54,
+    Memx = 0x55,
+    Iex = 0x56,
+    CboeStockExchange = 0x57,
+    NasdaqOmxPhlx = 0x58,
+    BatsYExchangeInc = 0x59,
+    BatsExchangeInc = 0x5a,
+};
+
+type UpdateReason = enum {
+    NewStrategyCreated = 0x4e,
+    Updated = 0x55,
+};
+
+type SystemStatus = enum {
+    StartOfSystemHours = 0x53,
+    EndOfSystemHours = 0x43,
+    StartOfTestSession = 0x31,
+    EndOfTestSession = 0x32,
+};
+
+type EventType = enum {
+    LiquidityRefreshMechanism = 0x4c,
+    OpeningReopeningImbalanceMechanism = 0x4f,
+    RouteMechanism = 0x52,
+    MiaxPrimePairedOrder = 0x50,
+    SettlementOpeningImbalanceMechanism = 0x53,
+    LiquidityExposureProcess = 0x45,
+    ComplexOrderAuction = 0x43,
+};
+
+type ImbalanceSide = enum {
+    Bid = 0x42,
+    Ask = 0x41,
+};
+
+type Origin = enum {
+    MarketMaker = 0x31,
+    AwayMarketMaker = 0x32,
+    BrokerDealer = 0x33,
+    Firm = 0x34,
+    PriorityCustomer = 0x35,
+    NonPriorityCustomer = 0x36,
+    MultipleInitiatorsOfVaryingOrigin = 0x20,
+};
+
+type Side = enum {
+    Bid = 0x42,
+    Ask = 0x41,
+};
+
+type TradingStatus = enum {
+    Halted = 0x48,
+    Resumed = 0x52,
+    Opened = 0x4f,
+};
+
+type EventReason = enum {
+    Automatic = 0x41,
+    Manual = 0x4d,
+};
+
+type OptionState = enum {
+    PreOpen = 0x50,
+    OpenButNoFsrp = 0x4e,
+    OpenWithFsrp = 0x4f,
+};
+
+type SettlementReferencePriceType = enum {
+    ExpectedOpeningPrice = 0x45,
+    AuctionOnlyPrice = 0x41,
+    OpeningPrice = 0x4f,
+    FinalSettlementReferencePrice = 0x53,
+};
+
+type OpeningCondition = enum {
+    NeedQuote = 0x51,
+    CrossedQuote = 0x43,
+    CrossedAwayQuote = 0x41,
+    NeedBuyers = 0x42,
+    NeedSellers = 0x53,
+    WouldOpen = 0x4f,
+    OpenWithNoFinalSrp = 0x4e,
+    OpenWithFinalSrp = 0x52,
+};
+
