@@ -1,0 +1,163 @@
+module BoxBoxoptionsSolatradereportingAtrV45Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BoxoptionsSolatradereportingV45 = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::RestartRequest -> restart_request: RestartRequest;
+        MessageType::ClientSignon -> client_signon: ClientSignon;
+        MessageType::NewAllocation -> new_allocation: NewAllocation;
+        MessageType::ModifyAllocation -> modify_allocation: ModifyAllocation;
+        MessageType::DeleteAllocation -> delete_allocation: DeleteAllocation;
+        MessageType::NewGiveUp -> new_give_up: NewGiveUp;
+        MessageType::ModifyGiveUp -> modify_give_up: ModifyGiveUp;
+        MessageType::DeleteGiveUp -> delete_give_up: DeleteGiveUp;
+        * -> unknown: bytes &eod;
+    };
+    end_of_text: uint8;
+};
+
+type MessageHeader = unit {
+    source: bytes &size=4;
+    destination: bytes &size=4;
+    message_type: bytes &size=2;
+    message_flag: uint8 &convert=MessageFlag($$);
+    control_byte: bytes &size=1;
+    sequence_number: bytes &size=8;
+    acknowledgement_sequence_number: bytes &size=8;
+};
+
+type RestartRequest = unit {
+    sequence_number: bytes &size=8;
+};
+
+type ClientSignon = unit {
+    member_number: bytes &size=4;
+    initial_sequence_number: bytes &size=8;
+    protocol_version: bytes &size=2;
+    time_field: bytes &size=6;
+    username: bytes &size=8;
+    password_md_5_encryption: bytes &size=8;
+};
+
+type NewAllocation = unit {
+    reference_transaction_id: bytes &size=10;
+    reference_trade_number: bytes &size=15;
+    give_up_firm: bytes &size=4;
+    volume: bytes &size=8;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    client_account_number: bytes &size=12;
+    subtrader_id: bytes &size=3;
+    cmta_broker: bytes &size=4;
+    client_memo: bytes &size=16;
+    additional_firm: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type ModifyAllocation = unit {
+    reference_transaction_id: bytes &size=10;
+    reference_trade_number: bytes &size=15;
+    give_up_firm: bytes &size=4;
+    volume: bytes &size=8;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    client_account_number: bytes &size=12;
+    subtrader_id: bytes &size=3;
+    cmta_broker: bytes &size=4;
+    client_memo: bytes &size=16;
+    additional_firm: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type DeleteAllocation = unit {
+    reference_transaction_id: bytes &size=10;
+    reference_trade_number: bytes &size=15;
+};
+
+type NewGiveUp = unit {
+    reference_transaction_id: bytes &size=10;
+    reference_trade_number: bytes &size=15;
+    give_up_firm: bytes &size=4;
+    volume: bytes &size=8;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    client_account_number: bytes &size=12;
+    subtrader_id: bytes &size=3;
+    cmta_broker: bytes &size=4;
+    client_memo: bytes &size=16;
+    additional_firm: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type ModifyGiveUp = unit {
+    reference_transaction_id: bytes &size=10;
+    reference_trade_number: bytes &size=15;
+    give_up_firm: bytes &size=4;
+    volume: bytes &size=8;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    client_account_number: bytes &size=12;
+    subtrader_id: bytes &size=3;
+    cmta_broker: bytes &size=4;
+    client_memo: bytes &size=16;
+    additional_firm: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type DeleteGiveUp = unit {
+    reference_transaction_id: bytes &size=10;
+    reference_trade_number: bytes &size=15;
+};
+
+type MessageType = enum {
+    StartOfDay = 0,
+    StartOfDayAcknowledgement = 1,
+    CircuitAssurance = 2,
+    CircuitResponse = 3,
+    RestartRequest = 4,
+    RestartAccepted = 5,
+    EndOfTrading = 8,
+    ClientSignon = 9,
+    ClientSignonAcknowledgment = 10,
+    Trade = 30,
+    TradeCancel = 31,
+    Allocation = 40,
+    AllocationCancel = 41,
+    NewAllocation = 42,
+    ModifyAllocation = 43,
+    DeleteAllocation = 44,
+    GiveUp = 50,
+    GiveUpCancel = 51,
+    NewGiveUp = 52,
+    ModifyGiveUp = 53,
+    DeleteGiveUp = 54,
+    AcknowledgementMessage = 98,
+    ErrorMessage = 99,
+};
+
+type MessageFlag = enum {
+    RetransmittedMessage = 0x52,
+    DuplicatedMessage = 0x44,
+};
+
+type AccountType = enum {
+    PublicCustomer = 0x36,
+    BrokerDealer = 0x37,
+    MarketMaker = 0x38,
+    ProfessionalCustomer = 0x54,
+    FloorBrokerCustomer = 0x56,
+    BrokerDealerClearedAsCustomer = 0x57,
+    AwayMarketMaker = 0x58,
+    FloorBrokerDealer = 0x59,
+    FloorMarketMakerFlexSymbologySymbolIsPrefixedByOneOfTheFollowing = 0x5a,
+};
+
+type OpenClose = enum {
+    Open = 0x4f,
+    Close = 0x43,
+};
+

@@ -1,0 +1,309 @@
+module BoxBoxoptionsSolatradereportingAtrV45Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BoxoptionsSolatradereportingV45 = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::ClientSignonAcknowledgment -> client_signon_acknowledgment: ClientSignonAcknowledgment;
+        MessageType::Trade -> trade: Trade;
+        MessageType::TradeCancel -> trade_cancel: TradeCancel;
+        MessageType::Allocation -> allocation: Allocation;
+        MessageType::AllocationCancel -> allocation_cancel: AllocationCancel;
+        MessageType::GiveUp -> give_up: GiveUp;
+        MessageType::GiveUpCancel -> give_up_cancel: GiveUpCancel;
+        MessageType::ErrorMessage -> error_message: ErrorMessage;
+        * -> unknown: bytes &eod;
+    };
+    end_of_text: uint8;
+};
+
+type MessageHeader = unit {
+    source: bytes &size=4;
+    destination: bytes &size=4;
+    message_type: bytes &size=2;
+    message_flag: uint8 &convert=MessageFlag($$);
+    control_byte: bytes &size=1;
+    sequence_number: bytes &size=8;
+    acknowledgement_sequence_number: bytes &size=8;
+};
+
+type ClientSignonAcknowledgment = unit {
+    last_user_sequence_number: bytes &size=8;
+};
+
+type Trade = unit {
+    trade_number: bytes &size=15;
+    transaction_type: uint8 &convert=TransactionType($$);
+    timestamp: bytes &size=6;
+    symbol: bytes &size=30;
+    expiration_date: bytes &size=6;
+    strike_price: bytes &size=8;
+    strike_price_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    volume: bytes &size=8;
+    price_x_10000: bytes &size=8;
+    cmta_broker: bytes &size=4;
+    account_type: uint8 &convert=AccountType($$);
+    subtrader_id: bytes &size=3;
+    open_close: uint8 &convert=OpenClose($$);
+    executing_broker: bytes &size=4;
+    client_account_number: bytes &size=12;
+    client_order_id: bytes &size=20;
+    client_memo: bytes &size=16;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    trade_type: uint8 &convert=TradeType($$);
+    opposite_account_type: uint8 &convert=OppositeAccountType($$);
+    participant_session_name: bytes &size=12;
+    unique_transaction_id: bytes &size=10;
+    parent_transaction_id: bytes &size=10;
+    opposite_executing_broker: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type TradeCancel = unit {
+    trade_number: bytes &size=15;
+    transaction_type: uint8 &convert=TransactionType($$);
+    timestamp: bytes &size=6;
+    symbol: bytes &size=30;
+    expiration_date: bytes &size=6;
+    strike_price: bytes &size=8;
+    strike_price_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    volume: bytes &size=8;
+    price_x_10000: bytes &size=8;
+    cmta_broker: bytes &size=4;
+    account_type: uint8 &convert=AccountType($$);
+    subtrader_id: bytes &size=3;
+    open_close: uint8 &convert=OpenClose($$);
+    executing_broker: bytes &size=4;
+    client_account_number: bytes &size=12;
+    client_order_id: bytes &size=20;
+    client_memo: bytes &size=16;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    trade_type: uint8 &convert=TradeType($$);
+    opposite_account_type: uint8 &convert=OppositeAccountType($$);
+    participant_session_name: bytes &size=12;
+    unique_transaction_id: bytes &size=10;
+    parent_transaction_id: bytes &size=10;
+    opposite_executing_broker: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type Allocation = unit {
+    trade_number: bytes &size=15;
+    transaction_type: uint8 &convert=TransactionType($$);
+    timestamp: bytes &size=6;
+    symbol: bytes &size=30;
+    expiration_date: bytes &size=6;
+    strike_price: bytes &size=8;
+    strike_price_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    volume: bytes &size=8;
+    price_x_10000: bytes &size=8;
+    cmta_broker: bytes &size=4;
+    account_type: uint8 &convert=AccountType($$);
+    subtrader_id: bytes &size=3;
+    open_close: uint8 &convert=OpenClose($$);
+    executing_broker: bytes &size=4;
+    client_account_number: bytes &size=12;
+    client_order_id: bytes &size=20;
+    client_memo: bytes &size=16;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    trade_type: uint8 &convert=TradeType($$);
+    opposite_account_type: uint8 &convert=OppositeAccountType($$);
+    participant_session_name: bytes &size=12;
+    unique_transaction_id: bytes &size=10;
+    parent_transaction_id: bytes &size=10;
+    opposite_executing_broker: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type AllocationCancel = unit {
+    trade_number: bytes &size=15;
+    transaction_type: uint8 &convert=TransactionType($$);
+    timestamp: bytes &size=6;
+    symbol: bytes &size=30;
+    expiration_date: bytes &size=6;
+    strike_price: bytes &size=8;
+    strike_price_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    volume: bytes &size=8;
+    price_x_10000: bytes &size=8;
+    cmta_broker: bytes &size=4;
+    account_type: uint8 &convert=AccountType($$);
+    subtrader_id: bytes &size=3;
+    open_close: uint8 &convert=OpenClose($$);
+    executing_broker: bytes &size=4;
+    client_account_number: bytes &size=12;
+    client_order_id: bytes &size=20;
+    client_memo: bytes &size=16;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    trade_type: uint8 &convert=TradeType($$);
+    opposite_account_type: uint8 &convert=OppositeAccountType($$);
+    participant_session_name: bytes &size=12;
+    unique_transaction_id: bytes &size=10;
+    parent_transaction_id: bytes &size=10;
+    opposite_executing_broker: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type GiveUp = unit {
+    trade_number: bytes &size=15;
+    transaction_type: uint8 &convert=TransactionType($$);
+    timestamp: bytes &size=6;
+    symbol: bytes &size=30;
+    expiration_date: bytes &size=6;
+    strike_price: bytes &size=8;
+    strike_price_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    volume: bytes &size=8;
+    price_x_10000: bytes &size=8;
+    cmta_broker: bytes &size=4;
+    account_type: uint8 &convert=AccountType($$);
+    subtrader_id: bytes &size=3;
+    open_close: uint8 &convert=OpenClose($$);
+    executing_broker: bytes &size=4;
+    client_account_number: bytes &size=12;
+    client_order_id: bytes &size=20;
+    client_memo: bytes &size=16;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    trade_type: uint8 &convert=TradeType($$);
+    opposite_account_type: uint8 &convert=OppositeAccountType($$);
+    give_up_source: bytes &size=4;
+    give_up_destination: bytes &size=4;
+    participant_session_name: bytes &size=12;
+    unique_transaction_id: bytes &size=10;
+    parent_transaction_id: bytes &size=10;
+    opposite_executing_broker: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type GiveUpCancel = unit {
+    trade_number: bytes &size=15;
+    transaction_type: uint8 &convert=TransactionType($$);
+    timestamp: bytes &size=6;
+    symbol: bytes &size=30;
+    expiration_date: bytes &size=6;
+    strike_price: bytes &size=8;
+    strike_price_fraction_indicator: bytes &size=1;
+    option_type: uint8 &convert=OptionType($$);
+    volume: bytes &size=8;
+    price_x_10000: bytes &size=8;
+    cmta_broker: bytes &size=4;
+    account_type: uint8 &convert=AccountType($$);
+    subtrader_id: bytes &size=3;
+    open_close: uint8 &convert=OpenClose($$);
+    executing_broker: bytes &size=4;
+    client_account_number: bytes &size=12;
+    client_order_id: bytes &size=20;
+    client_memo: bytes &size=16;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    trade_type: uint8 &convert=TradeType($$);
+    opposite_account_type: uint8 &convert=OppositeAccountType($$);
+    give_up_source: bytes &size=4;
+    give_up_destination: bytes &size=4;
+    participant_session_name: bytes &size=12;
+    unique_transaction_id: bytes &size=10;
+    parent_transaction_id: bytes &size=10;
+    opposite_executing_broker: bytes &size=4;
+    additional_client_memo: bytes &size=16;
+};
+
+type ErrorMessage = unit {
+    reference_message_type: bytes &size=2;
+    error_code: bytes &size=4;
+    error_text: bytes &size=80;
+};
+
+type MessageType = enum {
+    StartOfDay = 0,
+    StartOfDayAcknowledgement = 1,
+    CircuitAssurance = 2,
+    CircuitResponse = 3,
+    RestartRequest = 4,
+    RestartAccepted = 5,
+    EndOfTrading = 8,
+    ClientSignon = 9,
+    ClientSignonAcknowledgment = 10,
+    Trade = 30,
+    TradeCancel = 31,
+    Allocation = 40,
+    AllocationCancel = 41,
+    NewAllocation = 42,
+    ModifyAllocation = 43,
+    DeleteAllocation = 44,
+    GiveUp = 50,
+    GiveUpCancel = 51,
+    NewGiveUp = 52,
+    ModifyGiveUp = 53,
+    DeleteGiveUp = 54,
+    AcknowledgementMessage = 98,
+    ErrorMessage = 99,
+};
+
+type MessageFlag = enum {
+    RetransmittedMessage = 0x52,
+    DuplicatedMessage = 0x44,
+};
+
+type TransactionType = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    PutBlankIfNotAnOption = 0x50,
+};
+
+type AccountType = enum {
+    PublicCustomer = 0x36,
+    BrokerDealer = 0x37,
+    MarketMaker = 0x38,
+    ProfessionalCustomer = 0x54,
+    FloorBrokerCustomer = 0x56,
+    BrokerDealerClearedAsCustomer = 0x57,
+    AwayMarketMaker = 0x58,
+    FloorBrokerDealer = 0x59,
+    FloorMarketMakerFlexSymbologySymbolIsPrefixedByOneOfTheFollowing = 0x5a,
+};
+
+type OpenClose = enum {
+    Open = 0x4f,
+    Close = 0x43,
+};
+
+type LiquidityStatus = enum {
+    Maker = 0x4d,
+    Taker = 0x54,
+};
+
+type TradeType = enum {
+    CrossedOrdersATradeWithTheSameFirmIdOnBothSides = 0x4f,
+    TraderCrossedOrdersATradeWithTheSameTraderIdOnBothSides = 0x54,
+    TprTradeATradeDoneByAThirdPartyRouter = 0x4d,
+    PipATradeDoneAtTheEndOfAPipAuction = 0x50,
+    FirmDoATradeResultingFromADirectedOrder = 0x46,
+    AsOfATradeEnteredByTheBoxMocToCorrectATradeExecutedOnAPreviousDay = 0x41,
+    LateATradeEnteredByTheBoxMocToCorrectATradeExecutedOnTheSameDay = 0x45,
+    SolicitationATradeDoneAsPartOfASolicitationAuction = 0x53,
+    FacilitationATradeDoneAsPartOfAFacilitationAuction = 0x49,
+    FloorTrade = 0x52,
+    CustomerCrossOrdersOrQualifiedContingentCrossOrders = 0x43,
+};
+
+type OppositeAccountType = enum {
+    PublicCustomer = 0x36,
+    BrokerDealer = 0x37,
+    MarketMaker = 0x38,
+    ProfessionalCustomer = 0x54,
+    FloorBrokerCustomer = 0x56,
+    BrokerDealerClearedAsCustomer = 0x57,
+    AwayMarketMaker = 0x58,
+    FloorBrokerDealer = 0x59,
+    FloorMarketMaker = 0x5a,
+};
+

@@ -65,7 +65,14 @@ type ComplexStrategyDefinitionUpdateMessage = unit {
     update_reason: uint8 &convert=UpdateReason($$);
     : skip bytes &size=10;   # padding
     number_of_legs: uint8;
-    leg_definition_0: bytes &eod;
+    leg_definition: LegDefinition[self.number_of_legs];
+};
+
+type LegDefinition = unit {
+    product_id: uint32;
+    leg_ratio_qty: uint16;
+    leg_side: uint8 &convert=LegSide($$);
+    : skip bytes &size=8;   # padding
 };
 
 type SystemStateMessage = unit {
@@ -229,6 +236,11 @@ type OpeningUnderlyingMarketCode = enum {
 type UpdateReason = enum {
     NewStrategyCreated = 0x4e,
     Updated = 0x55,
+};
+
+type LegSide = enum {
+    Bid = 0x42,
+    Ask = 0x41,
 };
 
 type SystemStatus = enum {

@@ -1,0 +1,494 @@
+module BoxBoxoptionsSolaorderentrySailV225Firm;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type BoxoptionsSolaorderentryV225 = unit {
+    message_length: uint32;
+    incoming_header: IncomingHeader;
+    switch ( self.incoming_header.message_type ) {
+        0 -> user_connection: UserConnection;
+        0 -> user_disconnection: UserDisconnection;
+        0 -> disconnection_instruction: DisconnectionInstruction;
+        0 -> heartbeat_response: HeartbeatResponse;
+        0 -> bulk_quote_data: BulkQuoteData;
+        0 -> global_cancellation: GlobalCancellation;
+        0 -> user_global_cancellation: UserGlobalCancellation;
+        0 -> directed_routed_order_rejection_and_quote: DirectedRoutedOrderRejectionAndQuote;
+        0 -> auction_entry: AuctionEntry;
+        0 -> directed_order_acceptation: DirectedOrderAcceptation;
+        0 -> order_entry: OrderEntry;
+        0 -> improvement_order_entry: ImprovementOrderEntry;
+        0 -> order_modification: OrderModification;
+        0 -> new_complex_order_instrument: NewComplexOrderInstrument;
+        0 -> complex_order_auction_entry: ComplexOrderAuctionEntry;
+        0 -> bulk_quote: BulkQuote;
+        0 -> market_maker_protection_subscription: MarketMakerProtectionSubscription;
+        0 -> request_for_quote: RequestForQuote;
+        0 -> order_cancellation: OrderCancellation;
+        0 -> improvement_order_cancellation: ImprovementOrderCancellation;
+        * -> unknown: bytes &eod;
+    };
+    end_of_text: uint8;
+};
+
+type IncomingHeader = unit {
+    message_type: bytes &size=2;
+    user_time: bytes &size=6;
+    trader_id: bytes &size=8;
+    user_sequence_id: bytes &size=8;
+};
+
+type UserConnection = unit {
+    protocol_version: bytes &size=2;
+    user_id: bytes &size=8;
+    password_md_5_encryption: bytes &size=8;
+    session_id: bytes &size=4;
+    time_hhmmss: bytes &size=6;
+    exchange_message_id: bytes &size=6;
+    inactivity_interval: bytes &size=2;
+    number_of_message_types_to_be_received: bytes &size=2;
+    user_connection_occurrence: UserConnectionOccurrence[self.number_of_message_types_to_be_received];
+};
+
+type UserConnectionOccurrence = unit {
+    message_types_to_be_received: bytes &size=2;
+};
+
+type UserDisconnection = unit {
+    user_id: bytes &size=8;
+    session_id: bytes &size=4;
+};
+
+type DisconnectionInstruction = unit {
+    number_of_instructions_present_in_the_message: bytes &size=2;
+    disconnection_instruction_occurrence: DisconnectionInstructionOccurrence[self.number_of_instructions_present_in_the_message];
+};
+
+type DisconnectionInstructionOccurrence = unit {
+    trader_id: bytes &size=8;
+    disconnection_instruction_note_cancel_quotes_only_q_quotes_only: uint8 &convert=DisconnectionInstructionNoteCancelQuotesOnlyQQuotesOnly($$);
+    active_y_on_n_off: uint8 &convert=ActiveYOnNOff($$);
+};
+
+type HeartbeatResponse = unit {
+    user_sequence_id_first_user_sequence_id_for_nextcurrent_heartbeat_period: bytes &size=8;
+    last_exchange_message_id_sent_to_participant: bytes &size=6;
+    time_local: bytes &size=6;
+};
+
+type BulkQuoteData = unit {
+    group: bytes &size=2;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=8;   # padding
+    : skip bytes &size=2;   # padding
+    calculation_time_interval: bytes &size=8;
+    maximum_total_volume: bytes &size=8;
+    maximum_total_value: bytes &size=8;
+    maximum_delta_volume: bytes &size=8;
+    maximum_delta_value: bytes &size=8;
+    percent_of_quote: bytes &size=8;
+    post_trading_instructions: bytes &size=50;
+};
+
+type ClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    hedge_spec: uint8 &convert=HedgeSpec($$);
+    clearing_operation_mode: uint8 &convert=ClearingOperationMode($$);
+    clearing_destination: bytes &size=4;
+};
+
+type OwnerData = unit {
+    client_order_id: bytes &size=20;
+    pound_sign: bytes &size=1;
+    memo: bytes &size=50;
+};
+
+type GlobalCancellation = unit {
+    group: bytes &size=2;
+    type_of_cancellation_q_quotes_only: uint8 &convert=TypeOfCancellationQQuotesOnly($$);
+    mm_cat_user_time: bytes &size=8;
+};
+
+type UserGlobalCancellation = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    type_of_cancellation: uint8 &convert=TypeOfCancellation($$);
+    account_type_filter: bytes &size=8;
+    mm_cat_user_time: bytes &size=8;
+};
+
+type DirectedRoutedOrderRejectionAndQuote = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    rejection_code: bytes &size=4;
+    quote_quantity: bytes &size=8;
+    quote_price: bytes &size=10;
+};
+
+type AuctionEntry = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    buying_clearing_data: BuyingClearingData;
+    selling_clearing_data: SellingClearingData;
+    buying_owner_data: BuyingOwnerData;
+    selling_owner_data: SellingOwnerData;
+    iml_handling: bytes &size=1;
+    special_price_term: uint8 &convert=SpecialPriceTerm($$);
+    additional_price: bytes &size=10;
+    quantity_term_quantity_term_1: uint8 &convert=QuantityTermQuantityTerm1($$);
+    additional_quantity_additional_quantity_8: bytes &size=8;
+    buying_post_trading_instruction: bytes &size=50;
+    selling_post_trading_instruction: bytes &size=50;
+    buying_additional_client_memo: bytes &size=16;
+    selling_additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type BuyingClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    hedge_spec: uint8 &convert=HedgeSpec($$);
+    clearing_operation_mode: uint8 &convert=ClearingOperationMode($$);
+    clearing_destination: bytes &size=4;
+};
+
+type SellingClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    hedge_spec: uint8 &convert=HedgeSpec($$);
+    clearing_operation_mode: uint8 &convert=ClearingOperationMode($$);
+    clearing_destination: bytes &size=4;
+};
+
+type BuyingOwnerData = unit {
+    client_order_id: bytes &size=20;
+    pound_sign: bytes &size=1;
+    memo: bytes &size=50;
+};
+
+type SellingOwnerData = unit {
+    client_order_id: bytes &size=20;
+    pound_sign: bytes &size=1;
+    memo: bytes &size=50;
+};
+
+type DirectedOrderAcceptation = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    referenced_order_id: bytes &size=8;
+    auction_starting_price: bytes &size=10;
+    clearing_data_dealer: ClearingDataDealer;
+    owner_data_dealer: OwnerDataDealer;
+    additional_price: bytes &size=10;
+    quantity_term_quantity_term_1: uint8 &convert=QuantityTermQuantityTerm1($$);
+    post_trading_instruction: bytes &size=50;
+    additional_quantity_quantity_8: bytes &size=8;
+    additional_client_memo: bytes &size=16;
+};
+
+type ClearingDataDealer = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    hedge_spec: uint8 &convert=HedgeSpec($$);
+    clearing_operation_mode: uint8 &convert=ClearingOperationMode($$);
+    clearing_destination: bytes &size=4;
+};
+
+type OwnerDataDealer = unit {
+    client_order_id: bytes &size=20;
+    pound_sign: bytes &size=1;
+    memo: bytes &size=50;
+};
+
+type OrderEntry = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    price_type: uint8 &convert=PriceType($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    special_price_term: uint8 &convert=SpecialPriceTerm($$);
+    : skip bytes &size=10;   # padding
+    quantity_term_quantity_term_1: uint8 &convert=QuantityTermQuantityTerm1($$);
+    additional_quantity_additional_quantity_8: bytes &size=8;
+    duration_type: uint8 &convert=DurationType($$);
+    gtd_date: bytes &size=8;
+    executing_participant: bytes &size=4;
+    iml_handling: bytes &size=1;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    post_trading_instructions: bytes &size=50;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type ImprovementOrderEntry = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity_sign: bytes &size=1;
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    auction_id: bytes &size=6;
+    : skip bytes &size=17;   # padding
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    post_trading_instructions: bytes &size=50;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type OrderModification = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    price_type: uint8 &convert=PriceType($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity_sign: bytes &size=1;
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    special_price_term: uint8 &convert=SpecialPriceTerm($$);
+    : skip bytes &size=10;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=8;   # padding
+    duration_type: uint8 &convert=DurationType($$);
+    gtd_date: bytes &size=8;
+    firm_id: bytes &size=4;
+    iml_handling: bytes &size=1;
+    modified_order_id: bytes &size=8;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    post_trading_instruction: bytes &size=50;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type NewComplexOrderInstrument = unit {
+    enabled_y_yes_n_no: uint8 &convert=EnabledYYesNNo($$);
+    number_of_legs: bytes &size=2;
+    new_complex_order_instrument_occurrence: NewComplexOrderInstrumentOccurrence[self.number_of_legs];
+};
+
+type NewComplexOrderInstrumentOccurrence = unit {
+    leg_group: bytes &size=2;
+    leg_instrument_id: bytes &size=4;
+    leg_verb: uint8 &convert=LegVerb($$);
+    : skip bytes &size=1;   # padding
+    leg_quantity_ratio: bytes &size=8;
+};
+
+type ComplexOrderAuctionEntry = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    buying_clearing_data: BuyingClearingData;
+    selling_clearing_data: SellingClearingData;
+    buying_owner_data: BuyingOwnerData;
+    selling_owner_data: SellingOwnerData;
+    iml_handling: bytes &size=1;
+    special_price_term: uint8 &convert=SpecialPriceTerm($$);
+    additional_price: bytes &size=10;
+    quantity_term_quantity_sign_1: bytes &size=1;
+    additional_quantity_quantity_8: bytes &size=8;
+    buying_post_trading_instruction: bytes &size=50;
+    selling_post_trading_instruction: bytes &size=50;
+    buying_additional_client_memo: bytes &size=16;
+    selling_additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+    nb_legs: bytes &size=2;
+    complex_order_auction_entry_occurrence: ComplexOrderAuctionEntryOccurrence[self.nb_legs];
+};
+
+type ComplexOrderAuctionEntryOccurrence = unit {
+    leg_group: bytes &size=2;
+    leg_instrument: bytes &size=4;
+    trade_leg_price: bytes &size=10;
+};
+
+type BulkQuote = unit {
+    group: bytes &size=2;
+    quote_id_identifies_traders_quote_on_this_group: bytes &size=8;
+    mm_cat_user_time: bytes &size=8;
+    number_of_quotes: bytes &size=3;
+    bulk_quote_occurrence: BulkQuoteOccurrence[self.number_of_quotes];
+};
+
+type BulkQuoteOccurrence = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity_sign: bytes &size=1;
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+};
+
+type MarketMakerProtectionSubscription = unit {
+    group: bytes &size=2;
+    protection_type_advanced_normal: uint8 &convert=ProtectionTypeAdvancedNormal($$);
+};
+
+type RequestForQuote = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    quantity_1: bytes &size=8;
+};
+
+type OrderCancellation = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    cancelled_order_id: bytes &size=8;
+};
+
+type ImprovementOrderCancellation = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    cancelled_order_id: bytes &size=8;
+};
+
+type DisconnectionInstructionNoteCancelQuotesOnlyQQuotesOnly = enum {
+    All = 0x41,
+    Locked = 0x4c,
+    OrdersOnly = 0x4f,
+    QuotesOnly = 0x51,
+};
+
+type ActiveYOnNOff = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type AccountType = enum {
+    PublicCustomer = 0x36,
+    BrokerDealer = 0x37,
+    MarketMaker = 0x38,
+    ProfessionalCustomer = 0x54,
+    BrokerDealerClearedAsCustomer = 0x57,
+    AwayMarketMaker = 0x58,
+};
+
+type OpenClose = enum {
+    CloseAllLegsOrSingleInstrument = 0x43,
+    OpenAllLegsOrSingleInstrumentForComplexOrdersMustBeUsedItIndicatesThatTheOpenClosePositionsAreSpecifiedInThePostTradingInstructionFieldForLegacySupportTheFollowingValuesAreStillSupportedForComplexOrders = 0x4f,
+    Legs1StLegOpen2NdLegClose = 0x31,
+    Legs1StLegClose2NdLegOpen = 0x32,
+    Legs1StLegOpen2NdLegOpen3RdLegClose = 0x33,
+    Legs1StLegOpen2NdLegClose3RdLegOpen = 0x34,
+    Legs1StLegOpen2NdLegClose3RdLegClose = 0x35,
+    Legs1StLegClose2NdLegOpen3RdLegOpen = 0x36,
+    Legs1StLegClose2NdLegOpen3RdLegClose = 0x37,
+    Legs1StLegClose2NdLegClose3RdLegOpen = 0x38,
+    Legs1StLegOpen2NdLegOpen3RdLegOpen4ThLegClose = 0x41,
+    Legs1StLegOpen2NdLegOpen3RdLegClose4ThLegOpen = 0x42,
+    Legs1StLegOpen2NdLegOpen3RdLegClose4ThLegClose = 0x44,
+    Legs1StLegOpen2NdLegClose3RdLegOpen4ThLegOpen = 0x45,
+    Legs1StLegOpen2NdLegClose3RdLegOpen4ThLegClose = 0x46,
+    Legs1StLegOpen2NdLegClose3RdLegClose4ThLegOpen = 0x47,
+    Legs1StLegOpen2NdLegClose3RdLegClose4ThLegClose = 0x48,
+    Legs1StLegClose2NdLegOpen3RdLegOpen4ThLegOpen = 0x49,
+    Legs1StLegClose2NdLegOpen3RdLegOpen4ThLegClose = 0x4a,
+    Legs1StLegClose2NdLegOpen3RdLegClose4ThLegOpen = 0x4b,
+    Legs1StLegClose2NdLegOpen3RdLegClose4ThLegClose = 0x4c,
+    Legs1StLegClose2NdLegClose3RdLegOpen4ThLegOpen = 0x4d,
+    Legs1StLegClose2NdLegClose3RdLegOpen4ThLegClose = 0x4e,
+    Legs1StLegClose2NdLegClose3RdLegClose4ThLegOpen = 0x50,
+};
+
+type HedgeSpec = enum {
+    Hedger = 0x48,
+    Speculator = 0x53,
+};
+
+type ClearingOperationMode = enum {
+    NoClearingOperation = 0x20,
+    CmtaClearingMemberTradingAgreementFirmWillBeDefinedInTheClearingDestinationField = 0x43,
+    GiveUpFirmWillBeDefinedInTheClearingDestinationField = 0x47,
+    BothCmtaAndGiveUpFirmsWillBeDefinedInThePostTradingInstructionFieldTheGuideStatesNoWidthForThisTypeOneCharacterIsInferredFromTheValuesItStatesEachOfWhichIsOneCharacterWide = 0x49,
+};
+
+type TypeOfCancellationQQuotesOnly = enum {
+    All = 0x41,
+    Locked = 0x4c,
+    OrdersOnly = 0x4f,
+    QuotesOnly = 0x51,
+};
+
+type TypeOfCancellation = enum {
+    All = 0x41,
+    Locked = 0x4c,
+    OrdersOnly = 0x4f,
+    QuotesOnly = 0x51,
+};
+
+type RejectionCode = enum {
+    ExecutingParticipantDiscretion = 1,
+    AuctionOrderFailed = 2,
+};
+
+type VerbSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type SpecialPriceTerm = enum {
+    SolicitationAuction = 0x42,
+    FacilitationAuction = 0x43,
+    RegularPip = 0x47,
+    CustomerCrossOrderOrQualifiedContingentCrossOrder = 0x58,
+    DirectedOrder = 0x4f,
+    PreferencedOrder = 0x50,
+    FloorTrade = 0x52,
+    IndicationOfInterest = 0x41,
+};
+
+type QuantityTermQuantityTerm1 = enum {
+    SurrenderQuantityForSolicitationFacilitationAndFloorTrade = 0x42,
+    IndicatesThatTheAuctionTypeAsMip = 0x4a,
+    NoneTheAboveValueIndicatesThatTheInitOIsWillingToSurrenderAPortionOfTheTotalNumberOfContracts = 0x20,
+};
+
+type PriceType = enum {
+    LimitPriceSetInMessage = 0x4c,
+    AtOpeningPrice = 0x4f,
+    AtAnyPriceMarketOrder = 0x57,
+};
+
+type DurationType = enum {
+    AuctionOrKill = 0x41,
+    OrderIsValidUntilGtdDateGtd = 0x44,
+    ImmediateOrderCannotBeBookedFak = 0x45,
+    ValidUntilInstrumentExpirationGtc = 0x46,
+    ValidForTheCurrentDayOnlyDay = 0x4a,
+    ValidForTheCurrentSessionOrderOnly = 0x57,
+};
+
+type EnabledYYesNNo = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type LegVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type ProtectionTypeAdvancedNormal = enum {
+    AdvancedProtection = 0x41,
+    FunctionallyEquivalentToN = 0x43,
+    StandardProtection = 0x4e,
+};
+

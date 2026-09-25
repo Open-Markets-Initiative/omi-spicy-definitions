@@ -1,0 +1,664 @@
+module BoxBoxoptionsSolaorderentrySailV225Exchange;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type BoxoptionsSolaorderentryV225 = unit {
+    message_length: uint32;
+    outgoing_header: OutgoingHeader;
+    switch ( self.outgoing_header.message_type ) {
+        0 -> heartbeat_question: HeartbeatQuestion;
+        0 -> out_of_sequence: OutOfSequence;
+        0 -> technical_error_notice: TechnicalErrorNotice;
+        0 -> disconnection_instruction_acknowledgement: DisconnectionInstructionAcknowledgement;
+        0 -> connection_acknowledgement: ConnectionAcknowledgement;
+        0 -> disconnection_acknowledgement: DisconnectionAcknowledgement;
+        0 -> end_of_transmission: EndOfTransmission;
+        0 -> error_notice: ErrorNotice;
+        0 -> bulk_quote_data_acknowledgement: BulkQuoteDataAcknowledgement;
+        0 -> order_acknowledgement: OrderAcknowledgement;
+        0 -> global_cancellation_confirmation: GlobalCancellationConfirmation;
+        0 -> improvement_order_acknowlegment: ImprovementOrderAcknowlegment;
+        0 -> order_modification_acknowledgement: OrderModificationAcknowledgement;
+        0 -> new_complex_order_instrument_acknowledgement: NewComplexOrderInstrumentAcknowledgement;
+        0 -> standard_acknowledgement: StandardAcknowledgement;
+        0 -> complex_order_auction_acknowledgement: ComplexOrderAuctionAcknowledgement;
+        0 -> auction_or_improvement_cancellation_acknowledgement: AuctionOrImprovementCancellationAcknowledgement;
+        0 -> order_cancellation_acknowledgement: OrderCancellationAcknowledgement;
+        0 -> bulk_quote_acknowledgement: BulkQuoteAcknowledgement;
+        0 -> trader_status: TraderStatus;
+        0 -> directed_order_cancellation_notice: DirectedOrderCancellationNotice;
+        0 -> directed_order_notice: DirectedOrderNotice;
+        0 -> excluded_instrument_notice: ExcludedInstrumentNotice;
+        0 -> group_state_change: GroupStateChange;
+        0 -> leg_execution_notice: LegExecutionNotice;
+        0 -> cancellation_of_all_quotes_notices: CancellationOfAllQuotesNotices;
+        0 -> quality_market_maker_notification: QualityMarketMakerNotification;
+        0 -> execution_notice: ExecutionNotice;
+        0 -> quote_notice: QuoteNotice;
+        0 -> execution_cancellation_notice: ExecutionCancellationNotice;
+        0 -> leg_execution_cancellation_notice: LegExecutionCancellationNotice;
+        0 -> order_cancellation_notice_by_system: OrderCancellationNoticeBySystem;
+        * -> unknown: bytes &eod;
+    };
+    end_of_text: uint8;
+};
+
+type OutgoingHeader = unit {
+    message_type: bytes &size=2;
+    message_timestamp: bytes &size=6;
+    user_sequence_id: bytes &size=8;
+    exchange_message_id: bytes &size=6;
+    gap_sequence_id: bytes &size=2;
+    system_sequence_id: bytes &size=6;
+};
+
+type HeartbeatQuestion = unit {
+    user_sequence_id_first_user_sequence_id_for_nextcurrent_heartbeat_period: bytes &size=8;
+    last_exchange_message_id_sent_to_participant: bytes &size=6;
+    time_local: bytes &size=6;
+};
+
+type OutOfSequence = unit {
+    received_user_sequence_id: bytes &size=8;
+    expected_last_user_sequence_id: bytes &size=8;
+    message_time_local: bytes &size=6;
+};
+
+type TechnicalErrorNotice = unit {
+    received_message_type: bytes &size=2;
+    preceding_user_sequence_id_received_zeroes_if_none: bytes &size=8;
+    error_code: bytes &size=4;
+    error_position: bytes &size=4;
+    error_message: bytes &size=100;
+    start_of_message_in_error: bytes &size=100;
+};
+
+type DisconnectionInstructionAcknowledgement = unit {
+    current_session_id: bytes &size=4;
+    last_user_sequence_id_received: bytes &size=8;
+};
+
+type ConnectionAcknowledgement = unit {
+    current_session_id: bytes &size=4;
+    last_user_sequence_id_received: bytes &size=8;
+};
+
+type DisconnectionAcknowledgement = unit {
+    current_session_id: bytes &size=4;
+    last_user_sequence_id_received: bytes &size=8;
+};
+
+type EndOfTransmission = unit {
+    ended_session_id: bytes &size=4;
+    last_user_sequence_id_received_if_no_business_message_has_been_received_on_this_connection_this_field_is_equal_to_zeroes: bytes &size=8;
+    time_field: bytes &size=6;
+};
+
+type ErrorNotice = unit {
+    error_code: bytes &size=4;
+    error_description: bytes &size=100;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    order_id_client_order_id_20: bytes &size=20;
+    auction_id: bytes &size=6;
+    original_message_type: bytes &size=2;
+    error_detail: bytes &size=200;
+    client_order_id: bytes &size=20;
+};
+
+type BulkQuoteDataAcknowledgement = unit {
+    group: bytes &size=2;
+    trader_id: bytes &size=8;
+    quote_id_identifies_traders_quote_on_this_group: bytes &size=8;
+};
+
+type OrderAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    : skip bytes &size=6;   # padding
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type ClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    hedge_spec: uint8 &convert=HedgeSpec($$);
+    clearing_operation_mode: uint8 &convert=ClearingOperationMode($$);
+    clearing_destination: bytes &size=4;
+};
+
+type OwnerData = unit {
+    client_order_id: bytes &size=20;
+    pound_sign: bytes &size=1;
+    memo: bytes &size=50;
+};
+
+type GlobalCancellationConfirmation = unit {
+    group: bytes &size=2;
+    trader_id: bytes &size=8;
+    type_of_cancellation_only_q_quotes_only_can_be_returned: uint8 &convert=TypeOfCancellationOnlyQQuotesOnlyCanBeReturned($$);
+};
+
+type ImprovementOrderAcknowlegment = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type OrderModificationAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    : skip bytes &size=6;   # padding
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type NewComplexOrderInstrumentAcknowledgement = unit {
+    strategy_group: bytes &size=2;
+    strategy_instrument_id: bytes &size=4;
+    creation_status: bytes &size=1;
+    number_of_legs: bytes &size=2;
+    new_complex_order_instrument_acknowledgement_occurrence: NewComplexOrderInstrumentAcknowledgementOccurrence[self.number_of_legs];
+};
+
+type NewComplexOrderInstrumentAcknowledgementOccurrence = unit {
+    leg_group: bytes &size=2;
+    leg_instrument_id: bytes &size=4;
+    leg_verb: uint8 &convert=LegVerb($$);
+    : skip bytes &size=1;   # padding
+    leg_quantity_ratio: bytes &size=8;
+};
+
+type StandardAcknowledgement = unit {
+    trader_id: bytes &size=8;
+    original_message_type_re_rf_rq_rp_gz: bytes &size=2;
+};
+
+type ComplexOrderAuctionAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    auction_id: bytes &size=6;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type AuctionOrImprovementCancellationAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
+};
+
+type OrderCancellationAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type BulkQuoteAcknowledgement = unit {
+    group: bytes &size=2;
+    quote_id_identifies_traders_quote_on_this_group: bytes &size=8;
+    number_of_quotes_in_error: bytes &size=3;
+    bulk_quote_acknowledgement_occurrence: BulkQuoteAcknowledgementOccurrence[self.number_of_quotes_in_error];
+};
+
+type BulkQuoteAcknowledgementOccurrence = unit {
+    quote_number: bytes &size=3;
+    error_code: bytes &size=4;
+};
+
+type TraderStatus = unit {
+    trader_id: bytes &size=8;
+    trader_lock_out: uint8 &convert=TraderLockOut($$);
+    risk_team_lock_out: uint8 &convert=RiskTeamLockOut($$);
+};
+
+type DirectedOrderCancellationNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    referenced_order_id: bytes &size=8;
+};
+
+type DirectedOrderNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    referenced_order_id: bytes &size=8;
+};
+
+type ExcludedInstrumentNotice = unit {
+    group: bytes &size=2;
+    : skip bytes &size=2;   # padding
+    trader_id: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    nb_of_instruments: bytes &size=4;
+    field_1_to_9999_occurrences_instrument: bytes &size=4;
+};
+
+type GroupStateChange = unit {
+    group: bytes &size=2;
+    group_state: uint8 &convert=GroupState($$);
+};
+
+type LegExecutionNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id: bytes &size=8;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    time_trade_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
+    auction_id: bytes &size=6;
+    trade_number: bytes &size=8;
+    trade_memo_string_5050: bytes &size=50;
+    original_reference_id_order_id_8: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    strategy_group: bytes &size=2;
+    strategy_instrument_id: bytes &size=4;
+    strategy_verb_side: uint8 &convert=StrategyVerbSide($$);
+    strategy_trade_number: bytes &size=8;
+    leg_number: bytes &size=2;
+    counterpart_account_type: uint8 &convert=CounterpartAccountType($$);
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+};
+
+type CancellationOfAllQuotesNotices = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    quote_cancel_reason: uint8 &convert=QuoteCancelReason($$);
+};
+
+type QualityMarketMakerNotification = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    auction_id: bytes &size=6;
+    verb: uint8 &convert=Verb($$);
+    auction_quantity: bytes &size=8;
+    auction_price: bytes &size=10;
+    quote_quantity: bytes &size=8;
+    quote_price: bytes &size=10;
+    qualified_quantity: bytes &size=8;
+};
+
+type ExecutionNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id_order_id_or_quote_id: bytes &size=8;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    time_of_the_trade_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
+    auction_id: bytes &size=6;
+    trade_number: bytes &size=8;
+    trade_memo_trade_memo_50: bytes &size=50;
+    original_reference_id_original_reference_id_8: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    counterpart_account_type: uint8 &convert=CounterpartAccountType($$);
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+};
+
+type QuoteNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id_quote: bytes &size=8;
+    verb_side: uint8 &convert=VerbSide($$);
+    order_type: uint8 &convert=OrderType($$);
+    action: uint8 &convert=Action($$);
+    new_quantity: bytes &size=8;
+    new_price: bytes &size=10;
+    previous_quantity: bytes &size=8;
+    previous_price: bytes &size=10;
+    auction_id: bytes &size=6;
+    original_reference_id_quote_or_order_id: bytes &size=8;
+};
+
+type ExecutionCancellationNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id_order_id_or_quote_id: bytes &size=8;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    time_of_the_trade_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
+    auction_id: bytes &size=6;
+    trade_number: bytes &size=8;
+    trade_memo_trade_memo_50: bytes &size=50;
+    original_reference_id_original_reference_id_8: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    counterpart_account_type: uint8 &convert=CounterpartAccountType($$);
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+};
+
+type LegExecutionCancellationNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id: bytes &size=8;
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    time_trade_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
+    auction_id: bytes &size=6;
+    trade_number: bytes &size=8;
+    trade_memo_string_5050: bytes &size=50;
+    original_reference_id_order_id_8: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+    liquidity_status: uint8 &convert=LiquidityStatus($$);
+    strategy_group: bytes &size=2;
+    strategy_instrument_id: bytes &size=4;
+    strategy_verb_side: uint8 &convert=StrategyVerbSide($$);
+    strategy_trade_number: bytes &size=8;
+    leg_number: bytes &size=2;
+    counterpart_account_type: uint8 &convert=CounterpartAccountType($$);
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+};
+
+type OrderCancellationNoticeBySystem = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_order_id_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type Status = enum {
+    OrderCancelledByTheTraderOrAtTheEndOfTheExpositionPhase = 0x41,
+    OrderHasBeenEliminatedByTheTradingSystemDueToInvalidOutOfLimitsPrice = 0x42,
+    TheOrderIsADirectedRoutedOrderAndHasBeenReceivedByExecutingParticipant = 0x44,
+    TheOrderHasBeenEliminatedByTheTradingSystem = 0x45,
+    CancelledBySupervisor = 0x47,
+    SessionOrderHasBeenCancelledWhenTheParticipantClosesOrLosesHisConnectionToTheSolaTradingSystem = 0x49,
+    EliminatedDueToMaximumNbTriggersLimitExceeded = 0x4a,
+    EliminatedDueToTradeActivityLimitExceeded = 0x4b,
+    OrderHasBeenSentToTheAwayExchange = 0x4c,
+    CancelledByTheBoxMarketOperationsCenterMoc = 0x4d,
+    EliminatedDueToDrillThroughProtection = 0x4f,
+    OrderIsBeingExposed = 0x50,
+    OrderIsEliminatedDueToTradingRestriction = 0x52,
+    EliminatedDueToTradeLimitExceeded = 0x54,
+    CancelPending = 0x57,
+    OrderExecutedInFullOrPartiallyAndTheRemainingPartCouldNotBePutInTheOrderBookFillKillTheGuideStatesNoWidthForThisTypeOneCharacterIsInferredFromTheValuesItStatesEachOfWhichIsOneCharacterWide = 0x58,
+};
+
+type VerbSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type AccountType = enum {
+    PublicCustomer = 0x36,
+    BrokerDealer = 0x37,
+    MarketMaker = 0x38,
+    ProfessionalCustomer = 0x54,
+    BrokerDealerClearedAsCustomer = 0x57,
+    AwayMarketMaker = 0x58,
+};
+
+type OpenClose = enum {
+    CloseAllLegsOrSingleInstrument = 0x43,
+    OpenAllLegsOrSingleInstrumentForComplexOrdersMustBeUsedItIndicatesThatTheOpenClosePositionsAreSpecifiedInThePostTradingInstructionFieldForLegacySupportTheFollowingValuesAreStillSupportedForComplexOrders = 0x4f,
+    Legs1StLegOpen2NdLegClose = 0x31,
+    Legs1StLegClose2NdLegOpen = 0x32,
+    Legs1StLegOpen2NdLegOpen3RdLegClose = 0x33,
+    Legs1StLegOpen2NdLegClose3RdLegOpen = 0x34,
+    Legs1StLegOpen2NdLegClose3RdLegClose = 0x35,
+    Legs1StLegClose2NdLegOpen3RdLegOpen = 0x36,
+    Legs1StLegClose2NdLegOpen3RdLegClose = 0x37,
+    Legs1StLegClose2NdLegClose3RdLegOpen = 0x38,
+    Legs1StLegOpen2NdLegOpen3RdLegOpen4ThLegClose = 0x41,
+    Legs1StLegOpen2NdLegOpen3RdLegClose4ThLegOpen = 0x42,
+    Legs1StLegOpen2NdLegOpen3RdLegClose4ThLegClose = 0x44,
+    Legs1StLegOpen2NdLegClose3RdLegOpen4ThLegOpen = 0x45,
+    Legs1StLegOpen2NdLegClose3RdLegOpen4ThLegClose = 0x46,
+    Legs1StLegOpen2NdLegClose3RdLegClose4ThLegOpen = 0x47,
+    Legs1StLegOpen2NdLegClose3RdLegClose4ThLegClose = 0x48,
+    Legs1StLegClose2NdLegOpen3RdLegOpen4ThLegOpen = 0x49,
+    Legs1StLegClose2NdLegOpen3RdLegOpen4ThLegClose = 0x4a,
+    Legs1StLegClose2NdLegOpen3RdLegClose4ThLegOpen = 0x4b,
+    Legs1StLegClose2NdLegOpen3RdLegClose4ThLegClose = 0x4c,
+    Legs1StLegClose2NdLegClose3RdLegOpen4ThLegOpen = 0x4d,
+    Legs1StLegClose2NdLegClose3RdLegOpen4ThLegClose = 0x4e,
+    Legs1StLegClose2NdLegClose3RdLegClose4ThLegOpen = 0x50,
+};
+
+type HedgeSpec = enum {
+    Hedger = 0x48,
+    Speculator = 0x53,
+};
+
+type ClearingOperationMode = enum {
+    NoClearingOperation = 0x20,
+    CmtaClearingMemberTradingAgreementFirmWillBeDefinedInTheClearingDestinationField = 0x43,
+    GiveUpFirmWillBeDefinedInTheClearingDestinationField = 0x47,
+    BothCmtaAndGiveUpFirmsWillBeDefinedInThePostTradingInstructionFieldTheGuideStatesNoWidthForThisTypeOneCharacterIsInferredFromTheValuesItStatesEachOfWhichIsOneCharacterWide = 0x49,
+};
+
+type TypeOfCancellationOnlyQQuotesOnlyCanBeReturned = enum {
+    All = 0x41,
+    Locked = 0x4c,
+    OrdersOnly = 0x4f,
+    QuotesOnly = 0x51,
+};
+
+type LegVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TraderLockOut = enum {
+    Locked = 0x4c,
+    UnlockedTheGuideStatesNoWidthForThisTypeOneCharacterIsInferredFromTheValuesItStatesEachOfWhichIsOneCharacterWide = 0x55,
+};
+
+type RiskTeamLockOut = enum {
+    Locked = 0x4c,
+    UnlockedTheGuideStatesNoWidthForThisTypeOneCharacterIsInferredFromTheValuesItStatesEachOfWhichIsOneCharacterWide = 0x55,
+};
+
+type GroupState = enum {
+    PostSession = 0x42,
+    ConsultationStart = 0x43,
+    ConsultationEnd = 0x46,
+    Prohibited = 0x49,
+    Minibatch = 0x4d,
+    MarketOperationCenterIntervention = 0x4e,
+    Opening = 0x4f,
+    Preopening = 0x50,
+    ContinuousTradingSession = 0x53,
+    Interrupted = 0x5a,
+};
+
+type SpecialTradeIndicator = enum {
+    AsOfTrade = 0x41,
+    BlockTrade = 0x42,
+    LateTrade = 0x4c,
+    HiddenTrade = 0x4f,
+    SizeAdjustmentTrade = 0x53,
+    FloorTrade = 0x52,
+    CustomerCrossOrderOrQualifiedContingentCrossOrderAppliesToSolicitationFacilitationAndFloorTradeOnly = 0x44,
+    ContingentTradeTradeWasNotControlledAgainstTheNbbo = 0x67,
+};
+
+type PriceType = enum {
+    LimitPriceSetInMessage = 0x4c,
+    AtOpeningPrice = 0x4f,
+    AtAnyPriceMarketOrder = 0x57,
+};
+
+type TradeType = enum {
+    TradedDuringAGuaranteedAuction = 0x41,
+    SolicitationAuction = 0x42,
+    FacilitationAuction = 0x43,
+    TradedDuringContinuousTradingFollowingFifoAlgorithm = 0x46,
+    TradeEnteredByMarketOperations = 0x4d,
+    TradedDuringOpening = 0x4f,
+};
+
+type LiquidityStatus = enum {
+    Maker = 0x4d,
+    Taker = 0x54,
+};
+
+type StrategyVerbSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type CounterpartAccountType = enum {
+    PublicCustomer = 0x36,
+    BrokerDealer = 0x37,
+    MarketMaker = 0x38,
+    ProfessionalCustomer = 0x54,
+    BrokerDealerClearedAsCustomer = 0x57,
+    AwayMarketMaker = 0x58,
+};
+
+type QuoteCancelReason = enum {
+    CancelledByTheTrader = 0x41,
+    MmpPercentOfQuoteHasBeenReached = 0x44,
+    MaximumTriggersProtectionLimitExceeded = 0x45,
+    CancelledBySupervisor = 0x47,
+    EliminatedOnDisconnect = 0x49,
+    TradedActivityProtectionLimitExceeded = 0x4c,
+    CancelledByTheBoxMarketOperationsCenterMoc = 0x4d,
+    EliminatedDueToDrillThroughProtection = 0x4f,
+    MmpMaxNumberOfTradesHasBeenReached = 0x50,
+    QuotesCancelled = 0x51,
+    MmpMaxValueHasBeenReached = 0x52,
+    CancelledByTheSystem = 0x53,
+    MmpMaxVolumeHasBeenReached = 0x54,
+    MmpMaxDeltaVolumeHasBeenReached = 0x4e,
+    MmpMaxDeltaValueHasBeenReached = 0x56,
+    CancelPending = 0x57,
+};
+
+type Verb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OrderType = enum {
+    Order = 0x4f,
+    Quote = 0x51,
+};
+
+type Action = enum {
+    QuantityUpdate = 0x51,
+    Shelved = 0x53,
+    Unshelved = 0x55,
+};
+

@@ -22,7 +22,7 @@ Updates are greatly appreciated; however, this entire repository is source gener
 
 | Protocol Count | Generated Lines |
 | --- | --- |
-| 1051 | 712811 |
+| 1063 | 714541 |
 
 ## Testing
 
@@ -59,6 +59,7 @@ The Open Markets Initiative provides protocol definitions in several formats:
 - [DFDL Definitions][Dfdl.Definitions.Repository] — declarative DFDL schemas for cross language parsing
 - [P4 Definitions][P4.Definitions.Repository] — P4 programs for software and hardware data planes
 - [Lean Definitions][Lean.Definitions.Repository] — Lean 4 definitions with machine checked encode and decode proofs
+- [TLA+ Definitions][Tla.Definitions.Repository] — TLA+ modules whose encode and decode are model checked with TLC
 - [FIX Dictionaries][Fix.Dictionaries.Repository] — QuickFIX format xml data dictionaries, one per FIX version
 - [Xml Specifications][Xml.Specifications.Repository] — the exchange protocol specification xmls, matching the original files
 ## Disclaimer
@@ -86,6 +87,8 @@ Enjoy.
 [Omi.Encoding.Glimpse]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Glimpse.md "Glimpse Encoding"
 [Omi.Encoding.Udp]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Udp.md "Udp Encoding"
 [Omi.Encoding.Hsvf]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Hsvf.md "Hsvf Encoding"
+[Omi.Encoding.Sail]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Sail.md "Sail Encoding"
+[Omi.Encoding.Atr]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Atr.md "Atr Encoding"
 [Omi.Encoding.Fbe]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fbe.md "Fbe Encoding"
 [Omi.Encoding.Aspen]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Aspen.md "Aspen Encoding"
 [Omi.Encoding.Tcp]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Tcp.md "Tcp Encoding"
@@ -144,6 +147,8 @@ Enjoy.
 [BlueOceanAts.BlueEquities.MemoirTopOfBook]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Protocols/BlueEquities/MemoirTopOfBook.md "Member Order Information Record Top Of Book"
 [BlueOceanAts.CommonHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BlueOceanAts/Protocols/CommonHeader.md "Common Header"
 [Box.BoxOptions.SolaMulticast]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Protocols/BoxOptions/SolaMulticast.md "Sola Multicast"
+[Box.BoxOptions.SolaOrderEntry]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Protocols/BoxOptions/SolaOrderEntry.md "Sola Order Entry"
+[Box.BoxOptions.SolaTradeReporting]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Protocols/BoxOptions/SolaTradeReporting.md "Sola Trade Reporting"
 [Box.BoxOptions.SolaUnicast]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Box/Protocols/BoxOptions/SolaUnicast.md "Sola Unicast"
 [BruceAts.BruceEquities.BestBidAndOffer]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BruceAts/Protocols/BruceEquities/BestBidAndOffer.md "Best Bid And Offer"
 [BruceAts.BruceEquities.DepthOfBook]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/BruceAts/Protocols/BruceEquities/DepthOfBook.md "Depth Of Book"
@@ -535,5 +540,6 @@ Enjoy.
 [Dfdl.Definitions.Repository]: https://github.com/Open-Markets-Initiative/omi-dfdl-definitions "Omi DFDL Definitions"
 [P4.Definitions.Repository]: https://github.com/Open-Markets-Initiative/omi-p4-definitions "Omi P4 Definitions"
 [Lean.Definitions.Repository]: https://github.com/Open-Markets-Initiative/omi-lean-definitions "Omi Lean Definitions"
+[Tla.Definitions.Repository]: https://github.com/Open-Markets-Initiative/omi-tla-definitions "Omi TLA+ Definitions"
 [Fix.Dictionaries.Repository]: https://github.com/Open-Markets-Initiative/omi-fix-dictionaries "Omi FIX Dictionaries"
 [Xml.Specifications.Repository]: https://github.com/Open-Markets-Initiative/omi-xml-specifications "Omi Xml Specifications"

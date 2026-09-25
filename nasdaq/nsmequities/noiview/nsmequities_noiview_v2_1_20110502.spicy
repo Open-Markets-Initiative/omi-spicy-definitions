@@ -1,0 +1,172 @@
+module NasdaqNsmequitiesNoiviewItchV2120110502;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesNoiviewV2120110502 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence: uint32;
+    count: uint16 &byte-order=spicy::ByteOrder::Little;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoRestrictionMessage -> reg_sho_restriction_message: RegShoRestrictionMessage;
+        MessageType::NoiiMessage -> noii_message: NoiiMessage;
+        MessageType::CrossTradeMessage -> cross_trade_message: CrossTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    length: uint16;
+    timestamp: bytes &size=8;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectoryMessage = unit {
+    stock: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    round_lot_size: bytes &size=6;
+    round_lots_only: uint8 &convert=RoundLotsOnly($$);
+};
+
+type StockTradingActionMessage = unit {
+    stock: bytes &size=8;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+    reason: bytes &size=4;
+};
+
+type RegShoRestrictionMessage = unit {
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type NoiiMessage = unit {
+    paired_shares: bytes &size=9;
+    imbalance_shares: bytes &size=9;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    stock: bytes &size=8;
+    far_price: bytes &size=10;
+    near_price: bytes &size=10;
+    current_reference_price: bytes &size=10;
+    cross_type: uint8 &convert=CrossType($$);
+    price_variation_indicator: uint8 &convert=PriceVariationIndicator($$);
+};
+
+type CrossTradeMessage = unit {
+    shares: bytes &size=9;
+    stock: bytes &size=8;
+    cross_price: bytes &size=10;
+    match_number: bytes &size=12;
+    cross_type: uint8 &convert=CrossType($$);
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoRestrictionMessage = 0x59,
+    NoiiMessage = 0x49,
+    CrossTradeMessage = 0x51,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    ClearNoiiOpeningCrossData = 0x58,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type MarketCategory = enum {
+    NewYorkStockExchangeNyse = 0x4e,
+    NyseAmex = 0x41,
+    NyseArca = 0x50,
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+};
+
+type FinancialStatusIndicator = enum {
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    Suspended = 0x53,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+    CompanyIsInCompliance = 0x20,
+};
+
+type RoundLotsOnly = enum {
+    OnlyRoundLotsAreAcceptedInThisStock = 0x59,
+    OddmixedLotsAreAllowed = 0x4e,
+};
+
+type CurrentTradingState = enum {
+    HaltedOrPausedAcrossAllUsEquityMarketsSrOs = 0x48,
+    HaltedOrPausedOnNasdaqOnly = 0x56,
+    QuotationOnlyPeriodForCrossSroHaltOrPause = 0x51,
+    QuotationOnlyPeriodForNasdaqOnlyHaltOrPause = 0x52,
+    TradingOnNasdaq = 0x54,
+};
+
+type Reason = enum {
+    ReasonNotAvailable = 0x20,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInPlace = 0x30,
+    RegShoShortSalePriceTestRestrictionInEffectDueToAnIntradayPriceDropInSecurity = 0x31,
+    RegShoShortSalePriceTestRestrictionRemainsInEffect = 0x32,
+};
+
+type ImbalanceDirection = enum {
+    BuyImbalance = 0x42,
+    SellImbalance = 0x53,
+    NoImbalance = 0x4e,
+    InsufficientOrdersToCalculate = 0x4f,
+};
+
+type CrossType = enum {
+    OpenCross = 0x4f,
+    CloseCross = 0x43,
+    IntradayOpeningCrossForIpoAndHaltedPausedSecurities = 0x48,
+};
+
+type PriceVariationIndicator = enum {
+    LessThan1 = 0x4c,
+    OneToOnePointNineNinePercent = 0x31,
+    TwoToTwoPointNineNinePercent = 0x32,
+    ThreeToThreePointNineNinePercent = 0x33,
+    FourToFourPointNineNinePercent = 0x34,
+    FiveToFivePointNineNinePercent = 0x35,
+    SixToSixPointNineNinePercent = 0x36,
+    SevenToSevenPointNineNinePercent = 0x37,
+    EightToEightPointNineNinePercent = 0x38,
+    NineToNinePointNineNinePercent = 0x39,
+    TenToNineteenPointNineNinePercent = 0x41,
+    TwentyToTwentyNinePointNineNinePercent = 0x42,
+    ThirtyPercentOrGreater = 0x43,
+    CannotBeCalculated = 0x20,
+};
+
