@@ -371,8 +371,14 @@ type MassCancelResponse = unit {
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     number_of_matching_engines: uint8;
-    matching_engine_status: bytes &size=24;
+    matching_engine_status: MatchingEngineStatus[self.number_of_matching_engines];
     : skip bytes &size=10;   # padding
+};
+
+type MatchingEngineStatus = unit {
+    login_status: uint8 &convert=LoginStatus($$);
+    trading_session_id: uint8;
+    highest_sequence_number: uint64;
 };
 
 type LoginRequest = unit {
@@ -380,15 +386,18 @@ type LoginRequest = unit {
     username: bytes &size=5;
     computer_id: bytes &size=8;
     application_protocol: bytes &size=8;
+    number_of_matching_engines: uint8;
+    requested_matching_engine: RequestedMatchingEngine[self.number_of_matching_engines];
+};
+
+type RequestedMatchingEngine = unit {
     requested_trading_session_id: uint8;
     requested_sequence_number: uint64;
 };
 
 type LoginResponse = unit {
     number_of_matching_engines: uint8;
-    login_status: uint8 &convert=LoginStatus($$);
-    trading_session_id: uint8;
-    highest_sequence_number: uint64;
+    matching_engine_status: MatchingEngineStatus[self.number_of_matching_engines];
 };
 
 type SynchronizationComplete = unit {

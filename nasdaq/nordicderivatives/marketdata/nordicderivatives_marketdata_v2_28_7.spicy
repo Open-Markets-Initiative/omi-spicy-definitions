@@ -1,0 +1,236 @@
+module NasdaqNordicderivativesMarketdataGeniumamdV2287;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NordicderivativesMarketdataV2287 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        0x54 -> seconds_message: SecondsMessage;
+        0x52 -> order_book_directory: OrderBookDirectory;
+        0x56 -> market_directory: MarketDirectory;
+        0x4d -> combination_order_book_leg_directory: CombinationOrderBookLegDirectory;
+        0x4c -> tick_size_table_entry: TickSizeTableEntry;
+        0x53 -> system_event_message: SystemEventMessage;
+        0x72 -> reported_trade: ReportedTrade;
+        0x42 -> broken_trade_message: BrokenTradeMessage;
+        0x71 -> quote_request_message: QuoteRequestMessage;
+        0x6f -> open_interest_messsage: OpenInterestMesssage;
+        0x70 -> price_message: PriceMessage;
+        0x57 -> market_by_level_message: MarketByLevelMessage;
+        0x55 -> underlying_price_message: UnderlyingPriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8;
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type OrderBookDirectory = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16;
+    odd_lot_size: uint32;
+    round_lot_size: uint32;
+    block_lot_size: uint32;
+    nominal_value: uint64;
+    number_of_legs: uint8;
+    underlying_order_book_id: uint32;
+    strike_price: int32;
+    expiration_date: uint32;
+    number_of_decimals_in_strike_price: uint16;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    notation_date: uint32;
+    first_trading_date_and_time: uint64;
+    last_trading_date_and_time: uint64;
+    country_id: uint8;
+    market_id: uint8;
+    physical_delivery: uint8 &convert=PhysicalDelivery($$);
+    option_style: uint16 &convert=OptionStyle($$);
+};
+
+type MarketDirectory = unit {
+    timestamp_nanoseconds: uint32;
+    country_id: uint8;
+    market_id: uint8;
+    market_name: bytes &size=32;
+};
+
+type CombinationOrderBookLegDirectory = unit {
+    timestamp_nanoseconds: uint32;
+    combination_order_book_id: uint32;
+    leg_order_book_id: uint32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type TickSizeTableEntry = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    tick_size: int64;
+    price_from: int32;
+    price_to: int32;
+};
+
+type SystemEventMessage = unit {
+    timestamp_nanoseconds: uint32;
+    event_code: bytes &size=1;
+};
+
+type ReportedTrade = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    traded_quantity: uint64;
+    match_id: uint64;
+    combo_group_id: uint32;
+    time_of_trade_execution: uint64;
+    time_of_trade_agreement: uint64;
+    time_of_trade_dissemination: uint64;
+    trade_price: int32;
+    trade_type: uint16;
+    reserved_alpha_7: bytes &size=7;
+    second_reserved: bytes &size=7;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp_nanoseconds: uint32;
+    match_id: uint64;
+};
+
+type QuoteRequestMessage = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    reserved_alpha_7: bytes &size=7;
+    reserved_alpha_5: bytes &size=5;
+    reserved_alpha_1: bytes &size=1;
+    side: bytes &size=1;
+    quantity: uint64;
+};
+
+type OpenInterestMesssage = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    open_interest: uint64;
+    previous_trading_date: uint32;
+};
+
+type PriceMessage = unit {
+    timestamp_nanoseconds: uint32;
+    price_type: bytes &size=1;
+    order_book_id: uint32;
+    price_price_4: int32;
+    price_source: bytes &size=1;
+};
+
+type MarketByLevelMessage = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    last_message: uint8 &convert=LastMessage($$);
+    level_update_action: uint8 &convert=LevelUpdateAction($$);
+    max_depth: uint16;
+    level_update: uint16;
+    entry_type: uint8 &convert=EntryType($$);
+    market_by_level_price: uint32;
+    quantity: uint64;
+};
+
+type UnderlyingPriceMessage = unit {
+    timestamp_nanoseconds: uint32;
+    underlying_order_book_id: uint32;
+    bid_price: uint32;
+    ask_price: uint32;
+    closing_price: uint32;
+    opening_price: uint32;
+    high_price: uint32;
+    low_price: uint32;
+    last_price: uint32;
+    turnover: uint64;
+    best_bid_volume: uint64;
+    best_ask_volume: uint64;
+};
+
+type FinancialProduct = enum {
+    NotApplicable = 0,
+    Option = 1,
+    Forward = 2,
+    Future = 3,
+    Fra = 4,
+    Cash = 5,
+    Payment = 6,
+    ExchangeRate = 7,
+    InterestRateSwap = 8,
+    Repo = 9,
+    SyntheticBoxLegReference = 10,
+    StandardCombination = 11,
+    Guarantee = 12,
+    OtcGeneral = 13,
+    EquityWarrant = 14,
+    SecurityLending = 15,
+    NonDeliverableRollingSpot = 16,
+    Strip = 17,
+};
+
+type PutOrCall = enum {
+    Call = 1,
+    Put = 2,
+};
+
+type PhysicalDelivery = enum {
+    NotApplicable = 0,
+    Yes = 1,
+    No = 2,
+};
+
+type OptionStyle = enum {
+    NotApplicable = 0,
+    American = 1,
+    European = 2,
+    Asian = 3,
+};
+
+type LegSide = enum {
+    AsDefined = 0x42,
+    Opposite = 0x43,
+};
+
+type LastMessage = enum {
+    NotLastMessage = 0,
+    LastMessage_1 = 1,
+};
+
+type LevelUpdateAction = enum {
+    New = 0,
+    Change = 1,
+    Delete = 2,
+    MaxDepth = 3,
+};
+
+type EntryType = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

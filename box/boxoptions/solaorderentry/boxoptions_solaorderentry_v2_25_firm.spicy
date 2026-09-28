@@ -73,7 +73,7 @@ type DisconnectionInstructionOccurrence = unit {
 };
 
 type HeartbeatResponse = unit {
-    user_sequence_id_first_user_sequence_id_for_nextcurrent_heartbeat_period: bytes &size=8;
+    first_user_sequence_id: bytes &size=8;
     last_exchange_message_id_sent_to_participant: bytes &size=6;
     time_local: bytes &size=6;
 };
@@ -111,13 +111,13 @@ type OwnerData = unit {
 
 type GlobalCancellation = unit {
     group: bytes &size=2;
-    type_of_cancellation_q_quotes_only: uint8 &convert=TypeOfCancellationQQuotesOnly($$);
+    type_of_cancellation: uint8 &convert=TypeOfCancellation($$);
     mm_cat_user_time: bytes &size=8;
 };
 
 type UserGlobalCancellation = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     type_of_cancellation: uint8 &convert=TypeOfCancellation($$);
     account_type_filter: bytes &size=8;
     mm_cat_user_time: bytes &size=8;
@@ -125,9 +125,9 @@ type UserGlobalCancellation = unit {
 
 type DirectedRoutedOrderRejectionAndQuote = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
+    order_id_x_8: bytes &size=8;
     rejection_code: bytes &size=4;
     quote_quantity: bytes &size=8;
     quote_price: bytes &size=10;
@@ -135,7 +135,7 @@ type DirectedRoutedOrderRejectionAndQuote = unit {
 
 type AuctionEntry = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
     price: bytes &size=10;
@@ -146,8 +146,8 @@ type AuctionEntry = unit {
     iml_handling: bytes &size=1;
     special_price_term: uint8 &convert=SpecialPriceTerm($$);
     additional_price: bytes &size=10;
-    quantity_term_quantity_term_1: uint8 &convert=QuantityTermQuantityTerm1($$);
-    additional_quantity_additional_quantity_8: bytes &size=8;
+    quantity_term: uint8 &convert=QuantityTerm($$);
+    additional_quantity: bytes &size=8;
     buying_post_trading_instruction: bytes &size=50;
     selling_post_trading_instruction: bytes &size=50;
     buying_additional_client_memo: bytes &size=16;
@@ -187,15 +187,15 @@ type SellingOwnerData = unit {
 
 type DirectedOrderAcceptation = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     referenced_order_id: bytes &size=8;
     auction_starting_price: bytes &size=10;
     clearing_data_dealer: ClearingDataDealer;
     owner_data_dealer: OwnerDataDealer;
     additional_price: bytes &size=10;
-    quantity_term_quantity_term_1: uint8 &convert=QuantityTermQuantityTerm1($$);
+    quantity_term: uint8 &convert=QuantityTerm($$);
     post_trading_instruction: bytes &size=50;
-    additional_quantity_quantity_8: bytes &size=8;
+    additional_quantity: bytes &size=8;
     additional_client_memo: bytes &size=16;
 };
 
@@ -216,15 +216,15 @@ type OwnerDataDealer = unit {
 
 type OrderEntry = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     price_type: uint8 &convert=PriceType($$);
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
     price: bytes &size=10;
     special_price_term: uint8 &convert=SpecialPriceTerm($$);
     : skip bytes &size=10;   # padding
-    quantity_term_quantity_term_1: uint8 &convert=QuantityTermQuantityTerm1($$);
-    additional_quantity_additional_quantity_8: bytes &size=8;
+    quantity_term: uint8 &convert=QuantityTerm($$);
+    additional_quantity: bytes &size=8;
     duration_type: uint8 &convert=DurationType($$);
     gtd_date: bytes &size=8;
     executing_participant: bytes &size=4;
@@ -238,12 +238,12 @@ type OrderEntry = unit {
 
 type ImprovementOrderEntry = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     verb_side: uint8 &convert=VerbSide($$);
     quantity_sign: bytes &size=1;
     quantity: bytes &size=8;
     price: bytes &size=10;
-    auction_id: bytes &size=6;
+    auction_id_optional: bytes &size=6;
     : skip bytes &size=17;   # padding
     clearing_data: ClearingData;
     owner_data: OwnerData;
@@ -254,7 +254,7 @@ type ImprovementOrderEntry = unit {
 
 type OrderModification = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     price_type: uint8 &convert=PriceType($$);
     verb_side: uint8 &convert=VerbSide($$);
     quantity_sign: bytes &size=1;
@@ -292,7 +292,7 @@ type NewComplexOrderInstrumentOccurrence = unit {
 
 type ComplexOrderAuctionEntry = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
     price: bytes &size=10;
@@ -303,8 +303,8 @@ type ComplexOrderAuctionEntry = unit {
     iml_handling: bytes &size=1;
     special_price_term: uint8 &convert=SpecialPriceTerm($$);
     additional_price: bytes &size=10;
-    quantity_term_quantity_sign_1: bytes &size=1;
-    additional_quantity_quantity_8: bytes &size=8;
+    quantity_term: uint8 &convert=QuantityTerm($$);
+    additional_quantity: bytes &size=8;
     buying_post_trading_instruction: bytes &size=50;
     selling_post_trading_instruction: bytes &size=50;
     buying_additional_client_memo: bytes &size=16;
@@ -322,7 +322,7 @@ type ComplexOrderAuctionEntryOccurrence = unit {
 
 type BulkQuote = unit {
     group: bytes &size=2;
-    quote_id_identifies_traders_quote_on_this_group: bytes &size=8;
+    quote_id: bytes &size=8;
     mm_cat_user_time: bytes &size=8;
     number_of_quotes: bytes &size=3;
     bulk_quote_occurrence: BulkQuoteOccurrence[self.number_of_quotes];
@@ -330,7 +330,7 @@ type BulkQuote = unit {
 
 type BulkQuoteOccurrence = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     verb_side: uint8 &convert=VerbSide($$);
     quantity_sign: bytes &size=1;
     quantity: bytes &size=8;
@@ -344,19 +344,19 @@ type MarketMakerProtectionSubscription = unit {
 
 type RequestForQuote = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     quantity_1: bytes &size=8;
 };
 
 type OrderCancellation = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     cancelled_order_id: bytes &size=8;
 };
 
 type ImprovementOrderCancellation = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     cancelled_order_id: bytes &size=8;
 };
 
@@ -420,13 +420,6 @@ type ClearingOperationMode = enum {
     BothCmtaAndGiveUpFirmsWillBeDefinedInThePostTradingInstructionFieldTheGuideStatesNoWidthForThisTypeOneCharacterIsInferredFromTheValuesItStatesEachOfWhichIsOneCharacterWide = 0x49,
 };
 
-type TypeOfCancellationQQuotesOnly = enum {
-    All = 0x41,
-    Locked = 0x4c,
-    OrdersOnly = 0x4f,
-    QuotesOnly = 0x51,
-};
-
 type TypeOfCancellation = enum {
     All = 0x41,
     Locked = 0x4c,
@@ -455,7 +448,7 @@ type SpecialPriceTerm = enum {
     IndicationOfInterest = 0x41,
 };
 
-type QuantityTermQuantityTerm1 = enum {
+type QuantityTerm = enum {
     SurrenderQuantityForSolicitationFacilitationAndFloorTrade = 0x42,
     IndicatesThatTheAuctionTypeAsMip = 0x4a,
     NoneTheAboveValueIndicatesThatTheInitOIsWillingToSurrenderAPortionOfTheTotalNumberOfContracts = 0x20,

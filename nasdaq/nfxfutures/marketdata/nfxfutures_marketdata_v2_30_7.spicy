@@ -1,0 +1,172 @@
+module NasdaqNfxfuturesMarketdataGeniumamdV2307;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NfxfuturesMarketdataV2307 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        0x54 -> seconds_message: SecondsMessage;
+        0x52 -> order_book_directory: OrderBookDirectory;
+        0x4d -> combination_order_book_leg: CombinationOrderBookLeg;
+        0x4c -> tick_size_table_entry: TickSizeTableEntry;
+        0x53 -> system_event_message: SystemEventMessage;
+        0x4f -> order_book_state_message: OrderBookStateMessage;
+        0x72 -> reported_trade: ReportedTrade;
+        0x42 -> broken_trade_message: BrokenTradeMessage;
+        0x6f -> open_interest_message: OpenInterestMessage;
+        0x70 -> price_message: PriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8;
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type OrderBookDirectory = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16;
+    odd_lot_size: uint32;
+    round_lot_size: uint32;
+    block_lot_size: uint32;
+    nominal_value: uint64;
+    number_of_legs: uint8;
+    underlying_order_book_id: uint32;
+    strike_price: int32;
+    expiration_date: uint32;
+    number_of_decimals_in_strike_price: uint16;
+    put_or_call: uint8 &convert=PutOrCall($$);
+    market_id: uint16;
+    strategy_subtype: uint8 &convert=StrategySubtype($$);
+    minimum_quantity_and_multiple: uint32;
+};
+
+type CombinationOrderBookLeg = unit {
+    timestamp_nanoseconds: uint32;
+    combination_order_book_id: uint32;
+    leg_order_book_id: uint32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+    leg_price_future: uint32;
+    leg_delta: uint32;
+    leg_quantity_future: uint32;
+};
+
+type TickSizeTableEntry = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    tick_size: int64;
+    price_from: int32;
+    price_to: int32;
+};
+
+type SystemEventMessage = unit {
+    timestamp_nanoseconds: uint32;
+    event_code: bytes &size=1;
+};
+
+type OrderBookStateMessage = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    state_name: bytes &size=20;
+};
+
+type ReportedTrade = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    traded_quantity: uint64;
+    match_id: uint64;
+    combo_group_id: uint32;
+    time_of_trade_execution: uint64;
+    time_of_trade_agreement: uint64;
+    time_of_trade_dissemination: uint64;
+    trade_price: int32;
+    trade_type: uint16 &convert=TradeType($$);
+    reserved: bytes &size=7;
+    second_reserved: bytes &size=7;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp_nanoseconds: uint32;
+    match_id: uint64;
+};
+
+type OpenInterestMessage = unit {
+    timestamp_nanoseconds: uint32;
+    order_book_id: uint32;
+    open_interest: uint64;
+};
+
+type PriceMessage = unit {
+    timestamp_nanoseconds: uint32;
+    price_type: bytes &size=1;
+    order_book_id: uint32;
+    price: int32;
+};
+
+type FinancialProduct = enum {
+    NotApplicable = 0,
+    Option = 1,
+    Forward = 2,
+    Future = 3,
+    Fra = 4,
+    Cash = 5,
+    Payment = 6,
+    ExchangeRate = 7,
+    InterestRateSwap = 8,
+    Repo = 9,
+    SyntheticBoxLegReference = 10,
+    StandardCombination = 11,
+    Guarantee = 12,
+    OtcGeneral = 13,
+    EquityWarrant = 14,
+    SecurityLending = 15,
+};
+
+type PutOrCall = enum {
+    Call = 1,
+    Put = 2,
+};
+
+type StrategySubtype = enum {
+    NotApplicable = 0,
+    CoveredOption = 1,
+};
+
+type LegSide = enum {
+    AsDefined = 0x42,
+    Opposite = 0x43,
+};
+
+type TradeType = enum {
+    BlockTrade = 1,
+    ExchangeForPhysical = 2,
+    ExchangeForRisk = 11,
+    ExchangeForOptions = 14,
+};
+

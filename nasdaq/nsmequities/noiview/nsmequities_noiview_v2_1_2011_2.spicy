@@ -1,10 +1,10 @@
-module NasdaqNsmequitiesNoiviewItchV2120130309;
+module NasdaqNsmequitiesNoiviewItchV2120112;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type NsmequitiesNoiviewV2120130309 = unit {
+public type NsmequitiesNoiviewV2120112 = unit {
     packet_header: PacketHeader;
     messages: Message[self.packet_header.count];
 };
@@ -23,7 +23,6 @@ type Message = unit {
         MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
         MessageType::RegShoRestrictionMessage -> reg_sho_restriction_message: RegShoRestrictionMessage;
         MessageType::NoiiMessage -> noii_message: NoiiMessage;
-        MessageType::CrossTradeMessage -> cross_trade_message: CrossTradeMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -69,21 +68,12 @@ type NoiiMessage = unit {
     price_variation_indicator: uint8 &convert=PriceVariationIndicator($$);
 };
 
-type CrossTradeMessage = unit {
-    shares: bytes &size=9;
-    stock: bytes &size=8;
-    cross_price: bytes &size=10;
-    match_number: bytes &size=12;
-    cross_type: uint8 &convert=CrossType($$);
-};
-
 type MessageType = enum {
     SystemEventMessage = 0x53,
     StockDirectoryMessage = 0x52,
     StockTradingActionMessage = 0x48,
     RegShoRestrictionMessage = 0x59,
     NoiiMessage = 0x49,
-    CrossTradeMessage = 0x51,
 };
 
 type EventCode = enum {
@@ -125,8 +115,9 @@ type RoundLotsOnly = enum {
 
 type CurrentTradingState = enum {
     HaltedOrPausedAcrossAllUsEquityMarketsSrOs = 0x48,
-    PausedAcrossAllUsEquityMarketsSrOs = 0x50,
+    HaltedOrPausedOnNasdaqOnly = 0x56,
     QuotationOnlyPeriodForCrossSroHaltOrPause = 0x51,
+    QuotationOnlyPeriodForNasdaqOnlyHaltOrPause = 0x52,
     TradingOnNasdaq = 0x54,
 };
 

@@ -1,10 +1,10 @@
-module NasdaqNsmequitiesNoiviewItchV2120111101;
+module NasdaqNsmequitiesNoiviewItchV2020102;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type NsmequitiesNoiviewV2120111101 = unit {
+public type NsmequitiesNoiviewV2020102 = unit {
     packet_header: PacketHeader;
     messages: Message[self.packet_header.count];
 };
@@ -21,7 +21,6 @@ type Message = unit {
         MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
         MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
         MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
-        MessageType::RegShoRestrictionMessage -> reg_sho_restriction_message: RegShoRestrictionMessage;
         MessageType::NoiiMessage -> noii_message: NoiiMessage;
         * -> unknown: bytes &eod;
     };
@@ -38,7 +37,7 @@ type SystemEventMessage = unit {
 };
 
 type StockDirectoryMessage = unit {
-    stock: bytes &size=8;
+    stock: bytes &size=6;
     market_category: uint8 &convert=MarketCategory($$);
     financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
     round_lot_size: bytes &size=6;
@@ -46,21 +45,16 @@ type StockDirectoryMessage = unit {
 };
 
 type StockTradingActionMessage = unit {
-    stock: bytes &size=8;
+    stock: bytes &size=6;
     current_trading_state: uint8 &convert=CurrentTradingState($$);
     reason: bytes &size=4;
-};
-
-type RegShoRestrictionMessage = unit {
-    stock: bytes &size=8;
-    reg_sho_action: uint8 &convert=RegShoAction($$);
 };
 
 type NoiiMessage = unit {
     paired_shares: bytes &size=9;
     imbalance_shares: bytes &size=9;
     imbalance_direction: uint8 &convert=ImbalanceDirection($$);
-    stock: bytes &size=8;
+    stock: bytes &size=6;
     far_price: bytes &size=10;
     near_price: bytes &size=10;
     current_reference_price: bytes &size=10;
@@ -72,7 +66,6 @@ type MessageType = enum {
     SystemEventMessage = 0x53,
     StockDirectoryMessage = 0x52,
     StockTradingActionMessage = 0x48,
-    RegShoRestrictionMessage = 0x59,
     NoiiMessage = 0x49,
 };
 
@@ -87,13 +80,10 @@ type EventCode = enum {
 };
 
 type MarketCategory = enum {
-    NewYorkStockExchangeNyse = 0x4e,
-    NyseAmex = 0x41,
-    NyseArca = 0x50,
+    CqsIssuesIncludingNyseNyseAmexAndNyseArca = 0x54,
     NasdaqGlobalSelectMarket = 0x51,
     NasdaqGlobalMarket = 0x47,
     NasdaqCapitalMarket = 0x53,
-    BatsBzxExchange = 0x5a,
 };
 
 type FinancialStatusIndicator = enum {
@@ -123,12 +113,6 @@ type CurrentTradingState = enum {
 
 type Reason = enum {
     ReasonNotAvailable = 0x20,
-};
-
-type RegShoAction = enum {
-    NoPriceTestInPlace = 0x30,
-    RegShoShortSalePriceTestRestrictionInEffectDueToAnIntradayPriceDropInSecurity = 0x31,
-    RegShoShortSalePriceTestRestrictionRemainsInEffect = 0x32,
 };
 
 type ImbalanceDirection = enum {

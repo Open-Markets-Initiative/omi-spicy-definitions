@@ -55,7 +55,7 @@ type OutgoingHeader = unit {
 };
 
 type HeartbeatQuestion = unit {
-    user_sequence_id_first_user_sequence_id_for_nextcurrent_heartbeat_period: bytes &size=8;
+    first_user_sequence_id: bytes &size=8;
     last_exchange_message_id_sent_to_participant: bytes &size=6;
     time_local: bytes &size=6;
 };
@@ -68,7 +68,7 @@ type OutOfSequence = unit {
 
 type TechnicalErrorNotice = unit {
     received_message_type: bytes &size=2;
-    preceding_user_sequence_id_received_zeroes_if_none: bytes &size=8;
+    preceding_user_sequence_id_received: bytes &size=8;
     error_code: bytes &size=4;
     error_position: bytes &size=4;
     error_message: bytes &size=100;
@@ -92,7 +92,7 @@ type DisconnectionAcknowledgement = unit {
 
 type EndOfTransmission = unit {
     ended_session_id: bytes &size=4;
-    last_user_sequence_id_received_if_no_business_message_has_been_received_on_this_connection_this_field_is_equal_to_zeroes: bytes &size=8;
+    last_user_sequence_id_received: bytes &size=8;
     time_field: bytes &size=6;
 };
 
@@ -100,9 +100,9 @@ type ErrorNotice = unit {
     error_code: bytes &size=4;
     error_description: bytes &size=100;
     group: bytes &size=2;
-    instrument: bytes &size=4;
-    order_id_client_order_id_20: bytes &size=20;
-    auction_id: bytes &size=6;
+    instrument_optional: bytes &size=4;
+    order_id_x_20: bytes &size=20;
+    auction_id_optional: bytes &size=6;
     original_message_type: bytes &size=2;
     error_detail: bytes &size=200;
     client_order_id: bytes &size=20;
@@ -111,14 +111,14 @@ type ErrorNotice = unit {
 type BulkQuoteDataAcknowledgement = unit {
     group: bytes &size=2;
     trader_id: bytes &size=8;
-    quote_id_identifies_traders_quote_on_this_group: bytes &size=8;
+    quote_id: bytes &size=8;
 };
 
 type OrderAcknowledgement = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
+    order_id_x_8: bytes &size=8;
     status: uint8 &convert=Status($$);
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
@@ -149,14 +149,14 @@ type OwnerData = unit {
 type GlobalCancellationConfirmation = unit {
     group: bytes &size=2;
     trader_id: bytes &size=8;
-    type_of_cancellation_only_q_quotes_only_can_be_returned: uint8 &convert=TypeOfCancellationOnlyQQuotesOnlyCanBeReturned($$);
+    type_of_cancellation: uint8 &convert=TypeOfCancellation($$);
 };
 
 type ImprovementOrderAcknowlegment = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
+    order_id_x_8: bytes &size=8;
     status: uint8 &convert=Status($$);
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
@@ -164,16 +164,16 @@ type ImprovementOrderAcknowlegment = unit {
     clearing_data: ClearingData;
     owner_data: OwnerData;
     original_order_id: bytes &size=8;
-    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
+    auction_id: bytes &size=6;
     additional_client_memo: bytes &size=16;
     : skip bytes &size=4;   # padding
 };
 
 type OrderModificationAcknowledgement = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
+    order_id_x_8: bytes &size=8;
     status: uint8 &convert=Status($$);
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
@@ -204,14 +204,46 @@ type NewComplexOrderInstrumentAcknowledgementOccurrence = unit {
 
 type StandardAcknowledgement = unit {
     trader_id: bytes &size=8;
-    original_message_type_re_rf_rq_rp_gz: bytes &size=2;
+    original_message_type: bytes &size=2;
 };
 
 type ComplexOrderAuctionAcknowledgement = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
+    order_id_x_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    auction_id_optional: bytes &size=6;
+    additional_client_memo: bytes &size=16;
+    : skip bytes &size=4;   # padding
+};
+
+type AuctionOrImprovementCancellationAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument_optional: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_x_8: bytes &size=8;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    auction_id: bytes &size=6;
+};
+
+type OrderCancellationAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument_optional: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id_x_8: bytes &size=8;
     status: uint8 &convert=Status($$);
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
@@ -224,41 +256,9 @@ type ComplexOrderAuctionAcknowledgement = unit {
     : skip bytes &size=4;   # padding
 };
 
-type AuctionOrImprovementCancellationAcknowledgement = unit {
-    group: bytes &size=2;
-    instrument: bytes &size=4;
-    trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
-    status: uint8 &convert=Status($$);
-    verb_side: uint8 &convert=VerbSide($$);
-    quantity: bytes &size=8;
-    assigned_price: bytes &size=10;
-    clearing_data: ClearingData;
-    owner_data: OwnerData;
-    original_order_id: bytes &size=8;
-    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
-};
-
-type OrderCancellationAcknowledgement = unit {
-    group: bytes &size=2;
-    instrument: bytes &size=4;
-    trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
-    status: uint8 &convert=Status($$);
-    verb_side: uint8 &convert=VerbSide($$);
-    quantity: bytes &size=8;
-    assigned_price: bytes &size=10;
-    clearing_data: ClearingData;
-    owner_data: OwnerData;
-    original_order_id: bytes &size=8;
-    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
-    additional_client_memo: bytes &size=16;
-    : skip bytes &size=4;   # padding
-};
-
 type BulkQuoteAcknowledgement = unit {
     group: bytes &size=2;
-    quote_id_identifies_traders_quote_on_this_group: bytes &size=8;
+    quote_id: bytes &size=8;
     number_of_quotes_in_error: bytes &size=3;
     bulk_quote_acknowledgement_occurrence: BulkQuoteAcknowledgementOccurrence[self.number_of_quotes_in_error];
 };
@@ -276,7 +276,7 @@ type TraderStatus = unit {
 
 type DirectedOrderCancellationNotice = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
@@ -286,7 +286,7 @@ type DirectedOrderCancellationNotice = unit {
 
 type DirectedOrderNotice = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
@@ -300,7 +300,7 @@ type ExcludedInstrumentNotice = unit {
     trader_id: bytes &size=8;
     : skip bytes &size=2;   # padding
     nb_of_instruments: bytes &size=4;
-    field_1_to_9999_occurrences_instrument: bytes &size=4;
+    instrument: bytes &size=4;
 };
 
 type GroupStateChange = unit {
@@ -310,7 +310,7 @@ type GroupStateChange = unit {
 
 type LegExecutionNotice = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
     reference_id: bytes &size=8;
     verb_side: uint8 &convert=VerbSide($$);
@@ -322,10 +322,10 @@ type LegExecutionNotice = unit {
     special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
     price_type: uint8 &convert=PriceType($$);
     trade_type: uint8 &convert=TradeType($$);
-    auction_id: bytes &size=6;
+    auction_id_optional: bytes &size=6;
     trade_number: bytes &size=8;
-    trade_memo_string_5050: bytes &size=50;
-    original_reference_id_order_id_8: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
     id_code_for_the_counterpart_participant: bytes &size=4;
     liquidity_status: uint8 &convert=LiquidityStatus($$);
     strategy_group: bytes &size=2;
@@ -341,16 +341,16 @@ type LegExecutionNotice = unit {
 
 type CancellationOfAllQuotesNotices = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
     quote_cancel_reason: uint8 &convert=QuoteCancelReason($$);
 };
 
 type QualityMarketMakerNotification = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    auction_id: bytes &size=6;
+    auction_id_optional: bytes &size=6;
     verb: uint8 &convert=Verb($$);
     auction_quantity: bytes &size=8;
     auction_price: bytes &size=10;
@@ -361,9 +361,9 @@ type QualityMarketMakerNotification = unit {
 
 type ExecutionNotice = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    reference_id_order_id_or_quote_id: bytes &size=8;
+    reference_id: bytes &size=8;
     verb_side: uint8 &convert=VerbSide($$);
     quantity_traded: bytes &size=8;
     trade_price: bytes &size=10;
@@ -373,10 +373,10 @@ type ExecutionNotice = unit {
     special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
     price_type: uint8 &convert=PriceType($$);
     trade_type: uint8 &convert=TradeType($$);
-    auction_id: bytes &size=6;
+    auction_id_optional: bytes &size=6;
     trade_number: bytes &size=8;
-    trade_memo_trade_memo_50: bytes &size=50;
-    original_reference_id_original_reference_id_8: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
     id_code_for_the_counterpart_participant: bytes &size=4;
     liquidity_status: uint8 &convert=LiquidityStatus($$);
     counterpart_account_type: uint8 &convert=CounterpartAccountType($$);
@@ -387,7 +387,7 @@ type ExecutionNotice = unit {
 
 type QuoteNotice = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
     reference_id_quote: bytes &size=8;
     verb_side: uint8 &convert=VerbSide($$);
@@ -397,15 +397,15 @@ type QuoteNotice = unit {
     new_price: bytes &size=10;
     previous_quantity: bytes &size=8;
     previous_price: bytes &size=10;
-    auction_id: bytes &size=6;
+    auction_id_optional: bytes &size=6;
     original_reference_id_quote_or_order_id: bytes &size=8;
 };
 
 type ExecutionCancellationNotice = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    reference_id_order_id_or_quote_id: bytes &size=8;
+    reference_id: bytes &size=8;
     verb_side: uint8 &convert=VerbSide($$);
     quantity_traded: bytes &size=8;
     trade_price: bytes &size=10;
@@ -415,10 +415,10 @@ type ExecutionCancellationNotice = unit {
     special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
     price_type: uint8 &convert=PriceType($$);
     trade_type: uint8 &convert=TradeType($$);
-    auction_id: bytes &size=6;
+    auction_id_optional: bytes &size=6;
     trade_number: bytes &size=8;
-    trade_memo_trade_memo_50: bytes &size=50;
-    original_reference_id_original_reference_id_8: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
     id_code_for_the_counterpart_participant: bytes &size=4;
     liquidity_status: uint8 &convert=LiquidityStatus($$);
     counterpart_account_type: uint8 &convert=CounterpartAccountType($$);
@@ -429,7 +429,7 @@ type ExecutionCancellationNotice = unit {
 
 type LegExecutionCancellationNotice = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
     reference_id: bytes &size=8;
     verb_side: uint8 &convert=VerbSide($$);
@@ -441,10 +441,10 @@ type LegExecutionCancellationNotice = unit {
     special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
     price_type: uint8 &convert=PriceType($$);
     trade_type: uint8 &convert=TradeType($$);
-    auction_id: bytes &size=6;
+    auction_id_optional: bytes &size=6;
     trade_number: bytes &size=8;
-    trade_memo_string_5050: bytes &size=50;
-    original_reference_id_order_id_8: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
     id_code_for_the_counterpart_participant: bytes &size=4;
     liquidity_status: uint8 &convert=LiquidityStatus($$);
     strategy_group: bytes &size=2;
@@ -460,9 +460,9 @@ type LegExecutionCancellationNotice = unit {
 
 type OrderCancellationNoticeBySystem = unit {
     group: bytes &size=2;
-    instrument: bytes &size=4;
+    instrument_optional: bytes &size=4;
     trader_id: bytes &size=8;
-    order_id_order_id_8: bytes &size=8;
+    order_id_x_8: bytes &size=8;
     status: uint8 &convert=Status($$);
     verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
@@ -470,7 +470,7 @@ type OrderCancellationNoticeBySystem = unit {
     clearing_data: ClearingData;
     owner_data: OwnerData;
     original_order_id: bytes &size=8;
-    auction_id_only_if_message_type_is_ki_or_else_zeroes: bytes &size=6;
+    auction_id: bytes &size=6;
     additional_client_memo: bytes &size=16;
     : skip bytes &size=4;   # padding
 };
@@ -547,7 +547,7 @@ type ClearingOperationMode = enum {
     BothCmtaAndGiveUpFirmsWillBeDefinedInThePostTradingInstructionFieldTheGuideStatesNoWidthForThisTypeOneCharacterIsInferredFromTheValuesItStatesEachOfWhichIsOneCharacterWide = 0x49,
 };
 
-type TypeOfCancellationOnlyQQuotesOnlyCanBeReturned = enum {
+type TypeOfCancellation = enum {
     All = 0x41,
     Locked = 0x4c,
     OrdersOnly = 0x4f,

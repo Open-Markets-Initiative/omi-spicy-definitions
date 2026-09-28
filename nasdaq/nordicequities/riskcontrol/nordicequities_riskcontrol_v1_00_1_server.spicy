@@ -1,0 +1,224 @@
+module NasdaqNordicequitiesRiskcontrolBinaryV1001Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NordicequitiesRiskcontrolV1001 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::AccountQueryResponseMessage -> account_query_response_message: AccountQueryResponseMessage;
+        SequencedMessageType::AccountSettingsResponseMessage -> account_settings_response_message: AccountSettingsResponseMessage;
+        SequencedMessageType::OrderBookRestrictionResponseMessage -> order_book_restriction_response_message: OrderBookRestrictionResponseMessage;
+        SequencedMessageType::MarketSegmentRestrictionResponseMessage -> market_segment_restriction_response_message: MarketSegmentRestrictionResponseMessage;
+        SequencedMessageType::LimitSettingsResponseMessage -> limit_settings_response_message: LimitSettingsResponseMessage;
+        SequencedMessageType::AccountCurrencySettingResponseMessage -> account_currency_setting_response_message: AccountCurrencySettingResponseMessage;
+        SequencedMessageType::RejectMessage -> reject_message: RejectMessage;
+        SequencedMessageType::ApiPortRateBreachMessage -> api_port_rate_breach_message: ApiPortRateBreachMessage;
+        SequencedMessageType::AccountRateBreachMessage -> account_rate_breach_message: AccountRateBreachMessage;
+        SequencedMessageType::AccumulatedValuesMessage -> accumulated_values_message: AccumulatedValuesMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type AccountQueryResponseMessage = unit {
+    user_ref_num: uint32;
+};
+
+type AccountSettingsResponseMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    repeated_order_generation: int32;
+    trigger_restrict_symbol_on_repeated_order_generation: uint8 &convert=TriggerRestrictSymbolOnRepeatedOrderGeneration($$);
+    in_auction_market_order_prevention: uint8 &convert=InAuctionMarketOrderPrevention($$);
+    in_auction_fat_finger_protection: uint8 &convert=InAuctionFatFingerProtection($$);
+    in_auction_market_order_protection: uint8 &convert=InAuctionMarketOrderProtection($$);
+    block_and_cancel: uint8 &convert=BlockAndCancel($$);
+};
+
+type OrderBookRestrictionResponseMessage = unit {
+    user_ref_num: uint32;
+    timestamp: uint64;
+    prm_account: bytes &size=6;
+    order_book: uint32;
+    state: uint8 &convert=State($$);
+};
+
+type MarketSegmentRestrictionResponseMessage = unit {
+    user_ref_num: uint32;
+    timestamp: uint64;
+    prm_account: bytes &size=6;
+    market_segment: uint16;
+    state: uint8 &convert=State($$);
+};
+
+type LimitSettingsResponseMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    currency: bytes &size=3;
+    max_quantity: int64;
+    max_value: int64;
+    unused: uint64;
+    total_risk_value: int64;
+    trade_buy_value: int64;
+    trade_sell_value: int64;
+    trade_net_value: int64;
+    open_order_buy_value: int64;
+    open_order_sell_value: int64;
+    open_order_net_value: int64;
+    max_quantity_auction: int64;
+    max_value_auction: int64;
+};
+
+type AccountCurrencySettingResponseMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    currency: bytes &size=3;
+    reject_all_flag: uint8 &convert=RejectAllFlag($$);
+    blow_through_protection: uint8 &convert=BlowThroughProtection($$);
+};
+
+type RejectMessage = unit {
+    user_ref_num: uint32;
+    reason: uint8 &convert=Reason($$);
+};
+
+type ApiPortRateBreachMessage = unit {
+    timestamp: uint64;
+};
+
+type AccountRateBreachMessage = unit {
+    timestamp: uint64;
+    state: uint8 &convert=State($$);
+    prm_account: bytes &size=6;
+};
+
+type AccumulatedValuesMessage = unit {
+    prm_account: bytes &size=6;
+    currency: bytes &size=3;
+    last_update_time: uint64;
+    risk_total_value: uint64;
+    trades_buy_value: uint64;
+    trades_sell_value: uint64;
+    trades_total_value: uint64;
+    orders_buy_value: uint64;
+    orders_sell_value: uint64;
+    orders_total_value: uint64;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    AccountQueryResponseMessage = 0x51,
+    AccountSettingsResponseMessage = 0x43,
+    OrderBookRestrictionResponseMessage = 0x52,
+    MarketSegmentRestrictionResponseMessage = 0x53,
+    LimitSettingsResponseMessage = 0x4c,
+    AccountCurrencySettingResponseMessage = 0x46,
+    RejectMessage = 0x4a,
+    ApiPortRateBreachMessage = 0x50,
+    AccountRateBreachMessage = 0x42,
+    AccumulatedValuesMessage = 0x56,
+};
+
+type TriggerRestrictSymbolOnRepeatedOrderGeneration = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type InAuctionMarketOrderPrevention = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type InAuctionFatFingerProtection = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type InAuctionMarketOrderProtection = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type BlockAndCancel = enum {
+    Block = 0x42,
+    Unblock = 0x55,
+    BlockAndCancel_x43 = 0x43,
+    PreviousValueKept = 0x3f,
+};
+
+type State = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+    PreviousValueKept = 0x3f,
+};
+
+type RejectAllFlag = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type BlowThroughProtection = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type Reason = enum {
+    InvalidCurrency = 0x43,
+    InvalidPrmAccount = 0x41,
+    NoSettingPresent = 0x4e,
+    Unauthorized = 0x55,
+};
+

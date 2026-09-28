@@ -47,7 +47,7 @@ type TcpUnsequencedMessage = unit {
 
 type LimitOrderMessage = unit {
     limit_order_presence_bits: bitfield(32) {
-        scope: 0;
+        has_limit_order_self_match_scope: 0;
         has_limit_order_self_match_instruction: 1;
         has_limit_order_price_slide_instruction: 2;
         has_limit_order_min_qty: 3;
@@ -77,7 +77,7 @@ type LimitOrderMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     symbol_id: int16;
     price: int64;
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    limit_order_self_match_scope: int8;
     limit_order_self_match_instruction: int8 &convert=LimitOrderSelfMatchInstruction($$);
     limit_order_price_slide_instruction: int8 &convert=LimitOrderPriceSlideInstruction($$);
     limit_order_min_qty: int32;
@@ -94,7 +94,7 @@ type LimitOrderMessage = unit {
 
 type MarketOrderMessage = unit {
     market_order_presence_bits: bitfield(16) {
-        scope: 0;
+        has_market_order_self_match_scope: 0;
         has_market_order_self_match_instruction: 1;
         has_market_order_user_data: 2;
         has_market_order_mpid: 3;
@@ -112,7 +112,7 @@ type MarketOrderMessage = unit {
         reserved_5: 11..15;
     } &byte-order=spicy::ByteOrder::Little;
     symbol_id: int16;
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    market_order_self_match_scope: int8;
     market_order_self_match_instruction: int8 &convert=MarketOrderSelfMatchInstruction($$);
     market_order_user_data: int64;
     market_order_mpid: bytes &size=4;
@@ -147,7 +147,7 @@ type ReplaceOrderMessage = unit {
         has_replace_order_price: 0;
         has_replace_order_order_qty: 1;
         has_replace_order_max_floor_qty: 2;
-        scope: 3;
+        has_replace_order_self_match_scope: 3;
         has_replace_order_self_match_instruction: 4;
         has_replace_order_price_slide_instruction: 5;
         has_replace_order_reference_price_target: 6;
@@ -167,7 +167,7 @@ type ReplaceOrderMessage = unit {
     replace_order_price: int64;
     replace_order_order_qty: int32;
     replace_order_max_floor_qty: int32;
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    replace_order_self_match_scope: int8;
     replace_order_self_match_instruction: int8 &convert=ReplaceOrderSelfMatchInstruction($$);
     replace_order_price_slide_instruction: int8 &convert=ReplaceOrderPriceSlideInstruction($$);
     replace_order_reference_price_target: int16;
@@ -311,7 +311,7 @@ type LimitOrderAcceptedMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     symbol_id: int16;
     price: int64;
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    limit_order_accepted_self_match_scope: int8;
     limit_order_accepted_self_match_instruction: int8 &convert=LimitOrderAcceptedSelfMatchInstruction($$);
     limit_order_accepted_price_slide_instruction: int8 &convert=LimitOrderAcceptedPriceSlideInstruction($$);
     limit_order_accepted_min_qty: int32;
@@ -330,7 +330,7 @@ type LimitOrderAcceptedMessage = unit {
 
 type LimitOrderRejectedMessage = unit {
     limit_order_rejected_presence_bits: bitfield(32) {
-        scope: 0;
+        has_limit_order_rejected_self_match_scope: 0;
         has_limit_order_rejected_self_match_instruction: 1;
         has_limit_order_rejected_price_slide_instruction: 2;
         has_limit_order_rejected_min_qty: 3;
@@ -362,7 +362,7 @@ type LimitOrderRejectedMessage = unit {
     symbol_id: int16;
     price: int64;
     limit_order_rejected_reason: int8 &convert=LimitOrderRejectedReason($$);
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    limit_order_rejected_self_match_scope: int8;
     limit_order_rejected_self_match_instruction: int8 &convert=LimitOrderRejectedSelfMatchInstruction($$);
     limit_order_rejected_price_slide_instruction: int8 &convert=LimitOrderRejectedPriceSlideInstruction($$);
     limit_order_rejected_min_qty: int32;
@@ -379,7 +379,7 @@ type LimitOrderRejectedMessage = unit {
 
 type MarketOrderAcceptedMessage = unit {
     market_order_accepted_presence_bits: bitfield(16) {
-        scope: 0;
+        has_market_order_accepted_self_match_scope: 0;
         has_market_order_accepted_self_match_instruction: 1;
         has_market_order_accepted_user_data: 2;
         has_market_order_accepted_mpid: 3;
@@ -399,7 +399,7 @@ type MarketOrderAcceptedMessage = unit {
         reserved_5: 11..15;
     } &byte-order=spicy::ByteOrder::Little;
     symbol_id: int16;
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    market_order_accepted_self_match_scope: int8;
     market_order_accepted_self_match_instruction: int8 &convert=MarketOrderAcceptedSelfMatchInstruction($$);
     market_order_accepted_user_data: int64;
     market_order_accepted_mpid: bytes &size=4;
@@ -409,7 +409,7 @@ type MarketOrderAcceptedMessage = unit {
 
 type MarketOrderRejectedMessage = unit {
     market_order_rejected_presence_bits: bitfield(16) {
-        scope: 0;
+        has_market_order_rejected_self_match_scope: 0;
         has_market_order_rejected_self_match_instruction: 1;
         has_market_order_rejected_user_data: 2;
         has_market_order_rejected_mpid: 3;
@@ -429,7 +429,7 @@ type MarketOrderRejectedMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     symbol_id: int16;
     market_order_rejected_reason: int8 &convert=MarketOrderRejectedReason($$);
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    market_order_rejected_self_match_scope: int8;
     market_order_rejected_self_match_instruction: int8 &convert=MarketOrderRejectedSelfMatchInstruction($$);
     market_order_rejected_user_data: int64;
     market_order_rejected_mpid: bytes &size=4;
@@ -496,7 +496,7 @@ type OrderReplacedMessage = unit {
         has_order_replaced_price: 0;
         has_order_replaced_order_qty: 1;
         has_order_replaced_max_floor_qty: 2;
-        scope: 3;
+        has_order_replaced_self_match_scope: 3;
         has_order_replaced_self_match_instruction: 4;
         has_order_replaced_price_slide_instruction: 5;
         has_order_replaced_reference_price_target: 6;
@@ -521,7 +521,7 @@ type OrderReplacedMessage = unit {
     order_replaced_price: int64;
     order_replaced_order_qty: int32;
     order_replaced_max_floor_qty: int32;
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    order_replaced_self_match_scope: int8;
     order_replaced_self_match_instruction: int8 &convert=OrderReplacedSelfMatchInstruction($$);
     order_replaced_price_slide_instruction: int8 &convert=OrderReplacedPriceSlideInstruction($$);
     order_replaced_reference_price_target: int16;
@@ -535,7 +535,7 @@ type ReplaceRejectedMessage = unit {
         has_replace_rejected_price: 0;
         has_replace_rejected_order_qty: 1;
         has_replace_rejected_max_floor_qty: 2;
-        scope: 3;
+        has_replace_rejected_self_match_scope: 3;
         has_replace_rejected_self_match_instruction: 4;
         has_replace_rejected_price_slide_instruction: 5;
         has_replace_rejected_reference_price_target: 6;
@@ -557,7 +557,7 @@ type ReplaceRejectedMessage = unit {
     replace_rejected_price: int64;
     replace_rejected_order_qty: int32;
     replace_rejected_max_floor_qty: int32;
-    self_match_scope: int8 &convert=SelfMatchScope($$);
+    replace_rejected_self_match_scope: int8;
     replace_rejected_self_match_instruction: int8 &convert=ReplaceRejectedSelfMatchInstruction($$);
     replace_rejected_price_slide_instruction: int8 &convert=ReplaceRejectedPriceSlideInstruction($$);
     replace_rejected_reference_price_target: int16;
@@ -714,13 +714,6 @@ type OrderCapacity = enum {
     Agency = 1,
     Principal = 2,
     RisklessPrincipal = 3,
-};
-
-type SelfMatchScope = enum {
-    ByMember = 0,
-    ByMpid = 1,
-    ByMemberGroup = 2,
-    ByMpidAndMemberGroup = 3,
 };
 
 type LimitOrderSelfMatchInstruction = enum {

@@ -25,15 +25,15 @@ type DirectPacket = unit {
         TransactionCode::DownloadRequestMessage -> download_request_message: DownloadRequestMessage;
         TransactionCode::UpdateLocalDatabaseDataMessage -> update_local_database_data_message: UpdateLocalDatabaseDataMessage;
         TransactionCode::MessageRecordMessage -> message_record_message: MessageRecordMessage;
+        TransactionCode::OrderEntryRequestMessage -> order_entry_request_message: OrderEntryRequestMessage;
+        TransactionCode::OrderModificationRequestMessage -> order_modification_request_message: OrderModificationRequestMessage;
+        TransactionCode::OrderCancellationRequestMessage -> order_cancellation_request_message: OrderCancellationRequestMessage;
+        TransactionCode::OrderConfirmationMessage -> order_confirmation_message: OrderConfirmationMessage;
+        TransactionCode::OrderModificationConfirmationMessage -> order_modification_confirmation_message: OrderModificationConfirmationMessage;
         TransactionCode::OrderEntryMessage -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2012 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2040 -> order_entry_message: OrderEntryMessage;
         TransactionCode::OrderEntryMessage_2042 -> order_entry_message: OrderEntryMessage;
         TransactionCode::OrderEntryMessage_2062 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2070 -> order_entry_message: OrderEntryMessage;
         TransactionCode::OrderEntryMessage_2072 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2073 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2074 -> order_entry_message: OrderEntryMessage;
         TransactionCode::OrderEntryMessage_2170 -> order_entry_message: OrderEntryMessage;
         TransactionCode::OrderEntryMessage_2231 -> order_entry_message: OrderEntryMessage;
         TransactionCode::OrderEntryMessage_9002 -> order_entry_message: OrderEntryMessage;
@@ -346,7 +346,7 @@ type MessageDownloadData = unit {
     download_payload: bytes &eod;
 };
 
-type OrderEntryMessage = unit {
+type OrderEntryRequestMessage = unit {
     order_entry_body: OrderEntryBody;
 };
 
@@ -434,6 +434,26 @@ type ContractDesc = unit {
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
+};
+
+type OrderModificationRequestMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderCancellationRequestMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderConfirmationMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderModificationConfirmationMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderEntryMessage = unit {
+    order_entry_body: OrderEntryBody;
 };
 
 type PriceModificationMessage = unit {
@@ -1092,15 +1112,15 @@ type TransactionCode = enum {
     HeaderRecordMessage = 7011,
     MessageRecordMessage = 7021,
     TrailerRecordMessage = 7031,
-    OrderEntryMessage = 2000,
-    OrderEntryMessage_2012 = 2012,
-    OrderEntryMessage_2040 = 2040,
+    OrderEntryRequestMessage = 2000,
+    OrderModificationRequestMessage = 2040,
+    OrderCancellationRequestMessage = 2070,
+    OrderConfirmationMessage = 2073,
+    OrderModificationConfirmationMessage = 2074,
+    OrderEntryMessage = 2012,
     OrderEntryMessage_2042 = 2042,
     OrderEntryMessage_2062 = 2062,
-    OrderEntryMessage_2070 = 2070,
     OrderEntryMessage_2072 = 2072,
-    OrderEntryMessage_2073 = 2073,
-    OrderEntryMessage_2074 = 2074,
     OrderEntryMessage_2170 = 2170,
     OrderEntryMessage_2231 = 2231,
     OrderEntryMessage_9002 = 9002,

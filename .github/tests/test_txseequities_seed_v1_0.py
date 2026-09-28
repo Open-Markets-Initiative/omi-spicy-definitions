@@ -14,12 +14,6 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class TxseequitiesSeedV10Tests(unittest.TestCase):
 
-    def test_definesymbolmessage(self):
-        module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
-        for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/DefineSymbolMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_limitorderaccepted(self):
         module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
         for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/LimitOrderAccepted.pcap"):
@@ -35,6 +29,12 @@ class TxseequitiesSeedV10Tests(unittest.TestCase):
     def test_logonrequestmessage(self):
         module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
         for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/LogonRequestMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_logonresponsemessage(self):
+        module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
+        for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/LogonResponseMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

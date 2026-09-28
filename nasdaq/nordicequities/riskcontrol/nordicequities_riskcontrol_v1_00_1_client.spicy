@@ -1,0 +1,165 @@
+module NasdaqNordicequitiesRiskcontrolBinaryV1001Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NordicequitiesRiskcontrolV1001 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::ModifyAccountSettingsMessage -> modify_account_settings_message: ModifyAccountSettingsMessage;
+        UnsequencedMessageType::ModifyOrderBookRestrictionMessage -> modify_order_book_restriction_message: ModifyOrderBookRestrictionMessage;
+        UnsequencedMessageType::ModifyMarketSegmentRestrictionMessage -> modify_market_segment_restriction_message: ModifyMarketSegmentRestrictionMessage;
+        UnsequencedMessageType::ModifyLimitSettingsMessage -> modify_limit_settings_message: ModifyLimitSettingsMessage;
+        UnsequencedMessageType::ModifyAccountCurrencySettingMessage -> modify_account_currency_setting_message: ModifyAccountCurrencySettingMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ModifyAccountSettingsMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    repeated_order_generation: int32;
+    trigger_restrict_symbol_on_repeated_order_generation: uint8 &convert=TriggerRestrictSymbolOnRepeatedOrderGeneration($$);
+    in_auction_market_order_prevention: uint8 &convert=InAuctionMarketOrderPrevention($$);
+    in_auction_fat_finger_protection: uint8 &convert=InAuctionFatFingerProtection($$);
+    in_auction_market_order_protection: uint8 &convert=InAuctionMarketOrderProtection($$);
+    block_and_cancel: uint8 &convert=BlockAndCancel($$);
+};
+
+type ModifyOrderBookRestrictionMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    order_book: uint32;
+    state: uint8 &convert=State($$);
+};
+
+type ModifyMarketSegmentRestrictionMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    market_segment: uint16;
+    state: uint8 &convert=State($$);
+};
+
+type ModifyLimitSettingsMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    currency: bytes &size=3;
+    max_quantity: int64;
+    max_value: int64;
+    unused: uint64;
+    total_risk_value: int64;
+    trade_buy_value: int64;
+    trade_sell_value: int64;
+    trade_net_value: int64;
+    open_order_buy_value: int64;
+    open_order_sell_value: int64;
+    open_order_net_value: int64;
+    max_quantity_auction: int64;
+    max_value_auction: int64;
+};
+
+type ModifyAccountCurrencySettingMessage = unit {
+    user_ref_num: uint32;
+    prm_account: bytes &size=6;
+    currency: bytes &size=3;
+    reject_all_flag: uint8 &convert=RejectAllFlag($$);
+    blow_through_protection: uint8 &convert=BlowThroughProtection($$);
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    AccountQueryMessage = 0x51,
+    ModifyAccountSettingsMessage = 0x43,
+    ModifyOrderBookRestrictionMessage = 0x52,
+    ModifyMarketSegmentRestrictionMessage = 0x53,
+    ModifyLimitSettingsMessage = 0x4c,
+    ModifyAccountCurrencySettingMessage = 0x46,
+};
+
+type TriggerRestrictSymbolOnRepeatedOrderGeneration = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type InAuctionMarketOrderPrevention = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type InAuctionFatFingerProtection = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type InAuctionMarketOrderProtection = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type BlockAndCancel = enum {
+    Block = 0x42,
+    Unblock = 0x55,
+    BlockAndCancel_x43 = 0x43,
+    PreviousValueKept = 0x3f,
+};
+
+type State = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+    PreviousValueKept = 0x3f,
+};
+
+type RejectAllFlag = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
+type BlowThroughProtection = enum {
+    Enabled = 0x59,
+    Disabled = 0x4e,
+    PreviousValueKept = 0x3f,
+};
+
