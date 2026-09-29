@@ -43,7 +43,6 @@ type UnsequencedDataPacket = unit {
         UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
         UnsequencedMessageType::MassCancelMessage -> mass_cancel_message: MassCancelMessage;
         UnsequencedMessageType::NewCrossOrderMessage -> new_cross_order_message: NewCrossOrderMessage;
-        UnsequencedMessageType::AddComplexInstrumentMessage -> add_complex_instrument_message: AddComplexInstrumentMessage;
         UnsequencedMessageType::ModifyTradeMessage -> modify_trade_message: ModifyTradeMessage;
         UnsequencedMessageType::MemberKillSwitchRequestMessage -> member_kill_switch_request_message: MemberKillSwitchRequestMessage;
         UnsequencedMessageType::SubscriptionRequestMessage -> subscription_request_message: SubscriptionRequestMessage;
@@ -83,8 +82,7 @@ type NewOrderLongFormMessage = unit {
     stock_leg_short_sale: uint8 &convert=StockLegShortSale($$);
     stock_leg_mpid: bytes &size=4;
     stock_capacity: uint8 &convert=StockCapacity($$);
-    session_eligibility: uint8 &convert=SessionEligibility($$);
-    : skip bytes &size=8;   # padding
+    : skip bytes &size=9;   # padding
     number_of_flex_legs: uint8;
     flex_leg_prices: FlexLegPrices[self.number_of_flex_legs];
 };
@@ -182,22 +180,6 @@ type NewCrossOrderMessage = unit {
     flex_leg_prices: FlexLegPrices[self.number_of_flex_legs];
 };
 
-type AddComplexInstrumentMessage = unit {
-    firm_id: bytes &size=4;
-    cl_request_id: bytes &size=16;
-    product_id: uint16;
-    product_name: bytes &size=13;
-    num_legs: uint8;
-    complex_instrument_legs: ComplexInstrumentLegs[self.num_legs];
-};
-
-type ComplexInstrumentLegs = unit {
-    leg_type: uint8 &convert=LegType($$);
-    leg_instrument_id: uint32;
-    leg_side: uint8 &convert=LegSide($$);
-    leg_ratio: uint16;
-};
-
 type ModifyTradeMessage = unit {
     firm_id: bytes &size=4;
     instrument_id: uint32;
@@ -251,7 +233,6 @@ type UnsequencedMessageType = enum {
     CancelOrderMessage = 0x43,
     MassCancelMessage = 0x55,
     NewCrossOrderMessage = 0x58,
-    AddComplexInstrumentMessage = 0x53,
     ModifyTradeMessage = 0x4d,
     MemberKillSwitchRequestMessage = 0x4b,
     SubscriptionRequestMessage = 0x46,
@@ -293,17 +274,14 @@ type Capacity = enum {
     OtherExchangeRegisteredMarketMaker = 0x4f,
     ProfessionalCustomer = 0x50,
     BrokerDealer = 0x42,
-    JointBackOffice = 0x4a,
     Retail = 0x52,
     NotApplicable = 0x20,
 };
 
 type AuctionType = enum {
     BlockOrderAuction = 0x42,
-    ComplexExposureAuction = 0x45,
     SimpleExposureOrder = 0x46,
     OpeningAuction = 0x4f,
-    FlexAuction = 0x58,
     PimPixlAuction = 0x50,
     FacilitationAuction = 0x48,
     SolicitationAuction = 0x53,
@@ -340,17 +318,9 @@ type StockCapacity = enum {
     NotApplicable = 0x20,
 };
 
-type SessionEligibility = enum {
-    RegularSession = 0x52,
-    AllSessions = 0x41,
-    ExtendedClose = 0x45,
-};
-
 type InstrumentType = enum {
     All = 0x41,
     SimpleInstrument = 0x4f,
-    StandardCombination = 0x43,
-    StockCombination = 0x53,
 };
 
 type Scope = enum {
@@ -372,7 +342,6 @@ type PrimaryCapacity = enum {
     OtherExchangeRegisteredMarketMaker = 0x4f,
     ProfessionalCustomer = 0x50,
     BrokerDealer = 0x42,
-    JointBackOffice = 0x4a,
     Retail = 0x52,
     NotApplicable = 0x20,
 };
@@ -402,7 +371,6 @@ type ContraCapacity = enum {
     OtherExchangeRegisteredMarketMaker = 0x4f,
     ProfessionalCustomer = 0x50,
     BrokerDealer = 0x42,
-    JointBackOffice = 0x4a,
     Retail = 0x52,
     NotApplicable = 0x20,
 };
@@ -418,16 +386,6 @@ type ContraStockCapacity = enum {
     Agency = 0x41,
     RisklessPrincipal = 0x52,
     NotApplicable = 0x20,
-};
-
-type LegType = enum {
-    Option = 0x4f,
-    Stock = 0x53,
-};
-
-type LegSide = enum {
-    Buy = 0x42,
-    Sell = 0x53,
 };
 
 type OpenClose = enum {

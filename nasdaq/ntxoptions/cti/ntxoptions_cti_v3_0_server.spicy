@@ -42,9 +42,7 @@ type SequencedDataPacket = unit {
     switch ( self.sequenced_message_type ) {
         SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
         SequencedMessageType::OptionsDirectoryMessage -> options_directory_message: OptionsDirectoryMessage;
-        SequencedMessageType::ComplexOrderStrategyMessage -> complex_order_strategy_message: ComplexOrderStrategyMessage;
         SequencedMessageType::SecurityTradingActionMessage -> security_trading_action_message: SecurityTradingActionMessage;
-        SequencedMessageType::ComplexTradingActionMessage -> complex_trading_action_message: ComplexTradingActionMessage;
         SequencedMessageType::TradeMessage -> trade_message: TradeMessage;
         SequencedMessageType::CancelTradeMessage -> cancel_trade_message: CancelTradeMessage;
         * -> unknown: bytes &eod;
@@ -80,33 +78,6 @@ type OptionsDirectoryMessage = unit {
     : skip bytes &size=16;   # padding
 };
 
-type ComplexOrderStrategyMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
-    version: uint8;
-    strategy_id: uint32;
-    underlying_symbol: bytes &size=13;
-    action: uint8 &convert=Action($$);
-    : skip bytes &size=16;   # padding
-    number_of_legs: uint8;
-    strategy_legs: StrategyLegs[self.number_of_legs];
-};
-
-type StrategyLegs = unit {
-    leg_option_id: uint32;
-    leg_security_symbol: bytes &size=8;
-    leg_expiration: bitfield(16) {
-        leg_expiration_day: 0..4;
-        leg_expiration_month: 5..8;
-        leg_expiration_year: 9..15;
-    } &byte-order=spicy::ByteOrder::Big;
-    leg_strike_price: uint32;
-    leg_option_kind: uint8 &convert=LegOptionKind($$);
-    leg_side: uint8 &convert=LegSide($$);
-    leg_ratio: uint32;
-    : skip bytes &size=8;   # padding
-};
-
 type SecurityTradingActionMessage = unit {
     seconds: uint32;
     nanoseconds: uint32;
@@ -120,14 +91,6 @@ type SecurityTradingActionMessage = unit {
     } &byte-order=spicy::ByteOrder::Big;
     strike_price: uint32;
     option_kind: uint8 &convert=OptionKind($$);
-    current_trading_state: uint8 &convert=CurrentTradingState($$);
-};
-
-type ComplexTradingActionMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
-    version: uint8;
-    strategy_id: uint32;
     current_trading_state: uint8 &convert=CurrentTradingState($$);
 };
 
@@ -274,9 +237,7 @@ type RejectReasonCode = enum {
 type SequencedMessageType = enum {
     SystemEventMessage = 0x53,
     OptionsDirectoryMessage = 0x44,
-    ComplexOrderStrategyMessage = 0x52,
     SecurityTradingActionMessage = 0x48,
-    ComplexTradingActionMessage = 0x49,
     TradeMessage = 0x54,
     CancelTradeMessage = 0x56,
 };
@@ -284,14 +245,11 @@ type SequencedMessageType = enum {
 type EventCode = enum {
     StartOfMessages = 0x4f,
     StartOfSystemHours = 0x53,
-    StartOfPreTrading = 0x50,
-    EndOfPreTrading = 0x44,
     StartOfOpeningProcess = 0x51,
     EndOfNormalHoursProcessing = 0x4e,
     EndOfLateHoursProcessing = 0x4c,
     EndOfSystemHours = 0x45,
     EndOfMessages = 0x43,
-    EndOfWcoEarlyClosing = 0x57,
 };
 
 type OptionKind = enum {
@@ -303,8 +261,6 @@ type OptionKind = enum {
 type OptionClosingType = enum {
     NormalHours = 0x4e,
     LateHours = 0x4c,
-    WcoEarlyClosing = 0x57,
-    ExtendedClose = 0x45,
 };
 
 type Tradable = enum {
@@ -321,22 +277,6 @@ type Mpv = enum {
 type ClosingOnly = enum {
     ClosingPositionOnly = 0x59,
     NotClosingPositionOnly = 0x4e,
-};
-
-type Action = enum {
-    Add = 0x41,
-    Delete = 0x44,
-};
-
-type LegOptionKind = enum {
-    Call = 0x43,
-    Put = 0x50,
-    StockLeg = 0x20,
-};
-
-type LegSide = enum {
-    Buy = 0x42,
-    Sell = 0x53,
 };
 
 type CurrentTradingState = enum {
@@ -429,17 +369,10 @@ type Liquidity = enum {
 
 type AuctionType = enum {
     SimpleOrderPixlPrismPim = 0x50,
-    ComplexOrderPixlPim = 0x51,
     Opening = 0x4f,
-    ComplexOrderLiveAuction = 0x43,
-    ComplexOpeningAuction = 0x5a,
     SimpleOrderSolicitation = 0x53,
-    ComplexOrderSolicitation = 0x52,
     SimpleFacilitation = 0x46,
-    ComplexFacilitation = 0x47,
     Block = 0x42,
-    FlexAuction = 0x58,
-    ComplexFlexAuction = 0x59,
     NoAuction = 0x20,
 };
 
@@ -546,23 +479,15 @@ type PrincipalAgent = enum {
 
 type OriginType = enum {
     FixOrder = 0x4f,
-    FixComplexOrder = 0x43,
     OttoOrder = 0x54,
-    OttoComplexOrder = 0x5a,
-    OttoSweep = 0x45,
     SqfQuote = 0x51,
     SqfSweep = 0x57,
-    SqfComplexSweep = 0x53,
     BlockOrder = 0x50,
     BlockResponse = 0x58,
     PimPrimaryOrder = 0x47,
     PimContraOrder = 0x48,
     PimResponseOrder = 0x49,
     PimResponseSqfSweep = 0x4a,
-    PimPrimaryComplexOrder = 0x67,
-    PimContraComplexOrder = 0x68,
-    PimResponseComplexOrder = 0x69,
-    PimResponseSqfComplexSweep = 0x6a,
     FbmsFloorTrade = 0x42,
     QccPrimary = 0x4b,
     QccContra = 0x4c,
@@ -570,25 +495,11 @@ type OriginType = enum {
     SolicitationContraOrder = 0x4e,
     SolicitationResponseOrder = 0x55,
     SolicitationResponseSqfSweep = 0x56,
-    SolicitationPrimaryComplexOrder = 0x6d,
-    SolicitationContraComplexOrder = 0x6e,
-    SolicitationResponseComplexOrder = 0x75,
-    SolicitationResponseSqfComplexSweep = 0x76,
     FacilitationPrimaryOrder = 0x46,
     FacilitationContraOrder = 0x41,
     FacilitationResponseOrder = 0x44,
     FacilitationResponseSqfSweep = 0x59,
-    FacilitationPrimaryComplexOrder = 0x66,
-    FacilitationContraComplexOrder = 0x61,
-    FacilitationResponseComplexOrder = 0x64,
-    FacilitationResponseSqfComplexSweep = 0x79,
     Others = 0x20,
-    SimpleFlexInitiator = 0x30,
-    SimpleFlexResponseOrder = 0x31,
-    SimpleFlexResponseSqfSweep = 0x32,
-    ComplexFlexInitiator = 0x33,
-    ComplexFlexResponseOrder = 0x34,
-    ComplexFlexResponseSqfSweep = 0x35,
 };
 
 type Tif = enum {

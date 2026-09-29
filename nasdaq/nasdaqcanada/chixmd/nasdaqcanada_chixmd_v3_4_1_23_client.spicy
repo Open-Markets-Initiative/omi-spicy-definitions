@@ -1,15 +1,14 @@
-module NasdaqCanadaequitiesChixmmdGlimpseV10Client;
+module NasdaqNasdaqcanadaChixmdItchV34123Client;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type CanadaequitiesChixmmdV10 = unit {
+public type NasdaqcanadaChixmdV34123 = unit {
     client_packet_header: ClientPacketHeader;
     switch ( self.client_packet_header.client_packet_type ) {
         ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
         ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
-        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
         * -> unknown: bytes &eod;
     };
     soup_lf: uint8;
@@ -30,14 +29,9 @@ type LoginRequestPacket = unit {
     requested_sequence_number: bytes &size=10;
 };
 
-type UnsequencedDataPacket = unit {
-    unsequenced_message: bytes &eod;
-};
-
 type ClientPacketType = enum {
     DebugPacket = 0x2b,
     LoginRequestPacket = 0x4c,
-    UnsequencedDataPacket = 0x55,
     ClientHeartbeatPacket = 0x52,
     LogoutRequestPacket = 0x4f,
 };

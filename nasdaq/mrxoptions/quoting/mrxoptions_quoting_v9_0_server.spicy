@@ -47,7 +47,6 @@ type SequencedDataPacket = unit {
         0 -> complex_msar_reject_message: ComplexMsarRejectMessage;
         0 -> underlying_permission_notification_message: UnderlyingPermissionNotificationMessage;
         0 -> mm_parameter_definition_notification_message: MmParameterDefinitionNotificationMessage;
-        0 -> rapid_fire_config_notification_message: RapidFireConfigNotificationMessage;
         0 -> active_qp_self_replenishment_parameter_definition_notification_message: ActiveQpSelfReplenishmentParameterDefinitionNotificationMessage;
         0 -> system_event_message: SystemEventMessage;
         0 -> simple_instrument_directory_message: SimpleInstrumentDirectoryMessage;
@@ -121,16 +120,6 @@ type MmParameterDefinitionNotificationMessage = unit {
     delta: uint32;
     vega: uint32;
     : skip bytes &size=32;   # padding
-};
-
-type RapidFireConfigNotificationMessage = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
-    badge: bytes &size=4;
-    underlying: bytes &size=13;
-    percentage: uint16;
-    interval_field: uint16;
-    volume: uint32;
 };
 
 type ActiveQpSelfReplenishmentParameterDefinitionNotificationMessage = unit {
@@ -309,7 +298,6 @@ type ServerUnsequencedDataPacket = unit {
         0 -> add_complex_instrument_reply_message: AddComplexInstrumentReplyMessage;
         0 -> mm_parameter_definition_reply_message: MmParameterDefinitionReplyMessage;
         0 -> active_qp_self_replenishment_set_limit_reply_message: ActiveQpSelfReplenishmentSetLimitReplyMessage;
-        0 -> rapid_fire_config_reply_message: RapidFireConfigReplyMessage;
         0 -> quote_block_reply_message: QuoteBlockReplyMessage;
         0 -> detailed_quote_block_reply_message: DetailedQuoteBlockReplyMessage;
         0 -> underlying_purge_reply_message: UnderlyingPurgeReplyMessage;
@@ -346,11 +334,6 @@ type ActiveQpSelfReplenishmentSetLimitReplyMessage = unit {
     message_id: uint64;
     underlying_symbol: bytes &size=13;
     set_value: uint32;
-    status_code: uint8 &convert=StatusCode($$);
-};
-
-type RapidFireConfigReplyMessage = unit {
-    badge: bytes &size=4;
     status_code: uint8 &convert=StatusCode($$);
 };
 
@@ -740,7 +723,6 @@ type OrderCapacity = enum {
     OtherExchangeRegisteredMarketMaker = 0x4f,
     ProfessionalCustomer = 0x50,
     BrokerDealerCustomer = 0x42,
-    JointBackOffice = 0x4a,
     NotApplicable = 0x20,
 };
 
@@ -755,7 +737,6 @@ type AuctionType = enum {
     ComboExposureAuction = 0x43,
     OrderExposure = 0x49,
     OpeningAuction = 0x4f,
-    FlexAuction = 0x58,
     PimAuction = 0x50,
     FacilitationAuction = 0x48,
     SolicitationAuction = 0x53,

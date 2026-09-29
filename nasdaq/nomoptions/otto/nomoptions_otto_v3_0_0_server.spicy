@@ -42,7 +42,6 @@ type SequencedDataPacket = unit {
     switch ( self.sequenced_message_type ) {
         SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
         SequencedMessageType::SimpleInstrumentDirectoryMessage -> simple_instrument_directory_message: SimpleInstrumentDirectoryMessage;
-        SequencedMessageType::ComplexInstrumentDirectoryMessage -> complex_instrument_directory_message: ComplexInstrumentDirectoryMessage;
         SequencedMessageType::InstrumentTradingActionMessage -> instrument_trading_action_message: InstrumentTradingActionMessage;
         SequencedMessageType::AuctionNotificationMessage -> auction_notification_message: AuctionNotificationMessage;
         SequencedMessageType::OrderAcceptedLongFormMessage -> order_accepted_long_form_message: OrderAcceptedLongFormMessage;
@@ -54,9 +53,7 @@ type SequencedDataPacket = unit {
         SequencedMessageType::CrossOrderAcceptedMessage -> cross_order_accepted_message: CrossOrderAcceptedMessage;
         SequencedMessageType::MemberKillSwitchNotificationMessage -> member_kill_switch_notification_message: MemberKillSwitchNotificationMessage;
         SequencedMessageType::MassCancelResponseMessage -> mass_cancel_response_message: MassCancelResponseMessage;
-        SequencedMessageType::AddComplexInstrumentResponseMessage -> add_complex_instrument_response_message: AddComplexInstrumentResponseMessage;
         SequencedMessageType::ModifyTradeResponseMessage -> modify_trade_response_message: ModifyTradeResponseMessage;
-        SequencedMessageType::SubscriptionResponseMessage -> subscription_response_message: SubscriptionResponseMessage;
         SequencedMessageType::RejectMessage -> reject_message: RejectMessage;
         SequencedMessageType::PendingResponseMessage -> pending_response_message: PendingResponseMessage;
         * -> unknown: bytes &eod;
@@ -87,24 +84,6 @@ type SimpleInstrumentDirectoryMessage = unit {
     mpv: uint8 &convert=Mpv($$);
     security_symbol: bytes &size=8;
     : skip bytes &size=16;   # padding
-};
-
-type ComplexInstrumentDirectoryMessage = unit {
-    timestamp: uint64;
-    product_id: uint16;
-    product_name: bytes &size=13;
-    instrument_id: uint32;
-    : skip bytes &size=1;   # padding
-    num_legs: uint8;
-    complex_directory_legs: ComplexDirectoryLegs[self.num_legs];
-};
-
-type ComplexDirectoryLegs = unit {
-    leg_type: uint8 &convert=LegType($$);
-    leg_instrument_id: uint32;
-    leg_side: uint8 &convert=LegSide($$);
-    leg_ratio: uint16;
-    leg_id: uint8;
 };
 
 type InstrumentTradingActionMessage = unit {
@@ -175,8 +154,7 @@ type OrderAcceptedLongFormMessage = unit {
     stock_leg_short_sale: uint8 &convert=StockLegShortSale($$);
     stock_leg_mpid: bytes &size=4;
     stock_capacity: uint8 &convert=StockCapacity($$);
-    session_eligibility: uint8 &convert=SessionEligibility($$);
-    : skip bytes &size=8;   # padding
+    : skip bytes &size=9;   # padding
     number_of_flex_legs: uint8;
     flex_legs: FlexLegs[self.number_of_flex_legs];
 };
@@ -346,13 +324,6 @@ type MassCancelResponseMessage = unit {
     num_pending: uint32;
 };
 
-type AddComplexInstrumentResponseMessage = unit {
-    timestamp: uint64;
-    firm_id: bytes &size=4;
-    cl_request_id: bytes &size=16;
-    instrument_id: uint32;
-};
-
 type ModifyTradeResponseMessage = unit {
     timestamp: uint64;
     firm_id: bytes &size=4;
@@ -361,12 +332,6 @@ type ModifyTradeResponseMessage = unit {
     cl_ord_id: bytes &size=16;
     cross_id: uint32;
     match_id: uint32;
-};
-
-type SubscriptionResponseMessage = unit {
-    timestamp: uint64;
-    firm_id: bytes &size=4;
-    cl_request_id: bytes &size=16;
 };
 
 type RejectMessage = unit {
@@ -402,7 +367,6 @@ type RejectReasonCode = enum {
 type SequencedMessageType = enum {
     SystemEventMessage = 0x7a,
     SimpleInstrumentDirectoryMessage = 0x6f,
-    ComplexInstrumentDirectoryMessage = 0x73,
     InstrumentTradingActionMessage = 0x69,
     AuctionNotificationMessage = 0x6e,
     OrderAcceptedLongFormMessage = 0x61,
@@ -414,9 +378,7 @@ type SequencedMessageType = enum {
     CrossOrderAcceptedMessage = 0x78,
     MemberKillSwitchNotificationMessage = 0x6b,
     MassCancelResponseMessage = 0x75,
-    AddComplexInstrumentResponseMessage = 0x64,
     ModifyTradeResponseMessage = 0x6d,
-    SubscriptionResponseMessage = 0x66,
     RejectMessage = 0x6a,
     PendingResponseMessage = 0x70,
 };
@@ -424,8 +386,6 @@ type SequencedMessageType = enum {
 type EventCode = enum {
     StartOfMessages = 0x4f,
     StartOfSystemHours = 0x53,
-    StartOfPreTradingOpeningProcess = 0x50,
-    EndOfPreTrading = 0x44,
     StartOfOpeningProcess = 0x51,
     EndOfWcoEarlyClosing = 0x57,
     EndOfNormalHoursProcessing = 0x4e,
@@ -443,7 +403,6 @@ type ClosingType = enum {
     NormalHours = 0x4e,
     LateHours = 0x4c,
     WcoEarlyClosing = 0x57,
-    ExtendedClose = 0x45,
 };
 
 type Tradable = enum {
@@ -462,16 +421,6 @@ type Mpv = enum {
     PennyPilot = 0x50,
 };
 
-type LegType = enum {
-    Option = 0x4f,
-    Stock = 0x53,
-};
-
-type LegSide = enum {
-    Buy = 0x42,
-    Sell = 0x53,
-};
-
 type TradingState = enum {
     Halted = 0x48,
     Trading = 0x54,
@@ -480,8 +429,6 @@ type TradingState = enum {
 type InstrumentType = enum {
     All = 0x41,
     SimpleInstrument = 0x4f,
-    StandardCombination = 0x43,
-    StockCombination = 0x53,
 };
 
 type OrderType = enum {
@@ -521,14 +468,8 @@ type AuctionEvent = enum {
 };
 
 type AuctionType = enum {
-    BlockOrderAuction = 0x42,
-    ComplexExposureAuction = 0x45,
     SimpleExposureOrder = 0x46,
     OpeningAuction = 0x4f,
-    FlexAuction = 0x58,
-    PimPixlAuction = 0x50,
-    FacilitationAuction = 0x48,
-    SolicitationAuction = 0x53,
     None_x4e = 0x4e,
 };
 
@@ -590,12 +531,6 @@ type StockCapacity = enum {
     NotApplicable = 0x20,
 };
 
-type SessionEligibility = enum {
-    RegularSession = 0x52,
-    AllSessions = 0x41,
-    ExtendedClose = 0x45,
-};
-
 type CancelReason = enum {
     UserRequested = 0x55,
     ImmediateOrCancel = 0x49,
@@ -613,9 +548,6 @@ type CancelReason = enum {
 
 type OrdExecType = enum {
     SimpleInstrument = 0x41,
-    ComplexInstrument = 0x42,
-    ComplexOptionLeg = 0x43,
-    ComplexStockLeg = 0x44,
 };
 
 type LiquidityInd = enum {
