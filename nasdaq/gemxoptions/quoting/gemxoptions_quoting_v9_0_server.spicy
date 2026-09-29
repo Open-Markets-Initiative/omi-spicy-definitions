@@ -1,0 +1,780 @@
+module NasdaqGemxoptionsQuotingSqfV90Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type GemxoptionsQuotingV90 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        ServerPacketType::UnsequencedDataPacket -> server_unsequenced_data_packet: ServerUnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: bytes &size=2;
+    switch ( self.sequenced_message_type ) {
+        0 -> msar_accept_message: MsarAcceptMessage;
+        0 -> msar_reject_message: MsarRejectMessage;
+        0 -> complex_msar_accept_message: ComplexMsarAcceptMessage;
+        0 -> complex_msar_reject_message: ComplexMsarRejectMessage;
+        0 -> underlying_permission_notification_message: UnderlyingPermissionNotificationMessage;
+        0 -> mm_parameter_definition_notification_message: MmParameterDefinitionNotificationMessage;
+        0 -> rapid_fire_config_notification_message: RapidFireConfigNotificationMessage;
+        0 -> active_qp_self_replenishment_parameter_definition_notification_message: ActiveQpSelfReplenishmentParameterDefinitionNotificationMessage;
+        0 -> system_event_message: SystemEventMessage;
+        0 -> simple_instrument_directory_message: SimpleInstrumentDirectoryMessage;
+        0 -> complex_instrument_directory_message: ComplexInstrumentDirectoryMessage;
+        0 -> simple_instrument_trading_action_message: SimpleInstrumentTradingActionMessage;
+        0 -> complex_instrument_trading_action_message: ComplexInstrumentTradingActionMessage;
+        0 -> simple_quote_execution_notification_message: SimpleQuoteExecutionNotificationMessage;
+        0 -> complex_quote_execution_notification_message: ComplexQuoteExecutionNotificationMessage;
+        0 -> complex_quote_leg_execution_notification_message: ComplexQuoteLegExecutionNotificationMessage;
+        0 -> simple_msar_notification_message: SimpleMsarNotificationMessage;
+        0 -> complex_msar_leg_notification_message: ComplexMsarLegNotificationMessage;
+        0 -> complex_msar_notification_message: ComplexMsarNotificationMessage;
+        0 -> opening_rotation_quote_spread_multiplier_notification_message: OpeningRotationQuoteSpreadMultiplierNotificationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MsarAcceptMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_id: uint32;
+    msar_type: uint8 &convert=MsarType($$);
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+};
+
+type MsarRejectMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    status_code: uint8 &convert=StatusCode($$);
+};
+
+type ComplexMsarAcceptMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_id: uint32;
+    msar_type: uint8 &convert=MsarType($$);
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+    price_protection: uint8 &convert=PriceProtection($$);
+    : skip bytes &size=4;   # padding
+};
+
+type ComplexMsarRejectMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    status_code: uint8 &convert=StatusCode($$);
+};
+
+type UnderlyingPermissionNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    underlying: bytes &size=13;
+    permitted: uint8 &convert=Permitted($$);
+};
+
+type MmParameterDefinitionNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    underlying: bytes &size=13;
+    interval_field: uint16;
+    percentage: uint16;
+    cum_qty: uint32;
+    delta: uint32;
+    vega: uint32;
+    : skip bytes &size=32;   # padding
+};
+
+type RapidFireConfigNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    underlying: bytes &size=13;
+    percentage: uint16;
+    interval_field: uint16;
+    volume: uint32;
+};
+
+type ActiveQpSelfReplenishmentParameterDefinitionNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    underlying: bytes &size=13;
+    set_contract_limit: uint32;
+    : skip bytes &size=32;   # padding
+};
+
+type SystemEventMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+    version: uint8;
+    subversion: uint8;
+};
+
+type SimpleInstrumentDirectoryMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    instrument_id: uint32;
+    security_symbol: bytes &size=8;
+    expiration: uint16;
+    strike_price: int32;
+    option_type: uint8 &convert=OptionType($$);
+    underlying_symbol: bytes &size=13;
+    closing_type: uint8 &convert=ClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+    : skip bytes &size=16;   # padding
+};
+
+type ComplexInstrumentDirectoryMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    instrument_id: uint32;
+    underlying_symbol: bytes &size=13;
+    : skip bytes &size=1;   # padding
+    number_of_legs: uint8;
+    complex_legs: ComplexLegs[self.number_of_legs];
+};
+
+type ComplexLegs = unit {
+    leg_instrument_id: uint32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type SimpleInstrumentTradingActionMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    instrument_id: uint32;
+    trading_state: uint8 &convert=TradingState($$);
+};
+
+type ComplexInstrumentTradingActionMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    instrument_id: uint32;
+    trading_state: uint8 &convert=TradingState($$);
+};
+
+type SimpleQuoteExecutionNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    instrument_id: uint32;
+    message_id: uint64;
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    cross_id: uint32;
+    match_id: uint32;
+};
+
+type ComplexQuoteExecutionNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_id: uint32;
+    auction_id: uint32;
+    price_6: int64;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    cross_id: uint32;
+    match_id: uint32;
+};
+
+type ComplexQuoteLegExecutionNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_id: uint32;
+    leg_instrument_id: uint32;
+    leg_id: uint8;
+    auction_id: uint32;
+    price_6: int64;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    cross_id: uint32;
+    match_id: uint32;
+};
+
+type SimpleMsarNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    instrument_id: uint32;
+    notification_type: uint8 &convert=NotificationType($$);
+    message_id: uint64;
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    cross_id: uint32;
+    match_id: uint32;
+};
+
+type ComplexMsarLegNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    instrument_id: uint32;
+    leg_id: uint8;
+    leg_instrument_id: uint32;
+    notification_type: uint8 &convert=NotificationType($$);
+    message_id: uint64;
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    leg_side: uint8 &convert=LegSide($$);
+    contracts: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    cross_id: uint32;
+    match_id: uint32;
+    price_6: int64;
+};
+
+type ComplexMsarNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    instrument_id: uint32;
+    notification_type: uint8 &convert=NotificationType($$);
+    message_id: uint64;
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    cross_id: uint32;
+    match_id: uint32;
+    price_6: int64;
+};
+
+type OpeningRotationQuoteSpreadMultiplierNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    underlying_symbol: bytes &size=13;
+    multiplier: uint8;
+};
+
+type ServerUnsequencedDataPacket = unit {
+    server_unsequenced_message_type: bytes &size=2;
+    switch ( self.server_unsequenced_message_type ) {
+        0 -> notification_subscription_reply_message: NotificationSubscriptionReplyMessage;
+        0 -> add_complex_instrument_reply_message: AddComplexInstrumentReplyMessage;
+        0 -> mm_parameter_definition_reply_message: MmParameterDefinitionReplyMessage;
+        0 -> active_qp_self_replenishment_set_limit_reply_message: ActiveQpSelfReplenishmentSetLimitReplyMessage;
+        0 -> rapid_fire_config_reply_message: RapidFireConfigReplyMessage;
+        0 -> quote_block_reply_message: QuoteBlockReplyMessage;
+        0 -> detailed_quote_block_reply_message: DetailedQuoteBlockReplyMessage;
+        0 -> underlying_purge_reply_message: UnderlyingPurgeReplyMessage;
+        0 -> market_reentry_reply_message: MarketReentryReplyMessage;
+        0 -> active_qp_self_replenishment_request_reentry_reply_message: ActiveQpSelfReplenishmentRequestReentryReplyMessage;
+        0 -> auction_notification_message: AuctionNotificationMessage;
+        0 -> instrument_purge_notification_message: InstrumentPurgeNotificationMessage;
+        0 -> underlying_purge_notification_message: UnderlyingPurgeNotificationMessage;
+        0 -> market_reentry_notification_message: MarketReentryNotificationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NotificationSubscriptionReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    status_code: uint8 &convert=StatusCode($$);
+};
+
+type AddComplexInstrumentReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    status_code: uint8 &convert=StatusCode($$);
+};
+
+type MmParameterDefinitionReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    status_code: uint8 &convert=StatusCode($$);
+};
+
+type ActiveQpSelfReplenishmentSetLimitReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    underlying_symbol: bytes &size=13;
+    set_value: uint32;
+    status_code: uint8 &convert=StatusCode($$);
+};
+
+type RapidFireConfigReplyMessage = unit {
+    badge: bytes &size=4;
+    status_code: uint8 &convert=StatusCode($$);
+};
+
+type QuoteBlockReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    block_status_code: uint8 &convert=BlockStatusCode($$);
+    quote_count: uint16;
+    valid_quote_count: uint16;
+    quote_responses: QuoteResponses[self.valid_quote_count];
+};
+
+type QuoteResponses = unit {
+    quote_status_code: uint8 &convert=QuoteStatusCode($$);
+    sequence: uint64;
+};
+
+type DetailedQuoteBlockReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    block_status_code: uint8 &convert=BlockStatusCode($$);
+    quote_count: uint16;
+    valid_quote_count: uint16;
+    detailed_quote_responses: DetailedQuoteResponses[self.valid_quote_count];
+};
+
+type DetailedQuoteResponses = unit {
+    quote_status_code: uint8 &convert=QuoteStatusCode($$);
+    sequence: uint64;
+    bid_sequence: uint64;
+    ask_sequence: uint64;
+};
+
+type UnderlyingPurgeReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    status_code: uint8 &convert=StatusCode($$);
+    sequence: uint64;
+};
+
+type MarketReentryReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    status_code: uint8 &convert=StatusCode($$);
+    : skip bytes &size=8;   # padding
+};
+
+type ActiveQpSelfReplenishmentRequestReentryReplyMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    underlying_symbol: bytes &size=13;
+    status_code: uint8 &convert=StatusCode($$);
+    requested_replenishment_value: uint32;
+    active_counter_value: uint32;
+    set_contract_limit: uint32;
+};
+
+type AuctionNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    instrument_id: uint32;
+    auction_id: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    side: uint8 &convert=Side($$);
+    price: int32;
+    matched_volume: uint32;
+    volume: uint32;
+    exec_flag: uint8 &convert=ExecFlag($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    firm_id: bytes &size=4;
+    occ_account: uint32;
+    cmta: uint32;
+    auction_event: uint8 &convert=AuctionEvent($$);
+    auction_type: uint8 &convert=AuctionType($$);
+    auction_duration: uint32;
+    best_response_price: int32;
+    best_response_size: uint32;
+    : skip bytes &size=9;   # padding
+    number_of_flex_dac_legs: uint8;
+    flex_dac_legs: FlexDacLegs[self.number_of_flex_dac_legs];
+};
+
+type FlexDacLegs = unit {
+    : skip bytes &size=8;   # padding
+};
+
+type InstrumentPurgeNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_id: uint32;
+    purge_reason: uint8 &convert=PurgeReason($$);
+    sequence: uint64;
+    : skip bytes &size=16;   # padding
+};
+
+type UnderlyingPurgeNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    underlying: bytes &size=13;
+    purge_reason: uint8 &convert=PurgeReason($$);
+    message_id: uint64;
+    sequence: uint64;
+};
+
+type MarketReentryNotificationMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    badge: bytes &size=4;
+    underlying_symbol: bytes &size=13;
+    reentry_scope: uint8 &convert=ReentryScope($$);
+    message_id: uint64;
+    : skip bytes &size=8;   # padding
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    UnsequencedDataPacket = 0x55,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type MsarType = enum {
+    AuctionResponse = 0x41,
+    MarketSweep = 0x4d,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NotDisclosed = 0x2a,
+    BuyShort = 0x54,
+    BuyShortExempt = 0x58,
+    SellShort = 0x59,
+    SellShortExempt = 0x5a,
+};
+
+type StatusCode = enum {
+    ValidRequest = 0x20,
+    InvalidBadge = 0x41,
+    InvalidInstrumentUnderlying = 0x42,
+    NotPermitted = 0x43,
+    InvalidSide = 0x44,
+    InvalidSize = 0x45,
+    InvalidPrice = 0x46,
+    InvalidSpread = 0x47,
+    InvalidIndicatorAttribute = 0x48,
+    ReentryRequired = 0x49,
+    OpeningRotationInProgress = 0x4a,
+    KillSwitchReentryRequired = 0x4b,
+    FullReplenishmentRequired = 0x4c,
+    ActiveCounterExceeded = 0x4d,
+    TooLateToAct = 0x4e,
+    NotInFreeTrading = 0x50,
+    InvalidAuctionInformation = 0x51,
+    MarketClosed = 0x52,
+    PostOnlyReprice = 0x53,
+    RequestPending = 0x54,
+    InvalidFormatBadBlock = 0x59,
+    SystemError = 0x5a,
+};
+
+type PriceProtection = enum {
+    Local = 0x4c,
+    National = 0x4e,
+};
+
+type Permitted = enum {
+    Permitted_x59 = 0x59,
+    NotPermitted = 0x4e,
+};
+
+type InstrumentType = enum {
+    SimpleInstruments = 0x53,
+    ComplexInstruments = 0x43,
+    SimpleInstrument = 0x4f,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfPreTradingQuote = 0x52,
+    StartOfPreTradingOpeningProcess = 0x50,
+    EndOfPreTrading = 0x44,
+    StartOfQuote = 0x42,
+    StartOfOpeningProcess = 0x51,
+    EndOfWcoEarlyClosing = 0x57,
+    EndOfNormalHoursProcessing = 0x4e,
+    EndOfLateHoursProcessing = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type ClosingType = enum {
+    NormalHours = 0x4e,
+    LateHours = 0x4c,
+    WcoEarlyClosing = 0x57,
+    ExtendedClose = 0x45,
+};
+
+type Tradable = enum {
+    Tradable_x59 = 0x59,
+    NotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type LegSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TradingState = enum {
+    HaltInEffect = 0x48,
+    TradingResumed = 0x54,
+};
+
+type LiquidityIndicator = enum {
+    None_0 = 0,
+    Maker = 1,
+    Taker = 2,
+    Response = 4,
+    Hidden = 5,
+    OpeningRotation = 6,
+    Cross = 7,
+    FlashedOrder = 8,
+    FlashResponse = 9,
+    RoutedOut = 10,
+    TradeReport = 11,
+    ComboMakerAgainstCombo = 12,
+    ComboTakerAgainstCombo = 13,
+    ComboResponseAgainstCombo = 14,
+    ComboHiddenAgainstCombo = 15,
+    ComboOpeningRotation = 16,
+    ComboCross = 17,
+    ComboTakerAgainstRegular = 18,
+    RegularMakerAgainstCombo = 19,
+    ComboTakerAgainstIo = 20,
+    RegularInclPimTakerAgainstIo = 21,
+    IoMakerAgainstCombo = 22,
+    IoMakerAgainstRegular = 23,
+    RegularMakerAgainstIoParticipant = 24,
+    IoParticipantTakerAgainstRegular = 25,
+    BrokenPriceImprovement = 26,
+    BrokenFacilitation = 27,
+    BrokenSolicitation = 28,
+    ComboBrokenPriceImprovement = 29,
+    ComboBrokenFacilitation = 30,
+    ComboBrokenSolicitation = 31,
+    Block = 32,
+    BlockResponse = 33,
+    DirectedResponse = 34,
+    Facilitation = 35,
+    FacilitationResponse = 36,
+    PriceImprovement = 37,
+    PriceImprovementResponse = 38,
+    Solicitation = 39,
+    SolicitationResponse = 40,
+    QualifiedContingentCross = 41,
+    CustomerToCustomer = 42,
+    ComboFacilitation = 43,
+    ComboFacilitationResponse = 44,
+    ComboPriceImprovement = 45,
+    ComboPriceImprovementResponse = 46,
+    ComboSolicitation = 47,
+    ComboSolicitationResponse = 48,
+    ComboQualifiedContingentCross = 49,
+    ComboCustomerToCustomer = 50,
+    SweepRoutedOut = 51,
+    SweepTradeReport = 52,
+    ComboTakerAgainstRegularThruNbbo = 53,
+    ComboTakerAgainstIoThruNbbo = 54,
+    SimpleExposureOrderUponReceipt = 55,
+    SimpleExposureOrderSubsequent = 56,
+    SimpleExposureOrderResponder = 57,
+    FlexAuction = 58,
+    FlexAuctionResponder = 59,
+    FlexPriceImprovement = 60,
+    FlexPriceImprovementResponder = 61,
+    FlexBrokenPriceImprovement = 62,
+    FlexSolicitation = 63,
+    FlexSolicitationResponder = 64,
+    FlexBrokenSolicitation = 65,
+    ComboFlexAuction = 66,
+    ComboFlexAuctionResponder = 67,
+    ComboFlexPriceImprovement = 68,
+    ComboFlexPriceImprovementResponder = 69,
+    ComboFlexBrokenPriceImprovement = 70,
+    ComboFlexSolicitation = 71,
+    ComboFlexSolicitationResponder = 72,
+    ComboFlexBrokenSolicitation = 73,
+};
+
+type NotificationType = enum {
+    Executed = 0x45,
+    Cancelled = 0x43,
+};
+
+type BlockStatusCode = enum {
+    ValidRequest = 0x20,
+    InvalidBadge = 0x41,
+    InvalidInstrumentUnderlying = 0x42,
+    NotPermitted = 0x43,
+    InvalidSide = 0x44,
+    InvalidSize = 0x45,
+    InvalidPrice = 0x46,
+    InvalidSpread = 0x47,
+    InvalidIndicatorAttribute = 0x48,
+    ReentryRequired = 0x49,
+    OpeningRotationInProgress = 0x4a,
+    KillSwitchReentryRequired = 0x4b,
+    FullReplenishmentRequired = 0x4c,
+    ActiveCounterExceeded = 0x4d,
+    TooLateToAct = 0x4e,
+    NotInFreeTrading = 0x50,
+    InvalidAuctionInformation = 0x51,
+    MarketClosed = 0x52,
+    PostOnlyReprice = 0x53,
+    RequestPending = 0x54,
+    InvalidFormatBadBlock = 0x59,
+    SystemError = 0x5a,
+};
+
+type QuoteStatusCode = enum {
+    ValidRequest = 0x20,
+    InvalidBadge = 0x41,
+    InvalidInstrumentUnderlying = 0x42,
+    NotPermitted = 0x43,
+    InvalidSide = 0x44,
+    InvalidSize = 0x45,
+    InvalidPrice = 0x46,
+    InvalidSpread = 0x47,
+    InvalidIndicatorAttribute = 0x48,
+    ReentryRequired = 0x49,
+    OpeningRotationInProgress = 0x4a,
+    KillSwitchReentryRequired = 0x4b,
+    FullReplenishmentRequired = 0x4c,
+    ActiveCounterExceeded = 0x4d,
+    TooLateToAct = 0x4e,
+    NotInFreeTrading = 0x50,
+    InvalidAuctionInformation = 0x51,
+    MarketClosed = 0x52,
+    PostOnlyReprice = 0x53,
+    RequestPending = 0x54,
+    InvalidFormatBadBlock = 0x59,
+    SystemError = 0x5a,
+};
+
+type OrderType = enum {
+    Limit = 0x4c,
+    Market = 0x4d,
+    NotDisclosed = 0x4e,
+};
+
+type ExecFlag = enum {
+    None_x30 = 0x30,
+    Aon = 0x31,
+};
+
+type OrderCapacity = enum {
+    Customer = 0x43,
+    Firm = 0x46,
+    MarketMaker = 0x4d,
+    OtherExchangeRegisteredMarketMaker = 0x4f,
+    ProfessionalCustomer = 0x50,
+    BrokerDealerCustomer = 0x42,
+    JointBackOffice = 0x4a,
+    NotApplicable = 0x20,
+};
+
+type AuctionEvent = enum {
+    Start = 0x53,
+    AuctionUpdate = 0x55,
+    EndOfAuction = 0x45,
+};
+
+type AuctionType = enum {
+    BlockOrderAuction = 0x42,
+    ComboExposureAuction = 0x43,
+    OrderExposure = 0x49,
+    OpeningAuction = 0x4f,
+    FlexAuction = 0x58,
+    PimAuction = 0x50,
+    FacilitationAuction = 0x48,
+    SolicitationAuction = 0x53,
+};
+
+type PurgeReason = enum {
+    UserRequestedSimple = 0x55,
+    SystemInitiated = 0x53,
+    AutoKillswitch = 0x4b,
+    ManualKillswitch = 0x4d,
+    PurgeOnDisconnect = 0x50,
+    UserRequestedComplex = 0x75,
+    SystemInitiatedComplex = 0x73,
+    AntiInternalize = 0x51,
+};
+
+type ReentryScope = enum {
+    UserRequestedSimple = 0x4e,
+    UserRequestedComplex = 0x6e,
+    PostKillswitch = 0x4b,
+};
+

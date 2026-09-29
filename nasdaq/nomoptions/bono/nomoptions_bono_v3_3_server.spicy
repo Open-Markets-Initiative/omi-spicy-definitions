@@ -1,0 +1,251 @@
+module NasdaqNomoptionsBonoItchV33Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NomoptionsBonoV33 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::TimestampMessage -> timestamp_message: TimestampMessage;
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::OptionsDirectoryMessage -> options_directory_message: OptionsDirectoryMessage;
+        SequencedMessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        SequencedMessageType::SecurityOpenClosedMessage -> security_open_closed_message: SecurityOpenClosedMessage;
+        SequencedMessageType::ShortBestBidAndAskUpdateMessage -> short_best_bid_and_ask_update_message: ShortBestBidAndAskUpdateMessage;
+        SequencedMessageType::LongBestBidAndAskUpdateMessage -> long_best_bid_and_ask_update_message: LongBestBidAndAskUpdateMessage;
+        SequencedMessageType::ShortBestAskUpdateMessage -> short_best_ask_update_message: ShortBestAskUpdateMessage;
+        SequencedMessageType::ShortBestBidUpdateMessage -> short_best_bid_update_message: ShortBestBidUpdateMessage;
+        SequencedMessageType::LongBestAskUpdateMessage -> long_best_ask_update_message: LongBestAskUpdateMessage;
+        SequencedMessageType::LongBestBidUpdateMessage -> long_best_bid_update_message: LongBestBidUpdateMessage;
+        SequencedMessageType::TradeReportMessage -> trade_report_message: TradeReportMessage;
+        SequencedMessageType::BrokenTradeReportMessage -> broken_trade_report_message: BrokenTradeReportMessage;
+        SequencedMessageType::EndOfReplaySequenceMessage -> end_of_replay_sequence_message: EndOfReplaySequenceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TimestampMessage = unit {
+    second: uint32;
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+    version: uint8;
+    subversion: uint8;
+};
+
+type OptionsDirectoryMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    security_symbol: bytes &size=6;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    strike_price: int32;
+    option_type: uint8 &convert=OptionType($$);
+    source: uint8;
+    underlying_symbol: bytes &size=13;
+    option_closing_type: uint8 &convert=OptionClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+};
+
+type TradingActionMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type SecurityOpenClosedMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    open_state: uint8 &convert=OpenState($$);
+};
+
+type ShortBestBidAndAskUpdateMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    bid_price_2: int16;
+    bid_size_2: uint16;
+    ask_price_2: int16;
+    ask_size_2: uint16;
+};
+
+type LongBestBidAndAskUpdateMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    bid_price_4: int32;
+    bid_size_4: uint32;
+    ask_price_4: int32;
+    ask_size_4: uint32;
+};
+
+type ShortBestAskUpdateMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    price_2: int16;
+    size_2: uint16;
+};
+
+type ShortBestBidUpdateMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    price_2: int16;
+    size_2: uint16;
+};
+
+type LongBestAskUpdateMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    price_4: int32;
+    size_4: uint32;
+};
+
+type LongBestBidUpdateMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    price_4: int32;
+    size_4: uint32;
+};
+
+type TradeReportMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    cross_id: uint32;
+    trade_condition: bytes &size=1;
+    price_4: int32;
+    volume: uint32;
+};
+
+type BrokenTradeReportMessage = unit {
+    nanoseconds: uint32;
+    option_id: uint32;
+    original_cross_id: uint32;
+    original_price: int32;
+    original_volume: uint32;
+};
+
+type EndOfReplaySequenceMessage = unit {
+    end_of_replay_sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    TimestampMessage = 0x54,
+    SystemEventMessage = 0x53,
+    OptionsDirectoryMessage = 0x44,
+    TradingActionMessage = 0x48,
+    SecurityOpenClosedMessage = 0x4f,
+    ShortBestBidAndAskUpdateMessage = 0x71,
+    LongBestBidAndAskUpdateMessage = 0x51,
+    ShortBestAskUpdateMessage = 0x61,
+    ShortBestBidUpdateMessage = 0x62,
+    LongBestAskUpdateMessage = 0x41,
+    LongBestBidUpdateMessage = 0x42,
+    TradeReportMessage = 0x52,
+    BrokenTradeReportMessage = 0x58,
+    EndOfReplaySequenceMessage = 0x4d,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    StartOfNormalHoursClosingProcess = 0x4e,
+    StartOfLateHoursClosingProcess = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type OptionClosingType = enum {
+    Normal = 0x4e,
+    Late = 0x4c,
+};
+
+type Tradable = enum {
+    Tradable_x59 = 0x59,
+    NotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    Trading = 0x54,
+};
+
+type OpenState = enum {
+    OpenForAutoExecution = 0x59,
+    ClosedForAutoExecution = 0x4e,
+};
+
+type QuoteCondition = enum {
+    RegularQuoteautoxEligible = 0x20,
+    RotationalQuote = 0x52,
+    BidSideFirm = 0x58,
+    AskSideFirm = 0x59,
+};
+

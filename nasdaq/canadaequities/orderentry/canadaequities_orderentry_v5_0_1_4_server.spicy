@@ -1,0 +1,576 @@
+module NasdaqCanadaequitiesOrderentryOuchV5014Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type CanadaequitiesOrderentryV5014 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::OrderAcceptedMessage -> order_accepted_message: OrderAcceptedMessage;
+        SequencedMessageType::OrderReplacedMessage -> order_replaced_message: OrderReplacedMessage;
+        SequencedMessageType::OrderCanceledMessage -> order_canceled_message: OrderCanceledMessage;
+        SequencedMessageType::StpCanceledMessage -> stp_canceled_message: StpCanceledMessage;
+        SequencedMessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        SequencedMessageType::CorrectedTradeMessage -> corrected_trade_message: CorrectedTradeMessage;
+        SequencedMessageType::RejectedOrderMessage -> rejected_order_message: RejectedOrderMessage;
+        SequencedMessageType::CancelRejectMessage -> cancel_reject_message: CancelRejectMessage;
+        SequencedMessageType::OrderRestatedMessage -> order_restated_message: OrderRestatedMessage;
+        SequencedMessageType::AccountQueryResponseMessage -> account_query_response_message: AccountQueryResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type OrderAcceptedMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    order_qty: uint32;
+    price: uint64;
+    side: uint8 &convert=Side($$);
+    symbol: bytes &size=10;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    ex_destination: uint8 &convert=ExDestination($$);
+    umir_account_type: bytes &size=2;
+    umir_user_id: bytes &size=8;
+    order_reference_number: uint64;
+    order_state: uint8 &convert=OrderState($$);
+    appendage_length: uint16;
+    order_accepted_appendage: OrderAcceptedAppendage[] &eod;
+};
+
+type OrderAcceptedAppendage = unit {
+    optional_field_length: int8;
+    order_accepted_optional_field: int8 &convert=OrderAcceptedOptionalField($$);
+    order_accepted_optional_value: bytes &size=243;
+};
+
+type OrderReplacedMessage = unit {
+    timestamp: uint64;
+    orig_user_ref_num: uint32;
+    user_ref_num: uint32;
+    order_qty: uint32;
+    price: uint64;
+    side: uint8 &convert=Side($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_reference_number: uint64;
+    order_state: uint8 &convert=OrderState($$);
+    appendage_length: uint16;
+    order_replaced_appendage: OrderReplacedAppendage[] &eod;
+};
+
+type OrderReplacedAppendage = unit {
+    optional_field_length: int8;
+    order_replaced_optional_field: int8 &convert=OrderReplacedOptionalField($$);
+    order_replaced_optional_value: bytes &size=156;
+};
+
+type OrderCanceledMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    order_qty: uint32;
+    cancel_reason: bytes &size=4;
+    appendage_length: uint16;
+    order_canceled_appendage: OrderCanceledAppendage[] &eod;
+};
+
+type OrderCanceledAppendage = unit {
+    optional_field_length: int8;
+    order_canceled_optional_field: int8 &convert=OrderCanceledOptionalField($$);
+    order_canceled_optional_value: bytes &size=1;
+};
+
+type StpCanceledMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    decrement_shares: uint32;
+    cancel_reason: bytes &size=4;
+    quantity_prevented_from_trading: uint32;
+    price: uint64;
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    appendage_length: uint16;
+    stp_canceled_appendage: StpCanceledAppendage[] &eod;
+};
+
+type StpCanceledAppendage = unit {
+    optional_field_length: int8;
+    stp_canceled_optional_field: int8 &convert=StpCanceledOptionalField($$);
+    stp_canceled_optional_value: bytes &size=1;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    quantity: uint32;
+    price: uint64;
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    match_number: uint64;
+    exec_broker: uint8 &convert=ExecBroker($$);
+    contra_broker: uint32;
+    appendage_length: uint16;
+    order_executed_appendage: OrderExecutedAppendage[] &eod;
+};
+
+type OrderExecutedAppendage = unit {
+    optional_field_length: int8;
+    order_executed_optional_field: int8 &convert=OrderExecutedOptionalField($$);
+    order_executed_optional_value: bytes &size=15;
+};
+
+type CorrectedTradeMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    match_number: uint64;
+    quantity: uint32;
+    price: uint64;
+    appendage_length: uint16;
+    corrected_trade_appendage: CorrectedTradeAppendage[] &eod;
+};
+
+type CorrectedTradeAppendage = unit {
+    optional_field_length: int8;
+    corrected_trade_optional_field: int8 &convert=CorrectedTradeOptionalField($$);
+    corrected_trade_optional_value: bytes &size=1;
+};
+
+type RejectedOrderMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    reject_reason: bytes &size=4;
+    appendage_length: uint16;
+    rejected_order_appendage: RejectedOrderAppendage[] &eod;
+};
+
+type RejectedOrderAppendage = unit {
+    optional_field_length: int8;
+    rejected_order_optional_field: int8 &convert=RejectedOrderOptionalField($$);
+    rejected_order_optional_value: bytes &size=1;
+};
+
+type CancelRejectMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    reject_reason: bytes &size=4;
+    appendage_length: uint16;
+    cancel_reject_appendage: CancelRejectAppendage[] &eod;
+};
+
+type CancelRejectAppendage = unit {
+    optional_field_length: int8;
+    cancel_reject_optional_field: int8 &convert=CancelRejectOptionalField($$);
+    cancel_reject_optional_value: bytes &size=1;
+};
+
+type OrderRestatedMessage = unit {
+    timestamp: uint64;
+    user_ref_num: uint32;
+    restate_reason: uint8 &convert=RestateReason($$);
+    appendage_length: uint16;
+    order_restated_appendage: OrderRestatedAppendage[] &eod;
+};
+
+type OrderRestatedAppendage = unit {
+    optional_field_length: int8;
+    order_restated_optional_field: int8 &convert=OrderRestatedOptionalField($$);
+    order_restated_optional_value: bytes &size=9;
+};
+
+type AccountQueryResponseMessage = unit {
+    timestamp: uint64;
+    next_user_ref_num: uint32;
+    appendage_length: uint16;
+    account_query_response_appendage: AccountQueryResponseAppendage[] &eod;
+};
+
+type AccountQueryResponseAppendage = unit {
+    optional_field_length: int8;
+    account_query_response_optional_field: int8 &convert=AccountQueryResponseOptionalField($$);
+    account_query_response_optional_value: bytes &size=1;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    OrderAcceptedMessage = 0x41,
+    OrderReplacedMessage = 0x55,
+    OrderCanceledMessage = 0x43,
+    StpCanceledMessage = 0x44,
+    OrderExecutedMessage = 0x45,
+    CorrectedTradeMessage = 0x42,
+    RejectedOrderMessage = 0x4a,
+    CancelRejectMessage = 0x49,
+    OrderRestatedMessage = 0x52,
+    AccountQueryResponseMessage = 0x51,
+};
+
+type EventCode = enum {
+    StartOfDay = 0x53,
+    EndOfDay = 0x45,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    SellShort = 0x35,
+};
+
+type TimeInForce = enum {
+    Day = 0x30,
+    ImmediateOrCancel = 0x33,
+    GoodTillDate = 0x36,
+    StreamOrKill = 0x38,
+    PostOnlyOrder = 0x50,
+};
+
+type ExDestination = enum {
+    Cxc = 0x43,
+    Cx2 = 0x32,
+    Cxd = 0x44,
+    SmartOrderRouter = 0x53,
+};
+
+type OrderState = enum {
+    OrderLive = 0x4c,
+    OrderDead = 0x44,
+};
+
+type OrderAcceptedOptionalField = enum {
+    Userrefidx = 37,
+    Account = 1,
+    Pegtype = 2,
+    Minqtytype = 3,
+    Minqty = 4,
+    Maxfloor = 5,
+    Expiretime = 6,
+    Pegoffset = 7,
+    Targetstrategy = 8,
+    Orderorigination = 9,
+    Routingarrangementindicator = 10,
+    Baskettrade = 11,
+    Programtrade = 12,
+    Jitney = 14,
+    Gefeligible = 15,
+    Anonymous = 16,
+    Umirregulationid = 17,
+    Bypass = 18,
+    Tsxncib = 19,
+    Notradefeat = 20,
+    Notradekey = 21,
+    Shortmarkingexempt = 22,
+    Pocomment = 23,
+    Displayrange = 24,
+    Customeraccount = 25,
+    Algorithmid = 26,
+    Customerlei = 27,
+    Brokerlei = 28,
+    Conditionalorder = 29,
+    Allowconditional = 30,
+    Firmupid = 31,
+    Cxdconnect = 32,
+    Purestreamconnect = 33,
+    Minrate = 34,
+    Maxrate = 35,
+    Routingstrategy = 39,
+    Handlinst = 43,
+    Repricereason = 44,
+    Nbbosetter = 45,
+};
+
+type PegType = enum {
+    MidpointPeg = 0x4d,
+    PrimaryPeg = 0x52,
+    MinimumPriceImprovement = 0x78,
+    SeekPriceImprovement = 0x53,
+    Melo = 0x4c,
+    OddLotLiquidityProviding = 0x6f,
+};
+
+type MinQtyType = enum {
+    Maq = 0x4e,
+    MaqAtTouch = 0x6d,
+    MqAtTouch = 0x74,
+    MinimumQuantity = 0x7a,
+};
+
+type TargetStrategy = enum {
+    LiquidityRate515 = 1000,
+    LiquidityRate530 = 1001,
+    MachTwo10200 = 1002,
+    CustomLiquidityRate = 1003,
+};
+
+type OrderOrigination = enum {
+    DirectAccessCustomer = 0x35,
+    ForeignDealerEquivalent = 0x36,
+    ExecutiononlyService = 0x37,
+};
+
+type RoutingArrangementIndicator = enum {
+    NoRoutingArrangementInPlace = 0x30,
+    RoutingArrangementInPlace = 0x31,
+};
+
+type BasketTrade = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type ProgramTrade = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type GefEligible = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type Anonymous = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type Bypass = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type Tsxncib = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type NoTradeFeat = enum {
+    CancelNewest = 0x4e,
+    CancelOldest = 0x4f,
+    DecrementAndCancel = 0x44,
+    ExecuteTrade = 0x45,
+};
+
+type ShortMarkingExempt = enum {
+    Sme = 0x30,
+};
+
+type ConditionalOrder = enum {
+    ConditionalOrder_x43 = 0x43,
+    ExtendedFirmupTimeConditionalOrder = 0x58,
+};
+
+type AllowConditional = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type CxdConnect = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type PureStreamConnect = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type HandlInst = enum {
+    Dao = 0x66,
+    OprReprice = 0x31,
+    OprCancel = 0x35,
+};
+
+type RepriceReason = enum {
+    RepricedToPreventTrade = 1,
+    RepricedToPreventLock = 2,
+    RepricedToPreventCross = 3,
+    RepricedForMarketplaceThresholds = 4,
+};
+
+type NbboSetter = enum {
+    NbboSetter_x59 = 0x59,
+};
+
+type OrderReplacedOptionalField = enum {
+    Userrefidx = 37,
+    Minqtytype = 3,
+    Pegtype = 2,
+    Minqty = 4,
+    Maxfloor = 5,
+    Expiretime = 6,
+    Pegoffset = 7,
+    Targetstrategy = 8,
+    Orderorigination = 9,
+    Routingarrangementindicator = 10,
+    Umirregulationid = 17,
+    Anonymous = 16,
+    Displayrange = 24,
+    Customeraccount = 25,
+    Algorithmid = 26,
+    Customerlei = 27,
+    Brokerlei = 28,
+    Allowconditional = 30,
+    Cxdconnect = 32,
+    Purestreamconnect = 33,
+    Minrate = 34,
+    Maxrate = 35,
+    Handlinst = 43,
+    Repricereason = 44,
+    Nbbosetter = 45,
+};
+
+type CancelReason = enum {
+    DefaultValue = 0x30,
+};
+
+type OrderCanceledOptionalField = enum {
+    Userrefidx = 37,
+};
+
+type LiquidityFlag = enum {
+    OrderAddedLiquidity = 0x41,
+    OrderRemovedLiquidity = 0x52,
+    OrderAddedHiddenLiquidity = 0x61,
+    OrderRemovedHiddenLiquidity = 0x72,
+    OrderAddedHiddenLiquidityAtthetouch = 0x64,
+    OrderRemovedHiddenLiquidityAtthetouch = 0x44,
+    OrderAddedGefLiquidity = 0x67,
+    OrderRemovedGefLiquidity = 0x47,
+    MarketOnClose = 0x43,
+    DisplayedLiquidityaddingOrderImprovesTheNbbo = 0x53,
+    OpeningClosingAuction = 0x4f,
+    LastSaleTradingSession = 0x45,
+    Melo = 0x4c,
+    CxdPureStreamRatebasedExecution = 0x50,
+    CxdPureStreamLsMidpointBlockRemovedLiquidity = 0x4d,
+    Xft = 0x46,
+};
+
+type StpCanceledOptionalField = enum {
+    Userrefidx = 37,
+};
+
+type ExecBroker = enum {
+    Unspecified = 0x20,
+    Chix = 0x41,
+    Cx2 = 0x42,
+    Cxd = 0x43,
+    Tsx = 0x44,
+    Pure = 0x45,
+    Alph = 0x46,
+    Match = 0x47,
+    Omga = 0x48,
+    Lynx = 0x49,
+    Aeqn = 0x4a,
+    Aeql = 0x4b,
+    Cse2 = 0x4c,
+    Alpx = 0x4d,
+    Alpd = 0x4e,
+    Icx = 0x4f,
+};
+
+type OrderExecutedOptionalField = enum {
+    Userrefidx = 37,
+    Executematch = 38,
+    Secondaryorderid = 40,
+    Brokerpref = 42,
+    Principaltrade = 13,
+    Washtrade = 41,
+    Cumrate = 36,
+};
+
+type ExecuteMatch = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type BrokerPref = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type PrincipalTrade = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type WashTrade = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type CorrectedTradeOptionalField = enum {
+    Userrefidx = 37,
+};
+
+type RejectedOrderOptionalField = enum {
+    Userrefidx = 37,
+};
+
+type CancelRejectOptionalField = enum {
+    Userrefidx = 37,
+};
+
+type RestateReason = enum {
+    StreamOn = 0x4f,
+    StreamOff = 0x58,
+    ConditionalOrderFirmupRequest = 0x52,
+};
+
+type OrderRestatedOptionalField = enum {
+    Userrefidx = 37,
+    Firmupid = 31,
+};
+
+type AccountQueryResponseOptionalField = enum {
+    Userrefidx = 37,
+};
+

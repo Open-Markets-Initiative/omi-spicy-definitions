@@ -1,0 +1,290 @@
+module NasdaqGemxoptionsQuotingSqfV90Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type GemxoptionsQuotingV90 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+    heartbeat_timeout: bytes &size=5;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: bytes &size=2;
+    switch ( self.unsequenced_message_type ) {
+        0 -> notification_subscription_request_message: NotificationSubscriptionRequestMessage;
+        0 -> add_complex_instrument_request_message: AddComplexInstrumentRequestMessage;
+        0 -> mm_parameter_definition_request_message: MmParameterDefinitionRequestMessage;
+        0 -> active_qp_self_replenishment_set_limit_message: ActiveQpSelfReplenishmentSetLimitMessage;
+        0 -> rapid_fire_config_request_message: RapidFireConfigRequestMessage;
+        0 -> simple_quote_block_short_form_message: SimpleQuoteBlockShortFormMessage;
+        0 -> simple_quote_block_short_form_detailed_message: SimpleQuoteBlockShortFormDetailedMessage;
+        0 -> simple_quote_block_long_form_message: SimpleQuoteBlockLongFormMessage;
+        0 -> simple_quote_block_long_form_detailed_message: SimpleQuoteBlockLongFormDetailedMessage;
+        0 -> complex_quote_block_message: ComplexQuoteBlockMessage;
+        0 -> complex_quote_block_detailed_message: ComplexQuoteBlockDetailedMessage;
+        0 -> underlying_purge_request_message: UnderlyingPurgeRequestMessage;
+        0 -> market_reentry_request_message: MarketReentryRequestMessage;
+        0 -> active_qp_self_replenishment_request_reentry_message: ActiveQpSelfReplenishmentRequestReentryMessage;
+        0 -> simple_msar_request_message: SimpleMsarRequestMessage;
+        0 -> complex_msar_request_message: ComplexMsarRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NotificationSubscriptionRequestMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    subscription: bytes &size=24;
+};
+
+type AddComplexInstrumentRequestMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    underlying_symbol: bytes &size=13;
+    number_of_legs: uint8;
+    complex_legs: ComplexLegs[self.number_of_legs];
+};
+
+type ComplexLegs = unit {
+    leg_instrument_id: uint32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type MmParameterDefinitionRequestMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    underlying: bytes &size=13;
+    interval_field: uint16;
+    percentage: uint16;
+    cum_qty: uint32;
+    delta: uint32;
+    vega: uint32;
+    : skip bytes &size=32;   # padding
+};
+
+type ActiveQpSelfReplenishmentSetLimitMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    underlying_symbol: bytes &size=13;
+    set_value: uint32;
+};
+
+type RapidFireConfigRequestMessage = unit {
+    badge: bytes &size=4;
+    underlying_symbol: bytes &size=13;
+    percentage: uint16;
+    interval_field: uint16;
+    cum_qty: uint32;
+};
+
+type SimpleQuoteBlockShortFormMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    quote_count: uint16;
+    simple_quotes: SimpleQuotes[self.quote_count];
+};
+
+type SimpleQuotes = unit {
+    instrument_id: uint32;
+    bid_price: int32;
+    bid_size: uint32;
+    ask_price: int32;
+    ask_size: uint32;
+    reentry_indicator: uint8 &convert=ReentryIndicator($$);
+};
+
+type SimpleQuoteBlockShortFormDetailedMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    quote_count: uint16;
+    simple_quotes: SimpleQuotes[self.quote_count];
+};
+
+type SimpleQuoteBlockLongFormMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    quote_count: uint16;
+    simple_quotes_long_form: SimpleQuotesLongForm[self.quote_count];
+};
+
+type SimpleQuotesLongForm = unit {
+    quote_id: uint64;
+    instrument_id: uint32;
+    bid_price: int32;
+    bid_size: uint32;
+    ask_price: int32;
+    ask_size: uint32;
+    reentry_indicator: uint8 &convert=ReentryIndicator($$);
+};
+
+type SimpleQuoteBlockLongFormDetailedMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    quote_count: uint16;
+    simple_quotes_long_form: SimpleQuotesLongForm[self.quote_count];
+};
+
+type ComplexQuoteBlockMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    quote_count: uint16;
+    complex_quotes: ComplexQuotes[self.quote_count];
+};
+
+type ComplexQuotes = unit {
+    quote_id: uint64;
+    instrument_id: uint32;
+    bid_price: int32;
+    bid_size: uint32;
+    ask_price: int32;
+    ask_size: uint32;
+    reentry_indicator: uint8 &convert=ReentryIndicator($$);
+    stock_leg_short_sale: uint8 &convert=StockLegShortSale($$);
+    : skip bytes &size=4;   # padding
+};
+
+type ComplexQuoteBlockDetailedMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    quote_count: uint16;
+    complex_quotes: ComplexQuotes[self.quote_count];
+};
+
+type UnderlyingPurgeRequestMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    sent_timestamp: uint64;
+    underlying_symbol: bytes &size=13;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type MarketReentryRequestMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    underlying_symbol: bytes &size=13;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type ActiveQpSelfReplenishmentRequestReentryMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    underlying_symbol: bytes &size=13;
+    replenishment_value: uint32;
+};
+
+type SimpleMsarRequestMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_id: uint32;
+    msar_type: uint8 &convert=MsarType($$);
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    contracts: uint32;
+};
+
+type ComplexMsarRequestMessage = unit {
+    badge: bytes &size=4;
+    message_id: uint64;
+    instrument_id: uint32;
+    msar_type: uint8 &convert=MsarType($$);
+    auction_id: uint32;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    debit_credit: uint8 &convert=DebitCredit($$);
+    contracts: uint32;
+    price_protection: uint8 &convert=PriceProtection($$);
+    : skip bytes &size=4;   # padding
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type LegSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type InstrumentType = enum {
+    SimpleInstruments = 0x53,
+    ComplexInstruments = 0x43,
+    SimpleInstrument = 0x4f,
+};
+
+type ReentryIndicator = enum {
+    Normal = 0x4e,
+    Reentry = 0x52,
+};
+
+type StockLegShortSale = enum {
+    NotApplicable = 0x4e,
+    SellShort = 0x48,
+    SellShortExempt = 0x45,
+};
+
+type MsarType = enum {
+    AuctionResponse = 0x41,
+    MarketSweep = 0x4d,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NotDisclosed = 0x2a,
+    BuyShort = 0x54,
+    BuyShortExempt = 0x58,
+    SellShort = 0x59,
+    SellShortExempt = 0x5a,
+};
+
+type DebitCredit = enum {
+    Debit = 0x44,
+    Credit = 0x43,
+    Zero = 0x20,
+};
+
+type PriceProtection = enum {
+    Local = 0x4c,
+    National = 0x4e,
+};
+

@@ -1,0 +1,319 @@
+module NasdaqCanadaequitiesOrderentryOuchV5014Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type CanadaequitiesOrderentryV5014 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::EnterOrderMessage -> enter_order_message: EnterOrderMessage;
+        UnsequencedMessageType::ReplaceOrderRequestMessage -> replace_order_request_message: ReplaceOrderRequestMessage;
+        UnsequencedMessageType::CancelOrderRequestMessage -> cancel_order_request_message: CancelOrderRequestMessage;
+        UnsequencedMessageType::AccountQueryRequestMessage -> account_query_request_message: AccountQueryRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type EnterOrderMessage = unit {
+    user_ref_num: uint32;
+    order_qty: uint32;
+    price: uint64;
+    side: uint8 &convert=Side($$);
+    symbol: bytes &size=10;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    ex_destination: uint8 &convert=ExDestination($$);
+    umir_account_type: bytes &size=2;
+    umir_user_id: bytes &size=8;
+    appendage_length: uint16;
+    enter_order_appendage: EnterOrderAppendage[] &eod;
+};
+
+type EnterOrderAppendage = unit {
+    optional_field_length: int8;
+    enter_order_optional_field: int8 &convert=EnterOrderOptionalField($$);
+    enter_order_optional_value: bytes &size=241;
+};
+
+type ReplaceOrderRequestMessage = unit {
+    orig_user_ref_num: uint32;
+    user_ref_num: uint32;
+    order_qty: uint32;
+    price: uint64;
+    side: uint8 &convert=Side($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    appendage_length: uint16;
+    replace_order_request_appendage: ReplaceOrderRequestAppendage[] &eod;
+};
+
+type ReplaceOrderRequestAppendage = unit {
+    optional_field_length: int8;
+    replace_order_request_optional_field: int8 &convert=ReplaceOrderRequestOptionalField($$);
+    replace_order_request_optional_value: bytes &size=154;
+};
+
+type CancelOrderRequestMessage = unit {
+    user_ref_num: uint32;
+    order_qty: uint32;
+    appendage_length: uint16;
+    cancel_order_request_appendage: CancelOrderRequestAppendage[] &eod;
+};
+
+type CancelOrderRequestAppendage = unit {
+    optional_field_length: int8;
+    cancel_order_request_optional_field: int8 &convert=CancelOrderRequestOptionalField($$);
+    cancel_order_request_optional_value: bytes &size=1;
+};
+
+type AccountQueryRequestMessage = unit {
+    appendage_length: uint16;
+    account_query_request_appendage: AccountQueryRequestAppendage[] &eod;
+};
+
+type AccountQueryRequestAppendage = unit {
+    optional_field_length: int8;
+    account_query_request_optional_field: int8 &convert=AccountQueryRequestOptionalField($$);
+    account_query_request_optional_value: bytes &size=1;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    EnterOrderMessage = 0x4f,
+    ReplaceOrderRequestMessage = 0x55,
+    CancelOrderRequestMessage = 0x58,
+    AccountQueryRequestMessage = 0x51,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    SellShort = 0x35,
+};
+
+type TimeInForce = enum {
+    Day = 0x30,
+    ImmediateOrCancel = 0x33,
+    GoodTillDate = 0x36,
+    StreamOrKill = 0x38,
+    PostOnlyOrder = 0x50,
+};
+
+type ExDestination = enum {
+    Cxc = 0x43,
+    Cx2 = 0x32,
+    Cxd = 0x44,
+    SmartOrderRouter = 0x53,
+};
+
+type EnterOrderOptionalField = enum {
+    Userrefidx = 37,
+    Account = 1,
+    Pegtype = 2,
+    Minqtytype = 3,
+    Minqty = 4,
+    Maxfloor = 5,
+    Expiretime = 6,
+    Pegoffset = 7,
+    Targetstrategy = 8,
+    Orderorigination = 9,
+    Routingarrangementindicator = 10,
+    Baskettrade = 11,
+    Programtrade = 12,
+    Jitney = 14,
+    Gefeligible = 15,
+    Anonymous = 16,
+    Umirregulationid = 17,
+    Bypass = 18,
+    Tsxncib = 19,
+    Notradefeat = 20,
+    Notradekey = 21,
+    Shortmarkingexempt = 22,
+    Pocomment = 23,
+    Displayrange = 24,
+    Customeraccount = 25,
+    Algorithmid = 26,
+    Customerlei = 27,
+    Brokerlei = 28,
+    Conditionalorder = 29,
+    Allowconditional = 30,
+    Firmupid = 31,
+    Cxdconnect = 32,
+    Purestreamconnect = 33,
+    Minrate = 34,
+    Maxrate = 35,
+    Routingstrategy = 39,
+    Handlinst = 43,
+};
+
+type PegType = enum {
+    MidpointPeg = 0x4d,
+    PrimaryPeg = 0x52,
+    MinimumPriceImprovement = 0x78,
+    SeekPriceImprovement = 0x53,
+    Melo = 0x4c,
+    OddLotLiquidityProviding = 0x6f,
+};
+
+type MinQtyType = enum {
+    Maq = 0x4e,
+    MaqAtTouch = 0x6d,
+    MqAtTouch = 0x74,
+    MinimumQuantity = 0x7a,
+};
+
+type TargetStrategy = enum {
+    LiquidityRate515 = 1000,
+    LiquidityRate530 = 1001,
+    MachTwo10200 = 1002,
+    CustomLiquidityRate = 1003,
+};
+
+type OrderOrigination = enum {
+    DirectAccessCustomer = 0x35,
+    ForeignDealerEquivalent = 0x36,
+    ExecutiononlyService = 0x37,
+};
+
+type RoutingArrangementIndicator = enum {
+    NoRoutingArrangementInPlace = 0x30,
+    RoutingArrangementInPlace = 0x31,
+};
+
+type BasketTrade = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type ProgramTrade = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type GefEligible = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type Anonymous = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type Bypass = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type Tsxncib = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type NoTradeFeat = enum {
+    CancelNewest = 0x4e,
+    CancelOldest = 0x4f,
+    DecrementAndCancel = 0x44,
+    ExecuteTrade = 0x45,
+};
+
+type ShortMarkingExempt = enum {
+    Sme = 0x30,
+};
+
+type ConditionalOrder = enum {
+    ConditionalOrder_x43 = 0x43,
+    ExtendedFirmupTimeConditionalOrder = 0x58,
+};
+
+type AllowConditional = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type CxdConnect = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type PureStreamConnect = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type HandlInst = enum {
+    Dao = 0x66,
+    OprReprice = 0x31,
+    OprCancel = 0x35,
+};
+
+type ReplaceOrderRequestOptionalField = enum {
+    Userrefidx = 37,
+    Minqtytype = 3,
+    Pegtype = 2,
+    Minqty = 4,
+    Maxfloor = 5,
+    Expiretime = 6,
+    Pegoffset = 7,
+    Targetstrategy = 8,
+    Orderorigination = 9,
+    Routingarrangementindicator = 10,
+    Umirregulationid = 17,
+    Anonymous = 16,
+    Displayrange = 24,
+    Customeraccount = 25,
+    Algorithmid = 26,
+    Customerlei = 27,
+    Brokerlei = 28,
+    Allowconditional = 30,
+    Cxdconnect = 32,
+    Purestreamconnect = 33,
+    Minrate = 34,
+    Maxrate = 35,
+    Handlinst = 43,
+};
+
+type CancelOrderRequestOptionalField = enum {
+    Userrefidx = 37,
+};
+
+type AccountQueryRequestOptionalField = enum {
+    Userrefidx = 37,
+};
+

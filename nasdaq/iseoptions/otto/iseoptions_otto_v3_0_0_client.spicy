@@ -1,0 +1,444 @@
+module NasdaqIseoptionsOttoOuchV300Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type IseoptionsOttoV300 = unit {
+    client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
+};
+
+type ClientSoupBinTcpPacket = unit {
+    client_packet_header: ClientPacketHeader;
+    switch ( self.client_packet_header.client_packet_type ) {
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
+        ClientPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientPacketHeader = unit {
+    packet_length: uint16;
+    client_packet_type: uint8 &convert=ClientPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginRequestPacket = unit {
+    username: bytes &size=6;
+    password: bytes &size=10;
+    requested_session: bytes &size=10;
+    requested_sequence_number: bytes &size=20;
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    switch ( self.unsequenced_message_type ) {
+        UnsequencedMessageType::NewOrderLongFormMessage -> new_order_long_form_message: NewOrderLongFormMessage;
+        UnsequencedMessageType::NewOrderShortFormMessage -> new_order_short_form_message: NewOrderShortFormMessage;
+        UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
+        UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
+        UnsequencedMessageType::MassCancelMessage -> mass_cancel_message: MassCancelMessage;
+        UnsequencedMessageType::NewCrossOrderMessage -> new_cross_order_message: NewCrossOrderMessage;
+        UnsequencedMessageType::AddComplexInstrumentMessage -> add_complex_instrument_message: AddComplexInstrumentMessage;
+        UnsequencedMessageType::ModifyTradeMessage -> modify_trade_message: ModifyTradeMessage;
+        UnsequencedMessageType::MemberKillSwitchRequestMessage -> member_kill_switch_request_message: MemberKillSwitchRequestMessage;
+        UnsequencedMessageType::SubscriptionRequestMessage -> subscription_request_message: SubscriptionRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NewOrderLongFormMessage = unit {
+    firm_id: bytes &size=4;
+    instrument_id: uint32;
+    cl_ord_id: bytes &size=16;
+    cmta: uint32;
+    clearing_account: bytes &size=4;
+    occ_account: uint32;
+    cust_acct: bytes &size=10;
+    preferred_party: bytes &size=3;
+    alo_inst: uint8 &convert=AloInst($$);
+    iso: uint8 &convert=Iso($$);
+    side: uint8 &convert=Side($$);
+    order_type: uint8 &convert=OrderType($$);
+    price: int64;
+    quantity: uint32;
+    min_qty: uint32;
+    tif: uint8 &convert=Tif($$);
+    capacity: uint8 &convert=Capacity($$);
+    auction_type: uint8 &convert=AuctionType($$);
+    auction_id: uint32;
+    auction_duration: uint32;
+    disclosure_mask: uint8;
+    price_protection: uint8 &convert=PriceProtection($$);
+    display_qty: uint16;
+    display_when: uint8 &convert=DisplayWhen($$);
+    display_method: uint8 &convert=DisplayMethod($$);
+    display_low_qty: uint16;
+    display_high_qty: uint16;
+    position_effect_mask: uint16;
+    stock_leg_short_sale: uint8 &convert=StockLegShortSale($$);
+    stock_leg_mpid: bytes &size=4;
+    stock_capacity: uint8 &convert=StockCapacity($$);
+    session_eligibility: uint8 &convert=SessionEligibility($$);
+    : skip bytes &size=8;   # padding
+    number_of_flex_legs: uint8;
+    flex_leg_prices: FlexLegPrices[self.number_of_flex_legs];
+};
+
+type FlexLegPrices = unit {
+    leg_prices: int64;
+    : skip bytes &size=8;   # padding
+};
+
+type NewOrderShortFormMessage = unit {
+    firm_id: bytes &size=4;
+    instrument_id: uint32;
+    cl_ord_id: bytes &size=16;
+    alo_inst: uint8 &convert=AloInst($$);
+    iso: uint8 &convert=Iso($$);
+    side: uint8 &convert=Side($$);
+    order_type: uint8 &convert=OrderType($$);
+    price: int64;
+    quantity_short: uint16;
+    tif: uint8 &convert=Tif($$);
+    capacity: uint8 &convert=Capacity($$);
+    auction_type: uint8 &convert=AuctionType($$);
+    auction_id: uint32;
+    price_protection: uint8 &convert=PriceProtection($$);
+    position_effect_mask: uint16;
+    stock_capacity: uint8 &convert=StockCapacity($$);
+};
+
+type ReplaceOrderMessage = unit {
+    firm_id: bytes &size=4;
+    orig_cl_ord_id: bytes &size=16;
+    cl_ord_id: bytes &size=16;
+    quantity: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int64;
+    tif: uint8 &convert=Tif($$);
+    cust_acct: bytes &size=10;
+    price_protection: uint8 &convert=PriceProtection($$);
+};
+
+type CancelOrderMessage = unit {
+    firm_id: bytes &size=4;
+    cl_ord_id: bytes &size=16;
+};
+
+type MassCancelMessage = unit {
+    firm_id: bytes &size=4;
+    cl_request_id: bytes &size=16;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    scope: uint8 &convert=Scope($$);
+    product_id: uint16;
+    instrument_id: uint32;
+    underlying_symbol: bytes &size=13;
+};
+
+type NewCrossOrderMessage = unit {
+    firm_id: bytes &size=4;
+    instrument_id: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+    auction_type: uint8 &convert=AuctionType($$);
+    auction_alloc_pct: uint8;
+    side: uint8 &convert=Side($$);
+    iso: uint8 &convert=Iso($$);
+    price_protection: uint8 &convert=PriceProtection($$);
+    effective_time: uint64;
+    disclosure_mask: uint8;
+    auction_duration: uint32;
+    : skip bytes &size=9;   # padding
+    primary_cl_ord_id: bytes &size=16;
+    primary_cmta: uint32;
+    primary_clearing_account: bytes &size=4;
+    primary_occ_account: uint32;
+    primary_cust_acct: bytes &size=10;
+    primary_price: int64;
+    primary_quantity: uint32;
+    primary_capacity: uint8 &convert=PrimaryCapacity($$);
+    primary_position_effect_mask: uint16;
+    primary_stock_leg_short_sale: uint8 &convert=PrimaryStockLegShortSale($$);
+    primary_stock_leg_mpid: bytes &size=4;
+    primary_stock_capacity: uint8 &convert=PrimaryStockCapacity($$);
+    contra_cl_ord_id: bytes &size=16;
+    contra_cmta: uint32;
+    contra_clearing_account: bytes &size=4;
+    contra_occ_account: uint32;
+    contra_cust_acct: bytes &size=10;
+    contra_order_type: uint8 &convert=ContraOrderType($$);
+    contra_price: int64;
+    contra_quantity: uint32;
+    contra_capacity: uint8 &convert=ContraCapacity($$);
+    contra_position_effect_mask: uint16;
+    contra_stock_leg_short_sale: uint8 &convert=ContraStockLegShortSale($$);
+    contra_stock_leg_mpid: bytes &size=4;
+    contra_stock_capacity: uint8 &convert=ContraStockCapacity($$);
+    number_of_flex_legs: uint8;
+    flex_leg_prices: FlexLegPrices[self.number_of_flex_legs];
+};
+
+type AddComplexInstrumentMessage = unit {
+    firm_id: bytes &size=4;
+    cl_request_id: bytes &size=16;
+    product_id: uint16;
+    product_name: bytes &size=13;
+    num_legs: uint8;
+    complex_instrument_legs: ComplexInstrumentLegs[self.num_legs];
+};
+
+type ComplexInstrumentLegs = unit {
+    leg_type: uint8 &convert=LegType($$);
+    leg_instrument_id: uint32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint16;
+};
+
+type ModifyTradeMessage = unit {
+    firm_id: bytes &size=4;
+    instrument_id: uint32;
+    cl_request_id: bytes &size=16;
+    cl_ord_id: bytes &size=16;
+    cross_id: uint32;
+    match_id: uint32;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    num_splits: uint16;
+    trade_splits: TradeSplits[self.num_splits];
+};
+
+type TradeSplits = unit {
+    alloc_qty: uint32;
+    cmta: uint32;
+    clearing_account: bytes &size=4;
+    occ_account: uint32;
+    cust_acct: bytes &size=10;
+    stock_leg_mpid: bytes &size=4;
+    capacity: uint8 &convert=Capacity($$);
+    open_close: uint8 &convert=OpenClose($$);
+    stock_capacity: uint8 &convert=StockCapacity($$);
+};
+
+type MemberKillSwitchRequestMessage = unit {
+    firm_id: bytes &size=4;
+    cl_request_id: bytes &size=16;
+    target_firm_id: bytes &size=4;
+    kill_action: uint8 &convert=KillAction($$);
+};
+
+type SubscriptionRequestMessage = unit {
+    firm_id: bytes &size=4;
+    cl_request_id: bytes &size=16;
+    subscription: bytes &size=16;
+};
+
+type ClientPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginRequestPacket = 0x4c,
+    UnsequencedDataPacket = 0x55,
+    ClientHeartbeatPacket = 0x52,
+    LogoutRequestPacket = 0x4f,
+};
+
+type UnsequencedMessageType = enum {
+    NewOrderLongFormMessage = 0x41,
+    NewOrderShortFormMessage = 0x42,
+    ReplaceOrderMessage = 0x52,
+    CancelOrderMessage = 0x43,
+    MassCancelMessage = 0x55,
+    NewCrossOrderMessage = 0x58,
+    AddComplexInstrumentMessage = 0x53,
+    ModifyTradeMessage = 0x4d,
+    MemberKillSwitchRequestMessage = 0x4b,
+    SubscriptionRequestMessage = 0x46,
+};
+
+type AloInst = enum {
+    NotAlo = 0x4e,
+    Alo = 0x59,
+};
+
+type Iso = enum {
+    NotIso = 0x4e,
+    Iso_x49 = 0x49,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    Offer = 0x4f,
+    NotDisclosed = 0x4e,
+};
+
+type OrderType = enum {
+    Limit = 0x4c,
+    Market = 0x4d,
+    NotDisclosed = 0x4e,
+};
+
+type Tif = enum {
+    Day = 0x44,
+    Fok = 0x46,
+    Ioc = 0x49,
+};
+
+type Capacity = enum {
+    Customer = 0x43,
+    Firm = 0x46,
+    MarketMaker = 0x4d,
+    OtherExchangeRegisteredMarketMaker = 0x4f,
+    ProfessionalCustomer = 0x50,
+    BrokerDealer = 0x42,
+    JointBackOffice = 0x4a,
+    Retail = 0x52,
+    NotApplicable = 0x20,
+};
+
+type AuctionType = enum {
+    BlockOrderAuction = 0x42,
+    ComplexExposureAuction = 0x45,
+    SimpleExposureOrder = 0x46,
+    OpeningAuction = 0x4f,
+    FlexAuction = 0x58,
+    PimPixlAuction = 0x50,
+    FacilitationAuction = 0x48,
+    SolicitationAuction = 0x53,
+    None_x4e = 0x4e,
+};
+
+type PriceProtection = enum {
+    Local = 0x4c,
+    National = 0x4e,
+};
+
+type DisplayWhen = enum {
+    Immediate = 0x49,
+    Exhaust = 0x45,
+    NotApplicable = 0x4e,
+};
+
+type DisplayMethod = enum {
+    Initial = 0x49,
+    Random = 0x52,
+    None_x4e = 0x4e,
+};
+
+type StockLegShortSale = enum {
+    NotApplicable = 0x4e,
+    SellShort = 0x48,
+    SellShortExempt = 0x45,
+};
+
+type StockCapacity = enum {
+    Principal = 0x50,
+    Agency = 0x41,
+    RisklessPrincipal = 0x52,
+    NotApplicable = 0x20,
+};
+
+type SessionEligibility = enum {
+    RegularSession = 0x52,
+    AllSessions = 0x41,
+    ExtendedClose = 0x45,
+};
+
+type InstrumentType = enum {
+    All = 0x41,
+    SimpleInstrument = 0x4f,
+    StandardCombination = 0x43,
+    StockCombination = 0x53,
+};
+
+type Scope = enum {
+    Product = 0x50,
+    Instrument = 0x49,
+    Firm = 0x46,
+};
+
+type CrossType = enum {
+    Auction = 0x41,
+    Qcc = 0x51,
+    Ccc = 0x43,
+};
+
+type PrimaryCapacity = enum {
+    Customer = 0x43,
+    Firm = 0x46,
+    MarketMaker = 0x4d,
+    OtherExchangeRegisteredMarketMaker = 0x4f,
+    ProfessionalCustomer = 0x50,
+    BrokerDealer = 0x42,
+    JointBackOffice = 0x4a,
+    Retail = 0x52,
+    NotApplicable = 0x20,
+};
+
+type PrimaryStockLegShortSale = enum {
+    NotApplicable = 0x4e,
+    SellShort = 0x48,
+    SellShortExempt = 0x45,
+};
+
+type PrimaryStockCapacity = enum {
+    Principal = 0x50,
+    Agency = 0x41,
+    RisklessPrincipal = 0x52,
+    NotApplicable = 0x20,
+};
+
+type ContraOrderType = enum {
+    Limit = 0x4c,
+    Market = 0x4d,
+};
+
+type ContraCapacity = enum {
+    Customer = 0x43,
+    Firm = 0x46,
+    MarketMaker = 0x4d,
+    OtherExchangeRegisteredMarketMaker = 0x4f,
+    ProfessionalCustomer = 0x50,
+    BrokerDealer = 0x42,
+    JointBackOffice = 0x4a,
+    Retail = 0x52,
+    NotApplicable = 0x20,
+};
+
+type ContraStockLegShortSale = enum {
+    NotApplicable = 0x4e,
+    SellShort = 0x48,
+    SellShortExempt = 0x45,
+};
+
+type ContraStockCapacity = enum {
+    Principal = 0x50,
+    Agency = 0x41,
+    RisklessPrincipal = 0x52,
+    NotApplicable = 0x20,
+};
+
+type LegType = enum {
+    Option = 0x4f,
+    Stock = 0x53,
+};
+
+type LegSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OpenClose = enum {
+    Open = 0x4f,
+    Closed = 0x43,
+    CarryForward = 0x20,
+};
+
+type KillAction = enum {
+    BlockAndDelete = 0x41,
+    BlockRemoved = 0x52,
+    Block = 0x42,
+};
+

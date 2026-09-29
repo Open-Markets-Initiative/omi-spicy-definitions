@@ -1,0 +1,238 @@
+module NasdaqCanadaequitiesChixmdItchV34123Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type CanadaequitiesChixmdV34123 = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+    soup_lf: uint8;
+};
+
+type ServerPacketHeader = unit {
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=10;
+    comma: bytes &size=1;
+    messages_total: bytes &size=10;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_header: SequencedMessageHeader;
+    switch ( self.sequenced_message_header.message_type ) {
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::LongFormAddOrderMessage -> long_form_add_order_message: LongFormAddOrderMessage;
+        MessageType::OrderExecutionMessage -> order_execution_message: OrderExecutionMessage;
+        MessageType::LongFormOrderExecutionMessage -> long_form_order_execution_message: LongFormOrderExecutionMessage;
+        MessageType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MessageType::LongFormOrderCancelMessage -> long_form_order_cancel_message: LongFormOrderCancelMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::LongFormTradeMessage -> long_form_trade_message: LongFormTradeMessage;
+        MessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockStatusMessage -> stock_status_message: StockStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SequencedMessageHeader = unit {
+    timestamp: bytes &size=8;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type AddOrderMessage = unit {
+    order_reference: bytes &size=9;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: bytes &size=6;
+    stock: bytes &size=10;
+    price: bytes &size=10;
+    broker: bytes &size=3;
+};
+
+type LongFormAddOrderMessage = unit {
+    order_reference: bytes &size=9;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    long_shares: bytes &size=10;
+    stock: bytes &size=10;
+    long_price: bytes &size=19;
+    broker: bytes &size=3;
+};
+
+type OrderExecutionMessage = unit {
+    order_reference: bytes &size=9;
+    executed_shares: bytes &size=6;
+    trade_reference: bytes &size=9;
+    contra_order_reference: bytes &size=9;
+    trade_attribute: uint8 &convert=TradeAttribute($$);
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+};
+
+type LongFormOrderExecutionMessage = unit {
+    order_reference: bytes &size=9;
+    long_executed_shares: bytes &size=10;
+    trade_reference: bytes &size=9;
+    contra_order_reference: bytes &size=9;
+    trade_attribute: uint8 &convert=TradeAttribute($$);
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+};
+
+type OrderCancelMessage = unit {
+    order_reference: bytes &size=9;
+    canceled_shares: bytes &size=6;
+};
+
+type LongFormOrderCancelMessage = unit {
+    order_reference: bytes &size=9;
+    long_canceled_shares: bytes &size=10;
+};
+
+type TradeMessage = unit {
+    order_reference: bytes &size=9;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: bytes &size=6;
+    stock: bytes &size=10;
+    price: bytes &size=10;
+    trade_reference: bytes &size=9;
+    contra_order_reference: bytes &size=9;
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+    trade_attribute: uint8 &convert=TradeAttribute($$);
+    cross_type: uint8 &convert=CrossType($$);
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+};
+
+type LongFormTradeMessage = unit {
+    order_reference: bytes &size=9;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    long_shares: bytes &size=10;
+    stock: bytes &size=10;
+    long_price: bytes &size=19;
+    trade_reference: bytes &size=9;
+    contra_order_reference: bytes &size=9;
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+    trade_attribute: uint8 &convert=TradeAttribute($$);
+    cross_type: uint8 &convert=CrossType($$);
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+};
+
+type BrokenTradeMessage = unit {
+    trade_reference: bytes &size=9;
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockStatusMessage = unit {
+    stock: bytes &size=10;
+    trading_state: uint8 &convert=TradingState($$);
+    reserved_1: bytes &size=1;
+    listing_market: uint8 &convert=ListingMarket($$);
+    board_lot_size: bytes &size=4;
+    currency: bytes &size=3;
+    gef_eligible: uint8 &convert=GefEligible($$);
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+};
+
+type RejectReasonCode = enum {
+    InvalidUsernameOrPassword = 0x41,
+    InvalidSession = 0x53,
+};
+
+type MessageType = enum {
+    AddOrderMessage = 0x41,
+    LongFormAddOrderMessage = 0x61,
+    OrderExecutionMessage = 0x45,
+    LongFormOrderExecutionMessage = 0x65,
+    OrderCancelMessage = 0x58,
+    LongFormOrderCancelMessage = 0x78,
+    TradeMessage = 0x50,
+    LongFormTradeMessage = 0x70,
+    BrokenTradeMessage = 0x42,
+    SystemEventMessage = 0x53,
+    StockStatusMessage = 0x48,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TradeAttribute = enum {
+    Bypass = 0x42,
+    MarketOnCloseOrCxdConditional = 0x43,
+    Melo = 0x4c,
+    CxdPureStream = 0x50,
+};
+
+type CrossType = enum {
+    Internal = 0x49,
+    Basis = 0x42,
+    Contingent = 0x43,
+    Vwap = 0x56,
+    IntentionalCross = 0x58,
+    DerivativeRelated = 0x44,
+    NetAssetValue = 0x4e,
+};
+
+type SettlementTerms = enum {
+    CashToday = 0x54,
+    DelayedDelivery = 0x44,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfNasdaqCanadaTradingSession = 0x53,
+    StartOfPrimaryMarketTradingSession = 0x51,
+    EndOfPrimaryMarketTradingSession = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    MarketWideCircuitBreakerHalt = 0x57,
+    MarketWideCircuitBreakerResumption = 0x52,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type ListingMarket = enum {
+    Tsx = 0x54,
+    TsxVenture = 0x56,
+    Cse = 0x43,
+    Neo = 0x4e,
+};
+
+type GefEligible = enum {
+    GefEligible_x59 = 0x59,
+    NotGefEligible = 0x4e,
+};
+
