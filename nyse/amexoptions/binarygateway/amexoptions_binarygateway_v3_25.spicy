@@ -196,6 +196,18 @@ type NewBulkQuoteType243Message = unit {
     self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     mm_sent_time: uint64;
+    quote_request_group: QuoteRequestGroup[] &eod;
+};
+
+type QuoteRequestGroup = unit {
+    series_index: uint32;
+    bitfield_quote_inst: bitfield(8) {
+        side_2: 0..1;
+        mm_quote_type: 2..4;
+        unused_3: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    price: int64;
+    order_qty: uint32;
 };
 
 type NewBulkQuoteType259Message = unit {
@@ -206,6 +218,7 @@ type NewBulkQuoteType259Message = unit {
     self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     mm_sent_time: uint64;
+    quote_request_group: QuoteRequestGroup[] &eod;
 };
 
 type NewOrderCrossMessage = unit {
@@ -463,6 +476,17 @@ type BulkQuoteAcknowledgmentType294Message = unit {
     self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     repeating_groups: uint8;
+    quote_ack_group: QuoteAckGroup[self.repeating_groups];
+};
+
+type QuoteAckGroup = unit {
+    series_index: uint32;
+    side_u_81: uint8 &convert=SideU81($$);
+    ack_type: uint8 &convert=AckType($$);
+    price: int64;
+    quantity: uint32;
+    reason_code: uint16 &convert=ReasonCode($$);
+    working_away_from_display: uint8 &convert=WorkingAwayFromDisplay($$);
 };
 
 type BulkQuoteAcknowledgmentMessage = unit {
@@ -478,6 +502,18 @@ type BulkQuoteAcknowledgmentMessage = unit {
     self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
     repeating_groups: uint8;
+    quote_ack_with_id_group: QuoteAckWithIdGroup[self.repeating_groups];
+};
+
+type QuoteAckWithIdGroup = unit {
+    series_index: uint32;
+    side_u_81: uint8 &convert=SideU81($$);
+    ack_type: uint8 &convert=AckType($$);
+    price: int64;
+    quantity: uint32;
+    reason_code: uint16 &convert=ReasonCode($$);
+    working_away_from_display: uint8 &convert=WorkingAwayFromDisplay($$);
+    order_id: uint64;
 };
 
 type OrderSingleComplexModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
@@ -772,6 +808,11 @@ type SelfTradeTypeU81 = enum {
     CancelNewest = 2,
     CancelOldest = 3,
     CancelBoth = 4,
+};
+
+type MmQuoteType = enum {
+    Standard = 0,
+    Repricing = 1,
 };
 
 type BulkAction = enum {

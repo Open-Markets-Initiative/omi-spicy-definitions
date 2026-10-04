@@ -1,4 +1,4 @@
-module NasdaqNsmequitiesNoiviewItchV2020101;
+module NasdaqNsmequitiesNoiviewAsciiitchV2020101;
 
 import spicy;
 
@@ -6,13 +6,13 @@ import spicy;
 
 public type NsmequitiesNoiviewV2020101 = unit {
     packet_header: PacketHeader;
-    messages: Message[self.packet_header.count];
+    messages: Message[self.packet_header.message_count];
 };
 
 type PacketHeader = unit {
     session: bytes &size=10;
-    sequence: uint32;
-    count: uint16 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32;
+    message_count: uint16 &byte-order=spicy::ByteOrder::Little;
 };
 
 type Message = unit {
@@ -27,7 +27,7 @@ type Message = unit {
 };
 
 type MessageHeader = unit {
-    length: uint16;
+    message_length: uint16;
     timestamp: bytes &size=8;
     message_type: uint8 &convert=MessageType($$);
 };

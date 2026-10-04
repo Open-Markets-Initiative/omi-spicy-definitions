@@ -5,13 +5,13 @@ import spicy;
 %byte-order = spicy::ByteOrder::Big;
 
 public type MrxoptionsSpreadtradefeedV21 = unit {
-    udp_packet_header: UdpPacketHeader;
-    messages: Message[self.udp_packet_header.message_count];
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
 };
 
-type UdpPacketHeader = unit {
-    udp_session: bytes &size=10;
-    udp_sequence_number: uint64;
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
     message_count: uint16;
 };
 
@@ -54,7 +54,7 @@ type LegInformation = unit {
     expiration_year: uint8;
     expiration_month: uint8;
     expiration_day: uint8;
-    explicit_strike_price: uint32;
+    explicit_strike_price: int32;
     option_type: bytes &size=1;
     side: bytes &size=1;
     leg_ratio: uint32;
@@ -73,7 +73,7 @@ type ComplexStrategyTradeReport = unit {
     strategy_id: uint32;
     cross_id: uint32;
     trade_condition: uint8;
-    price: uint32;
+    price: int32;
     volume: uint32;
     : skip bytes &size=16;   # padding
 };

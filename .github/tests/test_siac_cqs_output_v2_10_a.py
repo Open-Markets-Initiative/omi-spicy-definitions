@@ -14,51 +14,51 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class SiacCqsOutputV210ATests(unittest.TestCase):
 
-    def test_a_s_symbol_reference_data(self):
+    def test_endofdaymessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/A_S_Symbol_Reference_Data.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/EndOfDayMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_c_a_start_of_day(self):
+    def test_finraclosemessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/C_A_Start_of_Day.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/FinraCloseMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_c_c_finra_close(self):
+    def test_finraopenmessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/C_C_FINRA_Close.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/FinraOpenMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_c_o_finra_open(self):
+    def test_lineintegritymessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/C_O_FINRA_Open.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/LineIntegrityMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_c_t_line_integrity(self):
+    def test_longquotemessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/C_T_Line_Integrity.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/LongQuoteMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_c_z_end_of_day(self):
+    def test_marketwidecircuitbreakerdeclinelevelstatusmessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/C_Z_End_of_Day.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/MarketWideCircuitBreakerDeclineLevelStatusMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_m_k_mwcb_decline_level_status(self):
+    def test_startofdaymessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/M_K_MWCB_Decline_Level_Status.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/StartOfDayMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_q_l_long_quote(self):
+    def test_symbolreferencedatamessage(self):
         module = "siac/cqs/output/siac_cqs_output_v2_10_a.spicy"
-        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/Q_L_Long_Quote.pcap"):
+        for payload in payloads.of("omi-data-packets/Siac/Cqs.Output.Cta.v2.10.a/SymbolReferenceDataMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

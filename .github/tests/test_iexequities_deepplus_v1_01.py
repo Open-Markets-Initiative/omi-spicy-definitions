@@ -14,87 +14,81 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class IexequitiesDeepplusV101Tests(unittest.TestCase):
 
-    def test_a_addorder(self):
+    def test_addordermessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/a_AddOrder.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/AddOrderMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_all_message_types(self):
+    def test_operationalhaltstatusmessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/all_message_types.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/OperationalHaltStatusMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_b_tradebreak(self):
+    def test_orderdeletemessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/B_TradeBreak.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/OrderDeleteMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_d_securitydirectory(self):
+    def test_orderexecutedmessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/D_SecurityDirectory.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/OrderExecutedMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_e_securityevent(self):
+    def test_ordermodifymessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/E_SecurityEvent.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/OrderModifyMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_h_tradingstatus(self):
+    def test_retailliquidityindicatormessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/H_TradingStatus.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/RetailLiquidityIndicatorMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_i_retailliquidityindicator(self):
+    def test_securitydirectorymessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/I_RetailLiquidityIndicator.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/SecurityDirectoryMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_l_orderexecuted(self):
+    def test_securityeventmessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/L_OrderExecuted.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/SecurityEventMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_m_ordermodify(self):
+    def test_shortsalepriceteststatusmessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/M_OrderModify.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/ShortSalePriceTestStatusMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_o_operationalhaltstatus(self):
+    def test_systemeventmessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/O_OperationalHaltStatus.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/SystemEventMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_p_shortsalepriceteststatus(self):
+    def test_tradebreakmessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/P_ShortSalePriceTestStatus.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/TradeBreakMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_r_orderdelete(self):
+    def test_trademessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/R_OrderDelete.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/TradeMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_s_systemevent(self):
+    def test_tradingstatusmessage(self):
         module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/S_SystemEvent.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
-    def test_t_trade(self):
-        module = "iex/iexequities/deepplus/iexequities_deepplus_v1_01.spicy"
-        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/T_Trade.pcap"):
+        for payload in payloads.of("omi-data-packets/Iex/IexEquities.DeepPlus.IexTp.v1.01/TradingStatusMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

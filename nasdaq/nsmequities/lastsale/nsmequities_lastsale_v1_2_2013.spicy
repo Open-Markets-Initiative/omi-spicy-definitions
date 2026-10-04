@@ -1,0 +1,312 @@
+module NasdaqNsmequitiesLastsaleAsciiitchV122013;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesLastsaleV122013 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint32;
+    message_count: uint16 &byte-order=spicy::ByteOrder::Little;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::TradeReportMessage -> trade_report_message: TradeReportMessage;
+        MessageType::TradeCancelErrorMessage -> trade_cancel_error_message: TradeCancelErrorMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoShortSalePriceTestRestrictedIndicatorMessage -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::AdjustedClosingPriceMessage -> adjusted_closing_price_message: AdjustedClosingPriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    timestamp: bytes &size=8;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type TradeReportMessage = unit {
+    market_center_identifier: uint8 &convert=MarketCenterIdentifier($$);
+    issue_symbol: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    trade_control_number: bytes &size=10;
+    trade_price: bytes &size=10;
+    trade_size: bytes &size=9;
+    sale_condition_modifier: SaleConditionModifier;
+};
+
+type SaleConditionModifier = unit {
+    settlement_type: uint8 &convert=SettlementType($$);
+    trade_through_exemption: uint8 &convert=TradeThroughExemption($$);
+    extended_hours_or_sold_code: uint8 &convert=ExtendedHoursOrSoldCode($$);
+    special_sale_condition: uint8 &convert=SpecialSaleCondition($$);
+};
+
+type TradeCancelErrorMessage = unit {
+    market_center_identifier: uint8 &convert=MarketCenterIdentifier($$);
+    issue_symbol: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    original_trade_control_number: bytes &size=10;
+    original_trade_price: bytes &size=10;
+    original_trade_size: bytes &size=9;
+    original_sale_condition_modifier: OriginalSaleConditionModifier;
+};
+
+type OriginalSaleConditionModifier = unit {
+    original_settlement_type: uint8 &convert=OriginalSettlementType($$);
+    original_trade_through_exemption: uint8 &convert=OriginalTradeThroughExemption($$);
+    original_extended_hours_or_sold_code: uint8 &convert=OriginalExtendedHoursOrSoldCode($$);
+    original_special_sale_condition: uint8 &convert=OriginalSpecialSaleCondition($$);
+};
+
+type TradeCorrectionMessage = unit {
+    market_center_identifier: uint8 &convert=MarketCenterIdentifier($$);
+    issue_symbol: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    original_trade_control_number: bytes &size=10;
+    original_trade_price: bytes &size=10;
+    original_trade_size: bytes &size=9;
+    original_sale_condition_modifier: OriginalSaleConditionModifier;
+    corrected_trade_control_number: bytes &size=10;
+    corrected_trade_price: bytes &size=10;
+    corrected_trade_size: bytes &size=9;
+    corrected_sale_condition_modifier: CorrectedSaleConditionModifier;
+};
+
+type CorrectedSaleConditionModifier = unit {
+    corrected_settlement_type: uint8 &convert=CorrectedSettlementType($$);
+    corrected_trade_through_exemption: uint8 &convert=CorrectedTradeThroughExemption($$);
+    corrected_extended_hours_or_sold_code: uint8 &convert=CorrectedExtendedHoursOrSoldCode($$);
+    corrected_special_sale_condition: uint8 &convert=CorrectedSpecialSaleCondition($$);
+};
+
+type StockTradingActionMessage = unit {
+    issue_symbol: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+    reason: bytes &size=4;
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type StockDirectoryMessage = unit {
+    issue_symbol: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+};
+
+type AdjustedClosingPriceMessage = unit {
+    stock: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    adjusted_closing_price: bytes &size=10;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    TradeReportMessage = 0x54,
+    TradeCancelErrorMessage = 0x58,
+    TradeCorrectionMessage = 0x43,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    StockDirectoryMessage = 0x52,
+    AdjustedClosingPriceMessage = 0x47,
+};
+
+type EventCode = enum {
+    StartOfTransmissions = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfTransmissions = 0x43,
+};
+
+type MarketCenterIdentifier = enum {
+    Nasdaq = 0x51,
+    Trf = 0x4c,
+};
+
+type SecurityClass = enum {
+    Nasdaq = 0x51,
+    Nyse = 0x4e,
+    NyseMkt = 0x41,
+    NyseArca = 0x50,
+    Bats = 0x5a,
+};
+
+type SettlementType = enum {
+    RegularSettlement = 0x40,
+    CashSettlement = 0x43,
+    NextDaySettlement = 0x4e,
+    SellerSettlement = 0x52,
+};
+
+type TradeThroughExemption = enum {
+    IntermarketSweep = 0x46,
+    OpeningPrint = 0x4f,
+    DerivativePriced = 0x34,
+    ReOpeningPrint = 0x35,
+    ClosingPrint = 0x36,
+    NotApplicable = 0x20,
+};
+
+type ExtendedHoursOrSoldCode = enum {
+    ExtendedHoursTrade = 0x54,
+    ExtendedHoursTradeReportedLateOrOutOfSequence = 0x55,
+    SoldLastReportedLateButInSequence = 0x4c,
+    SoldOutOfSequence = 0x5a,
+    NotApplicable = 0x20,
+};
+
+type SpecialSaleCondition = enum {
+    Acquisition = 0x41,
+    Bunched = 0x42,
+    Distribution = 0x44,
+    PriceVariationTransaction = 0x48,
+    OfficialClosePrice = 0x4d,
+    PriorReferencePrice = 0x50,
+    OfficialOpeningPrice = 0x51,
+    SplitTrade = 0x53,
+    AveragePriceTrade = 0x57,
+    CrossTrade = 0x58,
+    OddLotExecution = 0x6f,
+    NotApplicable = 0x20,
+};
+
+type OriginalSettlementType = enum {
+    RegularSettlement = 0x40,
+    CashSettlement = 0x43,
+    NextDaySettlement = 0x4e,
+    SellerSettlement = 0x52,
+};
+
+type OriginalTradeThroughExemption = enum {
+    IntermarketSweep = 0x46,
+    OpeningPrint = 0x4f,
+    DerivativePriced = 0x34,
+    ReOpeningPrint = 0x35,
+    ClosingPrint = 0x36,
+    NotApplicable = 0x20,
+};
+
+type OriginalExtendedHoursOrSoldCode = enum {
+    ExtendedHoursTrade = 0x54,
+    ExtendedHoursTradeReportedLateOrOutOfSequence = 0x55,
+    SoldLastReportedLateButInSequence = 0x4c,
+    SoldOutOfSequence = 0x5a,
+    NotApplicable = 0x20,
+};
+
+type OriginalSpecialSaleCondition = enum {
+    Acquisition = 0x41,
+    Bunched = 0x42,
+    Distribution = 0x44,
+    PriceVariationTransaction = 0x48,
+    OfficialClosePrice = 0x4d,
+    PriorReferencePrice = 0x50,
+    OfficialOpeningPrice = 0x51,
+    SplitTrade = 0x53,
+    AveragePriceTrade = 0x57,
+    CrossTrade = 0x58,
+    OddLotExecution = 0x6f,
+    NotApplicable = 0x20,
+};
+
+type CorrectedSettlementType = enum {
+    RegularSettlement = 0x40,
+    CashSettlement = 0x43,
+    NextDaySettlement = 0x4e,
+    SellerSettlement = 0x52,
+};
+
+type CorrectedTradeThroughExemption = enum {
+    IntermarketSweep = 0x46,
+    OpeningPrint = 0x4f,
+    DerivativePriced = 0x34,
+    ReOpeningPrint = 0x35,
+    ClosingPrint = 0x36,
+    NotApplicable = 0x20,
+};
+
+type CorrectedExtendedHoursOrSoldCode = enum {
+    ExtendedHoursTrade = 0x54,
+    ExtendedHoursTradeReportedLateOrOutOfSequence = 0x55,
+    SoldLastReportedLateButInSequence = 0x4c,
+    SoldOutOfSequence = 0x5a,
+    NotApplicable = 0x20,
+};
+
+type CorrectedSpecialSaleCondition = enum {
+    Acquisition = 0x41,
+    Bunched = 0x42,
+    Distribution = 0x44,
+    PriceVariationTransaction = 0x48,
+    OfficialClosePrice = 0x4d,
+    PriorReferencePrice = 0x50,
+    OfficialOpeningPrice = 0x51,
+    SplitTrade = 0x53,
+    AveragePriceTrade = 0x57,
+    CrossTrade = 0x58,
+    OddLotExecution = 0x6f,
+    NotApplicable = 0x20,
+};
+
+type CurrentTradingState = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    QuotationOnly = 0x51,
+    Trading = 0x54,
+};
+
+type Reason = enum {
+    ReasonNotAvailable = 0x20,
+};
+
+type RegShoAction = enum {
+    NoPriceTest = 0x30,
+    RestrictionInEffect = 0x31,
+    RestrictionRemains = 0x32,
+};
+
+type MarketCategory = enum {
+    Nyse = 0x4e,
+    NyseMkt = 0x41,
+    NyseArca = 0x50,
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+    Bats = 0x5a,
+    NotAvailable = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    Normal = 0x4e,
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+    Suspended = 0x53,
+    InComplianceOrNotListed = 0x20,
+};
+

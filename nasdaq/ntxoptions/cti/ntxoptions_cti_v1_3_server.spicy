@@ -1,0 +1,406 @@
+module NasdaqNtxoptionsCtiItchV13Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NtxoptionsCtiV13 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    debug_text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::OptionsDirectoryMessage -> options_directory_message: OptionsDirectoryMessage;
+        SequencedMessageType::SecurityTradingActionMessage -> security_trading_action_message: SecurityTradingActionMessage;
+        SequencedMessageType::TradeMessage -> trade_message: TradeMessage;
+        SequencedMessageType::CancelTradeMessage -> cancel_trade_message: CancelTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+    version: uint8;
+};
+
+type OptionsDirectoryMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    option_id: uint32;
+    security_symbol: bytes &size=5;
+    expiration: bitfield(16) {
+        expiration_day: 0..4;
+        expiration_month: 5..8;
+        expiration_year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
+    strike_price: uint32;
+    option_kind: uint8 &convert=OptionKind($$);
+    source: uint8;
+    underlying_symbol: bytes &size=13;
+    option_closing_type: uint8 &convert=OptionClosingType($$);
+    tradable: uint8 &convert=Tradable($$);
+    mpv: uint8 &convert=Mpv($$);
+};
+
+type SecurityTradingActionMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    option_id: uint32;
+    security_symbol: bytes &size=5;
+    expiration: bitfield(16) {
+        expiration_day: 0..4;
+        expiration_month: 5..8;
+        expiration_year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
+    strike_price: uint32;
+    option_kind: uint8 &convert=OptionKind($$);
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type TradeMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    send_type: uint8 &convert=SendType($$);
+    option_id: uint32;
+    underlying_symbol: bytes &size=13;
+    security_symbol: bytes &size=5;
+    expiration: bitfield(16) {
+        expiration_day: 0..4;
+        expiration_month: 5..8;
+        expiration_year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
+    strike_price: uint32;
+    option_kind: uint8 &convert=OptionKind($$);
+    trade_flags: bitfield(16) {
+        reserved_trade_flags: 0..9;
+        quarterly_expiration: 10;
+        monthly_expiration: 11;
+        weekly_expiration: 12;
+        single_listed: 13;
+        make_take_program: 14;
+        penny_pilot: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    transaction_type: uint8 &convert=TransactionType($$);
+    liquidity: uint8 &convert=Liquidity($$);
+    trade_id: uint32;
+    correction_number: uint16;
+    cross_id: uint32;
+    match_id: uint32;
+    auction_id: uint32;
+    auction_type: uint8 &convert=AuctionType($$);
+    ref_trade_id: uint32;
+    ref_correction_number: uint16;
+    execution_type: uint8 &convert=ExecutionType($$);
+    execution_market: uint8 &convert=ExecutionMarket($$);
+    trade_side: uint8 &convert=TradeSide($$);
+    trade_price: uint32;
+    trade_contracts: uint32;
+    side_changed: uint8 &convert=SideChanged($$);
+    strategy_id: uint32;
+    strategy_leg: uint16;
+    : skip bytes &size=8;   # padding
+    occ_clearing_number: uint32;
+    give_up_occ_clearing_number: uint32;
+    exchange_clearing_number: uint32;
+    exchange_house: uint32;
+    exchange_suffix: bytes &size=1;
+    capacity: uint8 &convert=Capacity($$);
+    multi_account: bytes &size=5;
+    broker: uint32;
+    second_broker: uint32;
+    origin_market: uint8 &convert=OriginMarket($$);
+    account: bytes &size=32;
+    nscc: uint32;
+    mpid: bytes &size=5;
+    clearing_flags: bitfield(16) {
+        reserved_clearing_flags: 0..14;
+        priority_market_maker: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    : skip bytes &size=6;   # padding
+    contra_occ_clearing_number: uint32;
+    contra_give_up_occ_clearing_number: uint32;
+    contra_exchange_clearing_number: uint32;
+    contra_exchange_house: uint32;
+    contra_capacity: uint8 &convert=ContraCapacity($$);
+    contra_broker: uint32;
+    contra_second_broker: uint32;
+    contra_nscc: uint32;
+    contra_mpid: bytes &size=5;
+    : skip bytes &size=8;   # padding
+    firm: bytes &size=4;
+    order_date: bitfield(16) {
+        order_date_day: 0..4;
+        order_date_month: 5..8;
+        order_date_year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
+    order_id: bytes &size=30;
+    quote_id: uint64;
+    sweep_id: uint64;
+    open_close_indicator: bytes &size=1;
+    customer_strategy_leg: bytes &size=5;
+    short_sell: uint8 &convert=ShortSell($$);
+    principal_agent: uint8 &convert=PrincipalAgent($$);
+    supplementary_id: bytes &size=13;
+    order_indicators: bitfield(16) {
+        reserved_order_indicators: 0..11;
+        mkt_order: 12;
+        post_only: 13;
+        directed: 14;
+        fbms_order: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    origin_type: uint8 &convert=OriginType($$);
+    order_size: uint32;
+    order_price: uint32;
+    tif: uint8 &convert=Tif($$);
+    : skip bytes &size=8;   # padding
+};
+
+type CancelTradeMessage = unit {
+    seconds: uint32;
+    nanoseconds: uint32;
+    send_type: uint8 &convert=SendType($$);
+    option_id: uint32;
+    underlying_symbol: bytes &size=13;
+    security_symbol: bytes &size=5;
+    expiration: bitfield(16) {
+        expiration_day: 0..4;
+        expiration_month: 5..8;
+        expiration_year: 9..15;
+    } &byte-order=spicy::ByteOrder::Big;
+    strike_price: uint32;
+    option_kind: uint8 &convert=OptionKind($$);
+    trade_id: uint32;
+    correction_number: uint16;
+    cross_id: uint32;
+    trade_side: uint8 &convert=TradeSide($$);
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    OptionsDirectoryMessage = 0x44,
+    SecurityTradingActionMessage = 0x48,
+    TradeMessage = 0x54,
+    CancelTradeMessage = 0x56,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    EndOfNormalHoursProcessing = 0x4e,
+    EndOfLateHoursProcessing = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type OptionKind = enum {
+    Call = 0x43,
+    Put = 0x50,
+    StockLeg = 0x20,
+};
+
+type OptionClosingType = enum {
+    NormalHours = 0x4e,
+    LateHours = 0x4c,
+};
+
+type Tradable = enum {
+    Tradable_x59 = 0x59,
+    NotTradable = 0x4e,
+};
+
+type Mpv = enum {
+    PennyEverywhere = 0x45,
+    Scaled = 0x53,
+    PennyPilot = 0x50,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    TradingResumed = 0x54,
+};
+
+type SendType = enum {
+    Send = 0x53,
+    PossibleDuplicate = 0x50,
+};
+
+type TransactionType = enum {
+    NewTrade = 0x58,
+    TradeCorrection = 0x59,
+    TradeCancel = 0x5a,
+};
+
+type Liquidity = enum {
+    Add = 0x41,
+    Remove = 0x52,
+    OrderExposureAlerted = 0x4a,
+    ExecutedAgainstAFlashOrder = 0x4b,
+    OpeningTradeCustomerToCustomer = 0x46,
+    OpeningTrade = 0x4f,
+    None_x4e = 0x4e,
+};
+
+type AuctionType = enum {
+    SimpleOrderPixlPrism = 0x50,
+    Opening = 0x4f,
+    MarketExhaust = 0x45,
+    NoAuction = 0x20,
+};
+
+type ExecutionType = enum {
+    Automatic = 0x41,
+    Manual = 0x4d,
+};
+
+type ExecutionMarket = enum {
+    Amex = 0x41,
+    Box = 0x42,
+    Cboe = 0x43,
+    Ise = 0x49,
+    Nyse = 0x4e,
+    Nasdaq = 0x51,
+    C2 = 0x57,
+    Bats = 0x5a,
+    Phlx = 0x58,
+    BxOptions = 0x54,
+    Miax = 0x4d,
+    IseGemini = 0x48,
+    BatsEdgx = 0x45,
+    IseMercury = 0x4a,
+    MiaxPearl = 0x50,
+    NotAwayTrade = 0x20,
+};
+
+type TradeSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type SideChanged = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type Capacity = enum {
+    Customer = 0x43,
+    BrokerDealer = 0x59,
+    ProfessionalCustomer = 0x50,
+    Firm = 0x46,
+    MarketMaker = 0x4d,
+    NonRegisteredMarketMaker = 0x4f,
+    JointBackOffice = 0x4a,
+};
+
+type OriginMarket = enum {
+    Amex = 0x41,
+    Box = 0x42,
+    Cboe = 0x43,
+    Ise = 0x49,
+    Nyse = 0x4e,
+    Nasdaq = 0x51,
+    C2 = 0x57,
+    Bats = 0x5a,
+    Phlx = 0x58,
+    BxOptions = 0x54,
+    Miax = 0x4d,
+    IseGemini = 0x48,
+    BatsEdgx = 0x45,
+    IseMercury = 0x4a,
+    MiaxPearl = 0x50,
+    NotApplicable = 0x20,
+};
+
+type ContraCapacity = enum {
+    Customer = 0x43,
+    BrokerDealer = 0x59,
+    ProfessionalCustomer = 0x50,
+    Firm = 0x46,
+    MarketMaker = 0x4d,
+    NonRegisteredMarketMaker = 0x4f,
+    NotApplicable = 0x20,
+    JointBackOffice = 0x4a,
+};
+
+type ShortSell = enum {
+    ShortSale = 0x59,
+    NotAShortSale = 0x4e,
+    ShortSaleExempt = 0x45,
+    NotApplicable = 0x20,
+};
+
+type PrincipalAgent = enum {
+    Agency = 0x41,
+    Principal = 0x50,
+    RisklessPrincipal = 0x52,
+    NotAStockLeg = 0x20,
+};
+
+type OriginType = enum {
+    FixOrder = 0x4f,
+    OttoQuoOrder = 0x54,
+    OttoSweep = 0x45,
+    SqfQuote = 0x51,
+    SqfSweep = 0x57,
+    PixlPrismPrimaryFixOrder = 0x47,
+    PixlPrismContraFixOrder = 0x48,
+    PixlPrismResponseFixOrder = 0x49,
+    PixlPrismResponseSqfSweep = 0x4a,
+    Others = 0x20,
+};
+
+type Tif = enum {
+    Ioc = 0x49,
+    Day = 0x44,
+    Gtc = 0x47,
+    Opg = 0x4f,
+    NotApplicable = 0x20,
+};
+

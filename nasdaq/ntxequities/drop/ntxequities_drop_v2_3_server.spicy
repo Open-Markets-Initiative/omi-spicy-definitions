@@ -1,0 +1,362 @@
+module NasdaqNtxequitiesDropAsciidropV23Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NtxequitiesDropV23 = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+    soup_lf: uint8;
+};
+
+type ServerPacketHeader = unit {
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_header: SequencedMessageHeader;
+    switch ( self.sequenced_message_header.message_type ) {
+        MessageType::NewOrderAcceptedMessage -> new_order_accepted_message: NewOrderAcceptedMessage;
+        MessageType::ExistingOrderExecutedMessage -> existing_order_executed_message: ExistingOrderExecutedMessage;
+        MessageType::ExistingOrderCanceledMessage -> existing_order_canceled_message: ExistingOrderCanceledMessage;
+        MessageType::PreviousExecutionBrokenMessage -> previous_execution_broken_message: PreviousExecutionBrokenMessage;
+        MessageType::ExistingOrderReplacedMessage -> existing_order_replaced_message: ExistingOrderReplacedMessage;
+        MessageType::ExistingOrderModifiedMessage -> existing_order_modified_message: ExistingOrderModifiedMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SequencedMessageHeader = unit {
+    time_stamp: bytes &size=9;
+    comma: bytes &size=1;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type NewOrderAcceptedMessage = unit {
+    : skip bytes &size=1;   # padding
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    replaced_token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=8;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    time_in_force: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+    : skip bytes &size=1;   # padding
+    iso_flag: uint8 &convert=IsoFlag($$);
+    : skip bytes &size=1;   # padding
+    display: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    bbo_weighting_indicator: uint8 &convert=BboWeightingIndicator($$);
+    : skip bytes &size=1;   # padding
+    minimum_quantity: bytes &size=6;
+};
+
+type ExistingOrderExecutedMessage = unit {
+    : skip bytes &size=1;   # padding
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    replaced_token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=8;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    match_number: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+    : skip bytes &size=1;   # padding
+    iso_flag: uint8 &convert=IsoFlag($$);
+    : skip bytes &size=1;   # padding
+    display: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    bbo_weighting_indicator: uint8 &convert=BboWeightingIndicator($$);
+    : skip bytes &size=1;   # padding
+    minimum_quantity: bytes &size=6;
+};
+
+type ExistingOrderCanceledMessage = unit {
+    : skip bytes &size=1;   # padding
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    replaced_token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=8;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    time_in_force: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+    : skip bytes &size=1;   # padding
+    iso_flag: uint8 &convert=IsoFlag($$);
+    : skip bytes &size=1;   # padding
+    display: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    bbo_weighting_indicator: uint8 &convert=BboWeightingIndicator($$);
+    : skip bytes &size=1;   # padding
+    minimum_quantity: bytes &size=6;
+};
+
+type PreviousExecutionBrokenMessage = unit {
+    : skip bytes &size=1;   # padding
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    replaced_token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=8;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    match_number: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+    : skip bytes &size=1;   # padding
+    iso_flag: uint8 &convert=IsoFlag($$);
+    : skip bytes &size=1;   # padding
+    display: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    bbo_weighting_indicator: uint8 &convert=BboWeightingIndicator($$);
+    : skip bytes &size=1;   # padding
+    minimum_quantity: bytes &size=6;
+};
+
+type ExistingOrderReplacedMessage = unit {
+    : skip bytes &size=1;   # padding
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    replaced_token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=8;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    time_in_force: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+    : skip bytes &size=1;   # padding
+    iso_flag: uint8 &convert=IsoFlag($$);
+    : skip bytes &size=1;   # padding
+    display: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    bbo_weighting_indicator: uint8 &convert=BboWeightingIndicator($$);
+    : skip bytes &size=1;   # padding
+    minimum_quantity: bytes &size=6;
+};
+
+type ExistingOrderModifiedMessage = unit {
+    : skip bytes &size=1;   # padding
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    replaced_token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=8;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    time_in_force: bytes &size=12;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+    : skip bytes &size=1;   # padding
+    iso_flag: uint8 &convert=IsoFlag($$);
+    : skip bytes &size=1;   # padding
+    display: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    bbo_weighting_indicator: uint8 &convert=BboWeightingIndicator($$);
+    : skip bytes &size=1;   # padding
+    minimum_quantity: bytes &size=6;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+};
+
+type MessageType = enum {
+    NewOrderAcceptedMessage = 0x41,
+    ExistingOrderExecutedMessage = 0x45,
+    ExistingOrderCanceledMessage = 0x58,
+    PreviousExecutionBrokenMessage = 0x42,
+    ExistingOrderReplacedMessage = 0x55,
+    ExistingOrderModifiedMessage = 0x4d,
+};
+
+type BuySell = enum {
+    Bought = 0x42,
+    Sold = 0x53,
+    SoldShort = 0x54,
+    SoldShortExempt = 0x45,
+};
+
+type Capacity = enum {
+    Agency = 0x41,
+    Principal = 0x50,
+    Riskless = 0x52,
+};
+
+type LiquidityCode = enum {
+    AddedLiquidity = 0x41,
+    ReducedLiquidity = 0x52,
+    NondisplayedAndAddedLiquidity = 0x4a,
+    Routed = 0x58,
+    DotRouted = 0x44,
+    OpeningTradeOnNyse = 0x46,
+    OnCloseOrderOnNyse = 0x47,
+    ReRoutedByNyse = 0x59,
+    OddLotExecutionsOnNyse = 0x53,
+    AddedLiquidityOnNyse = 0x55,
+    NyseOther = 0x45,
+    RoutedToPsx = 0x50,
+    OpeningTradeOnArca = 0x54,
+    OnCloseOrderOnArca = 0x5a,
+    RoutedToNasdaq = 0x51,
+    RemovedLiquidityAtAMidpoint = 0x6d,
+    AddedLiquidityViaAMidpointOrder = 0x6b,
+    RpiRetailPriceImprovingOrderProvidesLiquidity = 0x6a,
+    RmoRetailOrderRemovesRpiLiquidity = 0x72,
+    RmoRetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity = 0x74,
+    RmoRetailOrderRemovesNonRpiMidpointLiquidity = 0x71,
+    DisplayedLiquidityaddingOrderImprovesTheNbbo = 0x37,
+    DisplayedLiquidityaddingOrderSetsTheNtxbboWhileJoiningTheNbbo = 0x38,
+    RemovedPriceImprovingNondisplayedLiquidity = 0x70,
+    PassiveMidpointExecution = 0x4e,
+};
+
+type ClearingCode = enum {
+    Qsr = 0x51,
+};
+
+type IsoFlag = enum {
+    Eligible = 0x59,
+    NotEligible = 0x4e,
+};
+
+type BboWeightingIndicator = enum {
+    ZeroToPointTwoPercent = 0x30,
+    PointTwoToOnePercent = 0x31,
+    OneToTwoPercent = 0x32,
+    GreaterThanTwoPercent = 0x33,
+};
+

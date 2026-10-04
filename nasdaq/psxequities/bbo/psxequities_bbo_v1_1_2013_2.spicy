@@ -1,0 +1,133 @@
+module NasdaqPsxequitiesBboAsciiitchV1120132;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PsxequitiesBboV1120132 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint32;
+    message_count: uint16 &byte-order=spicy::ByteOrder::Little;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoShortSalePriceTestRestrictedIndicatorMessage -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        MessageType::QuotationMessage -> quotation_message: QuotationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    timestamp: bytes &size=8;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectoryMessage = unit {
+    issue_symbol: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+};
+
+type StockTradingActionMessage = unit {
+    stock: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+    reason: bytes &size=4;
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type QuotationMessage = unit {
+    stock: bytes &size=8;
+    security_class: uint8 &convert=SecurityClass($$);
+    psx_best_bid_price: bytes &size=10;
+    psx_best_bid_size: bytes &size=9;
+    psx_best_offer_price: bytes &size=10;
+    psx_best_offer_size: bytes &size=9;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    QuotationMessage = 0x51,
+};
+
+type EventCode = enum {
+    StartOfTransmissions = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfTransmissions = 0x43,
+    EmergencyMarketConditionHalt = 0x41,
+    EmergencyMarketConditionQuoteOnlyPeriod = 0x52,
+    EmergencyMarketConditionResumption = 0x42,
+};
+
+type MarketCategory = enum {
+    Nyse = 0x4e,
+    NyseAmex = 0x41,
+    NyseArca = 0x50,
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+    BatsBzxExchange = 0x5a,
+    NotAvailable = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+    InComplianceOrNotListed = 0x20,
+};
+
+type SecurityClass = enum {
+    NasdaqListedIssue = 0x51,
+    Nyse = 0x4e,
+    NyseAmex = 0x41,
+    NyseArca = 0x50,
+    Bats = 0x5a,
+};
+
+type CurrentTradingState = enum {
+    HaltedOrPausedOnNasdaqAndAllUtpParticipants = 0x48,
+    QuotationOnlyPeriodForCrossSroHaltOrPause = 0x51,
+    QuotationOnlyPeriodForNasdaqOmxOnlyHaltOrPause = 0x52,
+    TradingOnNasdaq = 0x54,
+};
+
+type Reason = enum {
+    ReasonNotAvailable = 0x20,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInPlace = 0x30,
+    RestrictionInEffect = 0x31,
+    RestrictionRemainsInEffect = 0x32,
+};
+

@@ -1,0 +1,38 @@
+module NasdaqNsmequitiesMatchviewAsciiitchV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesMatchviewV11 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint32;
+    message_count: uint16 &byte-order=spicy::ByteOrder::Little;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    payload: BestBidAndOfferMessage;
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    timestamp: bytes &size=8;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type BestBidAndOfferMessage = unit {
+    symbol: bytes &size=8;
+    bid_price: bytes &size=10;
+    ask_price: bytes &size=10;
+};
+
+type MessageType = enum {
+    BestBidAndOfferMessage = 0x55,
+};
+

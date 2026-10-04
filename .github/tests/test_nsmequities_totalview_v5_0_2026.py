@@ -22,7 +22,7 @@ class NsmequitiesTotalviewV502026Tests(unittest.TestCase):
 
     def test_addorderwithmpid(self):
         module = "nasdaq/nsmequities/totalview/nsmequities_totalview_itch_v5_0_2026_udp.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.TotalView.Itch.v5.0.2026/AddOrderwithMpid.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.TotalView.Itch.v5.0.2026/AddOrderWithMpid.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

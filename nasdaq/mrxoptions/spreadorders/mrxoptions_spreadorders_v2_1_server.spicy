@@ -11,7 +11,7 @@ public type MrxoptionsSpreadordersV21 = unit {
 type ServerSoupBinTcpPacket = unit {
     server_packet_header: ServerPacketHeader;
     switch ( self.server_packet_header.server_packet_type ) {
-        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket(self.server_packet_header.packet_length);
         ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
         ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
         ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
@@ -24,8 +24,8 @@ type ServerPacketHeader = unit {
     server_packet_type: uint8 &convert=ServerPacketType($$);
 };
 
-type DebugPacket = unit {
-    debug_text: bytes &size=1;
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
 };
 
 type LoginAcceptedPacket = unit {
@@ -73,7 +73,7 @@ type LegInformation = unit {
     expiration_year: uint8;
     expiration_month: uint8;
     expiration_day: uint8;
-    explicit_strike_price: uint32;
+    explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     side: uint8 &convert=Side($$);
     leg_ratio: uint32;
@@ -96,7 +96,7 @@ type ComplexAddOrderMessage = unit {
     executable_order_volume: uint32;
     order_status: uint8 &convert=OrderStatus($$);
     order_type: uint8 &convert=OrderType($$);
-    limit_price: uint32;
+    limit_price: int32;
     time_in_force: uint8 &convert=TimeInForce($$);
     order_capacity: uint8 &convert=OrderCapacity($$);
     scope: uint8 &convert=Scope($$);
@@ -115,7 +115,7 @@ type ComplexStrategyAuctionMessage = unit {
     auction_event: uint8 &convert=AuctionEvent($$);
     order_type: uint8 &convert=OrderType($$);
     side: uint8 &convert=Side($$);
-    price: uint32;
+    price: int32;
     size: uint32;
     exec_flag: uint8 &convert=ExecFlag($$);
     order_capacity: uint8 &convert=OrderCapacity($$);
@@ -123,7 +123,7 @@ type ComplexStrategyAuctionMessage = unit {
     owner_id: bytes &size=6;
     giveup: bytes &size=6;
     cmta: bytes &size=6;
-    response_price: uint32;
+    response_price: int32;
     response_size: uint32;
     : skip bytes &size=4;   # padding
     number_of_flex_dac_legs: uint8;

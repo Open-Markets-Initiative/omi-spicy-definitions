@@ -1,0 +1,185 @@
+module NasdaqPsxequitiesTotalviewGlimpseV32Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PsxequitiesTotalviewV32 = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+    soup_lf: uint8;
+};
+
+type ServerPacketHeader = unit {
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit {
+    text: bytes &size=1;
+};
+
+type LoginAcceptedPacket = unit {
+    session: bytes &size=10;
+    sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: bytes &size=1;
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_header: SequencedMessageHeader;
+    switch ( self.sequenced_message_header.message_type ) {
+        MessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        MessageType::MillisecondsMessage -> milliseconds_message: MillisecondsMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::AddOrderMpidAttributionMessage -> add_order_mpid_attribution_message: AddOrderMpidAttributionMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoRestrictionMessage -> reg_sho_restriction_message: RegShoRestrictionMessage;
+        MessageType::EndOfSnapshotMessage -> end_of_snapshot_message: EndOfSnapshotMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SequencedMessageHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SecondsMessage = unit {
+    second: bytes &size=5;
+};
+
+type MillisecondsMessage = unit {
+    millisecond: bytes &size=3;
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type AddOrderMessage = unit {
+    order_reference_number: bytes &size=12;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: bytes &size=6;
+    stock: bytes &size=8;
+    price: bytes &size=10;
+};
+
+type AddOrderMpidAttributionMessage = unit {
+    order_reference_number: bytes &size=12;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: bytes &size=6;
+    stock: bytes &size=8;
+    price: bytes &size=10;
+    attribution: bytes &size=4;
+};
+
+type StockDirectoryMessage = unit {
+    stock: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
+    round_lot_size: bytes &size=6;
+    round_lots_only: uint8 &convert=RoundLotsOnly($$);
+};
+
+type StockTradingActionMessage = unit {
+    stock: bytes &size=8;
+    trading_state: uint8 &convert=TradingState($$);
+    reserved_1: bytes &size=1;
+    reason: bytes &size=4;
+};
+
+type RegShoRestrictionMessage = unit {
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type EndOfSnapshotMessage = unit {
+    itch_sequence_number: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+};
+
+type MessageType = enum {
+    SecondsMessage = 0x54,
+    MillisecondsMessage = 0x4d,
+    SystemEventMessage = 0x53,
+    AddOrderMessage = 0x41,
+    AddOrderMpidAttributionMessage = 0x46,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoRestrictionMessage = 0x59,
+    EndOfSnapshotMessage = 0x47,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    EmergencyMarketConditionHalt = 0x41,
+    EmergencyMarketConditionQuoteOnlyPeriod = 0x52,
+    EmergencyMarketConditionResumption = 0x42,
+};
+
+type BuySellIndicator = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type MarketCategory = enum {
+    NewYorkStockExchange = 0x4e,
+    NyseAmex = 0x41,
+    NyseArca = 0x50,
+    NasdaqGlobalSelectMarket = 0x51,
+    NasdaqGlobalMarket = 0x47,
+    NasdaqCapitalMarket = 0x53,
+    BatsBzxExchange = 0x5a,
+    NotAvailable = 0x20,
+};
+
+type FinancialStatusIndicator = enum {
+    Deficient = 0x44,
+    Delinquent = 0x45,
+    Bankrupt = 0x51,
+    Suspended = 0x53,
+    DeficientAndBankrupt = 0x47,
+    DeficientAndDelinquent = 0x48,
+    DelinquentAndBankrupt = 0x4a,
+    DeficientDelinquentAndBankrupt = 0x4b,
+    InCompliance = 0x20,
+};
+
+type RoundLotsOnly = enum {
+    OnlyRoundLotsAreAccepted = 0x59,
+    OddAndMixedLotsAreAllowed = 0x4e,
+};
+
+type TradingState = enum {
+    HaltedOrPausedAcrossAllUsEquityMarkets = 0x48,
+    QuotationOnlyPeriod = 0x51,
+    TradingOnPsx = 0x54,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInPlace = 0x30,
+    RestrictionInEffect = 0x31,
+    RestrictionRemainsInEffect = 0x32,
+};
+

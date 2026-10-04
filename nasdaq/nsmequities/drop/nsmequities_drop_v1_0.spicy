@@ -1,0 +1,212 @@
+module NasdaqNsmequitiesDropAsciidropV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsmequitiesDropV10 = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::NewOrderAcceptedMessage -> new_order_accepted_message: NewOrderAcceptedMessage;
+        MessageType::ExistingOrderExecutedMessage -> existing_order_executed_message: ExistingOrderExecutedMessage;
+        MessageType::ExistingOrderCanceledMessage -> existing_order_canceled_message: ExistingOrderCanceledMessage;
+        MessageType::PreviousExecutionBrokenMessage -> previous_execution_broken_message: PreviousExecutionBrokenMessage;
+        * -> unknown: bytes &eod;
+    };
+    cr: uint8;
+    lf: uint8;
+};
+
+type MessageHeader = unit {
+    time_stamp: bytes &size=9;
+    comma: bytes &size=1;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type NewOrderAcceptedMessage = unit {
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=20;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    time_in_force: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+};
+
+type ExistingOrderExecutedMessage = unit {
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=20;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    match_number: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+};
+
+type ExistingOrderCanceledMessage = unit {
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=20;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    time_in_force: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    cancel_reason: uint8 &convert=CancelReason($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+};
+
+type PreviousExecutionBrokenMessage = unit {
+    source: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    user: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    token: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    buy_sell: uint8 &convert=BuySell($$);
+    : skip bytes &size=1;   # padding
+    shares: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    stock: bytes &size=6;
+    : skip bytes &size=1;   # padding
+    price: bytes &size=20;
+    : skip bytes &size=1;   # padding
+    firm: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    match_number: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    capacity: uint8 &convert=Capacity($$);
+    : skip bytes &size=1;   # padding
+    liquidity_code: uint8 &convert=LiquidityCode($$);
+    : skip bytes &size=1;   # padding
+    clearing_code: uint8 &convert=ClearingCode($$);
+};
+
+type MessageType = enum {
+    NewOrderAcceptedMessage = 0x41,
+    ExistingOrderExecutedMessage = 0x45,
+    ExistingOrderCanceledMessage = 0x58,
+    PreviousExecutionBrokenMessage = 0x42,
+};
+
+type BuySell = enum {
+    Bought = 0x42,
+    Sold = 0x53,
+    SoldShort = 0x54,
+    SoldShortExempt = 0x45,
+};
+
+type Capacity = enum {
+    Agency = 0x41,
+    Principal = 0x50,
+    Riskless = 0x52,
+};
+
+type LiquidityCode = enum {
+    Added = 0x41,
+    Removed = 0x52,
+    Routed = 0x58,
+    Dot = 0x44,
+    OpeningTradeOnNyse = 0x46,
+    OnCloseOrderOnNyse = 0x47,
+    OpeningCross = 0x4f,
+    OpeningCrossImbalanceonly = 0x4d,
+    ClosingCross = 0x43,
+    ClosingCrossImbalanceonly = 0x4c,
+    HaltIpoCross = 0x48,
+    HaltCross = 0x4b,
+    NondisplayedAddingLiquidity = 0x4a,
+    ReRoutedByNyse = 0x59,
+    OddLotExecutionOnNyse = 0x53,
+    AddedLiquidityOnNyse = 0x55,
+    RoutedToBx = 0x42,
+    NyseOther = 0x45,
+    RoutedToPsx = 0x50,
+    OpeningTradeOnArca = 0x54,
+    OnCloseOrderOnArca = 0x5a,
+    AddedPostonlyNotCurrentlyAvailable = 0x57,
+    RemovedLiquidityAtAMidpoint = 0x6d,
+    AddedLiquidityViaAMidpointOrder = 0x6b,
+    SupplementalOrderExecution = 0x30,
+    DisplayedLiquidityaddingOrderImprovesTheNbbo = 0x37,
+    DisplayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo = 0x38,
+    RetailDesignatedExecutionThatRemovedLiquidityNotCurrentlyAvailable = 0x64,
+    RetailDesignatedExecutionThatAddedDisplayedLiquidity = 0x65,
+    RetailDesignatedExecutionThatAddedNondisplayedLiquidityNotCurrentlyAvailable = 0x66,
+    RpiOrderThatProvidesLiquidity = 0x6a,
+    RetailOrderThatRemovesRpiLiquidity = 0x72,
+    RetailOrderThatRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity = 0x74,
+    AddedDisplayedLiquidityInASelectSymbol = 0x34,
+    AddedNondisplayedLiquidityInASelectSymbol = 0x35,
+    LiquidityRemovingOrderInASelectSymbol = 0x36,
+    AddedNondisplayedMidpointLiquidityInASelectSymbol = 0x67,
+};
+
+type ClearingCode = enum {
+    Qsr = 0x51,
+};
+
+type CancelReason = enum {
+    UserCancel = 0x55,
+    IocCancel = 0x49,
+    Timeout = 0x54,
+    SupervisoryCancel = 0x53,
+    RegulatoryCancel = 0x44,
+    SelfMatchPrevention = 0x51,
+    SystemCancel = 0x5a,
+    CrossCancel = 0x43,
+};
+

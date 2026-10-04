@@ -1,4 +1,4 @@
-module NasdaqNsmequitiesTotalviewItchV30Udp;
+module NasdaqNsmequitiesTotalviewAsciiitchV30Udp;
 
 import spicy;
 
@@ -6,13 +6,13 @@ import spicy;
 
 public type NsmequitiesTotalviewV30 = unit {
     packet_header: PacketHeader;
-    messages: Message[self.packet_header.count];
+    messages: Message[self.packet_header.message_count];
 };
 
 type PacketHeader = unit {
     session: bytes &size=10;
-    sequence: uint32;
-    count: uint16 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32;
+    message_count: uint16 &byte-order=spicy::ByteOrder::Little;
 };
 
 type Message = unit {
@@ -39,7 +39,7 @@ type Message = unit {
 };
 
 type MessageHeader = unit {
-    length: uint16;
+    message_length: uint16;
     message_type: uint8 &convert=MessageType($$);
 };
 
@@ -66,7 +66,7 @@ type StockDirectoryMessage = unit {
 type StockTradingActionMessage = unit {
     stock_alphanumeric_6: bytes &size=6;
     trading_state: uint8 &convert=TradingState($$);
-    reserved: bytes &size=1;
+    reserved_1: bytes &size=1;
     reason: bytes &size=4;
 };
 
