@@ -1,0 +1,52 @@
+module TmxTsxGlobalfxGfxV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TsxGlobalfxV10 = unit {
+    msg_type: uint8;
+    datagram_body: ReferencePriceFxSpot;
+};
+
+type ReferencePriceFxSpot = unit {
+    : skip bytes &size=1;   # padding
+    currency_1: bytes &size=3;
+    currency_2: bytes &size=3;
+    timestamp: uint64;
+    stream_id: uint64;
+    sequence_number: uint32;
+    valid_for_seconds: uint16;
+    : skip bytes &size=1;   # padding
+    number_of_tiers: uint8;
+    size_tier: SizeTier[self.number_of_tiers];
+};
+
+type SizeTier = unit {
+    tier_status: uint8 &convert=TierStatus($$);
+    tier_size: uint32;
+    price_terms: uint8 &convert=PriceTerms($$);
+    bid_price: BidPrice;
+    offer_price: OfferPrice;
+};
+
+type BidPrice = unit {
+    bid_price_mantissa: int32;
+    bid_price_exponent: int8;
+};
+
+type OfferPrice = unit {
+    offer_price_mantissa: int32;
+    offer_price_exponent: int8;
+};
+
+type TierStatus = enum {
+    ValidReferencePrice = 0x52,
+    PriceNotAvailable = 0x5a,
+};
+
+type PriceTerms = enum {
+    DirectTerms = 0x44,
+    InvertedTerms = 0x49,
+};
+

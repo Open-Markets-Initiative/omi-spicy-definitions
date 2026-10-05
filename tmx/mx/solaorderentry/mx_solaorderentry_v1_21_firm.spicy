@@ -1,0 +1,329 @@
+module TmxMxSolaorderentrySailV121Firm;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MxSolaorderentryV121 = unit {
+    message_length: uint32;
+    message_type: bytes &size=2;
+    switch ( self.message_type ) {
+        0 -> user_connection: UserConnection;
+        0 -> disconnection_instruction: DisconnectionInstruction;
+        0 -> heartbeat_response: HeartbeatResponse;
+        0 -> user_disconnection: UserDisconnection;
+        0 -> bulk_quote_data: BulkQuoteData;
+        0 -> firm_risk_config: FirmRiskConfig;
+        0 -> global_cancellation: GlobalCancellation;
+        0 -> user_global_cancellation: UserGlobalCancellation;
+        0 -> set_group_risk_limits: SetGroupRiskLimits;
+        0 -> set_global_risk_limits: SetGlobalRiskLimits;
+        0 -> order_entry: OrderEntry;
+        0 -> order_modification: OrderModification;
+        0 -> new_strategy_instrument: NewStrategyInstrument;
+        0 -> cross_entry: CrossEntry;
+        0 -> bulk_quote: BulkQuote;
+        0 -> sail_request_for_quote_with_side: SailRequestForQuoteWithSide;
+        0 -> bulk_quote_participant_bqp_protection_subscription: BulkQuoteParticipantBqpProtectionSubscription;
+        0 -> request_for_quote: RequestForQuote;
+        0 -> order_cancellation: OrderCancellation;
+        * -> unknown: bytes &eod;
+    };
+    end_of_text: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type UserConnection = unit {
+    protocol_id: bytes &size=2;
+    user_id: bytes &size=8;
+    password_md_5_encryption: bytes &size=8;
+    session_id: bytes &size=4;
+    user_message_timestamp_local_hhmmss: bytes &size=6;
+    exchange_message_id: bytes &size=6;
+    inactivity_interval: bytes &size=2;
+    number_of_message_types_to_be_received: bytes &size=2;
+    user_connection_occurrence: UserConnectionOccurrence[self.number_of_message_types_to_be_received];
+};
+
+type UserConnectionOccurrence = unit {
+    message_types_to_be_received: bytes &size=2;
+};
+
+type DisconnectionInstruction = unit {
+    number_of_instructions_present_in_the_message: bytes &size=2;
+    disconnection_instruction_occurrence: DisconnectionInstructionOccurrence[self.number_of_instructions_present_in_the_message];
+};
+
+type DisconnectionInstructionOccurrence = unit {
+    trader_id: bytes &size=8;
+    disconnection_instruction_note_cancel_quotes_only_q_quotes_only: bytes &size=1;
+    active_y_on_n_off: bytes &size=1;
+};
+
+type HeartbeatResponse = unit {
+    user_sequence_id_first_user_sequence_id_for_nextcurrent_heartbeat_period: bytes &size=8;
+    last_exchange_message_id_sent_to_participant: bytes &size=6;
+    user_message_timestamp_local_hhmmss: bytes &size=6;
+};
+
+type UserDisconnection = unit {
+    user_id: bytes &size=8;
+    session_id: bytes &size=4;
+};
+
+type BulkQuoteData = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    maximum_number_trades: bytes &size=2;
+    minimum_volume: bytes &size=8;
+    : skip bytes &size=2;   # padding
+    calculation_time_interval: bytes &size=8;
+    maximum_total_volume: bytes &size=8;
+    maximum_total_value: bytes &size=8;
+    delta_maximum_volume: bytes &size=8;
+    delta_maximum_value: bytes &size=8;
+    anti_wash_id: bytes &size=8;
+    : skip bytes &size=20;   # padding
+};
+
+type IncomingMessagesHeader = unit {
+    user_timestamp_local_hhmmss: bytes &size=6;
+    trader_id: bytes &size=8;
+    user_sequence_id: bytes &size=8;
+};
+
+type ClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: bytes &size=1;
+    open_close: bytes &size=1;
+    hedge_spec: bytes &size=1;
+    : skip bytes &size=5;   # padding
+};
+
+type OwnerData = unit {
+    memo: bytes &size=50;
+};
+
+type FirmRiskConfig = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    firm_level_risk_option: bytes &size=1;
+    number_of_trader_teams: bytes &size=3;
+    firm_risk_config_trader_team: FirmRiskConfigTraderTeam[self.number_of_trader_teams];
+};
+
+type FirmRiskConfigTraderTeam = unit {
+    team_level_risk_option: bytes &size=1;
+    number_of_traders_in_team: bytes &size=3;
+    firm_risk_config_trader_team_trader: FirmRiskConfigTraderTeamTrader[self.number_of_traders_in_team];
+};
+
+type FirmRiskConfigTraderTeamTrader = unit {
+    trader: bytes &size=4;
+};
+
+type GlobalCancellation = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    type_of_cancellation_q_quotes_only: bytes &size=1;
+};
+
+type UserGlobalCancellation = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    type_of_cancellation: bytes &size=1;
+    account_type_filter: bytes &size=8;
+};
+
+type SetGroupRiskLimits = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    reset_all_groups: bytes &size=1;
+    number_of_group_limits: bytes &size=3;
+    set_group_risk_limits_occurrence: SetGroupRiskLimitsOccurrence[self.number_of_group_limits];
+};
+
+type SetGroupRiskLimitsOccurrence = unit {
+    trader: bytes &size=4;
+    group: bytes &size=2;
+    net_exposure_action: bytes &size=1;
+    long_exposure_action: bytes &size=1;
+    short_exposure_action: bytes &size=1;
+    net_position_action: bytes &size=1;
+    long_position_action: bytes &size=1;
+    short_position_action: bytes &size=1;
+    maximum_order_quantity: bytes &size=8;
+    net_position_limit: bytes &size=8;
+    long_position_limit: bytes &size=8;
+    short_position_limit: bytes &size=8;
+    net_exposure_limit: bytes &size=10;
+    long_exposure_limit: bytes &size=10;
+    short_exposure_limit: bytes &size=10;
+    : skip bytes &size=2;   # padding
+};
+
+type SetGlobalRiskLimits = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    global_net_exposure_action: bytes &size=1;
+    default_net_exposure_action: bytes &size=1;
+    default_long_exposure_action: bytes &size=1;
+    default_short_exposure_action: bytes &size=1;
+    default_net_position_action: bytes &size=1;
+    default_long_position_action: bytes &size=1;
+    default_short_position_action: bytes &size=1;
+    global_net_exposure_limit: bytes &size=10;
+    default_maximum_order_quantity: bytes &size=8;
+    default_net_exposure_limit: bytes &size=10;
+    default_long_exposure_limit: bytes &size=10;
+    default_short_exposure_limit: bytes &size=10;
+    default_net_position_limit: bytes &size=8;
+    default_long_position_limit: bytes &size=8;
+    default_short_position_limit: bytes &size=8;
+};
+
+type OrderEntry = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    price_type: bytes &size=1;
+    verb_side: bytes &size=1;
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    special_price_term: bytes &size=1;
+    additional_price: bytes &size=10;
+    quantity_term: bytes &size=1;
+    additional_quantity: bytes &size=8;
+    duration_type: bytes &size=1;
+    gtd_date: bytes &size=8;
+    executing_participant: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    anti_wash_id: bytes &size=8;
+    anti_wash_instruction: bytes &size=1;
+    : skip bytes &size=20;   # padding
+};
+
+type OrderModification = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    price_type: bytes &size=1;
+    verb_side: bytes &size=1;
+    quantity_sign: bytes &size=1;
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    special_price_term: bytes &size=1;
+    additional_price: bytes &size=10;
+    quantity_term: bytes &size=1;
+    additional_quantity: bytes &size=8;
+    duration_type: bytes &size=1;
+    gtd_date: bytes &size=8;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=1;   # padding
+    modified_order_id: bytes &size=8;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    anti_wash_id: bytes &size=8;
+    anti_wash_instruction: bytes &size=1;
+    : skip bytes &size=20;   # padding
+};
+
+type NewStrategyInstrument = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    number_of_legs: bytes &size=2;
+    new_strategy_instrument_leg_definition_repeating_block: NewStrategyInstrumentLegDefinitionRepeatingBlock[self.number_of_legs];
+};
+
+type NewStrategyInstrumentLegDefinitionRepeatingBlock = unit {
+    leg_group: bytes &size=2;
+    leg_instrument: bytes &size=4;
+    leg_verb: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    leg_quantity_ratio: bytes &size=8;
+};
+
+type CrossEntry = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+    buying_clearing_data: BuyingClearingData;
+    selling_clearing_data: SellingClearingData;
+    buying_owner_data: BuyingOwnerData;
+    selling_owner_data: SellingOwnerData;
+    : skip bytes &size=20;   # padding
+};
+
+type BuyingClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: bytes &size=1;
+    open_close: bytes &size=1;
+    hedge_spec: bytes &size=1;
+    : skip bytes &size=5;   # padding
+};
+
+type SellingClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: bytes &size=1;
+    open_close: bytes &size=1;
+    hedge_spec: bytes &size=1;
+    : skip bytes &size=5;   # padding
+};
+
+type BuyingOwnerData = unit {
+    memo: bytes &size=50;
+};
+
+type SellingOwnerData = unit {
+    memo: bytes &size=50;
+};
+
+type BulkQuote = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    quote_identifier_on_this_group: bytes &size=8;
+    number_of_quotes: bytes &size=3;
+    bulk_quote_occurrence: BulkQuoteOccurrence[self.number_of_quotes];
+};
+
+type BulkQuoteOccurrence = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    verb_side: bytes &size=1;
+    quantity_sign_or: bytes &size=1;
+    quantity: bytes &size=8;
+    price: bytes &size=10;
+};
+
+type SailRequestForQuoteWithSide = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    quantity: bytes &size=8;
+    market_side: bytes &size=1;
+};
+
+type BulkQuoteParticipantBqpProtectionSubscription = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    protection_type_advanced_protection_advanced_protection_disabled: bytes &size=1;
+};
+
+type RequestForQuote = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    quantity: bytes &size=8;
+};
+
+type OrderCancellation = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    cancelled_order_id: bytes &size=8;
+};
+

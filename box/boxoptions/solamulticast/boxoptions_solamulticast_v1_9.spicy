@@ -65,10 +65,10 @@ type OptionTradeMessage = unit {
     instrument_description: InstrumentDescription;
     volume: bytes &size=8;
     trade_price: bytes &size=6;
-    trade_price_fraction_indicator: bytes &size=1;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
     net_change_sign: uint8 &convert=NetChangeSign($$);
     net_change: bytes &size=6;
-    net_change_fraction_indicator: bytes &size=1;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
     opra_trade_marker: bytes &size=1;
     : skip bytes &size=5;   # padding
     timestamp: bytes &size=6;
@@ -81,7 +81,7 @@ type InstrumentDescription = unit {
     expiry_month_code: uint8 &convert=ExpiryMonthCode($$);
     : skip bytes &size=1;   # padding
     strike_price: bytes &size=7;
-    strike_price_fraction_indicator: bytes &size=1;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
     expiry_year: bytes &size=2;
     expiry_day: bytes &size=2;
 };
@@ -92,10 +92,10 @@ type StrategyTradeMessage = unit {
     volume: bytes &size=8;
     trade_price_sign: bytes &size=1;
     trade_price: bytes &size=6;
-    trade_price_fraction_indicator: bytes &size=1;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
     net_change_sign: uint8 &convert=NetChangeSign($$);
     net_change: bytes &size=6;
-    net_change_fraction_indicator: bytes &size=1;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
     opra_trade_marker: bytes &size=1;
     : skip bytes &size=5;   # padding
     timestamp: bytes &size=6;
@@ -112,10 +112,10 @@ type OptionQuoteMessage = unit {
     exchange_id: bytes &size=1;
     instrument_description: InstrumentDescription;
     bid_price: bytes &size=6;
-    bid_price_fraction_indicator: bytes &size=1;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
     bid_size: bytes &size=5;
     ask_price: bytes &size=6;
-    ask_price_fraction_indicator: bytes &size=1;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
     ask_size: bytes &size=5;
     : skip bytes &size=1;   # padding
     instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
@@ -128,11 +128,11 @@ type ComplexOrderQuoteMessage = unit {
     complex_order_instrument_symbol: bytes &size=30;
     bid_price_sign: bytes &size=1;
     bid_price: bytes &size=6;
-    bid_price_fraction_indicator: bytes &size=1;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
     bid_size: bytes &size=5;
     ask_price_sign: uint8 &convert=AskPriceSign($$);
     ask_price: bytes &size=6;
-    ask_price_fraction_indicator: bytes &size=1;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
     ask_size: bytes &size=5;
     instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
     public_customer_bid_size: bytes &size=5;
@@ -169,11 +169,11 @@ type OptionMarketDepthMessage = unit {
 type MarketDepthLevel = unit {
     level_of_market_depth: uint8 &convert=LevelOfMarketDepth($$);
     bid_price: bytes &size=6;
-    bid_price_fraction_indicator: bytes &size=1;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
     bid_size: bytes &size=5;
     number_of_bid_orders: bytes &size=2;
     ask_price: bytes &size=6;
-    ask_price_fraction_indicator: bytes &size=1;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
     ask_size: bytes &size=5;
     number_of_ask_orders: bytes &size=2;
 };
@@ -190,12 +190,12 @@ type ComplexMarketDepthLevel = unit {
     level_of_market_depth: uint8 &convert=LevelOfMarketDepth($$);
     bid_price_sign: bytes &size=1;
     bid_price: bytes &size=6;
-    bid_price_fraction_indicator: bytes &size=1;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
     bid_size: bytes &size=5;
     number_of_bid_orders: bytes &size=2;
     ask_price_sign: uint8 &convert=AskPriceSign($$);
     ask_price: bytes &size=6;
-    ask_price_fraction_indicator: bytes &size=1;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
     ask_size: bytes &size=5;
     number_of_ask_orders: bytes &size=2;
 };
@@ -205,7 +205,7 @@ type OptionTradeCancellationMessage = unit {
     instrument_description: InstrumentDescription;
     volume: bytes &size=8;
     trade_price: bytes &size=6;
-    trade_price_fraction_indicator: bytes &size=1;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
     opra_trade_marker: bytes &size=1;
     : skip bytes &size=5;   # padding
     timestamp: bytes &size=6;
@@ -219,7 +219,7 @@ type ComplexOrderTradeCancellationMessage = unit {
     volume: bytes &size=8;
     trade_price_sign: bytes &size=1;
     trade_price: bytes &size=6;
-    trade_price_fraction_indicator: bytes &size=1;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
     opra_trade_marker: bytes &size=1;
     : skip bytes &size=5;   # padding
     timestamp: bytes &size=6;
@@ -233,11 +233,11 @@ type OptionInstrumentKeysMessage = unit {
     maximum_number_of_contracts_per_order: bytes &size=6;
     minimum_number_of_contracts_per_order: bytes &size=6;
     maximum_threshold_price: bytes &size=6;
-    maximum_threshold_price_fraction_indicator: bytes &size=1;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
     minimum_threshold_price: bytes &size=6;
-    minimum_threshold_price_fraction_indicator: bytes &size=1;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
     tick_increment: bytes &size=6;
-    tick_increment_fraction_indicator: bytes &size=1;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
     option_type: uint8 &convert=OptionType($$);
     market_flow_indicator: MarketFlowIndicator;
     group_instrument: bytes &size=2;
@@ -267,12 +267,12 @@ type ComplexOrderInstrumentKeysMessage = unit {
     min_number_of_contracts_per_order: bytes &size=6;
     max_threshold_price_sign: uint8 &convert=MaxThresholdPriceSign($$);
     max_threshold_price: bytes &size=6;
-    max_threshold_price_fraction_indicator: bytes &size=1;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
     min_threshold_price_sign: uint8 &convert=MinThresholdPriceSign($$);
     min_threshold_price: bytes &size=6;
-    min_threshold_price_fraction_indicator: bytes &size=1;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
     tick_increment: bytes &size=6;
-    tick_increment_fraction_indicator: bytes &size=1;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
     : skip bytes &size=2;   # padding
     group: bytes &size=2;
     instrument: bytes &size=4;
@@ -299,29 +299,29 @@ type OptionSummaryMessage = unit {
     exchange_id: bytes &size=1;
     instrument_description: InstrumentDescription;
     bid_price: bytes &size=6;
-    bid_price_fraction_indicator: bytes &size=1;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
     bid_size: bytes &size=5;
     ask_price: bytes &size=6;
-    ask_price_fraction_indicator: bytes &size=1;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
     ask_size: bytes &size=5;
     last_price: bytes &size=6;
-    last_price_fraction_indicator: bytes &size=1;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
     : skip bytes &size=7;   # padding
     tick: uint8 &convert=Tick($$);
     volume: bytes &size=8;
     net_change_sign: uint8 &convert=NetChangeSign($$);
     net_change: bytes &size=6;
-    net_change_fraction_indicator: bytes &size=1;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
     open_price: bytes &size=6;
-    open_price_fraction_indicator: bytes &size=1;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
     high_price: bytes &size=6;
-    high_price_fraction_indicator: bytes &size=1;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
     low_price: bytes &size=6;
-    low_price_fraction_indicator: bytes &size=1;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
     option_marker: OptionMarker;
     underlying_symbol: bytes &size=10;
     reference_price: bytes &size=6;
-    reference_price_fraction_indicator: bytes &size=1;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
 };
 
 type ComplexOrderSummaryMessage = unit {
@@ -329,27 +329,27 @@ type ComplexOrderSummaryMessage = unit {
     complex_order_instrument_symbol: bytes &size=30;
     bid_price_sign: bytes &size=1;
     bid_price: bytes &size=6;
-    bid_price_fraction_indicator: bytes &size=1;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
     bid_size: bytes &size=5;
     ask_price_sign: uint8 &convert=AskPriceSign($$);
     ask_price: bytes &size=6;
-    ask_price_fraction_indicator: bytes &size=1;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
     ask_size: bytes &size=5;
     last_price_sign: bytes &size=1;
     last_price: bytes &size=6;
-    last_price_fraction_indicator: bytes &size=1;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
     open_price_sign: uint8 &convert=OpenPriceSign($$);
     open_price: bytes &size=6;
-    open_price_fraction_indicator: bytes &size=1;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
     high_price_sign: uint8 &convert=HighPriceSign($$);
     high_price: bytes &size=6;
-    high_price_fraction_indicator: bytes &size=1;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
     low_price_sign: uint8 &convert=LowPriceSign($$);
     low_price: bytes &size=6;
-    low_price_fraction_indicator: bytes &size=1;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
     net_change_sign: uint8 &convert=NetChangeSign($$);
     net_change: bytes &size=6;
-    net_change_fraction_indicator: bytes &size=1;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
     volume: bytes &size=8;
 };
 
@@ -371,7 +371,7 @@ type OptionImprovementProcessBeginningMessage = unit {
     instrument_description: InstrumentDescription;
     improvement_phase_sequential_number: bytes &size=6;
     initial_order_price: bytes &size=6;
-    initial_order_price_fraction_indicator: bytes &size=1;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
     initial_order_quantity: bytes &size=8;
     initial_order_side: uint8 &convert=InitialOrderSide($$);
     improvement_phase_expiry_time: bytes &size=8;
@@ -388,7 +388,7 @@ type ComplexOrderImprovementProcessBeginningMessageMessage = unit {
     improvement_phase_sequential_number: bytes &size=6;
     initial_order_price_sign: uint8 &convert=InitialOrderPriceSign($$);
     initial_order_price: bytes &size=6;
-    initial_order_price_fraction_indicator: bytes &size=1;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
     initial_order_quantity: bytes &size=8;
     initial_order_side: uint8 &convert=InitialOrderSide($$);
     improvement_phase_expiry_time: bytes &size=8;
@@ -403,8 +403,8 @@ type MarketSheetInitialAndImprovementOrderMessage = unit {
     instrument_description: InstrumentDescription;
     order_side: uint8 &convert=OrderSide($$);
     type_of_order: uint8 &convert=TypeOfOrder($$);
-    : skip bytes &size=1;   # padding
-    limit_fraction_indicator: bytes &size=1;
+    limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
     order_quantity: bytes &size=8;
     order_sequence_number: bytes &size=6;
     improvement_phase_sequential_number: bytes &size=6;
@@ -422,8 +422,8 @@ type ComplexOrderMarketSheetInitialAndImprovementOrderMessage = unit {
     order_side: uint8 &convert=OrderSide($$);
     type_of_order: uint8 &convert=TypeOfOrder($$);
     limit_entered_for_an_order_sign: uint8 &convert=LimitEnteredForAnOrderSign($$);
-    : skip bytes &size=1;   # padding
-    limit_fraction_indicator: bytes &size=1;
+    limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
     order_quantity: bytes &size=8;
     order_sequence_number: bytes &size=6;
     improvement_phase_sequential_number: bytes &size=6;
@@ -488,9 +488,69 @@ type ExpiryMonthCode = enum {
     NovemberPut = 0x57,
 };
 
+type StrikePriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type TradePriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
 type NetChangeSign = enum {
     Positive = 0x2b,
     Negative = 0x2d,
+};
+
+type NetChangeFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
 };
 
 type PriceIndicatorMarker = enum {
@@ -505,6 +565,46 @@ type PriceIndicatorMarker = enum {
     TradeInvolvingAnImpliedOrderOrLegTradeOfAComplexOrderInstrument = 0x49,
     TradeDoneOnAComplexOrderInstrument = 0x50,
     ActualTransactionTookPlace = 0x20,
+};
+
+type BidPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type AskPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
 };
 
 type InstrumentStatusMarker = enum {
@@ -548,6 +648,66 @@ type LevelOfMarketDepth = enum {
     PublicCustomerVolume = 0x50,
 };
 
+type MaximumThresholdPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type MinimumThresholdPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type TickIncrementFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
 type OptionType = enum {
     American = 0x41,
     European = 0x45,
@@ -586,9 +746,49 @@ type MaxThresholdPriceSign = enum {
     Negative = 0x2d,
 };
 
+type MaxThresholdPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
 type MinThresholdPriceSign = enum {
     Positive = 0x2b,
     Negative = 0x2d,
+};
+
+type MinThresholdPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
 };
 
 type ComplexOrderInstrumentAllowImplied = enum {
@@ -612,9 +812,109 @@ type ContinueMarker = enum {
     BulletinEnded = 0x31,
 };
 
+type LastPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
 type Tick = enum {
     Uptick = 0x2b,
     Downtick = 0x2d,
+};
+
+type OpenPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type HighPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type LowPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type ReferencePriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
 };
 
 type OpenPriceSign = enum {
@@ -630,6 +930,26 @@ type HighPriceSign = enum {
 type LowPriceSign = enum {
     Positive = 0x2b,
     Negative = 0x2d,
+};
+
+type InitialOrderPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
 };
 
 type InitialOrderSide = enum {
@@ -657,6 +977,26 @@ type OrderSide = enum {
 type TypeOfOrder = enum {
     InitialOrder = 0x41,
     ExposedOrder = 0x50,
+};
+
+type LimitFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
 };
 
 type TypeOfClearingAccount = enum {

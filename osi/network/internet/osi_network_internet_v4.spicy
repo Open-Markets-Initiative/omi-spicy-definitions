@@ -1,0 +1,39 @@
+module OsiNetworkInternetIpV4;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type OsiNetworkInternetV4 = unit {
+    version_and_header_length: bitfield(8) {
+        ip_version: 0..3;
+        ip_header_length: 4..7;
+    } &byte-order=spicy::ByteOrder::Big;
+    type_of_service: bitfield(8) {
+        differentiated_services: 0..5;
+        congestion_notification: 6..7;
+    } &byte-order=spicy::ByteOrder::Big;
+    total_length: uint16;
+    identification: uint16;
+    fragmentation: bitfield(16) {
+        ip_reserved: 0;
+        dont_fragment: 1;
+        more_fragments: 2;
+        fragment_offset: 3..15;
+    } &byte-order=spicy::ByteOrder::Big;
+    time_to_live: uint8;
+    ip_protocol: uint8 &convert=IpProtocol($$);
+    ip_header_checksum: uint16;
+    source_address: uint32;
+    destination_address: uint32;
+    ip_options: bytes &size=self.version_and_header_length.ip_header_length * 4 - 20;
+    ip_payload: bytes &eod;
+};
+
+type IpProtocol = enum {
+    Icmp = 1,
+    Igmp = 2,
+    Tcp = 6,
+    Udp = 17,
+};
+

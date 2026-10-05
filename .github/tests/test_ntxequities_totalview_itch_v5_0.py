@@ -12,7 +12,7 @@ import payloads
 SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 
-class NtxequitiesTotalviewV50Tests(unittest.TestCase):
+class NtxequitiesTotalviewItchV50Tests(unittest.TestCase):
 
     def test_addordermpidattributionmessage(self):
         module = "nasdaq/ntxequities/totalview/ntxequities_totalview_itch_v5_0.spicy"

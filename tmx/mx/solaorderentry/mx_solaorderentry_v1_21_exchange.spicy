@@ -1,0 +1,420 @@
+module TmxMxSolaorderentrySailV121Exchange;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MxSolaorderentryV121 = unit {
+    message_length: uint32;
+    message_type: bytes &size=2;
+    switch ( self.message_type ) {
+        0 -> connection_acknowledgement: ConnectionAcknowledgement;
+        0 -> disconnection_instruction_acknowledgement: DisconnectionInstructionAcknowledgement;
+        0 -> heartbeat_question: HeartbeatQuestion;
+        0 -> out_of_sequence: OutOfSequence;
+        0 -> technical_error_notice: TechnicalErrorNotice;
+        0 -> disconnection_acknowledgement: DisconnectionAcknowledgement;
+        0 -> end_of_transmission: EndOfTransmission;
+        0 -> order_reply: OrderReply;
+        0 -> error_notice: ErrorNotice;
+        0 -> bulk_quote_data_acknowledgement: BulkQuoteDataAcknowledgement;
+        0 -> order_acknowledgement: OrderAcknowledgement;
+        0 -> global_cancellation_confirmation: GlobalCancellationConfirmation;
+        0 -> order_modification_acknowledgement: OrderModificationAcknowledgement;
+        0 -> new_strategy_instrument_acknowledgement: NewStrategyInstrumentAcknowledgement;
+        0 -> standard_acknowledgement: StandardAcknowledgement;
+        0 -> order_cancellation_acknowledgement: OrderCancellationAcknowledgement;
+        0 -> bulk_quote_acknowledgement: BulkQuoteAcknowledgement;
+        0 -> bulk_command_acknowledgement: BulkCommandAcknowledgement;
+        0 -> risk_limits_usage: RiskLimitsUsage;
+        0 -> excluded_instrument_notice: ExcludedInstrumentNotice;
+        0 -> group_state_change: GroupStateChange;
+        0 -> instrument_state_change: InstrumentStateChange;
+        0 -> leg_execution_notice: LegExecutionNotice;
+        0 -> overstepped_order_or_quote_notice: OversteppedOrderOrQuoteNotice;
+        0 -> cancellation_of_all_quotes_notice: CancellationOfAllQuotesNotice;
+        0 -> execution_notice: ExecutionNotice;
+        0 -> execution_cancellation_notice: ExecutionCancellationNotice;
+        0 -> leg_execution_cancellation_notice: LegExecutionCancellationNotice;
+        0 -> order_cancellation_notice_by_mod_or_system: OrderCancellationNoticeByModOrSystem;
+        0 -> request_for_quote_with_side_acknowledgement: RequestForQuoteWithSideAcknowledgement;
+        * -> unknown: bytes &eod;
+    };
+    end_of_text: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type ConnectionAcknowledgement = unit {
+    current_session_id: bytes &size=4;
+    last_user_sequence_id_received: bytes &size=8;
+};
+
+type DisconnectionInstructionAcknowledgement = unit {
+    current_session_id: bytes &size=4;
+    last_user_sequence_id_received: bytes &size=8;
+};
+
+type HeartbeatQuestion = unit {
+    user_sequence_id_first_user_sequence_id_for_nextcurrent_heartbeat_period: bytes &size=8;
+    last_exchange_message_id_sent_to_participant: bytes &size=6;
+    trading_engine_timestamp_local_hhmmss: bytes &size=6;
+};
+
+type OutOfSequence = unit {
+    received_user_sequence_id: bytes &size=8;
+    expected_last_user_sequence_id: bytes &size=8;
+    user_message_timestamp_local_hhmmss: bytes &size=6;
+};
+
+type TechnicalErrorNotice = unit {
+    received_message_type: bytes &size=2;
+    preceding_user_sequence_id_received_zeroes_if_none: bytes &size=8;
+    error_code: bytes &size=4;
+    error_position: bytes &size=4;
+    error_message: bytes &size=100;
+    start_of_message_in_error: bytes &size=100;
+};
+
+type DisconnectionAcknowledgement = unit {
+    current_session_id: bytes &size=4;
+    last_user_sequence_id_received: bytes &size=8;
+};
+
+type EndOfTransmission = unit {
+    ended_session_id: bytes &size=4;
+    last_user_sequence_id_received_if_no_business_message_has_been_received_on_this_connection_this_field_is_equal_to_zeroes: bytes &size=8;
+    trading_engine_timestamp_local_hhmmss: bytes &size=6;
+};
+
+type OrderReply = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id: bytes &size=8;
+    status: bytes &size=1;
+    verb_side: bytes &size=1;
+    quantity_remaining: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+};
+
+type OutgoingMessagesHeader = unit {
+    trading_engine_timestamp_local_hhmmss: bytes &size=6;
+    user_sequence_id: bytes &size=8;
+    exchange_message_id: bytes &size=6;
+    gap_sequence_id: bytes &size=2;
+};
+
+type ClearingData = unit {
+    clearing_instruction: bytes &size=12;
+    account_type: bytes &size=1;
+    open_close: bytes &size=1;
+    hedge_spec: bytes &size=1;
+    : skip bytes &size=5;   # padding
+};
+
+type OwnerData = unit {
+    memo: bytes &size=50;
+};
+
+type ErrorNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    error_code: bytes &size=4;
+    error_description: bytes &size=100;
+};
+
+type BulkQuoteDataAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    trader_id: bytes &size=8;
+    quote_id_identifies_traders_quote_on_this_group: bytes &size=8;
+};
+
+type OrderAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id: bytes &size=8;
+    status: bytes &size=1;
+    verb_side: bytes &size=1;
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    : skip bytes &size=6;   # padding
+};
+
+type GlobalCancellationConfirmation = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    trader_id: bytes &size=8;
+    type_of_cancellation_only_q_quotes_only_can_be_returned: bytes &size=1;
+};
+
+type OrderModificationAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id: bytes &size=8;
+    status: bytes &size=1;
+    verb_side: bytes &size=1;
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    : skip bytes &size=6;   # padding
+};
+
+type NewStrategyInstrumentAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    strategy_group: bytes &size=2;
+    strategy_instrument: bytes &size=4;
+    creation_status: bytes &size=1;
+    number_of_legs: bytes &size=2;
+    new_strategy_instrument_acknowledgement_leg_definition_repeating_block: NewStrategyInstrumentAcknowledgementLegDefinitionRepeatingBlock[self.number_of_legs];
+};
+
+type NewStrategyInstrumentAcknowledgementLegDefinitionRepeatingBlock = unit {
+    leg_group: bytes &size=2;
+    leg_instrument: bytes &size=4;
+    leg_verb: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    leg_quantity_ratio: bytes &size=8;
+};
+
+type StandardAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    trader_id: bytes &size=8;
+    original_message_type_af_gz_ml_ox_or_rq: bytes &size=2;
+};
+
+type OrderCancellationAcknowledgement = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id: bytes &size=8;
+    status: bytes &size=1;
+    verb_side: bytes &size=1;
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    : skip bytes &size=6;   # padding
+};
+
+type BulkQuoteAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    quote_identifier_on_this_group: bytes &size=8;
+    number_of_quotes_in_error: bytes &size=3;
+    bulk_quote_acknowledgement_occurrence: BulkQuoteAcknowledgementOccurrence[self.number_of_quotes_in_error];
+};
+
+type BulkQuoteAcknowledgementOccurrence = unit {
+    quote_number: bytes &size=3;
+    error_code: bytes &size=4;
+};
+
+type BulkCommandAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    number_of_commands: bytes &size=4;
+    bulk_command_acknowledgement_occurrence: BulkCommandAcknowledgementOccurrence[self.number_of_commands];
+};
+
+type BulkCommandAcknowledgementOccurrence = unit {
+    command_number: bytes &size=4;
+    error_code: bytes &size=4;
+};
+
+type RiskLimitsUsage = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    number_of_usage_blocks: bytes &size=4;
+    risk_limits_usage_occurrence: RiskLimitsUsageOccurrence[self.number_of_usage_blocks];
+};
+
+type RiskLimitsUsageOccurrence = unit {
+    trader: bytes &size=4;
+    group: bytes &size=2;
+    usage_status: bytes &size=1;
+    limit_type: bytes &size=1;
+    current_usage: bytes &size=10;
+    limit_value: bytes &size=10;
+};
+
+type ExcludedInstrumentNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    : skip bytes &size=2;   # padding
+    trader_id: bytes &size=8;
+    : skip bytes &size=4;   # padding
+    nb_of_instruments: bytes &size=4;
+    excluded_instrument_notice_occurrence: ExcludedInstrumentNoticeOccurrence[self.nb_of_instruments];
+};
+
+type ExcludedInstrumentNoticeOccurrence = unit {
+    instrument: bytes &size=4;
+};
+
+type GroupStateChange = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    group_state: bytes &size=1;
+};
+
+type InstrumentStateChange = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_state: bytes &size=1;
+};
+
+type LegExecutionNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id_order_id_or_quote_id: bytes &size=8;
+    verb_side: bytes &size=1;
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: bytes &size=1;
+    price_type: bytes &size=1;
+    trade_type: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    trade_number: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+    strategy_group: bytes &size=2;
+    strategy_instrument_id: bytes &size=4;
+    strategy_verb_side: bytes &size=1;
+    strategy_trade_number: bytes &size=8;
+    leg_number: bytes &size=2;
+};
+
+type OversteppedOrderOrQuoteNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    verb: bytes &size=1;
+    order_type: bytes &size=1;
+    trader_id: bytes &size=8;
+    order_id: bytes &size=8;
+    counterpart_trader_id: bytes &size=8;
+    counterpart_order_id: bytes &size=8;
+    counterpart_owner_data: CounterpartOwnerData;
+};
+
+type CounterpartOwnerData = unit {
+    memo: bytes &size=50;
+};
+
+type CancellationOfAllQuotesNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    cancel_reason: bytes &size=1;
+};
+
+type ExecutionNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id_order_id_or_quote_id: bytes &size=8;
+    verb_side: bytes &size=1;
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: bytes &size=1;
+    price_type: bytes &size=1;
+    trade_type: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    trade_number: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+};
+
+type ExecutionCancellationNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id_order_id_or_quote_id: bytes &size=8;
+    verb_side: bytes &size=1;
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: bytes &size=1;
+    price_type: bytes &size=1;
+    trade_type: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    trade_number: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+};
+
+type LegExecutionCancellationNotice = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    reference_id_order_id_or_quote_id: bytes &size=8;
+    verb_side: bytes &size=1;
+    quantity_traded: bytes &size=8;
+    trade_price: bytes &size=10;
+    trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    special_trade_indicator: bytes &size=1;
+    price_type: bytes &size=1;
+    trade_type: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    trade_number: bytes &size=8;
+    trade_memo: bytes &size=50;
+    original_reference_id: bytes &size=8;
+    id_code_for_the_counterpart_participant: bytes &size=4;
+    strategy_group: bytes &size=2;
+    strategy_instrument_id: bytes &size=4;
+    strategy_verb_side: bytes &size=1;
+    strategy_trade_number: bytes &size=8;
+    leg_number: bytes &size=2;
+};
+
+type OrderCancellationNoticeByModOrSystem = unit {
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    trader_id: bytes &size=8;
+    order_id: bytes &size=8;
+    status: bytes &size=1;
+    verb_side: bytes &size=1;
+    quantity: bytes &size=8;
+    assigned_price: bytes &size=10;
+    clearing_data: ClearingData;
+    owner_data: OwnerData;
+    original_order_id: bytes &size=8;
+    : skip bytes &size=6;   # padding
+};
+
+type RequestForQuoteWithSideAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
+    group: bytes &size=2;
+    instrument: bytes &size=4;
+    quantity: bytes &size=8;
+    market_side: bytes &size=1;
+};
+

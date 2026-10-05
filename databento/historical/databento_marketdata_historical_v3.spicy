@@ -1,0 +1,726 @@
+module DatabentoMarketdataHistoricalDbnV3;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type DatabentoMarketdataHistoricalV3 = unit {
+    metadata: Metadata;
+    record: Record[] &eod;
+};
+
+type Metadata = unit {
+    magic: bytes &size=3;
+    version: uint8;
+    metadata_length: uint32;
+    dataset: bytes &size=16;
+    schema: uint16 &convert=Schema($$);
+    start: uint64;
+    end_field: uint64;
+    limit: uint64;
+    stype_in: uint8 &convert=StypeIn($$);
+    stype_out: uint8 &convert=StypeOut($$);
+    ts_out: uint8 &convert=TsOut($$);
+    symbol_cstr_len: uint16;
+    : skip bytes &size=53;   # padding
+    schema_definition_length: uint32;
+    schema_definition: bytes &size=self.schema_definition_length;
+    symbols_count: uint32;
+    symbol: bytes &size=71;
+    partial_count: uint32;
+    partial_symbol: bytes &size=71;
+    not_found_count: uint32;
+    not_found_symbol: bytes &size=71;
+    mappings_count: uint32;
+    symbol_mapping: SymbolMapping[self.mappings_count];
+    : skip bytes &size=0;   # padding
+};
+
+type SymbolMapping = unit {
+    raw_symbol_in: bytes &size=71;
+    interval_count: uint32;
+    mapping_interval: MappingInterval[self.interval_count];
+};
+
+type MappingInterval = unit {
+    start_date: uint32;
+    end_date: uint32;
+    mapped_symbol: bytes &size=71;
+};
+
+type Record = unit {
+    record_header: RecordHeader;
+    switch ( self.record_header.rtype ) {
+        Rtype::MarketByPrice0 -> trade_msg: TradeMsg;
+        Rtype::MarketByPrice1 -> mbp_1_msg: Mbp1Msg;
+        Rtype::MarketByPrice10 -> mbp_10_msg: Mbp10Msg;
+        Rtype::OhlcvDeprecated -> ohlcv_msg: OhlcvMsg;
+        Rtype::Status -> status_msg: StatusMsg;
+        Rtype::InstrumentDefinition -> instrument_def_msg: InstrumentDefMsg;
+        Rtype::Imbalance -> imbalance_msg: ImbalanceMsg;
+        Rtype::Error -> error_msg: ErrorMsg;
+        Rtype::SymbolMapping -> symbol_mapping_msg: SymbolMappingMsg;
+        Rtype::System -> system_msg: SystemMsg;
+        Rtype::Statistics -> stat_msg: StatMsg;
+        Rtype::Ohlcv1Second -> ohlcv_msg: OhlcvMsg;
+        Rtype::Ohlcv1Minute -> ohlcv_msg: OhlcvMsg;
+        Rtype::Ohlcv1Hour -> ohlcv_msg: OhlcvMsg;
+        Rtype::Ohlcv1Day -> ohlcv_msg: OhlcvMsg;
+        Rtype::OhlcvEndOfDay -> ohlcv_msg: OhlcvMsg;
+        Rtype::MarketByOrder -> mbo_msg: MboMsg;
+        Rtype::ConsolidatedMarketByPrice1 -> cmbp_1_msg: Cmbp1Msg;
+        Rtype::ConsolidatedBbo1Second -> cbbo_msg: CbboMsg;
+        Rtype::ConsolidatedBbo1Minute -> cbbo_msg: CbboMsg;
+        Rtype::TradeWithConsolidatedBbo -> cmbp_1_msg: Cmbp1Msg;
+        Rtype::Bbo1Second -> bbo_msg: BboMsg;
+        Rtype::Bbo1Minute -> bbo_msg: BboMsg;
+        * -> unknown: bytes &eod;
+    };
+    ts_out_time: uint64;
+};
+
+type RecordHeader = unit {
+    record_length: uint8;
+    rtype: uint8 &convert=Rtype($$);
+    publisher_id: uint16;
+    instrument_id: uint32;
+    ts_event: uint64;
+};
+
+type TradeMsg = unit {
+    price: int64;
+    size: uint32;
+    action: uint8 &convert=Action($$);
+    side: uint8 &convert=Side($$);
+    flags: bitfield(8) {
+        reserved_flag: 0;
+        publisher_specific: 1;
+        maybe_bad_book: 2;
+        bad_ts_recv: 3;
+        mbp: 4;
+        snapshot: 5;
+        tob: 6;
+        last: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    depth: uint8;
+    ts_recv: uint64;
+    ts_in_delta: int32;
+    sequence: uint32;
+};
+
+type Mbp1Msg = unit {
+    price: int64;
+    size: uint32;
+    action: uint8 &convert=Action($$);
+    side: uint8 &convert=Side($$);
+    flags: bitfield(8) {
+        reserved_flag: 0;
+        publisher_specific: 1;
+        maybe_bad_book: 2;
+        bad_ts_recv: 3;
+        mbp: 4;
+        snapshot: 5;
+        tob: 6;
+        last: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    depth: uint8;
+    ts_recv: uint64;
+    ts_in_delta: int32;
+    sequence: uint32;
+    bid_ask_pair: BidAskPair;
+};
+
+type BidAskPair = unit {
+    bid_px: int64;
+    ask_px: int64;
+    bid_sz: uint32;
+    ask_sz: uint32;
+    bid_ct: uint32;
+    ask_ct: uint32;
+};
+
+type Mbp10Msg = unit {
+    price: int64;
+    size: uint32;
+    action: uint8 &convert=Action($$);
+    side: uint8 &convert=Side($$);
+    flags: bitfield(8) {
+        reserved_flag: 0;
+        publisher_specific: 1;
+        maybe_bad_book: 2;
+        bad_ts_recv: 3;
+        mbp: 4;
+        snapshot: 5;
+        tob: 6;
+        last: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    depth: uint8;
+    ts_recv: uint64;
+    ts_in_delta: int32;
+    sequence: uint32;
+    bid_ask_pair: BidAskPair[10];
+};
+
+type OhlcvMsg = unit {
+    open: int64;
+    high: int64;
+    low: int64;
+    close: int64;
+    volume: uint64;
+};
+
+type StatusMsg = unit {
+    ts_recv: uint64;
+    status_action: uint16 &convert=StatusAction($$);
+    status_reason: uint16 &convert=StatusReason($$);
+    trading_event: uint16 &convert=TradingEvent($$);
+    is_trading: uint8 &convert=IsTrading($$);
+    is_quoting: uint8 &convert=IsQuoting($$);
+    is_short_sell_restricted: uint8 &convert=IsShortSellRestricted($$);
+    : skip bytes &size=7;   # padding
+};
+
+type InstrumentDefMsg = unit {
+    ts_recv: uint64;
+    min_price_increment: int64;
+    display_factor: int64;
+    expiration: uint64;
+    activation: uint64;
+    high_limit_price: int64;
+    low_limit_price: int64;
+    max_price_variation: int64;
+    unit_of_measure_qty: int64;
+    min_price_increment_amount: int64;
+    price_ratio: int64;
+    strike_price: int64;
+    raw_instrument_id: uint64;
+    leg_price: int64;
+    leg_delta: int64;
+    inst_attrib_value: int32;
+    underlying_id: uint32;
+    market_depth_implied: int32;
+    market_depth: int32;
+    market_segment_id: uint32;
+    max_trade_vol: uint32;
+    min_lot_size: int32;
+    min_lot_size_block: int32;
+    min_lot_size_round_lot: int32;
+    min_trade_vol: uint32;
+    contract_multiplier: int32;
+    decay_quantity: int32;
+    original_contract_size: int32;
+    leg_instrument_id: uint32;
+    leg_ratio_price_numerator: int32;
+    leg_ratio_price_denominator: int32;
+    leg_ratio_qty_numerator: int32;
+    leg_ratio_qty_denominator: int32;
+    leg_underlying_id: uint32;
+    appl_id: int16;
+    maturity_year: uint16;
+    decay_start_date: uint16;
+    channel: uint16;
+    leg_count: uint16;
+    leg_index: uint16;
+    currency: bytes &size=4;
+    settl_currency: bytes &size=4;
+    secsubtype: bytes &size=6;
+    raw_symbol: bytes &size=71;
+    group: bytes &size=21;
+    exchange: bytes &size=5;
+    asset: bytes &size=11;
+    cfi: bytes &size=7;
+    security_type: bytes &size=7;
+    unit_of_measure: bytes &size=31;
+    underlying: bytes &size=21;
+    strike_price_currency: bytes &size=4;
+    leg_raw_symbol: bytes &size=71;
+    instrument_class: uint8 &convert=InstrumentClass($$);
+    match_algorithm: uint8 &convert=MatchAlgorithm($$);
+    main_fraction: uint8;
+    price_display_format: uint8;
+    sub_fraction: uint8;
+    underlying_product: uint8;
+    security_update_action: uint8 &convert=SecurityUpdateAction($$);
+    maturity_month: uint8;
+    maturity_day: uint8;
+    maturity_week: uint8;
+    user_defined_instrument: uint8 &convert=UserDefinedInstrument($$);
+    contract_multiplier_unit: int8;
+    flow_schedule_type: int8;
+    tick_rule: uint8;
+    leg_instrument_class: uint8 &convert=LegInstrumentClass($$);
+    leg_side: uint8 &convert=LegSide($$);
+    : skip bytes &size=17;   # padding
+};
+
+type ImbalanceMsg = unit {
+    ts_recv: uint64;
+    ref_price: int64;
+    auction_time: uint64;
+    cont_book_clr_price: int64;
+    auct_interest_clr_price: int64;
+    ssr_filling_price: int64;
+    ind_match_price: int64;
+    upper_collar: int64;
+    lower_collar: int64;
+    paired_qty: uint32;
+    total_imbalance_qty: uint32;
+    market_imbalance_qty: uint32;
+    unpaired_qty: uint32;
+    auction_type: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    auction_status: uint8;
+    freeze_status: uint8;
+    num_extensions: uint8;
+    unpaired_side: uint8 &convert=UnpairedSide($$);
+    significant_imbalance: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type ErrorMsg = unit {
+    err: bytes &size=302;
+    error_code: uint8 &convert=ErrorCode($$);
+    is_last: uint8;
+};
+
+type SymbolMappingMsg = unit {
+    stype_in: uint8 &convert=StypeIn($$);
+    stype_in_symbol: bytes &size=71;
+    stype_out: uint8 &convert=StypeOut($$);
+    stype_out_symbol: bytes &size=71;
+    start_ts: uint64;
+    end_ts: uint64;
+};
+
+type SystemMsg = unit {
+    msg: bytes &size=303;
+    system_code: uint8 &convert=SystemCode($$);
+};
+
+type StatMsg = unit {
+    ts_recv: uint64;
+    ts_ref: uint64;
+    price: int64;
+    quantity: int64;
+    sequence: uint32;
+    ts_in_delta: int32;
+    stat_type: uint16 &convert=StatType($$);
+    channel: uint16;
+    update_action: uint8 &convert=UpdateAction($$);
+    stat_flags: uint8;
+    : skip bytes &size=18;   # padding
+};
+
+type MboMsg = unit {
+    order_id: uint64;
+    price: int64;
+    size: uint32;
+    flags: bitfield(8) {
+        reserved_flag: 0;
+        publisher_specific: 1;
+        maybe_bad_book: 2;
+        bad_ts_recv: 3;
+        mbp: 4;
+        snapshot: 5;
+        tob: 6;
+        last: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    channel_id: uint8;
+    action: uint8 &convert=Action($$);
+    side: uint8 &convert=Side($$);
+    ts_recv: uint64;
+    ts_in_delta: int32;
+    sequence: uint32;
+};
+
+type Cmbp1Msg = unit {
+    price: int64;
+    size: uint32;
+    action: uint8 &convert=Action($$);
+    side: uint8 &convert=Side($$);
+    flags: bitfield(8) {
+        reserved_flag: 0;
+        publisher_specific: 1;
+        maybe_bad_book: 2;
+        bad_ts_recv: 3;
+        mbp: 4;
+        snapshot: 5;
+        tob: 6;
+        last: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    ts_recv: uint64;
+    ts_in_delta: int32;
+    : skip bytes &size=4;   # padding
+    consolidated_bid_ask_pair: ConsolidatedBidAskPair;
+};
+
+type ConsolidatedBidAskPair = unit {
+    bid_px: int64;
+    ask_px: int64;
+    bid_sz: uint32;
+    ask_sz: uint32;
+    bid_pb: uint16;
+    : skip bytes &size=2;   # padding
+    ask_pb: uint16;
+    : skip bytes &size=2;   # padding
+};
+
+type CbboMsg = unit {
+    price: int64;
+    size: uint32;
+    : skip bytes &size=1;   # padding
+    side: uint8 &convert=Side($$);
+    flags: bitfield(8) {
+        reserved_flag: 0;
+        publisher_specific: 1;
+        maybe_bad_book: 2;
+        bad_ts_recv: 3;
+        mbp: 4;
+        snapshot: 5;
+        tob: 6;
+        last: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    ts_recv: uint64;
+    : skip bytes &size=8;   # padding
+    consolidated_bid_ask_pair: ConsolidatedBidAskPair;
+};
+
+type BboMsg = unit {
+    price: int64;
+    size: uint32;
+    : skip bytes &size=1;   # padding
+    side: uint8 &convert=Side($$);
+    flags: bitfield(8) {
+        reserved_flag: 0;
+        publisher_specific: 1;
+        maybe_bad_book: 2;
+        bad_ts_recv: 3;
+        mbp: 4;
+        snapshot: 5;
+        tob: 6;
+        last: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    ts_recv: uint64;
+    : skip bytes &size=4;   # padding
+    sequence: uint32;
+    bid_ask_pair: BidAskPair;
+};
+
+type Schema = enum {
+    Mbo = 0,
+    Mbp1 = 1,
+    Mbp10 = 2,
+    Tbbo = 3,
+    Trades = 4,
+    Ohlcv1S = 5,
+    Ohlcv1M = 6,
+    Ohlcv1H = 7,
+    Ohlcv1D = 8,
+    Definition = 9,
+    Statistics = 10,
+    Status = 11,
+    Imbalance = 12,
+    OhlcvEod = 13,
+    Cmbp1 = 14,
+    Cbbo1S = 15,
+    Cbbo1M = 16,
+    Tcbbo = 17,
+    Bbo1S = 18,
+    Bbo1M = 19,
+};
+
+type StypeIn = enum {
+    InstrumentId = 0,
+    RawSymbol = 1,
+    Smart = 2,
+    Continuous = 3,
+    Parent = 4,
+    NasdaqSymbol = 5,
+    CmsSymbol = 6,
+    Isin = 7,
+    UsCode = 8,
+    BbgCompId = 9,
+    BbgCompTicker = 10,
+    Figi = 11,
+    FigiTicker = 12,
+    ListingId = 13,
+    IssuerId = 14,
+    SecurityId = 15,
+};
+
+type StypeOut = enum {
+    InstrumentId = 0,
+    RawSymbol = 1,
+    Smart = 2,
+    Continuous = 3,
+    Parent = 4,
+    NasdaqSymbol = 5,
+    CmsSymbol = 6,
+    Isin = 7,
+    UsCode = 8,
+    BbgCompId = 9,
+    BbgCompTicker = 10,
+    Figi = 11,
+    FigiTicker = 12,
+    ListingId = 13,
+    IssuerId = 14,
+    SecurityId = 15,
+};
+
+type TsOut = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type Rtype = enum {
+    MarketByPrice0 = 0,
+    MarketByPrice1 = 1,
+    MarketByPrice10 = 10,
+    OhlcvDeprecated = 17,
+    Status = 18,
+    InstrumentDefinition = 19,
+    Imbalance = 20,
+    Error = 21,
+    SymbolMapping = 22,
+    System = 23,
+    Statistics = 24,
+    Ohlcv1Second = 32,
+    Ohlcv1Minute = 33,
+    Ohlcv1Hour = 34,
+    Ohlcv1Day = 35,
+    OhlcvEndOfDay = 36,
+    MarketByOrder = 160,
+    ConsolidatedMarketByPrice1 = 177,
+    ConsolidatedBbo1Second = 192,
+    ConsolidatedBbo1Minute = 193,
+    TradeWithConsolidatedBbo = 194,
+    Bbo1Second = 195,
+    Bbo1Minute = 196,
+};
+
+type Action = enum {
+    Add = 0x41,
+    Cancel = 0x43,
+    Fill = 0x46,
+    Modify = 0x4d,
+    None_x4e = 0x4e,
+    Clear = 0x52,
+    Trade = 0x54,
+};
+
+type Side = enum {
+    Ask = 0x41,
+    Bid = 0x42,
+    None_x4e = 0x4e,
+};
+
+type StatusAction = enum {
+    None_0 = 0,
+    PreOpen = 1,
+    PreCross = 2,
+    Quoting = 3,
+    Cross = 4,
+    Rotation = 5,
+    NewPriceIndication = 6,
+    Trading = 7,
+    Halt = 8,
+    Pause = 9,
+    Suspend = 10,
+    PreClose = 11,
+    Close = 12,
+    PostClose = 13,
+    SsrChange = 14,
+    NotAvailableForTrading = 15,
+};
+
+type StatusReason = enum {
+    None_0 = 0,
+    Scheduled = 1,
+    SurveillanceIntervention = 2,
+    MarketEvent = 3,
+    InstrumentActivation = 4,
+    InstrumentExpiration = 5,
+    RecoveryInProcess = 6,
+    Regulatory = 10,
+    Administrative = 11,
+    NonCompliance = 12,
+    FilingsNotCurrent = 13,
+    SecTradingSuspension = 14,
+    NewIssue = 15,
+    IssueAvailable = 16,
+    IssuesReviewed = 17,
+    FilingReqsSatisfied = 18,
+    NewsPending = 30,
+    NewsReleased = 31,
+    NewsAndResumptionTimes = 32,
+    NewsNotForthcoming = 33,
+    OrderImbalance = 40,
+    LuldPause = 50,
+    Operational = 60,
+    AdditionalInformationRequested = 70,
+    MergerEffective = 80,
+    Etf = 90,
+    CorporateAction = 100,
+    NewSecurityOffering = 110,
+    MarketWideHaltLevel1 = 120,
+    MarketWideHaltLevel2 = 121,
+    MarketWideHaltLevel3 = 122,
+    MarketWideHaltCarryover = 123,
+    MarketWideHaltResumption = 124,
+    QuotationNotAvailable = 130,
+};
+
+type TradingEvent = enum {
+    None_0 = 0,
+    NoCancel = 1,
+    ChangeTradingSession = 2,
+    ImpliedMatchingOn = 3,
+    ImpliedMatchingOff = 4,
+};
+
+type IsTrading = enum {
+    NotAvailable = 0x7e,
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type IsQuoting = enum {
+    NotAvailable = 0x7e,
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type IsShortSellRestricted = enum {
+    NotAvailable = 0x7e,
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type InstrumentClass = enum {
+    Bond = 0x42,
+    Call = 0x43,
+    Future = 0x46,
+    Index = 0x49,
+    Stock = 0x4b,
+    MixedSpread = 0x4d,
+    Put = 0x50,
+    FutureSpread = 0x53,
+    OptionSpread = 0x54,
+    FxSpot = 0x58,
+    CommoditySpot = 0x59,
+};
+
+type MatchAlgorithm = enum {
+    Undefined = 0x20,
+    Allocation = 0x41,
+    ProRata = 0x43,
+    Fifo = 0x46,
+    Configurable = 0x4b,
+    ThresholdProRata = 0x4f,
+    TimeProRata = 0x50,
+    ThresholdProRataLmm = 0x51,
+    FifoTopLmm = 0x53,
+    FifoLmm = 0x54,
+    InstitutionalPrioritization = 0x56,
+    EurodollarFutures = 0x59,
+};
+
+type SecurityUpdateAction = enum {
+    Add = 0x41,
+    Delete = 0x44,
+    Modify = 0x4d,
+    Invalid = 0x7e,
+};
+
+type UserDefinedInstrument = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type LegInstrumentClass = enum {
+    Bond = 0x42,
+    Call = 0x43,
+    Future = 0x46,
+    Index = 0x49,
+    Stock = 0x4b,
+    MixedSpread = 0x4d,
+    Put = 0x50,
+    FutureSpread = 0x53,
+    OptionSpread = 0x54,
+    FxSpot = 0x58,
+    CommoditySpot = 0x59,
+};
+
+type LegSide = enum {
+    Ask = 0x41,
+    Bid = 0x42,
+    None_x4e = 0x4e,
+};
+
+type UnpairedSide = enum {
+    Ask = 0x41,
+    Bid = 0x42,
+    None_x4e = 0x4e,
+};
+
+type ErrorCode = enum {
+    AuthFailed = 1,
+    ApiKeyDeactivated = 2,
+    ConnectionLimitExceeded = 3,
+    SymbolResolutionFailed = 4,
+    InvalidSubscription = 5,
+    InternalError = 6,
+    SkippedRecordsAfterSlowReading = 7,
+    ReplayDataAgedOut = 8,
+    Unset = 255,
+};
+
+type SystemCode = enum {
+    Heartbeat = 0,
+    SubscriptionAck = 1,
+    SlowReaderWarning = 2,
+    ReplayCompleted = 3,
+    EndOfInterval = 4,
+    UnsubscribeAck = 5,
+    Unset = 255,
+};
+
+type StatType = enum {
+    OpeningPrice = 1,
+    IndicativeOpeningPrice = 2,
+    SettlementPrice = 3,
+    TradingSessionLowPrice = 4,
+    TradingSessionHighPrice = 5,
+    ClearedVolume = 6,
+    LowestOffer = 7,
+    HighestBid = 8,
+    OpenInterest = 9,
+    FixingPrice = 10,
+    ClosePrice = 11,
+    NetChange = 12,
+    Vwap = 13,
+    Volatility = 14,
+    Delta = 15,
+    UncrossingPrice = 16,
+    UpperPriceLimit = 17,
+    LowerPriceLimit = 18,
+    BlockVolume = 19,
+    IndicativeClosePrice = 20,
+    MwcbLevel1 = 21,
+    MwcbLevel2 = 22,
+    MwcbLevel3 = 23,
+    AuctionCollarReferencePrice = 24,
+    AuctionCollarUpperPrice = 25,
+    AuctionCollarLowerPrice = 26,
+    VenueSpecificVolume1 = 10001,
+    VenueSpecificPrice1 = 10002,
+};
+
+type UpdateAction = enum {
+    New = 1,
+    Delete = 2,
+};
+

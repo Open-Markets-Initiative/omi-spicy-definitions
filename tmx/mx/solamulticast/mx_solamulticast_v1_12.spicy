@@ -1,0 +1,1219 @@
+module TmxMxSolamulticastHsvfV112;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type MxSolamulticastV112 = unit {
+    hsvf_stx: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::LoginMessage -> login_message: LoginMessage;
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::ErrorMessageMessage -> error_message_message: ErrorMessageMessage;
+        MessageType::OptionTradeMessage -> option_trade_message: OptionTradeMessage;
+        MessageType::FutureOptionsTradeMessage -> future_options_trade_message: FutureOptionsTradeMessage;
+        MessageType::FuturesTradeMessage -> futures_trade_message: FuturesTradeMessage;
+        MessageType::StrategyTradeMessage -> strategy_trade_message: StrategyTradeMessage;
+        MessageType::OptionRequestForQuoteRfqMessage -> option_request_for_quote_rfq_message: OptionRequestForQuoteRfqMessage;
+        MessageType::FutureOptionsRequestForQuoteRfqMessage -> future_options_request_for_quote_rfq_message: FutureOptionsRequestForQuoteRfqMessage;
+        MessageType::FuturesRequestForQuoteRfqMessage -> futures_request_for_quote_rfq_message: FuturesRequestForQuoteRfqMessage;
+        MessageType::StrategyRequestForQuoteRfqMessage -> strategy_request_for_quote_rfq_message: StrategyRequestForQuoteRfqMessage;
+        MessageType::InstrumentScheduleNoticeOptionMessage -> instrument_schedule_notice_option_message: InstrumentScheduleNoticeOptionMessage;
+        MessageType::InstrumentScheduleNoticeFuturesOptionMessage -> instrument_schedule_notice_futures_option_message: InstrumentScheduleNoticeFuturesOptionMessage;
+        MessageType::InstrumentScheduleNoticeFutureMessage -> instrument_schedule_notice_future_message: InstrumentScheduleNoticeFutureMessage;
+        MessageType::InstrumentScheduleNoticeStrategyMessage -> instrument_schedule_notice_strategy_message: InstrumentScheduleNoticeStrategyMessage;
+        MessageType::OptionQuoteMessage -> option_quote_message: OptionQuoteMessage;
+        MessageType::FutureOptionsQuoteMessage -> future_options_quote_message: FutureOptionsQuoteMessage;
+        MessageType::FuturesQuoteMessage -> futures_quote_message: FuturesQuoteMessage;
+        MessageType::StrategyQuoteMessage -> strategy_quote_message: StrategyQuoteMessage;
+        MessageType::OptionMarketDepthMessage -> option_market_depth_message: OptionMarketDepthMessage;
+        MessageType::FutureOptionsMarketDepthMessage -> future_options_market_depth_message: FutureOptionsMarketDepthMessage;
+        MessageType::FuturesMarketDepthMessage -> futures_market_depth_message: FuturesMarketDepthMessage;
+        MessageType::StrategyMarketDepthMessage -> strategy_market_depth_message: StrategyMarketDepthMessage;
+        MessageType::OptionTradeCancellationMessage -> option_trade_cancellation_message: OptionTradeCancellationMessage;
+        MessageType::FutureOptionsTradeCancellationMessage -> future_options_trade_cancellation_message: FutureOptionsTradeCancellationMessage;
+        MessageType::FuturesTradeCancellationMessage -> futures_trade_cancellation_message: FuturesTradeCancellationMessage;
+        MessageType::StrategyTradeCancellationMessage -> strategy_trade_cancellation_message: StrategyTradeCancellationMessage;
+        MessageType::OptionInstrumentKeysMessage -> option_instrument_keys_message: OptionInstrumentKeysMessage;
+        MessageType::FutureOptionsInstrumentKeysMessage -> future_options_instrument_keys_message: FutureOptionsInstrumentKeysMessage;
+        MessageType::UnderlyingInstrumentKeysMessage -> underlying_instrument_keys_message: UnderlyingInstrumentKeysMessage;
+        MessageType::FuturesInstrumentKeysMessage -> futures_instrument_keys_message: FuturesInstrumentKeysMessage;
+        MessageType::StrategyInstrumentKeysMessage -> strategy_instrument_keys_message: StrategyInstrumentKeysMessage;
+        MessageType::OptionSummaryMessage -> option_summary_message: OptionSummaryMessage;
+        MessageType::FutureOptionsSummaryMessage -> future_options_summary_message: FutureOptionsSummaryMessage;
+        MessageType::FuturesSummaryMessage -> futures_summary_message: FuturesSummaryMessage;
+        MessageType::StrategySummaryMessage -> strategy_summary_message: StrategySummaryMessage;
+        MessageType::BeginningOfOptionsSummaryMessage -> beginning_of_options_summary_message: BeginningOfOptionsSummaryMessage;
+        MessageType::BeginningOfFutureOptionsSummaryMessage -> beginning_of_future_options_summary_message: BeginningOfFutureOptionsSummaryMessage;
+        MessageType::BeginningOfFuturesSummaryMessage -> beginning_of_futures_summary_message: BeginningOfFuturesSummaryMessage;
+        MessageType::BeginningOfStrategySummaryMessage -> beginning_of_strategy_summary_message: BeginningOfStrategySummaryMessage;
+        MessageType::FuturesTradeCorrectionMessage -> futures_trade_correction_message: FuturesTradeCorrectionMessage;
+        MessageType::GroupStatusMessage -> group_status_message: GroupStatusMessage;
+        MessageType::GroupStatusStrategiesMessage -> group_status_strategies_message: GroupStatusStrategiesMessage;
+        MessageType::BulletinsMessage -> bulletins_message: BulletinsMessage;
+        MessageType::EndOfSalesMessage -> end_of_sales_message: EndOfSalesMessage;
+        MessageType::TickTableMessage -> tick_table_message: TickTableMessage;
+        MessageType::EndOfTransmissionMessage -> end_of_transmission_message: EndOfTransmissionMessage;
+        MessageType::CircuitAssuranceMessage -> circuit_assurance_message: CircuitAssuranceMessage;
+        * -> unknown: bytes &eod;
+    };
+    hsvf_etx: uint8;
+};
+
+type MessageHeader = unit {
+    sequence_number: bytes &size=9;
+    message_type: bytes &size=2;
+};
+
+type LoginMessage = unit {
+    user_1: bytes &size=16;
+    pwd_1: bytes &size=16;
+    login_timestamp: bytes &size=6;
+    protocol: bytes &size=2;
+};
+
+type RetransmissionRequestMessage = unit {
+    line: bytes &size=2;
+    start: bytes &size=9;
+    end_field: bytes &size=9;
+};
+
+type ErrorMessageMessage = unit {
+    error_code: bytes &size=4;
+    error_msg: bytes &size=80;
+};
+
+type OptionTradeMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type LongMessageHeader = unit {
+    message_timestamp: bytes &size=12;
+};
+
+type OptionSymbol = unit {
+    root: bytes &size=6;
+    expiry_month: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+    expiry_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+};
+
+type FutureOptionsTradeMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    price_indicator_marker: bytes &size=1;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    : skip bytes &size=2;   # padding
+    trade_number: bytes &size=8;
+};
+
+type FutureOptionSymbol = unit {
+    root: bytes &size=6;
+    symbol_month: bytes &size=1;
+    symbol_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+    call_put_code: bytes &size=1;
+    strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type FuturesTradeMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type FutureProduct = unit {
+    root: bytes &size=6;
+    symbol_month: bytes &size=1;
+    symbol_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+};
+
+type StrategyTradeMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    symbol: bytes &size=30;
+    volume: bytes &size=8;
+    trade_price_sign: bytes &size=1;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type OptionRequestForQuoteRfqMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    requested_size: bytes &size=8;
+    requested_market_side: bytes &size=1;
+};
+
+type FutureOptionsRequestForQuoteRfqMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    requested_size: bytes &size=8;
+    requested_market_side: bytes &size=1;
+};
+
+type FuturesRequestForQuoteRfqMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    requested_size: bytes &size=8;
+    requested_market_side: bytes &size=1;
+};
+
+type StrategyRequestForQuoteRfqMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    symbol: bytes &size=30;
+    requested_size: bytes &size=8;
+    requested_market_side: bytes &size=1;
+};
+
+type InstrumentScheduleNoticeOptionMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type InstrumentScheduleNoticeFuturesOptionMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type InstrumentScheduleNoticeFutureMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type InstrumentScheduleNoticeStrategyMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    strategy_symbol: bytes &size=30;
+    series_status: bytes &size=1;
+    scheduled_status_change_time: bytes &size=6;
+};
+
+type OptionQuoteMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    instrument_status_marker: bytes &size=1;
+};
+
+type FutureOptionsQuoteMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    instrument_status_marker: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type FuturesQuoteMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    instrument_status_marker: bytes &size=1;
+};
+
+type StrategyQuoteMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    symbol: bytes &size=30;
+    bid_price_sign: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_sign: bytes &size=1;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    instrument_status_marker: bytes &size=1;
+};
+
+type OptionMarketDepthMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    instrument_status_marker: bytes &size=1;
+    number_of_level: bytes &size=1;
+    market_depth_level: MarketDepthLevel[self.number_of_level];
+};
+
+type MarketDepthLevel = unit {
+    level_of_market_depth: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type FutureOptionsMarketDepthMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    instrument_status_marker: bytes &size=1;
+    number_of_level: bytes &size=1;
+    market_depth_level: MarketDepthLevel[self.number_of_level];
+};
+
+type FuturesMarketDepthMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    instrument_status_marker: bytes &size=1;
+    number_of_level: bytes &size=1;
+    market_depth_level: MarketDepthLevel[self.number_of_level];
+};
+
+type StrategyMarketDepthMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    symbol: bytes &size=30;
+    instrument_status_marker: bytes &size=1;
+    number_of_level: bytes &size=1;
+    strategy_market_depth_level: StrategyMarketDepthLevel[self.number_of_level];
+};
+
+type StrategyMarketDepthLevel = unit {
+    level_of_market_depth: bytes &size=1;
+    bid_price_sign: bytes &size=1;
+    bid_price_quote: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    number_of_bid_orders: bytes &size=2;
+    ask_price_sign: bytes &size=1;
+    ask_price_quote: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    number_of_ask_orders: bytes &size=2;
+};
+
+type OptionTradeCancellationMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type FutureOptionsTradeCancellationMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    volume: bytes &size=8;
+    price: bytes &size=7;
+    price_fraction_indicator: uint8 &convert=PriceFractionIndicator($$);
+    price_indicator_marker: bytes &size=1;
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    : skip bytes &size=2;   # padding
+    trade_number: bytes &size=8;
+};
+
+type FuturesTradeCancellationMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type StrategyTradeCancellationMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    symbol: bytes &size=30;
+    volume: bytes &size=8;
+    trade_price_sign: bytes &size=1;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    : skip bytes &size=1;   # padding
+    trade_number: bytes &size=8;
+};
+
+type OptionInstrumentKeysMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    strike_price_currency: bytes &size=3;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+    minimum_threshold_price: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+    option_type: bytes &size=1;
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    option_marker: bytes &size=2;
+    underlying_symbol_root: bytes &size=12;
+    contract_size: bytes &size=8;
+    tick_value: bytes &size=7;
+    tick_value_fraction_indicator: uint8 &convert=TickValueFractionIndicator($$);
+    currency: bytes &size=3;
+    delivery_type: bytes &size=1;
+};
+
+type FutureOptionsInstrumentKeysMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    expiry_date: bytes &size=6;
+    strike_price_currency: bytes &size=3;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+    minimum_threshold_price: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    contract_size: bytes &size=8;
+    tick_value: bytes &size=7;
+    tick_value_fraction_indicator: uint8 &convert=TickValueFractionIndicator($$);
+    currency: bytes &size=3;
+    delivery_type: bytes &size=1;
+    underlying_root_symbol: bytes &size=6;
+    underlying_symbol_month: bytes &size=1;
+    underlying_symbol_year: bytes &size=2;
+};
+
+type UnderlyingInstrumentKeysMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+};
+
+type FuturesInstrumentKeysMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    expiry_date: bytes &size=6;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+    minimum_threshold_price: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    contract_size: bytes &size=8;
+    tick_value: bytes &size=7;
+    tick_value_fraction_indicator: uint8 &convert=TickValueFractionIndicator($$);
+    currency: bytes &size=3;
+    underlying_symbol: bytes &size=12;
+    delivery_type: bytes &size=1;
+    associated_product: AssociatedProduct;
+};
+
+type AssociatedProduct = unit {
+    root_symbol: bytes &size=6;
+    symbol_month: bytes &size=1;
+    symbol_year: bytes &size=2;
+    expiry_day: bytes &size=2;
+};
+
+type StrategyInstrumentKeysMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    strategy_symbol: bytes &size=30;
+    expiry_year: bytes &size=2;
+    expiry_month: bytes &size=1;
+    expiry_day: bytes &size=2;
+    maximum_number_of_contracts_per_order: bytes &size=6;
+    minimum_number_of_contracts_per_order: bytes &size=6;
+    maximum_threshold_price: bytes &size=7;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+    minimum_threshold_price: bytes &size=7;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+    tick_increment: bytes &size=7;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+    market_flow_indicator: bytes &size=2;
+    group_instrument: bytes &size=2;
+    instrument: bytes &size=4;
+    instrument_external_code: bytes &size=30;
+    strategy_allow_implied: bytes &size=1;
+    strategy_code: bytes &size=2;
+    number_of_legs: bytes &size=2;
+    strategy_instrument_leg: StrategyInstrumentLeg[self.number_of_legs];
+};
+
+type StrategyInstrumentLeg = unit {
+    leg_ratio_sign: bytes &size=1;
+    leg_ratio: bytes &size=4;
+    leg_symbol: bytes &size=30;
+};
+
+type OptionSummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    option_symbol: OptionSymbol;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    last_price: bytes &size=7;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+    open_interest: bytes &size=7;
+    open_interest_date: bytes &size=6;
+    tick: bytes &size=1;
+    volume: bytes &size=8;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    open_price: bytes &size=7;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+    option_marker: bytes &size=2;
+    settlement_price: bytes &size=7;
+    settlement_price_fraction_indicator: uint8 &convert=SettlementPriceFractionIndicator($$);
+    previous_settlement_price: bytes &size=7;
+    previous_settlement_price_fraction_indicator: uint8 &convert=PreviousSettlementPriceFractionIndicator($$);
+    reason: bytes &size=1;
+};
+
+type FutureOptionsSummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_option_symbol: FutureOptionSymbol;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    last_price: bytes &size=7;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+    open_interest: bytes &size=7;
+    open_interest_date: bytes &size=6;
+    tick: bytes &size=1;
+    volume: bytes &size=8;
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    opening_price: bytes &size=7;
+    opening_price_fraction_indicator: uint8 &convert=OpeningPriceFractionIndicator($$);
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+    : skip bytes &size=2;   # padding
+    settlement_price: bytes &size=7;
+    settlement_price_fraction_indicator: uint8 &convert=SettlementPriceFractionIndicator($$);
+    previous_settlement_price: bytes &size=7;
+    previous_settlement_price_fraction_indicator: uint8 &convert=PreviousSettlementPriceFractionIndicator($$);
+    reason: bytes &size=1;
+};
+
+type FuturesSummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    last_price: bytes &size=7;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+    open_price: bytes &size=7;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+    settlement_price: bytes &size=7;
+    settlement_price_fraction_indicator: uint8 &convert=SettlementPriceFractionIndicator($$);
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    volume: bytes &size=8;
+    previous_settlement: bytes &size=7;
+    previous_settlement_fraction_indicator: uint8 &convert=PreviousSettlementFractionIndicator($$);
+    open_interest: bytes &size=7;
+    open_interest_date: bytes &size=6;
+    reason: bytes &size=1;
+    external_price_at_source: bytes &size=7;
+    external_price_fraction_indicator: uint8 &convert=ExternalPriceFractionIndicator($$);
+};
+
+type StrategySummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    strategy_symbol: bytes &size=30;
+    bid_price_sign: bytes &size=1;
+    bid_price_summary: bytes &size=7;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    bid_size: bytes &size=5;
+    ask_price_sign: bytes &size=1;
+    ask_price_summary: bytes &size=7;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    ask_size: bytes &size=5;
+    last_price_sign: bytes &size=1;
+    last_price: bytes &size=7;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+    open_price_sign: bytes &size=1;
+    open_price: bytes &size=7;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+    high_price_sign: bytes &size=1;
+    high_price: bytes &size=7;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+    low_price_sign: bytes &size=1;
+    low_price: bytes &size=7;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    volume: bytes &size=8;
+    reason: bytes &size=1;
+};
+
+type BeginningOfOptionsSummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+};
+
+type BeginningOfFutureOptionsSummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+};
+
+type BeginningOfFuturesSummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+};
+
+type BeginningOfStrategySummaryMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+};
+
+type FuturesTradeCorrectionMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    future_product: FutureProduct;
+    volume: bytes &size=8;
+    trade_price: bytes &size=7;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    net_change_sign: bytes &size=1;
+    net_change: bytes &size=7;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    : skip bytes &size=6;   # padding
+    trade_timestamp: bytes &size=9;
+    price_indicator_marker: bytes &size=1;
+    trade_number: bytes &size=8;
+};
+
+type GroupStatusMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    root_symbol: bytes &size=6;
+    group_status: bytes &size=1;
+};
+
+type GroupStatusStrategiesMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    group_instrument: bytes &size=2;
+    group_status: bytes &size=1;
+};
+
+type BulletinsMessage = unit {
+    long_message_header: LongMessageHeader;
+    : skip bytes &size=1;   # padding
+    bulletin_type: uint8;
+    switch ( self.bulletin_type ) {
+        0x31 -> regular_text_bulletin: RegularTextBulletin;
+        0x32 -> special_text_bulletin: SpecialTextBulletin;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RegularTextBulletin = unit {
+    regular_bulletin_contents: bytes &size=79;
+    continue_marker: bytes &size=1;
+};
+
+type SpecialTextBulletin = unit {
+    symbol: bytes &size=30;
+    special_bulletin_contents: bytes &size=49;
+    continue_marker: bytes &size=1;
+};
+
+type EndOfSalesMessage = unit {
+    long_message_header: LongMessageHeader;
+    : skip bytes &size=1;   # padding
+    time_field: bytes &size=6;
+};
+
+type TickTableMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    tick_table_name: bytes &size=50;
+    tick_table_short_name: bytes &size=2;
+    nb_entries: bytes &size=2;
+    tick_entry: TickEntry[self.nb_entries];
+};
+
+type TickEntry = unit {
+    min_price: bytes &size=7;
+    min_price_fraction_indicator: uint8 &convert=MinPriceFractionIndicator($$);
+    tick_price: bytes &size=7;
+    tick_price_fraction_indicator: uint8 &convert=TickPriceFractionIndicator($$);
+};
+
+type EndOfTransmissionMessage = unit {
+    long_message_header: LongMessageHeader;
+    exchange_id: bytes &size=1;
+    time_field: bytes &size=6;
+};
+
+type CircuitAssuranceMessage = unit {
+    long_message_header: LongMessageHeader;
+    time_field: bytes &size=6;
+};
+
+type MessageType = enum {
+    OptionTradeMessage = 0x43,
+    OptionRequestForQuoteRfqMessage = 0x44,
+    InstrumentScheduleNoticeOptionMessage = 0x45,
+    OptionQuoteMessage = 0x46,
+    OptionMarketDepthMessage = 0x48,
+    OptionTradeCancellationMessage = 0x49,
+    OptionInstrumentKeysMessage = 0x4a,
+    OptionSummaryMessage = 0x4e,
+    BeginningOfOptionsSummaryMessage = 0x51,
+    BulletinsMessage = 0x4c,
+    EndOfSalesMessage = 0x53,
+    EndOfTransmissionMessage = 0x55,
+    CircuitAssuranceMessage = 0x56,
+};
+
+type StrikePriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type TradePriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type NetChangeFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type BidPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type AskPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type PriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type MaximumThresholdPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type MinimumThresholdPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type TickIncrementFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type TickValueFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type LastPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type OpenPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type HighPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type LowPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type SettlementPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type PreviousSettlementPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type OpeningPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type PreviousSettlementFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type ExternalPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type MinPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+
+type TickPriceFractionIndicator = enum {
+    Whole = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NegativeWhole = 0x41,
+    NegativeTen = 0x42,
+    NegativeHundred = 0x43,
+    NegativeThousand = 0x44,
+    NegativeTenThousand = 0x45,
+    NegativeHundredThousand = 0x46,
+    NegativeMillion = 0x47,
+};
+

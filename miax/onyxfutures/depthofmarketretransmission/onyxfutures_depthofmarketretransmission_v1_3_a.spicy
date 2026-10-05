@@ -1,0 +1,511 @@
+module MiaxOnyxfuturesDepthofmarketretransmissionSesmV13A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type OnyxfuturesDepthofmarketretransmissionV13A = unit {
+    sesm_tcp_packet: SesmTcpPacket[] &eod;
+};
+
+type SesmTcpPacket = unit {
+    sesm_packet_header: SesmPacketHeader;
+    switch ( self.sesm_packet_header.sesm_packet_type ) {
+        SesmPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        SesmPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        SesmPacketType::LoginRequest -> login_request: LoginRequest;
+        SesmPacketType::LoginResponse -> login_response: LoginResponse;
+        SesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
+        SesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.sesm_packet_header.sesm_packet_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SesmPacketHeader = unit {
+    sesm_packet_length: uint16;
+    sesm_packet_type: uint8 &convert=SesmPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    sequence_number: uint64;
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SimpleInstrumentDefinitionMessage -> simple_instrument_definition_message: SimpleInstrumentDefinitionMessage;
+        MessageType::ComplexInstrumentDefinitionMessage -> complex_instrument_definition_message: ComplexInstrumentDefinitionMessage;
+        MessageType::ComplexInstrumentDefinitionDeprecatedMessage -> complex_instrument_definition_deprecated_message: ComplexInstrumentDefinitionDeprecatedMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::InstrumentTradingStatusNotificationMessage -> instrument_trading_status_notification_message: InstrumentTradingStatusNotificationMessage;
+        MessageType::AnticipatedOpeningPriceMessage -> anticipated_opening_price_message: AnticipatedOpeningPriceMessage;
+        MessageType::SettlementPriceUpdateMessage -> settlement_price_update_message: SettlementPriceUpdateMessage;
+        MessageType::OpenInterestUpdateMessage -> open_interest_update_message: OpenInterestUpdateMessage;
+        MessageType::TotalVolumeUpdateMessage -> total_volume_update_message: TotalVolumeUpdateMessage;
+        MessageType::InstrumentClearMessage -> instrument_clear_message: InstrumentClearMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        MessageType::DeleteOrderMessage -> delete_order_message: DeleteOrderMessage;
+        MessageType::OrderExecutionMessage -> order_execution_message: OrderExecutionMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SimpleInstrumentDefinitionMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    underlying_asset_type: uint8 &convert=UnderlyingAssetType($$);
+    underlying_asset_alphanumeric_4: bytes &size=4;
+    product_group_code_alphanumeric_6: bytes &size=6;
+    exchange: bytes &size=4;
+    instrument_id_source: uint8 &convert=InstrumentIdSource($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    instrument_listing_status: uint8 &convert=InstrumentListingStatus($$);
+    : skip bytes &size=3;   # padding
+    currency: uint8 &convert=Currency($$);
+    settlement_currency: uint8 &convert=SettlementCurrency($$);
+    match_algorithm: uint8 &convert=MatchAlgorithm($$);
+    minimum_size: uint32;
+    maximum_size: uint32;
+    tick: int64;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_quantity: uint32;
+    settlement_price: int64;
+    settlement_price_type_calc_method: uint8 &convert=SettlementPriceTypeCalcMethod($$);
+    total_volume: uint32;
+    open_interest_quantity: uint32;
+    high_limit_price: int64;
+    low_limit_price: int64;
+    trading_collar_variation_type: uint8 &convert=TradingCollarVariationType($$);
+    trading_collar_variation: int64;
+    contract_date: uint32;
+    maturity_date: uint16;
+    valuation_date: uint16;
+    first_trade_date: uint16;
+    last_trade_date: uint16;
+    first_notice_date: uint16;
+    last_notice_date: uint16;
+    first_delivery_date: uint16;
+    last_delivery_date: uint16;
+    option_strike_price: int64;
+    option_strike_currency: uint8 &convert=OptionStrikeCurrency($$);
+    option_type: uint8 &convert=OptionType($$);
+    option_expiration_type: uint8 &convert=OptionExpirationType($$);
+    underlying_future_instrument_id: uint32;
+};
+
+type ComplexInstrumentDefinitionMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    underlying_asset_type: uint8 &convert=UnderlyingAssetType($$);
+    underlying_asset_alphanumeric_9: bytes &size=9;
+    product_group_code_alphanumeric_13: bytes &size=13;
+    spread_type: uint8 &convert=SpreadType($$);
+    exchange: bytes &size=4;
+    instrument_id_source: uint8 &convert=InstrumentIdSource($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    currency: uint8 &convert=Currency($$);
+    settlement_currency: uint8 &convert=SettlementCurrency($$);
+    match_algorithm: uint8 &convert=MatchAlgorithm($$);
+    minimum_size: uint32;
+    maximum_size: uint32;
+    tick: int64;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_quantity: uint32;
+    settlement_price: int64;
+    settlement_price_type_calc_method: uint8 &convert=SettlementPriceTypeCalcMethod($$);
+    trading_collar_variation_type: uint8 &convert=TradingCollarVariationType($$);
+    trading_collar_variation: int64;
+    instrument_listing_status: uint8 &convert=InstrumentListingStatus($$);
+    first_trade_date: uint16;
+    : skip bytes &size=64;   # padding
+    number_of_legs: uint8;
+    instrument_leg: InstrumentLeg[self.number_of_legs];
+};
+
+type InstrumentLeg = unit {
+    instrument_id: uint32;
+    leg_ratio_and_side: int32;
+    maturity_date: uint16;
+    : skip bytes &size=32;   # padding
+};
+
+type ComplexInstrumentDefinitionDeprecatedMessage = unit {
+    timestamp: uint64;
+    instrument_id_formerly_known_as_strategy_id: uint32;
+    underlying_asset_type: uint8 &convert=UnderlyingAssetType($$);
+    underlying_asset_alphanumeric_4: bytes &size=4;
+    product_group_code_alphanumeric_6: bytes &size=6;
+    spread_type: uint8 &convert=SpreadType($$);
+    exchange: bytes &size=4;
+    instrument_id_source: uint8 &convert=InstrumentIdSource($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    currency: uint8 &convert=Currency($$);
+    settlement_currency: uint8 &convert=SettlementCurrency($$);
+    match_algorithm: uint8 &convert=MatchAlgorithm($$);
+    minimum_size: uint32;
+    maximum_size: uint32;
+    tick: int64;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_quantity: uint32;
+    trading_collar_variation_type: uint8 &convert=TradingCollarVariationType($$);
+    trading_collar_variation: int64;
+    : skip bytes &size=16;   # padding
+    number_of_legs: uint8;
+    deprecated_instrument_leg: DeprecatedInstrumentLeg[self.number_of_legs];
+};
+
+type DeprecatedInstrumentLeg = unit {
+    instrument_id: uint32;
+    leg_ratio_and_side: int32;
+    : skip bytes &size=4;   # padding
+    maturity_date: uint16;
+    : skip bytes &size=6;   # padding
+};
+
+type SystemStateMessage = unit {
+    timestamp: uint64;
+    do_m_version: bytes &size=8;
+    session_id: uint8;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type InstrumentTradingStatusNotificationMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    trading_status: uint8;
+    market_state: uint8;
+};
+
+type AnticipatedOpeningPriceMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    anticipated_opening_price: int64;
+    opening_match_quantity: uint32;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type SettlementPriceUpdateMessage = unit {
+    timestamp: uint64;
+    trade_date: uint16;
+    instrument_id: uint32;
+    settlement_price: int64;
+    settlement_price_type: uint8 &convert=SettlementPriceType($$);
+    settlement_price_type_calc_method: uint8 &convert=SettlementPriceTypeCalcMethod($$);
+};
+
+type OpenInterestUpdateMessage = unit {
+    timestamp: uint64;
+    trade_date: uint16;
+    instrument_id: uint32;
+    open_interest_quantity: uint32;
+};
+
+type TotalVolumeUpdateMessage = unit {
+    timestamp: uint64;
+    trade_date: uint16;
+    instrument_id: uint32;
+    total_volume: uint32;
+};
+
+type InstrumentClearMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+};
+
+type AddOrderMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    order_id: uint64;
+    order_side: uint8 &convert=OrderSide($$);
+    price: int64;
+    size: uint32;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type ModifyOrderMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_id: uint64;
+    price: int64;
+    size_flags: uint32;
+    order_side: uint8 &convert=OrderSide($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type DeleteOrderMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    order_id: uint64;
+    order_side: uint8 &convert=OrderSide($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type OrderExecutionMessage = unit {
+    timestamp: uint64;
+    trade_date: uint16;
+    instrument_id: uint32;
+    buy_order_id: uint64;
+    sell_order_id: uint64;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    trade_id: uint64;
+    correction_number: uint8;
+    price: int64;
+    size: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    complex_trade_id: uint64;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type TradeCancelMessage = unit {
+    timestamp: uint64;
+    trade_date: uint16;
+    instrument_id: uint32;
+    trade_id: uint64;
+    correction_number: uint8;
+    price: int64;
+    size: uint32;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type UnsequencedDataPacket = unit {
+    refresh_type: uint8 &convert=RefreshType($$);
+    switch ( self.refresh_type ) {
+        RefreshType::RefreshRequest -> refresh_request: RefreshRequest;
+        RefreshType::RefreshResponse -> refresh_response: RefreshResponse;
+        RefreshType::EndOfRequest -> end_of_refresh: EndOfRefresh;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RefreshRequest = unit {
+    refresh_message_type: uint8 &convert=RefreshMessageType($$);
+};
+
+type RefreshResponse = unit {
+    sequence_number: uint64;
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SimpleInstrumentDefinitionMessage -> simple_instrument_definition_message: SimpleInstrumentDefinitionMessage;
+        MessageType::ComplexInstrumentDefinitionMessage -> complex_instrument_definition_message: ComplexInstrumentDefinitionMessage;
+        MessageType::ComplexInstrumentDefinitionDeprecatedMessage -> complex_instrument_definition_deprecated_message: ComplexInstrumentDefinitionDeprecatedMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::InstrumentTradingStatusNotificationMessage -> instrument_trading_status_notification_message: InstrumentTradingStatusNotificationMessage;
+        MessageType::AnticipatedOpeningPriceMessage -> anticipated_opening_price_message: AnticipatedOpeningPriceMessage;
+        MessageType::SettlementPriceUpdateMessage -> settlement_price_update_message: SettlementPriceUpdateMessage;
+        MessageType::OpenInterestUpdateMessage -> open_interest_update_message: OpenInterestUpdateMessage;
+        MessageType::TotalVolumeUpdateMessage -> total_volume_update_message: TotalVolumeUpdateMessage;
+        MessageType::InstrumentClearMessage -> instrument_clear_message: InstrumentClearMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        MessageType::DeleteOrderMessage -> delete_order_message: DeleteOrderMessage;
+        MessageType::OrderExecutionMessage -> order_execution_message: OrderExecutionMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type EndOfRefresh = unit {
+    refresh_message_type: uint8 &convert=RefreshMessageType($$);
+};
+
+type LoginRequest = unit {
+    sesm_version: bytes &size=5;
+    username: bytes &size=5;
+    computer_id: bytes &size=8;
+    application_protocol: bytes &size=8;
+    requested_session: uint8;
+    requested_sequence_number: uint64;
+};
+
+type LoginResponse = unit {
+    login_status: uint8 &convert=LoginStatus($$);
+    session_id: uint8;
+    highest_sequence_number: uint64;
+};
+
+type RetransmissionRequest = unit {
+    start_sequence_number: uint64;
+    end_sequence_number: uint64;
+};
+
+type LogoutRequest = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type GoodbyePacket = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type SesmPacketType = enum {
+    SequencedDataPacket = 0x53,
+    UnsequencedDataPacket = 0x55,
+    LoginRequest = 0x4c,
+    LoginResponse = 0x52,
+    SynchronizationComplete = 0x43,
+    RetransmissionRequest = 0x41,
+    LogoutRequest = 0x58,
+    GoodbyePacket = 0x47,
+    EndOfSession = 0x45,
+    ServerHeartbeat = 0x30,
+    ClientHeartbeat = 0x31,
+};
+
+type MessageType = enum {
+    SimpleInstrumentDefinitionMessage = 1,
+    ComplexInstrumentDefinitionMessage = 17,
+    ComplexInstrumentDefinitionDeprecatedMessage = 2,
+    SystemStateMessage = 3,
+    InstrumentTradingStatusNotificationMessage = 4,
+    AnticipatedOpeningPriceMessage = 5,
+    SettlementPriceUpdateMessage = 6,
+    OpenInterestUpdateMessage = 7,
+    TotalVolumeUpdateMessage = 8,
+    InstrumentClearMessage = 9,
+    AddOrderMessage = 10,
+    ModifyOrderMessage = 11,
+    DeleteOrderMessage = 12,
+    OrderExecutionMessage = 13,
+    TradeCancelMessage = 14,
+};
+
+type UnderlyingAssetType = enum {
+    Equity = 0x45,
+    CommodityAgriculture = 0x41,
+    Futures = 0x46,
+    Not = 0x4e,
+};
+
+type InstrumentIdSource = enum {
+    Exchange = 0x45,
+};
+
+type InstrumentType = enum {
+    Futures = 0x46,
+    OptionsOn = 0x4f,
+    TradeAt = 0x54,
+    Basis = 0x42,
+};
+
+type InstrumentListingStatus = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+};
+
+type Currency = enum {
+    Usd = 0x55,
+};
+
+type SettlementCurrency = enum {
+    Usd = 0x55,
+};
+
+type MatchAlgorithm = enum {
+    PriceTime = 0x50,
+};
+
+type SettlementPriceTypeCalcMethod = enum {
+    Actual = 0x41,
+    Theoretical = 0x54,
+};
+
+type TradingCollarVariationType = enum {
+    Product = 0x44,
+    Product_x50 = 0x50,
+    Not = 0x4e,
+};
+
+type OptionStrikeCurrency = enum {
+    UsDollar = 0x55,
+    NaWhen = 0x4e,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+    NaWhen = 0x4e,
+};
+
+type OptionExpirationType = enum {
+    AmericanStyle = 0x41,
+    EuropeanStyle = 0x45,
+    NaWhen = 0x4e,
+};
+
+type SpreadType = enum {
+    Standard = 0x53,
+    Equity = 0x45,
+    Butterfly = 0x42,
+    Cross = 0x43,
+};
+
+type SystemStatus = enum {
+    StartOf = 0x53,
+    EndOf = 0x43,
+    StartOf_x31 = 0x31,
+    EndOf_x32 = 0x32,
+};
+
+type SettlementPriceType = enum {
+    Daily = 0x44,
+    Final = 0x46,
+};
+
+type OrderType = enum {
+    Simple = 0x53,
+    Complex = 0x43,
+    Derived = 0x44,
+};
+
+type OrderSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type AggressorSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    Not = 0x4e,
+};
+
+type TradeType = enum {
+    Outright = 0x4f,
+    Strategy = 0x53,
+    Strategy_x4d = 0x4d,
+    Complex = 0x43,
+    Complex_x4c = 0x4c,
+    AdjustedLate = 0x41,
+};
+
+type RefreshType = enum {
+    RefreshRequest = 0x52,
+    RefreshResponse = 0x72,
+    EndOfRequest = 0x45,
+};
+
+type RefreshMessageType = enum {
+    SimpleComplexInstrumentDefinitionRefresh = 0x49,
+    InstrumentTradingStatusRefresh = 0x54,
+    SystemStateRefresh = 0x53,
+    OrderBookRefresh = 0x4f,
+};
+
+type LoginStatus = enum {
+    Successful = 0x20,
+    Rejected = 0x58,
+    RequestedSessionIsNotAvailable = 0x53,
+    InvalidStartSequenceNumberRequested = 0x4e,
+    IncompatibleSessionProtocolVersion = 0x49,
+    IncompatibleApplicationProtocolVersion = 0x41,
+    RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
+};
+
+type LogoutReason = enum {
+    GracefulLogout = 0x20,
+    BadPacket = 0x42,
+    TimedOut = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+

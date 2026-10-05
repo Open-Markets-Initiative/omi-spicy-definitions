@@ -1,0 +1,301 @@
+module MiaxOnyxfuturesTopofmarketMachV13A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type OnyxfuturesTopofmarketV13A = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    sequence_number: uint64;
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+    session_number: uint8;
+    payload: ApplicationMessage;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SimpleInstrumentDefinitionMessage -> simple_instrument_definition_message: SimpleInstrumentDefinitionMessage;
+        MessageType::ComplexInstrumentDefinitionMessage -> complex_instrument_definition_message: ComplexInstrumentDefinitionMessage;
+        MessageType::ComplexInstrumentDefinitionDeprecatedMessage -> complex_instrument_definition_deprecated_message: ComplexInstrumentDefinitionDeprecatedMessage;
+        MessageType::SystemStateMessage -> system_state_message: SystemStateMessage;
+        MessageType::InstrumentTradingStatusNotificationMessage -> instrument_trading_status_notification_message: InstrumentTradingStatusNotificationMessage;
+        MessageType::BestBidAndOfferMessage -> best_bid_and_offer_message: BestBidAndOfferMessage;
+        MessageType::LastSaleMessage -> last_sale_message: LastSaleMessage;
+        MessageType::TradeCancelMessage -> trade_cancel_message: TradeCancelMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SimpleInstrumentDefinitionMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    underlying_asset_type: uint8 &convert=UnderlyingAssetType($$);
+    underlying_asset_alphanumeric_4: bytes &size=4;
+    product_group_code_alphanumeric_6: bytes &size=6;
+    exchange: bytes &size=4;
+    instrument_id_source: uint8 &convert=InstrumentIdSource($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    instrument_listing_status: uint8 &convert=InstrumentListingStatus($$);
+    : skip bytes &size=3;   # padding
+    currency: uint8 &convert=Currency($$);
+    settlement_currency: uint8 &convert=SettlementCurrency($$);
+    match_algorithm: uint8 &convert=MatchAlgorithm($$);
+    minimum_size: uint32;
+    maximum_size: uint32;
+    tick: int64;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_quantity: uint32;
+    settlement_price: int64;
+    settlement_price_type_calc_method: uint8 &convert=SettlementPriceTypeCalcMethod($$);
+    total_volume: uint32;
+    open_interest_quantity: uint32;
+    high_limit_price: int64;
+    low_limit_price: int64;
+    trading_collar_variation_type: uint8 &convert=TradingCollarVariationType($$);
+    trading_collar_variation: int64;
+    contract_date: uint32;
+    maturity_date: uint16;
+    valuation_date: uint16;
+    first_trade_date: uint16;
+    last_trade_date: uint16;
+    first_notice_date: uint16;
+    last_notice_date: uint16;
+    first_delivery_date: uint16;
+    last_delivery_date: uint16;
+    option_strike_price: int64;
+    option_strike_currency: uint8 &convert=OptionStrikeCurrency($$);
+    option_type: uint8 &convert=OptionType($$);
+    option_expiration_type: uint8 &convert=OptionExpirationType($$);
+    underlying_future_instrument_id: uint32;
+};
+
+type ComplexInstrumentDefinitionMessage = unit {
+    timestamp: uint64;
+    instrument_id_formerly_known_as_strategy_id: uint32;
+    underlying_asset_type: uint8 &convert=UnderlyingAssetType($$);
+    underlying_asset_alphanumeric_9: bytes &size=9;
+    product_group_code_alphanumeric_13: bytes &size=13;
+    spread_type: uint8 &convert=SpreadType($$);
+    exchange: bytes &size=4;
+    instrument_id_source: uint8 &convert=InstrumentIdSource($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    currency: uint8 &convert=Currency($$);
+    settlement_currency: uint8 &convert=SettlementCurrency($$);
+    match_algorithm: uint8 &convert=MatchAlgorithm($$);
+    minimum_size: uint32;
+    maximum_size: uint32;
+    tick: int64;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_quantity: uint32;
+    settlement_price: int64;
+    settlement_price_type_calc_method: uint8 &convert=SettlementPriceTypeCalcMethod($$);
+    trading_collar_variation_type: uint8 &convert=TradingCollarVariationType($$);
+    trading_collar_variation: int64;
+    listing_status: uint8 &convert=ListingStatus($$);
+    first_trade_date: uint16;
+    : skip bytes &size=64;   # padding
+    number_of_legs: uint8;
+    instrument_leg: InstrumentLeg[self.number_of_legs];
+};
+
+type InstrumentLeg = unit {
+    instrument_id: uint32;
+    leg_ratio_and_side: int32;
+    maturity_date: uint16;
+    : skip bytes &size=32;   # padding
+};
+
+type ComplexInstrumentDefinitionDeprecatedMessage = unit {
+    timestamp: uint64;
+    instrument_id_formerly_known_as_strategy_id: uint32;
+    underlying_asset_type: uint8 &convert=UnderlyingAssetType($$);
+    underlying_asset_alphanumeric_4: bytes &size=4;
+    product_group_code_alphanumeric_6: bytes &size=6;
+    spread_type: uint8 &convert=SpreadType($$);
+    exchange: bytes &size=4;
+    instrument_id_source: uint8 &convert=InstrumentIdSource($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    currency: uint8 &convert=Currency($$);
+    settlement_currency: uint8 &convert=SettlementCurrency($$);
+    match_algorithm: uint8 &convert=MatchAlgorithm($$);
+    minimum_size: uint32;
+    maximum_size: uint32;
+    tick: int64;
+    unit_of_measure: bytes &size=5;
+    unit_of_measure_quantity: uint32;
+    trading_collar_variation_type: uint8 &convert=TradingCollarVariationType($$);
+    trading_collar_variation: int64;
+    : skip bytes &size=16;   # padding
+    number_of_legs: uint8;
+    deprecated_instrument_leg: DeprecatedInstrumentLeg[self.number_of_legs];
+};
+
+type DeprecatedInstrumentLeg = unit {
+    instrument_id: uint32;
+    leg_ratio_and_side: int32;
+    : skip bytes &size=4;   # padding
+    maturity_date: uint16;
+    : skip bytes &size=6;   # padding
+};
+
+type SystemStateMessage = unit {
+    timestamp: uint64;
+    to_m_version: bytes &size=8;
+    session_id: uint8;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type InstrumentTradingStatusNotificationMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    trading_status: uint8;
+    market_state: uint8;
+};
+
+type BestBidAndOfferMessage = unit {
+    timestamp: uint64;
+    instrument_id: uint32;
+    mbb_price: int64;
+    mbb_size: uint32;
+    mbo_price: int64;
+    mbo_size: uint32;
+};
+
+type LastSaleMessage = unit {
+    timestamp: uint64;
+    trade_date: uint16;
+    instrument_id: uint32;
+    trade_id: uint64;
+    correction_number: uint8;
+    price: int64;
+    size: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    complex_trade_id: uint64;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type TradeCancelMessage = unit {
+    timestamp: uint64;
+    trade_date: uint16;
+    instrument_id: uint32;
+    trade_id: uint64;
+    correction_number: uint8;
+    price: int64;
+    size: uint32;
+    instrument_type: uint8 &convert=InstrumentType($$);
+};
+
+type PacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+
+type MessageType = enum {
+    SimpleInstrumentDefinitionMessage = 1,
+    ComplexInstrumentDefinitionMessage = 17,
+    ComplexInstrumentDefinitionDeprecatedMessage = 2,
+    SystemStateMessage = 3,
+    InstrumentTradingStatusNotificationMessage = 4,
+    BestBidAndOfferMessage = 15,
+    LastSaleMessage = 16,
+    TradeCancelMessage = 14,
+};
+
+type UnderlyingAssetType = enum {
+    Equity = 0x45,
+    CommodityAgriculture = 0x41,
+    Futures = 0x46,
+    Not = 0x4e,
+};
+
+type InstrumentIdSource = enum {
+    Exchange = 0x45,
+};
+
+type InstrumentType = enum {
+    Futures = 0x46,
+    OptionsOn = 0x4f,
+    TradeAt = 0x54,
+    Basis = 0x42,
+};
+
+type InstrumentListingStatus = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+};
+
+type Currency = enum {
+    Usd = 0x55,
+};
+
+type SettlementCurrency = enum {
+    Usd = 0x55,
+};
+
+type MatchAlgorithm = enum {
+    PriceTime = 0x50,
+};
+
+type SettlementPriceTypeCalcMethod = enum {
+    Actual = 0x41,
+    Theoretical = 0x54,
+};
+
+type TradingCollarVariationType = enum {
+    Product = 0x44,
+    Product_x50 = 0x50,
+    Not = 0x4e,
+};
+
+type OptionStrikeCurrency = enum {
+    UsDollar = 0x55,
+    NaWhen = 0x4e,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+    NaWhen = 0x4e,
+};
+
+type OptionExpirationType = enum {
+    AmericanStyle = 0x41,
+    EuropeanStyle = 0x45,
+    NaWhen = 0x4e,
+};
+
+type SpreadType = enum {
+    Standard = 0x53,
+    Equity = 0x45,
+    Butterfly = 0x42,
+    Cross = 0x43,
+};
+
+type ListingStatus = enum {
+    Active = 0x41,
+    Inactive = 0x49,
+};
+
+type SystemStatus = enum {
+    StartOf = 0x53,
+    EndOf = 0x43,
+    StartOf_x31 = 0x31,
+    EndOf_x32 = 0x32,
+};
+
+type TradeType = enum {
+    Outright = 0x4f,
+    Strategy = 0x53,
+    Strategy_x4d = 0x4d,
+    Complex = 0x43,
+    Complex_x4c = 0x4c,
+    AdjustedLate = 0x41,
+};
+

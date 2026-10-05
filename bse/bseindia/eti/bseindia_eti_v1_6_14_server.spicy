@@ -91,11 +91,11 @@ type NotifHeaderComp = unit {
 type DebtInquiryResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    underlying_px: uint64;
-    yield: uint64;
-    accrued_interest_amt: uint64;
-    gross_trade_amt: uint64;
-    underlying_dirty_price: uint64;
+    underlying_px: int64;
+    yield: int64;
+    accrued_interest_amt: int64;
+    gross_trade_amt: int64;
+    underlying_dirty_price: int64;
     security_id: int64;
     order_qty: int32;
     settl_type: uint32;
@@ -391,9 +391,9 @@ type ModifyOrderNrResponse = unit {
     orig_cl_ord_id: uint64;
     security_id: int64;
     exec_id: uint64;
-    price_mk_to_limit_px: uint64;
-    yield: uint64;
-    underlying_dirty_price: uint64;
+    price_mk_to_limit_px: int64;
+    yield: int64;
+    underlying_dirty_price: int64;
     activity_time: uint64;
     : skip bytes &size=8;   # padding
     : skip bytes &size=4;   # padding
@@ -416,9 +416,9 @@ type ModifyOrderResponse = unit {
     orig_cl_ord_id: uint64;
     security_id: int64;
     exec_id: uint64;
-    price_mk_to_limit_px: uint64;
-    yield: uint64;
-    underlying_dirty_price: uint64;
+    price_mk_to_limit_px: int64;
+    yield: int64;
+    underlying_dirty_price: int64;
     trd_reg_ts_time_priority: uint64;
     activity_time: uint64;
     : skip bytes &size=8;   # padding
@@ -456,8 +456,8 @@ type MultiLegExecReportBroadcast = unit {
 type MultiLegGrpComp = unit {
     security_id: int64;
     order_id: uint64;
-    price: uint64;
-    max_price_percentage: uint64;
+    price: int64;
+    max_price_percentage: int64;
     message_tag: int32;
     order_qty: int32;
     cum_qty: int32;
@@ -471,7 +471,7 @@ type MultiLegGrpComp = unit {
 };
 
 type MultiLegFillGrpComp = unit {
-    fill_px: uint64;
+    fill_px: int64;
     security_id: int64;
     fill_qty: int32;
     fill_match_id: uint32;
@@ -481,7 +481,7 @@ type MultiLegFillGrpComp = unit {
 
 type InstrmntLegExecGrpComp = unit {
     leg_security_id: int64;
-    leg_last_px: uint64;
+    leg_last_px: int64;
     leg_last_qty: int32;
     leg_exec_id: int32;
     leg_side: uint8 &convert=LegSide($$);
@@ -532,9 +532,9 @@ type NewOrderNrResponse = unit {
     order_id: uint64;
     cl_ord_id: uint64;
     security_id: int64;
-    price_mk_to_limit_px: uint64;
-    yield: uint64;
-    underlying_dirty_price: uint64;
+    price_mk_to_limit_px: int64;
+    yield: int64;
+    underlying_dirty_price: int64;
     exec_id: uint64;
     activity_time: uint64;
     : skip bytes &size=8;   # padding
@@ -554,9 +554,9 @@ type NewOrderResponse = unit {
     order_id: uint64;
     cl_ord_id: uint64;
     security_id: int64;
-    price_mk_to_limit_px: uint64;
-    yield: uint64;
-    underlying_dirty_price: uint64;
+    price_mk_to_limit_px: int64;
+    yield: int64;
+    underlying_dirty_price: int64;
     exec_id: uint64;
     trd_reg_ts_entry_time: uint64;
     trd_reg_ts_time_priority: uint64;
@@ -633,9 +633,9 @@ type OrderExecNotification = unit {
 };
 
 type FillsGrpComp = unit {
-    fill_px: uint64;
-    fill_yield: uint64;
-    fill_dirty_px: uint64;
+    fill_px: int64;
+    fill_yield: int64;
+    fill_dirty_px: int64;
     fill_qty: int32;
     fill_match_id: uint32;
     fill_exec_id: uint32;
@@ -650,15 +650,15 @@ type OrderExecReportBroadcast = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    max_price_percentage: uint64;
+    max_price_percentage: int64;
     sender_location_id: uint64;
     exec_id: uint64;
     trd_reg_ts_entry_time: uint64;
     trd_reg_ts_time_priority: uint64;
-    price: uint64;
-    stop_px: uint64;
-    underlying_dirty_price: uint64;
-    yield: uint64;
+    price: int64;
+    stop_px: int64;
+    underlying_dirty_price: int64;
+    yield: int64;
     activity_time: uint64;
     : skip bytes &size=8;   # padding
     : skip bytes &size=4;   # padding
@@ -729,7 +729,7 @@ type OrderExecResponse = unit {
     trd_reg_ts_entry_time: uint64;
     trd_reg_ts_time_priority: uint64;
     activity_time: uint64;
-    price: uint64;
+    price: int64;
     : skip bytes &size=4;   # padding
     market_segment_id: int32;
     leaves_qty: int32;
@@ -763,7 +763,7 @@ type QuoteEventGrpComp = unit {
     order_id: uint64;
     sender_location_id: uint64;
     security_id: int64;
-    quote_event_px: uint64;
+    quote_event_px: int64;
     quote_msg_id: uint64;
     quote_event_match_id: uint32;
     message_tag: int32;
@@ -794,7 +794,7 @@ type QuoteExecutionReport = unit {
 
 type QuoteLegExecGrpComp = unit {
     leg_security_id: int64;
-    leg_last_px: uint64;
+    leg_last_px: int64;
     leg_last_qty: int32;
     leg_exec_id: int32;
     leg_side: uint8 &convert=LegSide($$);
@@ -959,12 +959,12 @@ type TradeBroadcast = unit {
     rbc_header_comp: RbcHeaderComp;
     security_id: int64;
     related_security_id: int64;
-    price: uint64;
-    last_px: uint64;
-    side_last_px: uint64;
-    clearing_trade_price: uint64;
-    yield: uint64;
-    underlying_dirty_price: uint64;
+    price: int64;
+    last_px: int64;
+    side_last_px: int64;
+    clearing_trade_price: int64;
+    yield: int64;
+    underlying_dirty_price: int64;
     transact_time: uint64;
     order_id: uint64;
     sender_location_id: uint64;
@@ -1027,7 +1027,7 @@ type TradeEnhancementBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
     security_id: int64;
-    clearing_trade_price: uint64;
+    clearing_trade_price: int64;
     transact_time: uint64;
     order_id: uint64;
     trade_id: uint32;
