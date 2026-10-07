@@ -11,7 +11,7 @@ public type NsmequitiesOrdersV50 = unit {
 type ServerSoupBinTcpPacket = unit {
     server_packet_header: ServerPacketHeader;
     switch ( self.server_packet_header.server_packet_type ) {
-        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket(self.server_packet_header.packet_length);
         ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
         ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
         ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
@@ -24,8 +24,8 @@ type ServerPacketHeader = unit {
     server_packet_type: uint8 &convert=ServerPacketType($$);
 };
 
-type DebugPacket = unit {
-    debug_text: bytes &size=1;
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
 };
 
 type LoginAcceptedPacket = unit {

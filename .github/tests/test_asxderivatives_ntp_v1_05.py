@@ -122,9 +122,9 @@ class AsxderivativesNtpV105Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_seconds(self):
+    def test_secondsmessage(self):
         module = "asx/asxderivatives/ntp/asxderivatives_ntp_v1_05.spicy"
-        for payload in payloads.of("omi-data-packets/Asx/AsxDerivatives.Ntp.Itch.v1.05/Seconds.pcap"):
+        for payload in payloads.of("omi-data-packets/Asx/AsxDerivatives.Ntp.Itch.v1.05/SecondsMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

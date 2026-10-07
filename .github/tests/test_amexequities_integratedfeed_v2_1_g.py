@@ -44,9 +44,9 @@ class AmexequitiesIntegratedfeedV21GTests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_sequenceresetmessage(self):
+    def test_sequencenumberresetmessage(self):
         module = "nyse/amexequities/integratedfeed/amexequities_integratedfeed_v2_1_g.spicy"
-        for payload in payloads.of("omi-data-packets/Nyse/AmexEquities.IntegratedFeed.Xdp.v2.1.g/SequenceResetMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nyse/AmexEquities.IntegratedFeed.Xdp.v2.1.g/SequenceNumberResetMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

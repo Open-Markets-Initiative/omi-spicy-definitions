@@ -32,15 +32,15 @@ class JnxequitiesPtsV16Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_shortsellingpricerestrictionstatemessage(self):
+    def test_secondsmessage(self):
         module = "jnx/jnxequities/pts/jnxequities_pts_v1_6.spicy"
-        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Itch.v1.6/ShortSellingPriceRestrictionStateMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Itch.v1.6/SecondsMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_timestampsecondsmessage(self):
+    def test_shortsellingpricerestrictionstatemessage(self):
         module = "jnx/jnxequities/pts/jnxequities_pts_v1_6.spicy"
-        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Itch.v1.6/TimestampSecondsMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Jnx/JnxEquities.Pts.Itch.v1.6/ShortSellingPriceRestrictionStateMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

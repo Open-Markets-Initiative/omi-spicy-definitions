@@ -32,9 +32,9 @@ class MxSolamulticastV114Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_strategyinstrumentkeymessage(self):
+    def test_strategyinstrumentkeysmessage(self):
         module = "tmx/mx/solamulticast/mx_solamulticast_v1_14.spicy"
-        for payload in payloads.of("omi-data-packets/Tmx/Mx.SolaMulticast.Hsvf.v1.14/StrategyInstrumentKeyMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Tmx/Mx.SolaMulticast.Hsvf.v1.14/StrategyInstrumentKeysMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

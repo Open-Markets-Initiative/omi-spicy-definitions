@@ -20,9 +20,9 @@ class MiaxoptionsComplextopofmarketV11Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_systemstatusmessage(self):
+    def test_systemstatemessage(self):
         module = "miax/miaxoptions/complextopofmarket/miaxoptions_complextopofmarket_v1_1.spicy"
-        for payload in payloads.of("omi-data-packets/Miax/MiaxOptions.ComplexTopOfMarket.Mach.v1.1/SystemStatusMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Miax/MiaxOptions.ComplexTopOfMarket.Mach.v1.1/SystemStateMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

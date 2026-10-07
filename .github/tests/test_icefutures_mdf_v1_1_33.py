@@ -14,9 +14,9 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class IcefuturesMdfV1133Tests(unittest.TestCase):
 
-    def test_addormodifymessage(self):
+    def test_addormodifyordermessage(self):
         module = "ice/icefutures/mdf/icefutures_mdf_v1_1_33.spicy"
-        for payload in payloads.of("omi-data-packets/Ice/IceFutures.Mdf.iMpact.v1.1.33/AddOrModifyMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Ice/IceFutures.Mdf.iMpact.v1.1.33/AddOrModifyOrderMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -56,9 +56,9 @@ class IcefuturesMdfV1133Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_newoptionsstrategydefinintionmessage(self):
+    def test_newoptionsstrategydefinitionmessage(self):
         module = "ice/icefutures/mdf/icefutures_mdf_v1_1_33.spicy"
-        for payload in payloads.of("omi-data-packets/Ice/IceFutures.Mdf.iMpact.v1.1.33/NewOptionsStrategyDefinintionMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Ice/IceFutures.Mdf.iMpact.v1.1.33/NewOptionsStrategyDefinitionMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

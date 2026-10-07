@@ -14,21 +14,21 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class NsmequitiesOrdersV50Tests(unittest.TestCase):
 
-    def test_canceledmessage(self):
-        module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/CanceledMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_cancelordermessage(self):
         module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/CancelOrderMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_clientheartbeatpacket(self):
+    def test_canceledmessage(self):
         module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/ClientHeartbeatPacket.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/CanceledMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_clientheartbeat(self):
+        module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/ClientHeartbeat.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -44,9 +44,9 @@ class NsmequitiesOrdersV50Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_serverheartbeatpacket(self):
+    def test_serverheartbeat(self):
         module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/ServerHeartbeatPacket.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/ServerHeartbeat.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

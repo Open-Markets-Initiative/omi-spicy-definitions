@@ -1,0 +1,178 @@
+module BruceatsBruceequitiesDepthofbookItchV33;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BruceequitiesDepthofbookV33 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockTradingActionMessage -> stock_trading_action_message: StockTradingActionMessage;
+        MessageType::RegShoShortSalePriceTestRestrictedIndicatorMessage -> reg_sho_short_sale_price_test_restricted_indicator_message: RegShoShortSalePriceTestRestrictedIndicatorMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        MessageType::TradeBreakMessage -> trade_break_message: TradeBreakMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type SystemEventMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectoryMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    market_category: uint8 &convert=MarketCategory($$);
+    round_lot_size: uint32;
+    authenticity: uint8 &convert=Authenticity($$);
+};
+
+type StockTradingActionMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    trading_state: uint8 &convert=TradingState($$);
+};
+
+type RegShoShortSalePriceTestRestrictedIndicatorMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    stock: bytes &size=8;
+    reg_sho_action: uint8 &convert=RegShoAction($$);
+};
+
+type AddOrderMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    order_reference_number: uint64;
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    shares: uint32;
+    stock: bytes &size=8;
+    price: uint64;
+};
+
+type OrderExecutedMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    order_reference_number: uint64;
+    executed_shares: uint32;
+    match_number: uint64;
+};
+
+type OrderCancelMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    order_reference_number: uint64;
+    cancelled_shares: uint32;
+};
+
+type OrderDeleteMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    order_reference_number: uint64;
+};
+
+type OrderReplaceMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    original_order_reference_number: uint64;
+    new_order_reference_number: uint64;
+    shares: uint32;
+    price: uint64;
+};
+
+type TradeCorrectionMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    match_number: uint64;
+    new_match_number: uint64;
+    shares: uint32;
+    price: uint64;
+};
+
+type TradeBreakMessage = unit {
+    stock_locate: uint16;
+    timestamp: uint64;
+    match_number: uint64;
+};
+
+type MessageType = enum {
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockTradingActionMessage = 0x48,
+    RegShoShortSalePriceTestRestrictedIndicatorMessage = 0x59,
+    AddOrderMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderCancelMessage = 0x58,
+    OrderDeleteMessage = 0x44,
+    OrderReplaceMessage = 0x55,
+    TradeCorrectionMessage = 0x43,
+    TradeBreakMessage = 0x42,
+};
+
+type EventCode = enum {
+    StartOfTransmission = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfTransmissions = 0x43,
+};
+
+type MarketCategory = enum {
+    NyseAmerican = 0x41,
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+    Nasdaq = 0x51,
+    InvestorsExchangeLlc = 0x56,
+    CboeBzx = 0x5a,
+    NotAvailable = 0x20,
+};
+
+type Authenticity = enum {
+    LiveProduction = 0x50,
+    Test = 0x54,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type RegShoAction = enum {
+    NoPriceTestInPlace = 0x30,
+    RegShoRestrictionInEffect = 0x31,
+    RegShoRestrictionRemainsInEffect = 0x32,
+};
+
+type BuySellIndicator = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

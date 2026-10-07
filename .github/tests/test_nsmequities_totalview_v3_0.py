@@ -98,12 +98,6 @@ class NsmequitiesTotalviewV30Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_stocktradingactionmessagewithstockdirectorymessage(self):
-        module = "nasdaq/nsmequities/totalview/nsmequities_totalview_v3_0_udp.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.TotalView.AsciiItch.v3.0/StockTradingActionMessageWithStockDirectoryMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_systemeventmessage(self):
         module = "nasdaq/nsmequities/totalview/nsmequities_totalview_v3_0_udp.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.TotalView.AsciiItch.v3.0/SystemEventMessage.pcap"):

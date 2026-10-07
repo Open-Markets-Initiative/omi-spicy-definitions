@@ -101,7 +101,7 @@ type Message = unit {
         TransactionCode::UserAddressUnlockApproveMessage -> user_address_unlock_approve_message: UserAddressUnlockApproveMessage;
         TransactionCode::GiveupConfirmationMessage -> giveup_confirmation_message: GiveupConfirmationMessage;
         TransactionCode::GiveupConfirmationMessage_4507 -> giveup_confirmation_message: GiveupConfirmationMessage;
-        TransactionCode::OrderCancellationConfirmationMessage -> order_cancellation_confirmation_message: OrderCancellationConfirmationMessage;
+        TransactionCode::OrderCancellationConfirmationMessage -> order_cancellation_confirmation_message: OrderCancellationConfirmationMessage(self.message_header.message_length);
         * -> unknown: bytes &eod;
     };
 };
@@ -1080,8 +1080,12 @@ type Giveup = unit {
     deleted: bytes &size=1;
 };
 
-type OrderCancellationConfirmationMessage = unit {
-    order_entry_body: OrderEntryBody;
+type OrderCancellationConfirmationMessage = unit(message_length: int16) {
+    switch ( message_length ) {
+        316 -> order_entry_body: OrderEntryBody;
+        480 -> spread_order_body: SpreadOrderBody;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

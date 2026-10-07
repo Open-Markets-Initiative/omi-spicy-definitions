@@ -41,7 +41,7 @@ type SnapshotStartMessage = unit {
 };
 
 type SnapshotDataMessage = unit {
-    iex_tp_header: bytes &size=1;
+    iextp_header: IextpHeader;
     iex_tp_message_block_length: uint16;
     iex_tp_message_length: uint16;
     iex_tp_message_type: uint8 &convert=IexTpMessageType($$);
@@ -62,6 +62,19 @@ type SnapshotDataMessage = unit {
         IexTpMessageType::ClearBookMessage -> clear_book_message: ClearBookMessage;
         * -> unknown: bytes &eod;
     };
+};
+
+type IextpHeader = unit {
+    version: uint8;
+    : skip bytes &size=1;   # padding
+    message_protocol_id: uint16;
+    channel_id: uint32;
+    session_id: uint32;
+    payload_length: uint16;
+    message_count: uint16;
+    stream_offset: uint64;
+    first_message_sequence_number: uint64;
+    send_time: int64;
 };
 
 type SystemEventMessage = unit {

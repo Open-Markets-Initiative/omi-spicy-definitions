@@ -76,7 +76,7 @@ class PsxequitiesTotalviewItchV50Tests(unittest.TestCase):
 
     def test_trademessagenoncross(self):
         module = "nasdaq/psxequities/totalview/psxequities_totalview_itch_v5_0.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/PsxEquities.TotalView.Itch.v5.0/TradeMessageNon-cross.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/PsxEquities.TotalView.Itch.v5.0/TradeMessageNonCross.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

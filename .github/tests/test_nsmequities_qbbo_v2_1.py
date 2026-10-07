@@ -14,27 +14,27 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class NsmequitiesQbboV21Tests(unittest.TestCase):
 
-    def test_bbobboquotationmessage(self):
+    def test_bboquotationmessage(self):
         module = "nasdaq/nsmequities/qbbo/nsmequities_qbbo_v2_1.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/Bbo.BboQuotationMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/BboQuotationMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_bboregshorestrictionmessage(self):
+    def test_regshorestrictionmessage(self):
         module = "nasdaq/nsmequities/qbbo/nsmequities_qbbo_v2_1.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/Bbo.RegShoRestrictionMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/RegShoRestrictionMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_bbostocktradingactionmessage(self):
+    def test_stocktradingactionmessage(self):
         module = "nasdaq/nsmequities/qbbo/nsmequities_qbbo_v2_1.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/Bbo.StockTradingActionMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/StockTradingActionMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_bbosystemeventmessage(self):
+    def test_systemeventmessage(self):
         module = "nasdaq/nsmequities/qbbo/nsmequities_qbbo_v2_1.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/Bbo.SystemEventMessage.pcap"):
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Qbbo.Itch.v2.1/SystemEventMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

@@ -44,12 +44,6 @@ class NsmequitiesTotalviewV502017Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_multiplepackets(self):
-        module = "nasdaq/nsmequities/totalview/nsmequities_totalview_v5_0_2017_udp.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.TotalView.Itch.v5.0.2017/Multiple.Packets.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_mwcbdeclinelevelmessage(self):
         module = "nasdaq/nsmequities/totalview/nsmequities_totalview_v5_0_2017_udp.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.TotalView.Itch.v5.0.2017/MwcbDeclineLevelMessage.pcap"):

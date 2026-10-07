@@ -26,9 +26,9 @@ class PearlequitiesExpressordersV26Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_cancelorreducesizeordernotification(self):
+    def test_cancelreducesizeordernotification(self):
         module = "miax/pearlequities/expressorders/pearlequities_expressorders_v2_6.spicy"
-        for payload in payloads.of("omi-data-packets/Miax/PearlEquities.ExpressOrders.Meo.v2.6/CancelOrReduceSizeOrderNotification.pcap"):
+        for payload in payloads.of("omi-data-packets/Miax/PearlEquities.ExpressOrders.Meo.v2.6/CancelReduceSizeOrderNotification.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -56,9 +56,9 @@ class PearlequitiesExpressordersV26Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
-    def test_neworderrequest(self):
+    def test_neworderrequestmessage(self):
         module = "miax/pearlequities/expressorders/pearlequities_expressorders_v2_6.spicy"
-        for payload in payloads.of("omi-data-packets/Miax/PearlEquities.ExpressOrders.Meo.v2.6/NewOrderRequest.pcap"):
+        for payload in payloads.of("omi-data-packets/Miax/PearlEquities.ExpressOrders.Meo.v2.6/NewOrderRequestMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
