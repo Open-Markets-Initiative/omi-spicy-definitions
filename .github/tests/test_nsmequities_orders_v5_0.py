@@ -14,15 +14,15 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class NsmequitiesOrdersV50Tests(unittest.TestCase):
 
-    def test_cancelordermessage(self):
-        module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
-        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/CancelOrderMessage.pcap"):
-            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
-            self.assertEqual(result.returncode, 0, result.stderr.decode())
-
     def test_canceledmessage(self):
         module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
         for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/CanceledMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_cancelordermessage(self):
+        module = "nasdaq/nsmequities/orders/nsmequities_orders_v5_0_client.spicy"
+        for payload in payloads.of("omi-data-packets/Nasdaq/NsmEquities.Orders.Ouch.v5.0/CancelOrderMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
