@@ -1,0 +1,495 @@
+module NyseAmexoptionsBinarygatewayPillarstreamV327ClientPillarMessage;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type AmexoptionsBinarygatewayV327 = unit {
+    switch ( self.client_message.login_message.msg_header.msg_type ) {
+        MsgType::Login -> login_message: LoginMessage;
+        MsgType::Heartbeat -> heartbeat: Heartbeat;
+        MsgType::Open -> open: Open;
+        MsgType::Close -> close: Close;
+        MsgType::SeqMsg -> client_seq_msg: ClientSeqMsg;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type LoginMessage = unit {
+    msg_header: MsgHeader;
+    username: bytes &size=16;
+    password: bytes &size=32;
+    mic: bytes &size=4;
+    version: bytes &size=20;
+};
+
+type MsgHeader = unit {
+    msg_type: uint16 &convert=MsgType($$);
+    msg_length: uint16;
+};
+
+type Heartbeat = unit {
+    msg_header: MsgHeader;
+};
+
+type Open = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    start_seq: uint64;
+    end_seq: uint64;
+    access: uint8;
+    mode: uint8;
+};
+
+type StreamId = unit {
+    sess: uint32;
+    user: uint32;
+};
+
+type Close = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+};
+
+type ClientSeqMsg = unit {
+    msg_header: MsgHeader;
+    seq_msg_id: SeqMsgId;
+    : skip bytes &size=4;   # padding
+    timestamp: uint64;
+    seq_msg_header: SeqMsgHeader;
+    switch ( self.seq_msg_header.seq_msg_type ) {
+        SeqMsgType::SessionConfigurationRequestMessage -> session_configuration_request_message: SessionConfigurationRequestMessage;
+        SeqMsgType::NewOrderMessage -> new_order_message: NewOrderMessage;
+        SeqMsgType::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
+        SeqMsgType::OrderModifyRequestMessage -> order_modify_request_message: OrderModifyRequestMessage;
+        SeqMsgType::NewBulkQuoteType243Message -> new_bulk_quote_type_243_message: NewBulkQuoteType243Message;
+        SeqMsgType::NewBulkQuoteType259Message -> new_bulk_quote_type_259_message: NewBulkQuoteType259Message;
+        SeqMsgType::NewOrderCrossMessage -> new_order_cross_message: NewOrderCrossMessage;
+        SeqMsgType::BulkCancelRequestType223Message -> bulk_cancel_request_type_223_message: BulkCancelRequestType223Message;
+        SeqMsgType::BulkCancelRequestType224Message -> bulk_cancel_request_type_224_message: BulkCancelRequestType224Message;
+        SeqMsgType::RiskLimitUpdateRequestMessage -> risk_limit_update_request_message: RiskLimitUpdateRequestMessage;
+        SeqMsgType::RiskActionRequestMessage -> risk_action_request_message: RiskActionRequestMessage;
+        SeqMsgType::NewComplexSeriesRequestMessage -> new_complex_series_request_message: NewComplexSeriesRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SeqMsgId = unit {
+    stream_id: StreamId;
+    seq: uint64;
+};
+
+type SeqMsgHeader = unit {
+    seq_msg_type: uint16 &convert=SeqMsgType($$);
+    seq_msg_length: uint16;
+};
+
+type SessionConfigurationRequestMessage = unit {
+    username: bytes &size=16;
+    cancel_on_disconnect: uint8 &convert=CancelOnDisconnect($$);
+    throttle_preference: uint8 &convert=ThrottlePreference($$);
+    self_trade_prevention: uint8 &convert=SelfTradePrevention($$);
+    order_priority_update_ack_subscription: uint8 &convert=OrderPriorityUpdateAckSubscription($$);
+    bold_designation: uint8 &convert=BoldDesignation($$);
+    : skip bytes &size=49;   # padding
+};
+
+type NewOrderMessage = unit {
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    mp_sub_id: bytes &size=4;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    bitfield_order_instructions: bytes &size=16;
+    price: int64;
+    order_qty: uint32;
+    min_qty: uint32;
+    user_data: bytes &size=10;
+    leg_open_close: uint64 &convert=LegOpenClose($$);
+    auction_id: uint64;
+    optional_order_add_on: OptionalOrderAddOn;
+};
+
+type OptionalOrderAddOn = unit {
+    sub_msg_header: SubMsgHeader;
+    stop_px: int64;
+    max_floor: uint32;
+    deliver_to_comp_id: bytes &size=5;
+    clearing_firm: bytes &size=5;
+    optional_data: bytes &size=16;
+    clearing_account: bytes &size=5;
+};
+
+type SubMsgHeader = unit {
+    sub_msg_type: uint16;
+    sub_msg_length: uint16;
+};
+
+type OrderCancelRequestMessage = unit {
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+};
+
+type OrderModifyRequestMessage = unit {
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    order_qty: uint32;
+    side_u_81: uint8 &convert=SideU81($$);
+    locate_reqd_u_81: uint8 &convert=LocateReqdU81($$);
+};
+
+type NewBulkQuoteType243Message = unit {
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    sub_id: bytes &size=4;
+    cl_ord_id: uint64;
+    self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
+    group_id: uint32;
+    mm_sent_time: uint64;
+    quote_request_group: QuoteRequestGroup[] &eod;
+};
+
+type QuoteRequestGroup = unit {
+    series_index: uint32;
+    bitfield_quote_inst: bitfield(8) {
+        side_2: 0..1;
+        mm_quote_type: 2..4;
+        unused_3: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    price: int64;
+    order_qty: uint32;
+};
+
+type NewBulkQuoteType259Message = unit {
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    sub_id: bytes &size=4;
+    cl_ord_id: uint64;
+    self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
+    group_id: uint32;
+    mm_sent_time: uint64;
+    quote_request_group: QuoteRequestGroup[] &eod;
+};
+
+type NewOrderCrossMessage = unit {
+    cross_id: uint64;
+    allocation_pct: uint8;
+    clearing_firm_exposed: bytes &size=5;
+    clearing_account_exposed: bytes &size=5;
+    optional_data_exposed: bytes &size=16;
+    clearing_firm_covered: bytes &size=5;
+    clearing_account_covered: bytes &size=5;
+    optional_data_covered: bytes &size=16;
+    : skip bytes &size=16;   # padding
+    exposed: Exposed;
+    covered: Covered;
+};
+
+type Exposed = unit {
+    sub_msg_header: SubMsgHeader;
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    mp_sub_id: bytes &size=4;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    bitfield_order_instructions: bytes &size=16;
+    price: int64;
+    order_qty: uint32;
+    min_qty: uint32;
+    user_data: bytes &size=10;
+    leg_open_close: uint64 &convert=LegOpenClose($$);
+    auction_id: uint64;
+    optional_order_add_on: OptionalOrderAddOn;
+};
+
+type Covered = unit {
+    sub_msg_header: SubMsgHeader;
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    mp_sub_id: bytes &size=4;
+    cl_ord_id: uint64;
+    orig_cl_ord_id: uint64;
+    bitfield_order_instructions: bytes &size=16;
+    price: int64;
+    order_qty: uint32;
+    min_qty: uint32;
+    user_data: bytes &size=10;
+    leg_open_close: uint64 &convert=LegOpenClose($$);
+    auction_id: uint64;
+    optional_order_add_on: OptionalOrderAddOn;
+};
+
+type BulkCancelRequestType223Message = unit {
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    cl_ord_id: uint64;
+    mm_sent_time: uint64;
+    side_u_81: uint8 &convert=SideU81($$);
+    group_id: uint32;
+    target_cancel_username: bytes &size=16;
+    bulk_action: uint8 &convert=BulkAction($$);
+    cancel_scope: uint8 &convert=CancelScope($$);
+    target_cancel_mpid: bytes &size=4;
+};
+
+type BulkCancelRequestType224Message = unit {
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    mp_sub_id: bytes &size=4;
+    cl_ord_id: uint64;
+    side_u_81: uint8 &convert=SideU81($$);
+    target_cancel_username: bytes &size=16;
+    bulk_action: uint8 &convert=BulkAction($$);
+    target_cancel_mpid: bytes &size=4;
+    : skip bytes &size=20;   # padding
+};
+
+type RiskLimitUpdateRequestMessage = unit {
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    mp_sub_id: bytes &size=4;
+    : skip bytes &size=4;   # padding
+    clearing_number: bytes &size=5;
+    cl_ord_id: uint64;
+    risk_user_crd: uint32;
+    risk_user_type: uint8 &convert=RiskUserType($$);
+    risk_control_type: uint8 &convert=RiskControlType($$);
+    risk_control_activation: uint8 &convert=RiskControlActivation($$);
+    usd_limit: int64;
+    time_limit: int32;
+    percentage_limit: int32;
+    count_limit: int32;
+    breach_action_request: uint8 &convert=BreachActionRequest($$);
+    ioc_attribution: uint8 &convert=IocAttribution($$);
+    risk_range_id: uint8;
+    risk_minimum_value: int64;
+    price_scale: uint8 &convert=PriceScale($$);
+    : skip bytes &size=190;   # padding
+};
+
+type RiskActionRequestMessage = unit {
+    symbol_id: uint32;
+    mpid: bytes &size=4;
+    market_maker: bytes &size=10;
+    mp_sub_id: bytes &size=4;
+    : skip bytes &size=4;   # padding
+    clearing_number: bytes &size=5;
+    cl_ord_id: uint64;
+    risk_user_crd: uint32;
+    risk_user_type: uint8 &convert=RiskUserType($$);
+    risk_control_type: uint8 &convert=RiskControlType($$);
+    risk_action_type: uint8 &convert=RiskActionType($$);
+    risk_range_id: uint8;
+    : skip bytes &size=199;   # padding
+};
+
+type NewComplexSeriesRequestMessage = unit {
+    cl_ord_id: uint64;
+    mpid: bytes &size=4;
+    complex_series_leg_group: ComplexSeriesLegGroup[] &eod;
+};
+
+type ComplexSeriesLegGroup = unit {
+    leg_symbol_id: uint32;
+    leg_ratio_qty: uint16;
+    leg_side: uint8 &convert=LegSide($$);
+};
+
+type MsgType = enum {
+    Login = 0x0201,
+    LoginResponse = 0x0202,
+    StreamAvail = 0x0203,
+    Heartbeat = 0x0204,
+    Open = 0x0205,
+    OpenResponse = 0x0206,
+    Close = 0x0207,
+    CloseResponse = 0x0208,
+    SeqMsg = 0x0905,
+};
+
+type SeqMsgType = enum {
+    SessionConfigurationRequestMessage = 0x0220,
+    SequencedFillerMessage = 0x0282,
+    NewOrderMessage = 0x0248,
+    OrderCancelRequestMessage = 0x0250,
+    OrderModifyRequestMessage = 0x0251,
+    NewBulkQuoteType243Message = 0x0243,
+    NewBulkQuoteType259Message = 0x0259,
+    NewOrderCrossMessage = 0x0222,
+    BulkCancelRequestType223Message = 0x0223,
+    BulkCancelRequestType224Message = 0x0224,
+    RiskLimitUpdateRequestMessage = 0x0330,
+    RiskActionRequestMessage = 0x0331,
+    NewComplexSeriesRequestMessage = 0x0357,
+    UnderlyingSymbolReferenceDataMessage = 0x0233,
+    SeriesReferenceDataMessage = 0x0234,
+    MinimumPriceVariantClassReferenceDataMessage = 0x0230,
+    MinimumPriceVariantLevelReferenceDataMessage = 0x0231,
+    MpidConfigurationMessage = 0x0272,
+    OptionsMarketMakerSymbolAppointmentReferenceDataMessage = 0x0833,
+    SessionConfigurationAcknowledgementMessage = 0x0221,
+    OrderAndCancelReplaceAcknowledgementMessage = 0x0269,
+    BulkQuoteAcknowledgmentType294Message = 0x0294,
+    BulkQuoteAcknowledgmentMessage = 0x0308,
+    OrderSingleComplexModifyCancelRequestAcknowledgmentAndUroutMessage = 0x0278,
+    OrderPriorityUpdateAcknowledgmentMessage = 0x0268,
+    ExecutionReportMessage = 0x0295,
+    TradeBustCorrectMessage = 0x0293,
+    ApplicationLayerRejectMessage = 0x0267,
+    RiskControlAcknowledgementMessage = 0x0332,
+    RiskControlAlertMessage = 0x0333,
+    ComplexSeriesRequestAcknowledgementMessage = 0x0358,
+};
+
+type CancelOnDisconnect = enum {
+    CancelDayOrders = 1,
+    CancelAllOrders = 2,
+};
+
+type ThrottlePreference = enum {
+    QueueWhenThrottled = 0,
+    RejectWhenThrottled = 1,
+};
+
+type SelfTradePrevention = enum {
+    NoSelfTradePrevention = 1,
+    CancelNewest = 2,
+    CancelOldest = 3,
+    CancelBoth = 4,
+};
+
+type OrderPriorityUpdateAckSubscription = enum {
+    NotSubscribed = 0,
+    OrderPriorityUpdateOnly = 1,
+    OrderPriorityUpdateAndRepricing = 2,
+};
+
+type BoldDesignation = enum {
+    NotApplicable = 0,
+    ExposeOrderInfoOnly = 4,
+    ExposeOrderInfoAndCapacity = 5,
+    ExposeOrderInfoAndParticipantId = 6,
+    ExposeOrderInfoCapacityAndParticipantId = 7,
+    NoBoldDefaulting = 8,
+};
+
+type LegOpenClose = enum {
+    Open = 0,
+    Close = 1,
+};
+
+type SideU81 = enum {
+    NoChangeInSide = 0,
+    Buy = 1,
+    Sell = 2,
+};
+
+type LocateReqdU81 = enum {
+    NoLocateReqd = 0,
+};
+
+type SelfTradeTypeU81 = enum {
+    UseSessionConfiguration = 0,
+    NoSelfTradePrevention = 1,
+    CancelNewest = 2,
+    CancelOldest = 3,
+    CancelBoth = 4,
+};
+
+type MmQuoteType = enum {
+    Standard = 0,
+    Repricing = 1,
+};
+
+type BulkAction = enum {
+    NotApplicable = 0,
+    CancelSingleLegOnly = 1,
+    CancelComplexOnly = 2,
+    CancelSingleAndComplex = 3,
+    BlockAndCancel = 4,
+    Unblock = 5,
+};
+
+type CancelScope = enum {
+    OrdersOnly = 0,
+    QuotesOnly = 1,
+    OrdersAndQuotes = 2,
+};
+
+type RiskUserType = enum {
+    EnteringFirm = 0x45,
+    ClearingFirm = 0x43,
+    OptionsMarketMakerFirm = 0x4f,
+};
+
+type RiskControlType = enum {
+    NotApplicable = 0,
+    SingleOrderMaxQty = 1,
+    SingleOrderMaxNotional = 2,
+    GrossCreditExecuted = 3,
+    GrossCreditOpen = 4,
+    GrossCreditOpenAndExecuted = 5,
+    MaximumDuplicativeOrders = 6,
+    ActivityRollingTransaction = 8,
+    ActivityRollingVolume = 9,
+    ActivityRollingPercentage = 10,
+    GlobalRiskMitigationProtection = 11,
+    RejectMarketOrders = 13,
+    RejectMooAndMoc = 14,
+    RejectRestrictedSymbol = 19,
+    LimitOrderPriceProtectionOptionsSingleLeg = 26,
+    LimitOrderPriceProtectionOptionsComplex = 27,
+    OrderRateThreshold = 29,
+    RejectIsoioc = 30,
+    RejectIsoDay = 31,
+};
+
+type RiskControlActivation = enum {
+    Off = 0,
+    On = 1,
+};
+
+type BreachActionRequest = enum {
+    NotApplicable = 0,
+    NotificationsOnly = 1,
+    CancelAndBlock = 2,
+    BlockOnly = 3,
+};
+
+type IocAttribution = enum {
+    NotApplicable = 0,
+    IncludeIoc = 1,
+    ExcludeIoc = 2,
+};
+
+type PriceScale = enum {
+    NoDecimals = 0,
+    TwoDecimals = 2,
+};
+
+type RiskActionType = enum {
+    NotApplicable = 0,
+    Query = 1,
+    KillSwitchBlock = 2,
+    KillSwitchUnblock = 3,
+    KillSwitchCancelAuctionOrders = 4,
+    KillSwitchCancelNonAuctionOrders = 5,
+    KillSwitchCancelGtcOrders = 6,
+    ApproveReinstatement = 7,
+    RiskEntityReinstated = 8,
+};
+
+type LegSide = enum {
+    Buy = 1,
+    Sell = 2,
+};
+

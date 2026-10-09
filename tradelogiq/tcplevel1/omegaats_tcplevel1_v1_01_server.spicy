@@ -1,0 +1,209 @@
+module TradelogiqOmegaatsTcplevel1ItchV101Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type OmegaatsTcplevel1V101 = unit {
+    server_soup_tcp_packet: ServerSoupTcpPacket[] &eod;
+};
+
+type ServerSoupTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::QuoteMessage -> quote_message: QuoteMessage;
+        MessageType::TradeReportMessage -> trade_report_message: TradeReportMessage;
+        MessageType::TradeBustMessage -> trade_bust_message: TradeBustMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::ExtendedStockDirectoryMessage -> extended_stock_directory_message: ExtendedStockDirectoryMessage;
+        MessageType::StockStatusMessage -> stock_status_message: StockStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type QuoteMessage = unit {
+    : skip bytes &size=1;   # padding
+    stock_symbol: bytes &size=10;
+    timestamp: uint64;
+    best_bid_price: uint64;
+    best_bid_size: uint32;
+    best_ask_price: uint64;
+    best_ask_size: uint32;
+};
+
+type TradeReportMessage = unit {
+    conditions: bytes &size=5;
+    stock_symbol: bytes &size=10;
+    timestamp: uint64;
+    trade_id: uint32;
+    trade_price: uint64;
+    trade_size: uint32;
+    buy_broker: uint16;
+    sell_broker: uint16;
+};
+
+type TradeBustMessage = unit {
+    : skip bytes &size=1;   # padding
+    stock_symbol: bytes &size=10;
+    timestamp: uint64;
+    trade_id: uint32;
+};
+
+type TradeCorrectionMessage = unit {
+    : skip bytes &size=1;   # padding
+    stock_symbol: bytes &size=10;
+    timestamp: uint64;
+    original_trade_id: uint32;
+    original_trade_price: uint64;
+    original_trade_size: uint32;
+    corrected_trade_price: uint64;
+    corrected_trade_size: uint32;
+};
+
+type SystemEventMessage = unit {
+    event_code: uint8 &convert=EventCode($$);
+    : skip bytes &size=2;   # padding
+    timestamp: uint64;
+};
+
+type StockDirectoryMessage = unit {
+    market: uint8 &convert=Market($$);
+    stock: bytes &size=10;
+    timestamp: uint64;
+    board_lot_size: uint32;
+    instrument_id: uint16;
+    shortable: uint8 &convert=Shortable($$);
+    dividend_indicator: uint8 &convert=DividendIndicator($$);
+    : skip bytes &size=9;   # padding
+    currency: bytes &size=3;
+};
+
+type ExtendedStockDirectoryMessage = unit {
+    market: uint8 &convert=Market($$);
+    stock: bytes &size=10;
+    timestamp: uint64;
+    board_lot_size: uint32;
+    instrument_id: uint16;
+    shortable: uint8 &convert=Shortable($$);
+    frequency: uint8 &convert=Frequency($$);
+    : skip bytes &size=9;   # padding
+    currency: bytes &size=3;
+    security_type: uint8 &convert=SecurityType($$);
+    expiry_date: bytes &size=8;
+    description: bytes &size=20;
+    : skip bytes &size=3;   # padding
+};
+
+type StockStatusMessage = unit {
+    trading_state: uint8 &convert=TradingState($$);
+    stock: bytes &size=10;
+    timestamp: uint64;
+    reason: bytes &size=4;
+};
+
+type ServerPacketType = enum {
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type MessageType = enum {
+    QuoteMessage = 0x57,
+    TradeReportMessage = 0x54,
+    TradeBustMessage = 0x4e,
+    TradeCorrectionMessage = 0x4d,
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    ExtendedStockDirectoryMessage = 0x72,
+    StockStatusMessage = 0x48,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfMarketHours = 0x51,
+    EndOfMarketHours = 0x4d,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    TradingHalted = 0x42,
+    TradingResumed = 0x52,
+};
+
+type Market = enum {
+    Tsx = 0x74,
+    Venture = 0x76,
+    Cnsx = 0x63,
+    NasdaqCanada = 0x71,
+    Omega = 0x6f,
+    Aequitas = 0x7a,
+};
+
+type Shortable = enum {
+    ShortExempt = 0x45,
+    Shortable_x53 = 0x53,
+    NotShortable = 0x4e,
+};
+
+type DividendIndicator = enum {
+    Annual = 0x41,
+    SemiAnnual = 0x53,
+    Quarterly = 0x51,
+    Monthly = 0x4d,
+};
+
+type Frequency = enum {
+    Annual = 0x41,
+    SemiAnnual = 0x53,
+    Quarterly = 0x51,
+    Monthly = 0x4d,
+};
+
+type SecurityType = enum {
+    Debentures = 0x64,
+    Rights = 0x72,
+    Notes = 0x6e,
+    Warrants = 0x77,
+};
+
+type TradingState = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type Reason = enum {
+    RegulatoryHalt = 0x52,
+    BusinessHalt = 0x42,
+};
+

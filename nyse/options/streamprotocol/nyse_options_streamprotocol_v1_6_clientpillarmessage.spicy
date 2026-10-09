@@ -1,0 +1,84 @@
+module NyseOptionsStreamprotocolPillarstreamV16ClientPillarMessage;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NyseOptionsStreamprotocolV16 = unit {
+    switch ( self.client_message.login_message.msg_header.msg_type ) {
+        MsgType::Login -> login_message: LoginMessage;
+        MsgType::Heartbeat -> heartbeat: Heartbeat;
+        MsgType::Open -> open: Open;
+        MsgType::Close -> close: Close;
+        MsgType::SeqMsg -> client_seq_msg: ClientSeqMsg;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type LoginMessage = unit {
+    msg_header: MsgHeader;
+    username: bytes &size=16;
+    password: bytes &size=32;
+    mic: bytes &size=4;
+    version: bytes &size=20;
+};
+
+type MsgHeader = unit {
+    msg_type: uint16 &convert=MsgType($$);
+    msg_length: uint16;
+};
+
+type Heartbeat = unit {
+    msg_header: MsgHeader;
+};
+
+type Open = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    start_seq: uint64;
+    end_seq: uint64;
+    access: uint8;
+    mode: uint8;
+};
+
+type StreamId = unit {
+    sess: uint32;
+    user: uint32;
+};
+
+type Close = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+};
+
+type ClientSeqMsg = unit {
+    msg_header: MsgHeader;
+    seq_msg_id: SeqMsgId;
+    reserved_4: uint32;
+    timestamp: uint64;
+    seq_msg_header: SeqMsgHeader;
+    client_sequenced_message: bytes &size=self.seq_msg_header.seq_msg_length - 4;
+};
+
+type SeqMsgId = unit {
+    stream_id: StreamId;
+    seq: uint64;
+};
+
+type SeqMsgHeader = unit {
+    seq_msg_type: uint16;
+    seq_msg_length: uint16;
+};
+
+type MsgType = enum {
+    Login = 0x0201,
+    LoginResponse = 0x0202,
+    StreamAvail = 0x0203,
+    Heartbeat = 0x0204,
+    Open = 0x0205,
+    OpenResponse = 0x0206,
+    Close = 0x0207,
+    CloseResponse = 0x0208,
+    SeqMsg = 0x0905,
+};
+

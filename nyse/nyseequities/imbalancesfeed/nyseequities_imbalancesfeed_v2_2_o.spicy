@@ -76,7 +76,8 @@ type SymbolIndexMappingMessage = unit {
     round_lot: uint8 &convert=RoundLot($$);
     mpv: uint16;
     unit_of_trade: uint16;
-    : skip bytes &size=2;   # padding
+    late_close_eligible: uint8;
+    eth_eligible: uint8;
 };
 
 type SymbolClearMessage = unit {
@@ -218,9 +219,6 @@ type MessageType = enum {
 type MarketId = enum {
     NyseEquities = 1,
     NyseArcaEquities = 3,
-    NyseArcaOptions = 4,
-    NyseBonds = 5,
-    NyseAmericanOptions = 8,
     NyseAmericanEquities = 9,
     NyseNationalEquities = 10,
     NyseTexasEquities = 11,
@@ -228,6 +226,7 @@ type MarketId = enum {
 
 type ExchangeCode = enum {
     NyseAmerican = 0x41,
+    Txse = 0x46,
     Ltse = 0x4c,
     NyseTexas = 0x4d,
     Nyse = 0x4e,
@@ -238,22 +237,22 @@ type ExchangeCode = enum {
 };
 
 type SecurityType = enum {
-    Adr = 0x41,
+    AmericanDepositaryReceipts = 0x41,
     CommonStock = 0x43,
     Debentures = 0x44,
-    Etf = 0x45,
+    ExchangeTradedFunds = 0x45,
     Foreign = 0x46,
-    UsDepositaryShares = 0x48,
+    AmericanDepositaryShares = 0x48,
     Units = 0x49,
     IndexLinkedNotes = 0x4c,
-    MiscliquidTrust = 0x4d,
+    OtherBlank = 0x4d,
     OrdinaryShares = 0x4f,
     PreferredStock = 0x50,
     Rights = 0x52,
-    SharesOfBeneficiaryInterest = 0x53,
+    SharesOfBeneficialInterest = 0x53,
     Test = 0x54,
     ClosedEndFund = 0x55,
-    Warrant = 0x57,
+    Warrants = 0x57,
 };
 
 type RoundLot = enum {
@@ -264,12 +263,13 @@ type RoundLot = enum {
 type SecurityStatus = enum {
     TradingHalt = 0x34,
     Resume = 0x35,
-    Suspend = 0x36,
+    SuspendOperationalHalt = 0x36,
     ShortSaleRestrictionActivatedDay1 = 0x41,
     ShortSaleRestrictionContinuedDay2 = 0x43,
     ShortSaleRestrictionDeactivated = 0x44,
     Preopening = 0x50,
     BeginAcceptingOrders = 0x42,
+    OvernightSession = 0x4e,
     EarlySession = 0x45,
     CoreSession = 0x4f,
     LateSessionNonNyseOnly = 0x4c,
@@ -285,14 +285,14 @@ type HaltCondition = enum {
     NewsPending = 0x50,
     LuldPause = 0x4d,
     EquipmentChangeover = 0x58,
-    AdditionalInformationRequested = 0x41,
+    SipOutageMaterialSipLatencyOrExtraordinaryMarketActivity = 0x41,
     RegulatoryConcern = 0x43,
     MergerEffective = 0x45,
-    EtfComponentPricesNotAvailable = 0x46,
+    EtfIivEtfComponentsPricesNotAvailable = 0x46,
     CorporateAction = 0x4e,
     NewSecurityOffering = 0x4f,
-    IntradayIndicativeValueNotAvailable = 0x56,
-    Suspend = 0x36,
+    PrimaryListingExchangeDiscretionaryHalt = 0x56,
+    SuspendOperationalHalt = 0x36,
     MarketWideCircuitBreakerHaltLevel1 = 0x31,
     MarketWideCircuitBreakerHaltLevel2 = 0x32,
     MarketWideCircuitBreakerHaltLevel3 = 0x33,
@@ -300,11 +300,11 @@ type HaltCondition = enum {
 
 type SsrTriggeringExchangeId = enum {
     NyseAmerican = 0x41,
-    NasdaqOmxBx = 0x42,
+    NasdaqOmxTx = 0x42,
     NyseNational = 0x43,
     Finra = 0x44,
     N24X = 0x47,
-    MiamiPeral = 0x48,
+    MiaxPearl = 0x48,
     NasdaqIse = 0x49,
     CboeEdga = 0x4a,
     CboeEdgx = 0x4b,
@@ -330,6 +330,7 @@ type SsrState = enum {
 
 type MarketState = enum {
     Preopening = 0x50,
+    OvernightSession = 0x4e,
     EarlySession = 0x45,
     CoreSession = 0x4f,
     LateSessionNonNyseOnly = 0x4c,

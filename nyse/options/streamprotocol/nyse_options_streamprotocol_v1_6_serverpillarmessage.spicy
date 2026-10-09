@@ -1,0 +1,94 @@
+module NyseOptionsStreamprotocolPillarstreamV16ServerPillarMessage;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NyseOptionsStreamprotocolV16 = unit {
+    switch ( self.server_message.login_response.msg_header.msg_type ) {
+        MsgType::LoginResponse -> login_response: LoginResponse;
+        MsgType::StreamAvail -> stream_avail: StreamAvail;
+        MsgType::Heartbeat -> heartbeat: Heartbeat;
+        MsgType::OpenResponse -> open_response: OpenResponse;
+        MsgType::CloseResponse -> close_response: CloseResponse;
+        MsgType::SeqMsg -> server_seq_msg: ServerSeqMsg;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type LoginResponse = unit {
+    msg_header: MsgHeader;
+    username: bytes &size=16;
+    status: uint8 &convert=Status($$);
+};
+
+type MsgHeader = unit {
+    msg_type: uint16 &convert=MsgType($$);
+    msg_length: uint16;
+};
+
+type StreamAvail = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    next_seq: uint64;
+    access: uint8;
+};
+
+type StreamId = unit {
+    sess: uint32;
+    user: uint32;
+};
+
+type Heartbeat = unit {
+    msg_header: MsgHeader;
+};
+
+type OpenResponse = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    status: uint8 &convert=Status($$);
+    access: uint8;
+};
+
+type CloseResponse = unit {
+    msg_header: MsgHeader;
+    stream_id: StreamId;
+    status: uint8 &convert=Status($$);
+};
+
+type ServerSeqMsg = unit {
+    msg_header: MsgHeader;
+    seq_msg_id: SeqMsgId;
+    reserved_4: uint32;
+    timestamp: uint64;
+    seq_msg_header: SeqMsgHeader;
+    server_sequenced_message: bytes &size=self.seq_msg_header.seq_msg_length - 4;
+};
+
+type SeqMsgId = unit {
+    stream_id: StreamId;
+    seq: uint64;
+};
+
+type SeqMsgHeader = unit {
+    seq_msg_type: uint16;
+    seq_msg_length: uint16;
+};
+
+type MsgType = enum {
+    Login = 0x0201,
+    LoginResponse = 0x0202,
+    StreamAvail = 0x0203,
+    Heartbeat = 0x0204,
+    Open = 0x0205,
+    OpenResponse = 0x0206,
+    Close = 0x0207,
+    CloseResponse = 0x0208,
+    SeqMsg = 0x0905,
+};
+
+type Status = enum {
+    RequestProcessedSuccessfully = 0,
+    NotLoggedIn = 18,
+};
+
