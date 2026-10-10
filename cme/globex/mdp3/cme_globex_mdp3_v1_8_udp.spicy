@@ -17,7 +17,22 @@ type BinaryPacketHeader = unit {
 type Message = unit {
     message_size: uint16;
     message_header: MessageHeader;
-    switch ( self.message_header.template_id ) {
+    switch ( self.message_header.schema_id ) {
+        SchemaId::Mktdata -> mktdata_message: MktdataMessage(self.message_header.template_id);
+        SchemaId::Mdpsessionmgmt -> mdpsessionmgmt_message: MdpsessionmgmtMessage(self.message_header.template_id);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16 &convert=SchemaId($$);
+    version: uint16;
+};
+
+type MktdataMessage = unit(template_id: TemplateId) {
+    switch ( template_id ) {
         TemplateId::ChannelReset -> channel_reset: ChannelReset;
         TemplateId::AdminLogin -> admin_login: AdminLogin;
         TemplateId::AdminLogout -> admin_logout: AdminLogout;
@@ -36,24 +51,8 @@ type Message = unit {
         TemplateId::MdIncrementalRefreshTradeSummary -> md_incremental_refresh_trade_summary: MdIncrementalRefreshTradeSummary;
         TemplateId::MdIncrementalRefreshOrderBook -> md_incremental_refresh_order_book: MdIncrementalRefreshOrderBook;
         TemplateId::SnapshotFullRefreshOrderBook -> snapshot_full_refresh_order_book: SnapshotFullRefreshOrderBook;
-        TemplateId::Negotiate -> negotiate: Negotiate;
-        TemplateId::NegotiationReject -> negotiation_reject: NegotiationReject;
-        TemplateId::NegotiationResponse -> negotiation_response: NegotiationResponse;
-        TemplateId::Terminate -> terminate: Terminate;
-        TemplateId::MarketDataRequest -> market_data_request: MarketDataRequest;
-        TemplateId::RequestAck -> request_ack: RequestAck;
-        TemplateId::RequestReject -> request_reject: RequestReject;
-        TemplateId::SecurityListRequest -> security_list_request: SecurityListRequest;
-        TemplateId::SecurityStatusRequest -> security_status_request: SecurityStatusRequest;
         * -> unknown: bytes &eod;
     };
-};
-
-type MessageHeader = unit {
-    block_length: uint16;
-    template_id: uint16 &convert=TemplateId($$);
-    schema_id: uint16;
-    version: uint16;
 };
 
 type ChannelReset = unit {
@@ -807,6 +806,21 @@ type SnapshotFullRefreshOrderBookGroup = unit {
     md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
 };
 
+type MdpsessionmgmtMessage = unit(template_id: TemplateId) {
+    switch ( template_id ) {
+        TemplateId::Negotiate -> negotiate: Negotiate;
+        TemplateId::NegotiationReject -> negotiation_reject: NegotiationReject;
+        TemplateId::NegotiationResponse -> negotiation_response: NegotiationResponse;
+        TemplateId::Terminate -> terminate: Terminate;
+        TemplateId::MarketDataRequest -> market_data_request: MarketDataRequest;
+        TemplateId::RequestAck -> request_ack: RequestAck;
+        TemplateId::RequestReject -> request_reject: RequestReject;
+        TemplateId::SecurityListRequest -> security_list_request: SecurityListRequest;
+        TemplateId::SecurityStatusRequest -> security_status_request: SecurityStatusRequest;
+        * -> unknown: bytes &eod;
+    };
+};
+
 type Negotiate = unit {
     hmac_signature: bytes &size=32;
     access_key_id: bytes &size=20;
@@ -976,6 +990,11 @@ type TemplateId = enum {
     SecurityListRequest = 208,
     SecurityStatusRequest = 209,
     SubscriberHeartbeat = 210,
+};
+
+type SchemaId = enum {
+    Mktdata = 1,
+    Mdpsessionmgmt = 2,
 };
 
 type SecurityUpdateAction = enum {

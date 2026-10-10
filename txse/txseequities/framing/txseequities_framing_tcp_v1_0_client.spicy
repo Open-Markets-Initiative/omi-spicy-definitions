@@ -1,0 +1,47 @@
+module TxseTxseequitiesFramingTcpV10Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type TxseequitiesFramingV10 = unit {
+    client_rake_tcp_message: ClientRakeTcpMessage[] &eod;
+};
+
+type ClientRakeTcpMessage = unit {
+    rake_message_header: RakeMessageHeader;
+    switch ( self.rake_message_header.packet_type ) {
+        PacketType::LogonRequestPacket -> logon_request_packet: LogonRequestPacket;
+        PacketType::TcpUnsequencedMessage -> tcp_unsequenced_message: TcpUnsequencedMessage(self.rake_message_header.message_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type RakeMessageHeader = unit {
+    message_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+};
+
+type LogonRequestPacket = unit {
+    session: uint64;
+    sender_comp: bytes &size=8;
+    token: bytes &size=8;
+    next_sequence_number: uint64;
+};
+
+type TcpUnsequencedMessage = unit(message_length: uint16) {
+    message_type: uint8;
+    unsequenced_message: bytes &size=message_length - 2;
+};
+
+type PacketType = enum {
+    LogonRequestPacket = 53,
+    MemberHeartbeatPacket = 55,
+    TcpUnsequencedMessage = 54,
+    DebugMessage = 48,
+    EndOfSessionMessage = 52,
+    LogonResponseMessage = 49,
+    ServerHeartbeatMessage = 51,
+    TcpSequencedMessage = 50,
+};
+

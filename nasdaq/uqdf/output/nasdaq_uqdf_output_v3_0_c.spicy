@@ -150,6 +150,9 @@ type CombinedQuoteMessageShortFormMessage = unit {
     bolo_appendage_short_form: BoloAppendageShortForm;
     bolo_appendage_long_form: BoloAppendageLongForm;
     bolo_appendage_mpid_form: BoloAppendageMpidForm;
+    odd_lot_price_level_attachment_short_form: OddLotPriceLevelAttachmentShortForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_long_form: OddLotPriceLevelAttachmentLongForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_adf_mpid_form: OddLotPriceLevelAttachmentAdfMpidForm[self.odd_lot_attachment_count];
 };
 
 type BoloAppendageShortForm = unit {
@@ -181,6 +184,28 @@ type BoloAppendageMpidForm = unit {
     bolo_best_ask_market_participant_identifier: bytes &size=4;
 };
 
+type OddLotPriceLevelAttachmentShortForm = unit {
+    market_center_id: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    odd_lot_price_short: uint16;
+    shares_at_odd_lot_price: uint16;
+};
+
+type OddLotPriceLevelAttachmentLongForm = unit {
+    market_center_id: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    odd_lot_price_long: uint64;
+    shares_at_odd_lot_price: uint16;
+};
+
+type OddLotPriceLevelAttachmentAdfMpidForm = unit {
+    market_center_id: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    odd_lot_price_long: uint64;
+    shares_at_odd_lot_price: uint16;
+    adf_market_participant_identifier: bytes &size=4;
+};
+
 type CombinedQuoteMessageLongFormMessage = unit {
     market_center_originator: uint8 &convert=MarketCenterOriginator($$);
     sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
@@ -209,6 +234,9 @@ type CombinedQuoteMessageLongFormMessage = unit {
     bolo_appendage_short_form: BoloAppendageShortForm;
     bolo_appendage_long_form: BoloAppendageLongForm;
     bolo_appendage_mpid_form: BoloAppendageMpidForm;
+    odd_lot_price_level_attachment_short_form: OddLotPriceLevelAttachmentShortForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_long_form: OddLotPriceLevelAttachmentLongForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_adf_mpid_form: OddLotPriceLevelAttachmentAdfMpidForm[self.odd_lot_attachment_count];
 };
 
 type FinraAdfMpidAppendage = unit {
@@ -230,6 +258,9 @@ type OddLotQuoteMessageShortFormMessage = unit {
     bolo_appendage_short_form: BoloAppendageShortForm;
     bolo_appendage_long_form: BoloAppendageLongForm;
     bolo_appendage_mpid_form: BoloAppendageMpidForm;
+    odd_lot_price_level_attachment_short_form: OddLotPriceLevelAttachmentShortForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_long_form: OddLotPriceLevelAttachmentLongForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_adf_mpid_form: OddLotPriceLevelAttachmentAdfMpidForm[self.odd_lot_attachment_count];
 };
 
 type OddLotQuoteMessageLongFormMessage = unit {
@@ -247,6 +278,9 @@ type OddLotQuoteMessageLongFormMessage = unit {
     bolo_appendage_short_form: BoloAppendageShortForm;
     bolo_appendage_long_form: BoloAppendageLongForm;
     bolo_appendage_mpid_form: BoloAppendageMpidForm;
+    odd_lot_price_level_attachment_short_form: OddLotPriceLevelAttachmentShortForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_long_form: OddLotPriceLevelAttachmentLongForm[self.odd_lot_attachment_count];
+    odd_lot_price_level_attachment_adf_mpid_form: OddLotPriceLevelAttachmentAdfMpidForm[self.odd_lot_attachment_count];
 };
 
 type AdministrativeMessage = unit {
@@ -572,6 +606,11 @@ type OddLotAttachmentType = enum {
     ShortFormOddLotPriceLevelsAttached = 0x32,
     LongFormOddLotPriceLevelsAttached = 0x33,
     MpidFormOddLotPriceLevelsAttached = 0x35,
+};
+
+type Side = enum {
+    UpdateForTheBidSide = 0x42,
+    UpdateForTheAskSide = 0x41,
 };
 
 type TradingActionCode = enum {

@@ -1,0 +1,135 @@
+module NyseNysebondsQuotePdpV12A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NysebondsQuoteV12A = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
+        MsgType::MessageUnavailableMessage -> message_unavailable_message: MessageUnavailableMessage;
+        MsgType::RefreshQuoteMessage -> refresh_quote_message: RefreshQuoteMessage;
+        MsgType::SymbolIndexMappingMessage -> symbol_index_mapping_message: SymbolIndexMappingMessage;
+        MsgType::QuoteMessage -> quote_message: QuoteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+    msg_seq_num: uint32;
+    send_time: uint32;
+    product_id: uint8;
+    retrans_flag: uint8;
+    num_body_entries: uint8;
+    filler: bytes &size=1;
+};
+
+type SequenceNumberResetMessage = unit {
+    next_seq_number: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type MessageUnavailableMessage = unit {
+    begin_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+    end_seq_num: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type RefreshQuoteMessage = unit {
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_time: uint32 &byte-order=spicy::ByteOrder::Little;
+    quote_link_id: uint32 &byte-order=spicy::ByteOrder::Little;
+    ask_price_numerator: uint32 &byte-order=spicy::ByteOrder::Little;
+    ask_size: uint32 &byte-order=spicy::ByteOrder::Little;
+    bid_price_numerator: uint32 &byte-order=spicy::ByteOrder::Little;
+    bid_size: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8;
+    exchange_id: uint8 &convert=ExchangeId($$);
+    security_type: uint8 &convert=SecurityType($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    flat_pricing: uint8 &convert=FlatPricing($$);
+    trading_action: uint8 &convert=TradingAction($$);
+    filler_ascii_2: bytes &size=2;
+    symbol: bytes &size=22;
+    cusip: bytes &size=14;
+};
+
+type SymbolIndexMappingMessage = unit {
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    symbol: bytes &size=22;
+    cusip: bytes &size=14;
+    filler_ascii_4: bytes &size=4;
+};
+
+type QuoteMessage = unit {
+    symbol_index: uint32 &byte-order=spicy::ByteOrder::Little;
+    source_time: uint32 &byte-order=spicy::ByteOrder::Little;
+    quote_link_id: uint32 &byte-order=spicy::ByteOrder::Little;
+    ask_price_numerator: uint32 &byte-order=spicy::ByteOrder::Little;
+    ask_size: uint32 &byte-order=spicy::ByteOrder::Little;
+    bid_price_numerator: uint32 &byte-order=spicy::ByteOrder::Little;
+    bid_size: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8;
+    exchange_id: uint8 &convert=ExchangeId($$);
+    security_type: uint8 &convert=SecurityType($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    flat_pricing: uint8 &convert=FlatPricing($$);
+    trading_action: uint8 &convert=TradingAction($$);
+    filler_ascii_2: bytes &size=2;
+};
+
+type MsgType = enum {
+    SequenceNumberResetMessage = 1,
+    HeartbeatMessage = 2,
+    MessageUnavailableMessage = 5,
+    RefreshQuoteMessage = 23,
+    SymbolIndexMappingMessage = 26,
+    QuoteMessage = 141,
+};
+
+type ExchangeId = enum {
+    Nyse = 0x4e,
+    NyseArca = 0x50,
+};
+
+type SecurityType = enum {
+    FixedIncomeBonds = 0x46,
+};
+
+type QuoteCondition = enum {
+    SlowOnAskSide = 0x41,
+    SlowOnBidSide = 0x42,
+    Closing = 0x43,
+    SlowOnTheBidDueToAnLrpOrGapQuote = 0x45,
+    SlowOnTheAskDueToAnLrpOrGapQuote = 0x46,
+    SlowOnBothAskAndBid = 0x48,
+    NonfirmQuote = 0x4e,
+    OpeningQuote = 0x4f,
+    RegularQuote = 0x52,
+    SlowOnTheBidAndAskDueToAnLrpOrGapQuote = 0x55,
+    SlowOnTheBidAndAskDueToASetSlowList = 0x57,
+};
+
+type FlatPricing = enum {
+    FlatPricingIsInEffect = 0x46,
+};
+
+type TradingAction = enum {
+    Called = 1,
+    Delisted = 2,
+    Exinterest = 3,
+    MissedAnInterestPayment = 4,
+    Bankrupt = 5,
+    LateFiling = 6,
+    BelowListingStandards = 7,
+    LateFilingAndBelowListingStandards = 8,
+    BankruptAndLateFiling = 9,
+    BankruptAndBelowListingStandards = 10,
+    BankruptBelowListingStandardsAndLateFiling = 11,
+};
+

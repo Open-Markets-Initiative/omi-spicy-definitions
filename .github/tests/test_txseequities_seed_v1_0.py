@@ -15,25 +15,25 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 class TxseequitiesSeedV10Tests(unittest.TestCase):
 
     def test_limitorderacceptedmessage(self):
-        module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
+        module = "txse/txseequities/seed/txseequities_seed_v1_0_client.spicy"
         for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/LimitOrderAcceptedMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_limitordermessage(self):
-        module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
+        module = "txse/txseequities/seed/txseequities_seed_v1_0_client.spicy"
         for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/LimitOrderMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_logonrequestpacket(self):
-        module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
+        module = "txse/txseequities/seed/txseequities_seed_v1_0_client.spicy"
         for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/LogonRequestPacket.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_logonresponsemessage(self):
-        module = "txse/txseequities/seed/txseequities_seed_v1_0.spicy"
+        module = "txse/txseequities/seed/txseequities_seed_v1_0_client.spicy"
         for payload in payloads.of("omi-data-packets/Txse/TxseEquities.Seed.Rake.v1.0/LogonResponseMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())

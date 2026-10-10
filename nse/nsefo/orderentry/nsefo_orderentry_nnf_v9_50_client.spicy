@@ -1,0 +1,1047 @@
+module NseNsefoOrderentryNnfV950Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsefoOrderentryV950 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignOnRequestInMessage -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::SystemInformationInMessage -> system_information_in_message: SystemInformationInMessage;
+        TransactionCode::GatewayRouterRequestMessage -> gateway_router_request_message: GatewayRouterRequestMessage;
+        TransactionCode::UpdateLocalDatabaseInMessage -> update_local_database_in_message: UpdateLocalDatabaseInMessage;
+        TransactionCode::DownloadRequestMessage -> download_request_message: DownloadRequestMessage;
+        TransactionCode::OrderEntryRequestMessage -> order_entry_request_message: OrderEntryRequestMessage;
+        TransactionCode::OrderModificationRequestMessage -> order_modification_request_message: OrderModificationRequestMessage;
+        TransactionCode::OrderCancellationRequestMessage -> order_cancellation_request_message: OrderCancellationRequestMessage;
+        TransactionCode::OrderConfirmationMessage -> order_confirmation_message: OrderConfirmationMessage;
+        TransactionCode::OrderModificationConfirmationMessage -> order_modification_confirmation_message: OrderModificationConfirmationMessage;
+        TransactionCode::OrderEntryMessage -> order_entry_message: OrderEntryMessage;
+        TransactionCode::OrderEntryMessage_2042 -> order_entry_message: OrderEntryMessage;
+        TransactionCode::OrderEntryMessage_2062 -> order_entry_message: OrderEntryMessage;
+        TransactionCode::OrderEntryMessage_2072 -> order_entry_message: OrderEntryMessage;
+        TransactionCode::OrderEntryMessage_2170 -> order_entry_message: OrderEntryMessage;
+        TransactionCode::OrderEntryMessage_2231 -> order_entry_message: OrderEntryMessage;
+        TransactionCode::OrderEntryMessage_9002 -> order_entry_message: OrderEntryMessage;
+        TransactionCode::PriceModificationMessage -> price_modification_message: PriceModificationMessage;
+        TransactionCode::PriceModificationMessage_20406 -> price_modification_message: PriceModificationMessage;
+        TransactionCode::TradeInquiryMessage -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::TradeInquiryMessage_5440 -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::TradeInquiryMessage_5441 -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::TradeInquiryMessage_2223 -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::SpreadOrderEntryMessage -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2102 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2104 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2106 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2118 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2124 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2125 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2126 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2127 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2130 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2131 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2132 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2133 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2136 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2154 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2155 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_2156 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_9004 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_20408 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_20410 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_20412 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_20414 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SpreadOrderEntryMessage_20416 -> spread_order_entry_message: SpreadOrderEntryMessage;
+        TransactionCode::SecureBoxRegistrationRequestInMessage -> secure_box_registration_request_in_message: SecureBoxRegistrationRequestInMessage;
+        TransactionCode::BoxSignOnRequestInMessage -> box_sign_on_request_in_message: BoxSignOnRequestInMessage;
+        TransactionCode::BoxSignOffMessage -> box_sign_off_message: BoxSignOffMessage;
+        TransactionCode::BranchOrderValueLimitUpdateMessage -> branch_order_value_limit_update_message: BranchOrderValueLimitUpdateMessage;
+        TransactionCode::UserOrderValueLimitUpdateMessage -> user_order_value_limit_update_message: UserOrderValueLimitUpdateMessage;
+        TransactionCode::NormalOrderLimitUpdateMessage -> normal_order_limit_update_message: NormalOrderLimitUpdateMessage;
+        TransactionCode::ResetUserPasswordMessage -> reset_user_password_message: ResetUserPasswordMessage;
+        TransactionCode::CollateralUserStatusChangeRequestMessage -> collateral_user_status_change_request_message: CollateralUserStatusChangeRequestMessage;
+        TransactionCode::UserTradeModifyCancelStatusChangeRequestMessage -> user_trade_modify_cancel_status_change_request_message: UserTradeModifyCancelStatusChangeRequestMessage;
+        TransactionCode::UserAddressUnlockRequestMessage -> user_address_unlock_request_message: UserAddressUnlockRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32;
+    alpha_char: bytes &size=2;
+    trader_id: int32;
+    error_code: int16 &convert=ErrorCode($$);
+    header_timestamp: int64;
+    time_stamp_1: bytes &size=8;
+    time_stamp_2: bytes &size=8;
+    message_length: int16;
+};
+
+type SignOnRequestInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=8;   # padding
+    password: bytes &size=8;
+    : skip bytes &size=8;   # padding
+    new_password: bytes &size=8;
+    trader_name: bytes &size=26;
+    last_password_change_date: int32;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch_id: int16;
+    version_number: int32;
+    batch_2_start_time: int32;
+    host_switch_context: bytes &size=1;
+    colour: bytes &size=50;
+    : skip bytes &size=1;   # padding
+    user_type: int16;
+    sequence_number: bytes &size=8;
+    ws_class_name: bytes &size=14;
+    broker_status: bytes &size=1;
+    show_index: bytes &size=1;
+    st_broker_eligibility_per_mkt: bitfield(16) {
+        pre_open: 0;
+        reserved_212: 1..11;
+        auction_market: 12;
+        spot_market: 13;
+        oddlot_market: 14;
+        normal_market: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    member_type: int16;
+    clearing_status: bytes &size=1;
+    broker_name: bytes &size=25;
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+};
+
+type SystemInformationInMessage = unit {
+    last_update_portfolio_t_ime: int32;
+};
+
+type GatewayRouterRequestMessage = unit {
+    box_id: int16;
+    broker_id: bytes &size=5;
+    filler: bytes &size=1;
+};
+
+type UpdateLocalDatabaseInMessage = unit {
+    last_update_security_time: int32;
+    last_update_participant_time: int32;
+    last_update_instrument_time: int32;
+    last_update_index_time: int32;
+    request_for_open_orders: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    st_market_status: StMarketStatus;
+    st_ex_market_status: StExMarketStatus;
+    st_pl_market_status: StPlMarketStatus;
+};
+
+type StMarketStatus = unit {
+    market_status_normal: int16 &convert=MarketStatusNormal($$);
+    market_status_oddlot: int16 &convert=MarketStatusOddlot($$);
+    market_status_spot: int16 &convert=MarketStatusSpot($$);
+    market_status_auction: int16 &convert=MarketStatusAuction($$);
+};
+
+type StExMarketStatus = unit {
+    ex_market_status_normal: int16 &convert=ExMarketStatusNormal($$);
+    ex_market_status_oddlot: int16 &convert=ExMarketStatusOddlot($$);
+    ex_market_status_spot: int16 &convert=ExMarketStatusSpot($$);
+    ex_market_status_auction: int16 &convert=ExMarketStatusAuction($$);
+};
+
+type StPlMarketStatus = unit {
+    pl_market_status_normal: int16 &convert=PlMarketStatusNormal($$);
+    pl_market_status_oddlot: int16 &convert=PlMarketStatusOddlot($$);
+    pl_market_status_spot: int16 &convert=PlMarketStatusSpot($$);
+    pl_market_status_auction: int16 &convert=PlMarketStatusAuction($$);
+};
+
+type DownloadRequestMessage = unit {
+    sequence_number: bytes &size=8;
+};
+
+type OrderEntryRequestMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderEntryBody = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    modified_cancelled_by: uint8 &convert=ModifiedCancelledBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    token_no: int32;
+    contract_desc: ContractDesc;
+    counter_party_broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    closeout_flag: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    order_type: int16;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell_indicator: int16 &convert=BuySellIndicator($$);
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    good_till_date: int32;
+    entry_date_time: int32;
+    minimum_fill_aon_volume: int32;
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    settlement_period: int16;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    filler_116: bytes &size=2;
+    filler_17: bytes &size=1;
+    filler_18: bytes &size=1;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type ContractDesc = unit {
+    instrument_name: bytes &size=6;
+    symbol: bytes &size=10;
+    expiry_date: int32;
+    strike_price: int32;
+    option_type: bytes &size=2;
+    ca_level: int16;
+};
+
+type OrderModificationRequestMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderCancellationRequestMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderConfirmationMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderModificationConfirmationMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type OrderEntryMessage = unit {
+    order_entry_body: OrderEntryBody;
+};
+
+type PriceModificationMessage = unit {
+    token_no: int32;
+    trader_id: int32;
+    order_number: bytes &size=8;
+    buy_sell: int16 &convert=BuySell($$);
+    price: int32;
+    volume: int32;
+    last_modified: int32;
+    reference: bytes &size=4;
+    last_activity_reference: int64;
+    : skip bytes &size=24;   # padding
+};
+
+type TradeInquiryMessage = unit {
+    token_no: int32;
+    contract_desc: ContractDesc;
+    fill_number: int32;
+    fill_quantity: int32;
+    fill_price: int32;
+    mkt_type: uint8 &convert=MktType($$);
+    buy_open_close: bytes &size=1;
+    : skip bytes &size=4;   # padding
+    buy_broker_id: bytes &size=5;
+    sell_broker_id: bytes &size=5;
+    trader_id: int32;
+    requested_by: bytes &size=1;
+    sell_open_close: bytes &size=1;
+    buy_account_number: bytes &size=10;
+    sell_account_number: bytes &size=10;
+    : skip bytes &size=24;   # padding
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
+    buy_pan: bytes &size=10;
+    sell_pan: bytes &size=10;
+    : skip bytes &size=60;   # padding
+};
+
+type SpreadOrderEntryMessage = unit {
+    spread_order_body: SpreadOrderBody;
+};
+
+type SpreadOrderBody = unit {
+    participant_type_1: bytes &size=1;
+    filler_1: bytes &size=1;
+    competitor_period_1: int16;
+    solicitor_period_1: int16;
+    mod_cxl_by_1: bytes &size=1;
+    filler_9: bytes &size=1;
+    reason_code_1: int16;
+    start_alpha_1: bytes &size=2;
+    end_alpha_1: bytes &size=2;
+    token_1: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_1: bytes &size=5;
+    fillerx_1: bytes &size=1;
+    filler_options_1: bytes &size=3;
+    fillery_1: bytes &size=1;
+    order_type_1: int16;
+    order_number_1: bytes &size=8;
+    account_number_1: bytes &size=10;
+    book_type_1: int16 &convert=BookType1($$);
+    buy_sell_1: int16;
+    disclosed_vol_1: int32;
+    disclosed_vol_remaining_1: int32;
+    total_vol_remaining_1: int32;
+    volume_1: int32;
+    volume_filled_today_1: int32;
+    price_1: int32;
+    trigger_price_1: int32;
+    good_till_date_1: int32;
+    entry_date_time_1: int32;
+    min_fill_aon_1: int32;
+    last_modified_1: int32;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id_1: int16;
+    trader_id_1: int32;
+    broker_id_1: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close_1: bytes &size=1;
+    settlor_1: bytes &size=12;
+    pro_client_1: int16;
+    settlement_period_1: int16;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    filler_116: bytes &size=2;
+    filler_17: bytes &size=1;
+    filler_18: bytes &size=1;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+    price_diff: int32;
+    ms_spd_leg_info: MsSpdLegInfo[2];
+};
+
+type MsSpdLegInfo = unit {
+    token_2: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_2: bytes &size=5;
+    fillerx_2: bytes &size=1;
+    order_type_2: int16;
+    buy_sell_2: int16;
+    disclosed_vol_2: int32;
+    disclosed_vol_remaining_2: int32;
+    total_vol_remaining_2: int32;
+    volume_2: int32;
+    volume_filled_today_2: int32;
+    price_2: int32;
+    trigger_price_2: int32;
+    min_fill_aon_2: int32;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    open_close_2: bytes &size=1;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    filler_y: bytes &size=1;
+};
+
+type SecureBoxRegistrationRequestInMessage = unit {
+    box_id: int16;
+};
+
+type BoxSignOnRequestInMessage = unit {
+    box_id: int16;
+    broker_id: bytes &size=5;
+    : skip bytes &size=5;   # padding
+    session_key: bytes &size=8;
+};
+
+type BoxSignOffMessage = unit {
+    box_id: int16;
+};
+
+type BranchOrderValueLimitUpdateMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=25;   # padding
+    branch_id: int16;
+    branch_limits: BranchLimits[2];
+};
+
+type BranchLimits = unit {
+    branch_buy_value_limit: bytes &size=8;
+    branch_sell_value_limit: bytes &size=8;
+    : skip bytes &size=16;   # padding
+};
+
+type UserOrderValueLimitUpdateMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch_id: int16;
+    : skip bytes &size=26;   # padding
+    user_id: int32;
+    : skip bytes &size=2;   # padding
+    user_limits: UserLimits[2];
+};
+
+type UserLimits = unit {
+    : skip bytes &size=32;   # padding
+    user_order_buy_value_limit: bytes &size=8;
+    user_order_sell_value_limit: bytes &size=8;
+    : skip bytes &size=16;   # padding
+};
+
+type NormalOrderLimitUpdateMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    user_id: int32;
+    order_qty_limit: bytes &size=8;
+    order_val_limit: bytes &size=8;
+};
+
+type ResetUserPasswordMessage = unit {
+    user_id: int32;
+    : skip bytes &size=14;   # padding
+};
+
+type CollateralUserStatusChangeRequestMessage = unit {
+    user_id: int32;
+    col_user_bit: bytes &size=1;
+    : skip bytes &size=7;   # padding
+};
+
+type UserTradeModifyCancelStatusChangeRequestMessage = unit {
+    user_id: int32;
+    trd_mod_cxl_bit: bytes &size=1;
+    : skip bytes &size=7;   # padding
+};
+
+type UserAddressUnlockRequestMessage = unit {
+    user_id: int32;
+    : skip bytes &size=70;   # padding
+};
+
+type TransactionCode = enum {
+    SignOnRequestInMessage = 2300,
+    SignOnRequestOutMessage = 2301,
+    SignOffRequestOutMessage = 2321,
+    SystemInformationInMessage = 1600,
+    SystemInformationOutMessage = 1601,
+    GatewayRouterRequestMessage = 2400,
+    GatewayRouterResponseMessage = 2401,
+    SignOffRequestInMessage = 2320,
+    UpdateLocalDatabaseInMessage = 7300,
+    UpdateLocalDatabaseHeaderMessage = 7307,
+    UpdateLocalDatabaseTrailerMessage = 7308,
+    DownloadRequestMessage = 7000,
+    UpdateLocalDatabaseDataMessage = 7304,
+    HeaderRecordMessage = 7011,
+    MessageRecordMessage = 7021,
+    TrailerRecordMessage = 7031,
+    OrderEntryRequestMessage = 2000,
+    OrderModificationRequestMessage = 2040,
+    OrderCancellationRequestMessage = 2070,
+    OrderConfirmationMessage = 2073,
+    OrderModificationConfirmationMessage = 2074,
+    OrderEntryMessage = 2012,
+    OrderEntryMessage_2042 = 2042,
+    OrderEntryMessage_2062 = 2062,
+    OrderEntryMessage_2072 = 2072,
+    OrderEntryMessage_2170 = 2170,
+    OrderEntryMessage_2231 = 2231,
+    OrderEntryMessage_9002 = 9002,
+    PriceModificationMessage = 2013,
+    PriceModificationMessage_20406 = 20406,
+    TradeInquiryMessage = 5445,
+    TradeInquiryMessage_5440 = 5440,
+    TradeInquiryMessage_5441 = 5441,
+    TradeInquiryMessage_2223 = 2223,
+    SpreadOrderEntryMessage = 2100,
+    SpreadOrderEntryMessage_2102 = 2102,
+    SpreadOrderEntryMessage_2104 = 2104,
+    SpreadOrderEntryMessage_2106 = 2106,
+    SpreadOrderEntryMessage_2118 = 2118,
+    SpreadOrderEntryMessage_2124 = 2124,
+    SpreadOrderEntryMessage_2125 = 2125,
+    SpreadOrderEntryMessage_2126 = 2126,
+    SpreadOrderEntryMessage_2127 = 2127,
+    SpreadOrderEntryMessage_2130 = 2130,
+    SpreadOrderEntryMessage_2131 = 2131,
+    SpreadOrderEntryMessage_2132 = 2132,
+    SpreadOrderEntryMessage_2133 = 2133,
+    SpreadOrderEntryMessage_2136 = 2136,
+    SpreadOrderEntryMessage_2154 = 2154,
+    SpreadOrderEntryMessage_2155 = 2155,
+    SpreadOrderEntryMessage_2156 = 2156,
+    SpreadOrderEntryMessage_9004 = 9004,
+    SpreadOrderEntryMessage_20408 = 20408,
+    SpreadOrderEntryMessage_20410 = 20410,
+    SpreadOrderEntryMessage_20412 = 20412,
+    SpreadOrderEntryMessage_20414 = 20414,
+    SpreadOrderEntryMessage_20416 = 20416,
+    TradeConfirmationMessage = 2222,
+    TradeConfirmationMessage_2212 = 2212,
+    TradeConfirmationMessage_2282 = 2282,
+    TradeConfirmationMessage_2286 = 2286,
+    TradeConfirmationMessage_2287 = 2287,
+    TradeConfirmationMessage_2288 = 2288,
+    UserOrderLimitUpdateMessage = 5731,
+    DealerLimitUpdateMessage = 5733,
+    SpreadOrderLimitUpdateMessage = 5772,
+    ControlMessageToTraderMessage = 5295,
+    MarketStatisticsReportMessage = 1833,
+    EnhancedMarketStatisticsReportMessage = 11833,
+    MarketIndexReportMessage = 1836,
+    IndustryIndexReportMessage = 1837,
+    SectorIndexReportMessage = 1838,
+    SpreadBhavcopyMessage = 1862,
+    GlobalIndicesMessage = 7732,
+    GlobalContractsMessage = 7733,
+    SecureBoxRegistrationRequestInMessage = 23008,
+    SecureBoxRegistrationResponseOutMessage = 23009,
+    BoxSignOnRequestInMessage = 23000,
+    BoxSignOnRequestOutMessage = 23001,
+    HeartbeatMessage = 23506,
+    BoxSignOffMessage = 20322,
+    ContingencyBroadcastMessage = 5294,
+    BranchOrderValueLimitUpdateMessage = 5716,
+    UserOrderValueLimitUpdateMessage = 5730,
+    NormalOrderLimitUpdateMessage = 5732,
+    ResetUserPasswordMessage = 5740,
+    CollateralUserStatusChangeRequestMessage = 5744,
+    CollateralUserStatusChangeResponseMessage = 5745,
+    UserTradeModifyCancelStatusChangeRequestMessage = 5738,
+    UserTradeModifyCancelStatusChangeResponseMessage = 5739,
+    UserAddressUnlockRequestMessage = 5427,
+    UserAddressUnlockConfirmMessage = 5428,
+    UserAddressUnlockApproveMessage = 5483,
+    GiveupConfirmationMessage = 4506,
+    GiveupConfirmationMessage_4507 = 4507,
+    OrderCancellationConfirmationMessage = 2075,
+};
+
+type ErrorCode = enum {
+    InvalidInstrumentType = 293,
+    OrderNumberInvalid = 509,
+    OrdCxlInitiatorAucNotAllowed = 8049,
+    AuctionNumberInvalid = 8485,
+    MarketClosed = 16000,
+    EInvalidUser = 16001,
+    ErrorBadTransCode = 16003,
+    EUserAlreadySignedOn = 16004,
+    EInvalidSignoff = 16005,
+    EInvalidSignon = 16006,
+    ESignonNotPossible = 16007,
+    ErrInvalidSymbol = 16012,
+    ErrInvalidOrderNumber = 16013,
+    ENotYourOrder = 16014,
+    ENotYourFill = 16015,
+    EInvalidFillNumber = 16016,
+    EStockNotFound = 16019,
+    EOrderPriceOutOfRevisedPriceRa = 16020,
+    SecurityNotAvailable = 16035,
+    BrokerNotFound = 16041,
+    UserNotFound = 16042,
+    DuplicateRecord = 16043,
+    EOrderModified = 16044,
+    StockSuspended = 16049,
+    ErrFunctionNotAvailable = 16052,
+    EChangePassword = 16053,
+    ErrInvalidBranch = 16054,
+    OeProgramError = 16056,
+    ErrInvalidStatus = 16063,
+    ErrDataNotChanged = 16070,
+    EDupTrdCxlRequest = 16086,
+    ErrInvalidBuyerUserId = 16098,
+    ErrInvalidSellerUserId = 16099,
+    EInvalidVersion = 16100,
+    OeSystemError = 16104,
+    ErrUserDisabled = 16134,
+    OeInvalidStockStatus = 16145,
+    ErrInvalidUserId = 16148,
+    ErrInvalidTraderId = 16154,
+    OeAtoInOpen = 16169,
+    EDupRequest = 16198,
+    EOnlyCpAllowed = 16227,
+    ESlMitNtNotAllowedPclose = 16228,
+    EGtcGtdOrdNotAllowedPclose = 16229,
+    OeContModNotAllowed = 16230,
+    TrdContModNotAllowed = 16231,
+    StrProPartivipantInvalid = 16233,
+    ErrorInvalidPrice = 16247,
+    OeDiffTrdModVol = 16251,
+    ErrorUserNotExistsInSystem = 16260,
+    ErrAlreadyDeleted = 16264,
+    RecordNotFound = 16273,
+    OeMarketsClosed = 16278,
+    OeSecurityNotAdmitted = 16279,
+    OeSecurityMatured = 16280,
+    OeSecurityExpelled = 16281,
+    OeIssuedCapExceeds = 16282,
+    OePriceNotMult = 16283,
+    OePriceExceedsDayMinMax = 16284,
+    OeIsNotActive = 16285,
+    ESystemWrongState = 16300,
+    OeAuctionPending = 16303,
+    OeQtyFreezeCan = 16307,
+    OePriceFreezeCan = 16308,
+    OeSolPeriodOver = 16311,
+    OeCompPeriodOver = 16312,
+    OeAucPeriodGreater = 16313,
+    OeLimitTrigger = 16315,
+    OeTriggerPriceNotMult = 16316,
+    OeNoAonAttrib = 16317,
+    OeNoMfAttrib = 16318,
+    OeNoAonInAttrib1 = 16319,
+    OeNoMfAttrib1 = 16320,
+    OeMfGreaterDisc = 16321,
+    OeMfNotMult = 16322,
+    OeMfGreaterOriginal = 16323,
+    OeDiscGreaterOriginal = 16324,
+    OeDiscNotMult = 16325,
+    OeGtdGreater = 16326,
+    OeQuantityGeraterRl = 16327,
+    OeQuantityNotMultRl = 16328,
+    OeBrokerNotPermitted = 16329,
+    OeIsSuspended = 16330,
+    OeBranchLiMitExceeded = 16333,
+    OeOrdCanChanged = 16343,
+    OeOrdCannotCancel = 16344,
+    OeInitOrdCancel = 16345,
+    OeOrdCannotModify = 16346,
+    ErrTradingNotAllowed = 16348,
+    OeNtRejected = 16357,
+    ChgStExists = 16363,
+    OeSecurityInPreopen = 16369,
+    OeInqNotAllowed = 16372,
+    OeSecurityIneligible = 16387,
+    EFokOrderCancelled = 16388,
+    TurnoverLimitNotProvided = 16392,
+    ErrCannotModAucOrder = 16397,
+    OeMaxDqAllowed = 16400,
+    OeAdminSuspCan = 16404,
+    EInvalidBuySellType = 16405,
+    EInvalidBookType = 16406,
+    EInvalidTriggerPrice = 16408,
+    EInvalidProClient = 16414,
+    EInvalidInstructions = 16415,
+    EInvalidOrderParameters = 16416,
+    ENnfReqExceeded = 16418,
+    InvalidOrder = 16419,
+    ErrBoxRateExceededAtMillisecondLevel = 16420,
+    EGtdGtMaturity = 16440,
+    DqNotAllowedInPreopen = 16441,
+    StOrdNotAllowedPopen = 16442,
+    EOrdLimExceedsOrdValLim = 16443,
+    ErrUsrOrdValueLimitExceeded = 16444,
+    SlNotAllowed = 16445,
+    MitNotAllowed = 16446,
+    EOrdNotAllowedInPreopen = 16447,
+    ErrorSlLmtRsnbltyCheck = 16448,
+    ENotModifiable = 16514,
+    ETmCmDoesNotExist = 16518,
+    ENotClgMem = 16521,
+    EUserNotCorpMgr = 16523,
+    EPmCmInvalid = 16532,
+    ECorpMgrVuMod = 16533,
+    EInvalidParticipant = 16541,
+    ETradeApprovedByCm = 16550,
+    ECmStockSuspended = 16552,
+    EBrokerNotPermittedInFut = 16554,
+    EBrokerNotPermittedInOpt = 16555,
+    EQtyLessThanMinLot = 16556,
+    EDiscQtyLessThanMinLot = 16557,
+    EMfQtyLessThanMinLot = 16558,
+    EAlreadyRejected = 16560,
+    ENtOrdersNotAllowed = 16561,
+    ENtTradeNotAllowed = 16562,
+    EInconsistentBrokerBranch = 16566,
+    MPostCloseStart = 16570,
+    MPostCloseEnded = 16571,
+    MPostCloseTrades = 16572,
+    EInvalidMsgLength = 16573,
+    EInvalidOpenCloseType = 16574,
+    ENnfInqReqExceeded = 16576,
+    EParticipantAndVolumeChanged = 16577,
+    EInvalidCoverUncoverType = 16578,
+    EIllegalParticipant = 16580,
+    EInvalidFillPrice = 16581,
+    EProNoParticipant = 16583,
+    EInvalidAccountNo = 16585,
+    EAllowNoParticipantOrder = 16586,
+    MDeleteAllOrders = 16589,
+    ECumUrOrdValLimitExceede = 16597,
+    EBranchOrdValLimitExceeded = 16598,
+    ErrOrdValExceeded = 16600,
+    ErrPreopenOrderReject = 16601,
+    EDealerValueLimitExceeds = 16602,
+    EParticipantNotFound = 16604,
+    EEitherLegFailed = 16605,
+    EQtyGreaterThanFreezeQty = 16606,
+    ESpreadNotAllowed = 16607,
+    ESpreadAllowedIfStockOpen = 16609,
+    EQtyShouldBeSame = 16610,
+    EOrdModQtyFrzNotAllowed = 16611,
+    ETradeRecModified = 16612,
+    ETmOrderCantBeModified = 16615,
+    ETmOrderCantBeCancelled = 16616,
+    ETmTradeCantBeManipulated = 16617,
+    ECmOfTmSuspended = 16625,
+    EExpdateNotInAscendingOrd = 16626,
+    EInvalidContractComb = 16627,
+    EBmCannotCancelCmOrders = 16628,
+    EBmCannotCancelBmOrders = 16629,
+    ECmCannotCancelCmOrders = 16630,
+    ESpreadInDifferentUnderlying = 16631,
+    EInvalidCliAc = 16632,
+    EBrOrdLimitFutBuyExceeded = 16636,
+    EBrOrdLimitFutSellExceeded = 16637,
+    EBrOrdLimitOptBuyExceeded = 16638,
+    EBrOrdLimitOptSellExceeded = 16639,
+    EUrOrdLimitFutBuyExceeded = 16640,
+    EUrOrdLimitFutSellExceeded = 16641,
+    EUrOrdLimitOptBuyExceeded = 16642,
+    EUrOrdLimitOptSellExceeded = 16643,
+    ECantApprBhavCopyGenerated = 16645,
+    ECollateralLmtChk = 16646,
+    EAddressNotFound = 16656,
+    EStkInPopen = 16662,
+    EInvalidNnfField = 16666,
+    EGtcgtdNotAllowed = 16667,
+    ErrUserAlreadySignedOff = 16683,
+    ErrNoPrivilege = 16684,
+    CloseoutOrderReject = 16686,
+    CloseoutFrzReject = 16687,
+    CloseoutNotAllowed = 16688,
+    CloseoutTrdmodReject = 16690,
+    PartialOrderReject = 16706,
+    PartialQuickOrderCxlRej = 16708,
+    ErrorInvalidSprdCombination = 16711,
+    EPriceDiffOutOfRange = 16713,
+    RmsRejectedInPreopen = 16725,
+    ErrorAlgoidNnfidMismatch1 = 16730,
+    ErrorAlgoidNnfidMismatch2 = 16731,
+    ErrorAlgoMktNotAllowed = 16732,
+    ErrorInvalidNnfId = 16733,
+    ErrorPreopnAtoModCanRej = 16749,
+    ErrorPreopnAtoNotAllowed = 16752,
+    ErrUsrNotFoundInNnfFile = 16778,
+    EVcOrderRejected = 16793,
+    ESsdOrderRejected = 16794,
+    EOrderCancelledForVc = 16795,
+    EOrderCancelledForSsd = 16796,
+    MsgCodeVoluntaryCloseOutStatus = 16797,
+    MsgCodeSuspendedStatus = 16798,
+    EBoPriceOutOfRange = 16803,
+    EBoExcessQuantity = 16804,
+    EUserIneligibleForBulkOrders = 16805,
+    EUserNotAllowedForRegular = 16806,
+    EAccountDebarred = 16807,
+    EAccountDebarredByPit = 16816,
+    ErrUsrAlreadyUnlcked = 16810,
+    ErrDuplicateUnlckAlrt = 16811,
+    ErrActvNumOfUsrsInBrnchExceeded = 17022,
+    EcTrdModRejCliCpModNotAllowed = 17039,
+    ErrorQuantityLimExceedsQtyValLim = 17045,
+    UserTrdModDisabled = 17046,
+    PreopenTradeCancellationNotAllowed = 16055,
+    ErrDepndentSessnNotActive = 17063,
+    ETrdPriceOutOfStockTpp = 17070,
+    EOrderCancelledForSelfTrade = 17071,
+    EInvalidPacket = 17101,
+    SssssseHearbeatNotReceived = 17102,
+    EInvalidBoxId = 17104,
+    ESeqNoMismatch = 17105,
+    EBoxRateExceeded = 17106,
+    ErrorHbRateExceeded = 17107,
+    EMaxUserCountExceeded = 17142,
+    EInvalidBoxIpCombination = 16403,
+    ErrInvalidPanId = 17177,
+    ErrInvalidAlgoId = 17179,
+    ErrInvalidValueInReserved = 17180,
+    ErrAlgoIdDisabled = 17185,
+    ErrOrderCancelledAlgoidDisabled = 17186,
+    ErrChecksumFailedGr = 19028,
+    ErrMultipleGrQueryRcv = 19029,
+    ErrMktOrderNotAllowed = 17181,
+    ErrTradeBeyondMarkupPrice = 17182,
+    ErrEncryptionFlagMismatch = 19030,
+    ErrMd5ChecksumFailure = 19031,
+    ErrUserHavingNullRights = 17184,
+};
+
+type MarketStatusNormal = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type MarketStatusOddlot = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type MarketStatusSpot = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type MarketStatusAuction = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type ExMarketStatusNormal = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type ExMarketStatusOddlot = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type ExMarketStatusSpot = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type ExMarketStatusAuction = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type PlMarketStatusNormal = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type PlMarketStatusOddlot = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type PlMarketStatusSpot = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type PlMarketStatusAuction = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnded = 3,
+    Postclose = 4,
+};
+
+type ParticipantType = enum {
+    Initiator = 0x49,
+    Competitor = 0x43,
+    Solicitor = 0x53,
+};
+
+type ModifiedCancelledBy = enum {
+    Trader = 0x54,
+    BranchManager = 0x42,
+    CorporateManager = 0x4d,
+    Exchange = 0x43,
+};
+
+type ReasonCode = enum {
+    Exercise = 2,
+    PositionLiquidation = 3,
+    Security = 5,
+    Broker = 6,
+    Branch = 7,
+    User = 8,
+    Participant = 9,
+    CounterParty = 10,
+    OrderNumber = 11,
+    MarketStatus = 12,
+    AuctionNumber = 15,
+    OrderType = 16,
+    PriceFreeze = 17,
+    QuantityFreeze = 18,
+    Contract = 20,
+    ExerciseModeMismatch = 30,
+};
+
+type BookType = enum {
+    RegularLotOrder = 1,
+    SpecialTermsOrder = 2,
+    StopLossOrMitOrder = 3,
+    NegotiatedOrder = 4,
+    OddLotOrder = 5,
+    SpotOrder = 6,
+    AuctionOrder = 7,
+};
+
+type BuySellIndicator = enum {
+    BuyOrder = 1,
+    SellOrder = 2,
+};
+
+type OrderPreOpen = enum {
+    NormalMarketOrder = 0,
+    PreopenSessionOrder = 1,
+};
+
+type Market = enum {
+    MarketOrder = 0,
+    NotAMarketOrder = 1,
+};
+
+type Stpc = enum {
+    CancelOrderResultingInSelfTradeByExchangeDefault = 0,
+    CancelActiveOrderResultingInSelfTrade = 1,
+};
+
+type BuySell = enum {
+    BuyOrder = 1,
+    SellOrder = 2,
+};
+
+type MktType = enum {
+    NormalMarket = 0x31,
+    OddLotMarket = 0x32,
+    SpotMarket = 0x33,
+    AuctionMarket = 0x34,
+};
+
+type BookType1 = enum {
+    RegularLotOrder = 1,
+    SpecialTermsOrder = 2,
+    StopLossOrMitOrder = 3,
+    NegotiatedOrder = 4,
+    OddLotOrder = 5,
+    SpotOrder = 6,
+    AuctionOrder = 7,
+};
+

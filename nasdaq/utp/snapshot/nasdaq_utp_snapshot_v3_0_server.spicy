@@ -263,6 +263,7 @@ type UtpCombinedQuoteMessageLongForm = unit {
     national_bbo_appendage_longform: NationalBboAppendageLongform;
     finra_adf_mpid_appendage: FinraAdfMpidAppendage;
     bolo_appendage_mpid_form: BoloAppendageMpidForm;
+    utp_adf_mpid_odd_lot_attachment: UtpAdfMpidOddLotAttachment[self.odd_lot_attachment_count];
 };
 
 type NationalBboAppendageLongform = unit {
@@ -291,6 +292,14 @@ type BoloAppendageMpidForm = unit {
     bolo_best_ask_market_participant_identifier: bytes &size=4;
 };
 
+type UtpAdfMpidOddLotAttachment = unit {
+    market_center_id: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    odd_lot_price: uint64;
+    shares_at_odd_lot_price: uint16;
+    adf_market_participant_identifier: bytes &size=4;
+};
+
 type OddLotQuoteMessageLongForm = unit {
     market_center_originator: uint8 &convert=MarketCenterOriginator($$);
     sub_market_center_id: uint8 &convert=SubMarketCenterId($$);
@@ -304,6 +313,7 @@ type OddLotQuoteMessageLongForm = unit {
     odd_lot_attachment_type: uint8 &convert=OddLotAttachmentType($$);
     odd_lot_attachment_count: uint16;
     bolo_appendage_mpid_form: BoloAppendageMpidForm;
+    utp_adf_mpid_odd_lot_attachment: UtpAdfMpidOddLotAttachment[self.odd_lot_attachment_count];
 };
 
 type DebugPacket = unit {
@@ -547,5 +557,10 @@ type OddLotAttachmentType = enum {
     ShortFormOddLotPriceLevelsAttached = 0x32,
     LongFormOddLotPriceLevelsAttached = 0x33,
     MpidFormOddLotPriceLevelsAttached = 0x35,
+};
+
+type Side = enum {
+    UpdateForTheBidSide = 0x42,
+    UpdateForTheAskSide = 0x41,
 };
 

@@ -1,0 +1,48 @@
+module NyseNysebondsTradesAbpV107AClient;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NysebondsTradesV107A = unit {
+    client_message_header: ClientMessageHeader;
+    switch ( self.client_message_header.client_message_type ) {
+        0x4c -> login_message: LoginMessage;
+        0x4f -> logoff_message: LogoffMessage;
+        0x48 -> heartbeat_response_message: HeartbeatResponseMessage;
+        0x54 -> test_request_message: TestRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientMessageHeader = unit {
+    client_message_type: uint8;
+};
+
+type LoginMessage = unit {
+    username: bytes &size=8;
+    password: bytes &size=10;
+    login_sequence_number: bytes &size=10;
+    listed_subscription: bytes &size=1;
+    etf_subscription: bytes &size=1;
+    otc_subscription: bytes &size=1;
+    arca_edge_subscription: bytes &size=1;
+    bond_subscription: bytes &size=1;
+    options_subscription: bytes &size=1;
+    client_padding: bytes &size=5;
+    etx: uint8;
+};
+
+type LogoffMessage = unit {
+    etx: uint8;
+};
+
+type HeartbeatResponseMessage = unit {
+    etx: uint8;
+};
+
+type TestRequestMessage = unit {
+    test_request_text: bytes &size=20;
+    etx: uint8;
+};
+

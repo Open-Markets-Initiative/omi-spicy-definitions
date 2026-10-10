@@ -1,0 +1,218 @@
+module NyseNysebondsDepthofbookAbpV401BServer;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NysebondsDepthofbookV401B = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::LoginAcceptedMessage -> login_accepted_message: LoginAcceptedMessage;
+        MessageType::LoginRejectedMessage -> login_rejected_message: LoginRejectedMessage;
+        MessageType::TestResponseMessage -> test_response_message: TestResponseMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
+        MessageType::DeleteOrderMessage -> delete_order_message: DeleteOrderMessage;
+        MessageType::ImbalanceMessage -> imbalance_message: ImbalanceMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_body_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+    padding: bytes &size=1;
+};
+
+type LoginAcceptedMessage = unit {
+    version_id: bytes &size=5;
+    padding_ascii_1: bytes &size=1;
+};
+
+type LoginRejectedMessage = unit {
+    reject_code: uint8 &convert=RejectCode($$);
+    padding_ascii_1: bytes &size=1;
+};
+
+type TestResponseMessage = unit {
+    test_message: bytes &size=20;
+};
+
+type AddOrderMessage = unit {
+    time_field: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    order_reference_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    flat_pricing: uint8 &convert=FlatPricing($$);
+    trading_action: uint8 &convert=TradingAction($$);
+    security_type: uint8 &convert=SecurityType($$);
+    order_type: uint8 &convert=OrderType($$);
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    quote_id: bytes &size=5;
+    padding_ascii_3: bytes &size=3;
+    minimum_quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type ModifyOrderMessage = unit {
+    time_field: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    order_reference_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    flat_pricing: uint8 &convert=FlatPricing($$);
+    trading_action: uint8 &convert=TradingAction($$);
+    security_type: uint8 &convert=SecurityType($$);
+    order_type: uint8 &convert=OrderType($$);
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    quote_id: bytes &size=5;
+    padding_ascii_3: bytes &size=3;
+    minimum_quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+};
+
+type DeleteOrderMessage = unit {
+    time_field: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    order_reference_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
+    flat_pricing: uint8 &convert=FlatPricing($$);
+    trading_action: uint8 &convert=TradingAction($$);
+    security_type: uint8 &convert=SecurityType($$);
+    order_type: uint8 &convert=OrderType($$);
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    quote_id: bytes &size=5;
+};
+
+type ImbalanceMessage = unit {
+    time_field: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    match_quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    total_imbalance: uint32 &byte-order=spicy::ByteOrder::Little;
+    market_imbalance: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    auction_type: uint8 &convert=AuctionType($$);
+    flat_pricing: uint8 &convert=FlatPricing($$);
+    trading_action: uint8 &convert=TradingAction($$);
+    security_type: uint8 &convert=SecurityType($$);
+    quote_condition: uint8;
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    auction_time: bytes &size=4;
+};
+
+type SystemEventMessage = unit {
+    time_field: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    next_expected_sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    event_code: uint8 &convert=EventCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    padding_ascii_2: bytes &size=2;
+};
+
+type MessageType = enum {
+    LoginAcceptedMessage = 0x51,
+    LoginRejectedMessage = 0x52,
+    HeartbeatMessage = 0x48,
+    TestResponseMessage = 0x53,
+    AddOrderMessage = 0x4e,
+    ModifyOrderMessage = 0x43,
+    DeleteOrderMessage = 0x4b,
+    ImbalanceMessage = 0x57,
+    SystemEventMessage = 0x59,
+};
+
+type RejectCode = enum {
+    NotAuthorized = 0x41,
+    MaximumServerConnectionsReached = 0x4d,
+    InvalidSubscription = 0x52,
+    InvalidSequence = 0x53,
+    Timeout = 0x54,
+};
+
+type PriceScaleCode = enum {
+    NoDivision = 0x30,
+    Ten = 0x31,
+    OneHundred = 0x32,
+    OneThousand = 0x33,
+    TenThousand = 0x34,
+    OneHundredThousand = 0x35,
+    OneMillion = 0x36,
+};
+
+type ExchangeCode = enum {
+    NyseListedBond = 0x4e,
+};
+
+type SystemCode = enum {
+    Bonds = 0x46,
+};
+
+type BuySellIndicator = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type FlatPricing = enum {
+    FlatPricingIsInEffect = 0x46,
+};
+
+type TradingAction = enum {
+    Called = 1,
+    Delisted = 2,
+    Exinterest = 3,
+    MissedAnInterestPayment = 4,
+    Bankrupt = 5,
+    LateFiling = 6,
+    BelowListingStandards = 7,
+    LateFilingAndBelowListingStandards = 8,
+    BankruptAndLateFiling = 9,
+    BankruptAndBelowListingStandards = 10,
+};
+
+type SecurityType = enum {
+    CorporateBonds = 1,
+};
+
+type OrderType = enum {
+    Unspecified = 0,
+    AllOrNone = 1,
+    MinimumQuantity = 2,
+};
+
+type AuctionType = enum {
+    Open = 0x4f,
+    Market = 0x4d,
+    Halt = 0x48,
+    Closing = 0x43,
+};
+
+type EventCode = enum {
+    ClearBook = 0x43,
+    ClearBookBySymbol = 0x53,
+    HaltSymbol = 0x48,
+    UnHaltSymbol = 0x55,
+};
+

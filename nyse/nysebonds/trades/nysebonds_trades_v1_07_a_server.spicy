@@ -1,0 +1,137 @@
+module NyseNysebondsTradesAbpV107AServer;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NysebondsTradesV107A = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::LoginAcceptedMessage -> login_accepted_message: LoginAcceptedMessage;
+        MessageType::LoginRejectedMessage -> login_rejected_message: LoginRejectedMessage;
+        MessageType::TestResponseMessage -> test_response_message: TestResponseMessage;
+        MessageType::LastSaleMessage -> last_sale_message: LastSaleMessage;
+        MessageType::TradeBustOrCorrectionMessage -> trade_bust_or_correction_message: TradeBustOrCorrectionMessage;
+        MessageType::NyseBondClosingPriceMessage -> nyse_bond_closing_price_message: NyseBondClosingPriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_body_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+    padding: bytes &size=1;
+};
+
+type LoginAcceptedMessage = unit {
+    version_id: bytes &size=5;
+    padding_ascii_1: bytes &size=1;
+};
+
+type LoginRejectedMessage = unit {
+    reject_code: uint8 &convert=RejectCode($$);
+    padding_ascii_1: bytes &size=1;
+};
+
+type TestResponseMessage = unit {
+    test_message: bytes &size=20;
+};
+
+type LastSaleMessage = unit {
+    last_sale_time: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    trade_reference_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    trade_condition: uint8;
+    security_type: uint8 &convert=SecurityType($$);
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    padding_ascii_3: bytes &size=3;
+};
+
+type TradeBustOrCorrectionMessage = unit {
+    last_sale_time: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    trade_reference_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    price: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    event_code: uint8 &convert=EventCode($$);
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    trade_condition: uint8;
+    security_type: uint8 &convert=SecurityType($$);
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    padding_ascii_2: bytes &size=2;
+};
+
+type NyseBondClosingPriceMessage = unit {
+    closing_time: uint32 &byte-order=spicy::ByteOrder::Little;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    trade_reference_number: uint32 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
+    closing_price: uint32 &byte-order=spicy::ByteOrder::Little;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
+    system_code: uint8 &convert=SystemCode($$);
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    trade_condition: uint8;
+    security_type: uint8 &convert=SecurityType($$);
+    nyse_bond_symbol: bytes &size=22;
+    cusip_isin: bytes &size=14;
+    padding_ascii_3: bytes &size=3;
+};
+
+type MessageType = enum {
+    LoginAcceptedMessage = 0x51,
+    LoginRejectedMessage = 0x52,
+    HeartbeatMessage = 0x48,
+    TestResponseMessage = 0x53,
+    LastSaleMessage = 0x58,
+    TradeBustOrCorrectionMessage = 0x55,
+    NyseBondClosingPriceMessage = 0x5a,
+};
+
+type RejectCode = enum {
+    NotAuthorized = 0x41,
+    MaximumServerConnectionsReached = 0x4d,
+    InvalidSubscription = 0x52,
+    InvalidSequence = 0x53,
+    Timeout = 0x54,
+};
+
+type PriceScaleCode = enum {
+    NoDivision = 0x30,
+    Ten = 0x31,
+    OneHundred = 0x32,
+    OneThousand = 0x33,
+    TenThousand = 0x34,
+    OneHundredThousand = 0x35,
+    OneMillion = 0x36,
+};
+
+type SystemCode = enum {
+    BondsTradingPlatform = 0x46,
+};
+
+type ExchangeCode = enum {
+    NyseListedBond = 0x4e,
+};
+
+type SecurityType = enum {
+    CorporateBonds = 1,
+};
+
+type EventCode = enum {
+    TradeBust = 0x42,
+    TradeCorrection = 0x43,
+};
+

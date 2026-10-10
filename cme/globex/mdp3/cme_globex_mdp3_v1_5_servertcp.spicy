@@ -5,18 +5,22 @@ import spicy;
 %byte-order = spicy::ByteOrder::Little;
 
 public type CmeGlobexMdp3V15 = unit {
+    server_tcp_frame: ServerTcpFrame[] &eod;
+};
+
+type ServerTcpFrame = unit {
     server_technical_header: ServerTechnicalHeader;
-    server_tcp_message: ServerTcpMessage[] &eod;
+    server_tcp_message: ServerTcpMessage;
 };
 
 type ServerTechnicalHeader = unit {
     encoding_type: uint16;
     message_sequence_number: uint32;
     tcp_sending_time: uint64;
+    tcp_message_size: uint16;
 };
 
 type ServerTcpMessage = unit {
-    tcp_message_size: uint16;
     message_header: MessageHeader;
     switch ( self.message_header.template_id ) {
         TemplateId::ChannelReset -> channel_reset: ChannelReset;
@@ -47,7 +51,7 @@ type ServerTcpMessage = unit {
 type MessageHeader = unit {
     block_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
-    schema_id: uint16;
+    schema_id: uint16 &convert=SchemaId($$);
     version: uint16;
 };
 
@@ -799,6 +803,11 @@ type TemplateId = enum {
     SecurityListRequest = 208,
     SecurityStatusRequest = 209,
     SubscriberHeartbeat = 210,
+};
+
+type SchemaId = enum {
+    Mktdata = 1,
+    Mdpsessionmgmt = 2,
 };
 
 type SecurityUpdateAction = enum {
