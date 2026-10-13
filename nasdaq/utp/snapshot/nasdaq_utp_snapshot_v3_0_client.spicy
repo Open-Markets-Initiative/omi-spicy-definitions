@@ -7,7 +7,7 @@ import spicy;
 public type NasdaqUtpSnapshotV30 = unit {
     client_tcp_packet_header: ClientTcpPacketHeader;
     switch ( self.client_tcp_packet_header.client_packet_type ) {
-        ClientPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ClientPacketType::DebugPacket -> debug_packet: DebugPacket(self.client_tcp_packet_header.packet_length);
         ClientPacketType::LoginRequestPacket -> login_request_packet: LoginRequestPacket;
         * -> unknown: bytes &eod;
     };
@@ -18,8 +18,8 @@ type ClientTcpPacketHeader = unit {
     client_packet_type: uint8 &convert=ClientPacketType($$);
 };
 
-type DebugPacket = unit {
-    debug_text: bytes &eod;
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
 };
 
 type LoginRequestPacket = unit {

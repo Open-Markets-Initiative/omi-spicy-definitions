@@ -27,6 +27,7 @@ type ClientSimpleOpenFrame = unit {
         TemplateId::OrderMassStatusRequest -> order_mass_status_request: OrderMassStatusRequest;
         TemplateId::OrderStatusRequest -> order_status_request: OrderStatusRequest;
         TemplateId::PartyDetailsListRequest -> party_details_list_request: PartyDetailsListRequest;
+        TemplateId::ExecutionAck -> execution_ack: ExecutionAck;
         TemplateId::RequestForQuote -> request_for_quote: RequestForQuote;
         TemplateId::NewOrderCross -> new_order_cross: NewOrderCross;
         TemplateId::SecurityDefinitionRequest -> security_definition_request: SecurityDefinitionRequest;
@@ -376,6 +377,24 @@ type PartyIdsGroup = unit {
     party_role: uint16;
 };
 
+type ExecutionAck = unit {
+    party_details_list_req_id: uint64;
+    order_id: uint64;
+    exec_ack_status: uint8 &convert=ExecAckStatus($$);
+    seq_num: uint32;
+    clordid: bytes &size=20;
+    sec_exec_id: uint64;
+    last_px: int64;
+    security_id: int32;
+    last_qty: uint32;
+    dk_reason: uint8 &convert=DkReason($$);
+    side: uint8 &convert=Side($$);
+    sender_id: bytes &size=20;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+};
+
 type RequestForQuote = unit {
     party_details_list_req_id: uint64;
     quote_req_id: uint64;
@@ -691,6 +710,22 @@ type MassStatusTif = enum {
     Day = 0,
     Gtc = 1,
     Gtd = 6,
+};
+
+type ExecAckStatus = enum {
+    Accepted = 1,
+    Rejected = 2,
+};
+
+type DkReason = enum {
+    UnknownSecurity = 0x41,
+    WrongSide = 0x42,
+    QuantityExceedsOrder = 0x43,
+    NoMatchingOrder = 0x44,
+    PriceExceedsLimit = 0x45,
+    CalculationDifference = 0x46,
+    NoMatchingExecutionReport = 0x47,
+    Other = 0x5a,
 };
 
 type QuoteType = enum {

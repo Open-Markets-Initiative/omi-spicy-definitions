@@ -1,0 +1,152 @@
+module LmeLmeselectDailysummariesLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectDailysummariesV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::OpenInterestMessage -> open_interest_message: OpenInterestMessage;
+        MsgType::OpenInterestBandMessage -> open_interest_band_message: OpenInterestBandMessage;
+        MsgType::PositionBandMessage -> position_band_message: PositionBandMessage;
+        MsgType::WarrantBandMessage -> warrant_band_message: WarrantBandMessage;
+        MsgType::TradingVolumeMessage -> trading_volume_message: TradingVolumeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type OpenInterestMessage = unit {
+    business_date: uint32;
+    open_interest_type: uint8 &convert=OpenInterestType($$);
+    instrument_id: uint64;
+    product_code: bytes &size=2;
+    contract_code: bytes &size=12;
+    contract_type: uint8 &convert=ContractType($$);
+    volume: uint32;
+};
+
+type OpenInterestBandMessage = unit {
+    business_date: uint32;
+    product_code: bytes &size=2;
+    contract_code: bytes &size=12;
+    contract_type: uint8 &convert=ContractType($$);
+    currency_code: bytes &size=3;
+    date_band_count: uint32;
+    date_bands: DateBands[self.date_band_count];
+};
+
+type DateBands = unit {
+    from_date: uint32;
+    to_date: uint32;
+    volume: uint32;
+};
+
+type PositionBandMessage = unit {
+    business_date: uint32;
+    product_code: bytes &size=2;
+    long_position_band_count: uint32;
+    short_position_band_count: uint32;
+    long_position_bands: LongPositionBands[self.long_position_band_count];
+    short_position_bands: ShortPositionBands[self.short_position_band_count];
+};
+
+type LongPositionBands = unit {
+    long_position_lower_value: int64;
+    long_position_upper_value: int64;
+    long_position_prompt_date_count: uint32;
+    long_prompt_dates: LongPromptDates[self.long_position_prompt_date_count];
+};
+
+type LongPromptDates = unit {
+    prompt_date_label: bytes &size=6;
+    expiry_date: uint32;
+    participant_count: uint32;
+};
+
+type ShortPositionBands = unit {
+    short_position_lower_value: int64;
+    short_position_upper_value: int64;
+    short_position_prompt_date_count: uint32;
+    short_prompt_dates: ShortPromptDates[self.short_position_prompt_date_count];
+};
+
+type ShortPromptDates = unit {
+    prompt_date_label: bytes &size=6;
+    expiry_date: uint32;
+    participant_count: uint32;
+};
+
+type WarrantBandMessage = unit {
+    business_date: uint32;
+    warrant_band_type: bytes &size=4;
+    product_code: bytes &size=2;
+    unreported_warrants: int64;
+    band_count: uint32;
+    warrant_bands: WarrantBands[self.band_count];
+};
+
+type WarrantBands = unit {
+    lower_value: int64;
+    upper_value: int64;
+    participant_count: uint32;
+};
+
+type TradingVolumeMessage = unit {
+    business_date: uint32;
+    trade_date: uint32;
+    calculation_type: uint8 &convert=CalculationType($$);
+    instrument_id: uint64;
+    product_code: bytes &size=2;
+    contract_code: bytes &size=12;
+    contract_type: uint8 &convert=ContractType($$);
+    volume: uint32;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    OpenInterestMessage = 420,
+    OpenInterestBandMessage = 421,
+    PositionBandMessage = 422,
+    WarrantBandMessage = 423,
+    TradingVolumeMessage = 424,
+};
+
+type OpenInterestType = enum {
+    Exchange = 0x45,
+    Market = 0x4d,
+};
+
+type ContractType = enum {
+    Future = 0x46,
+    Option = 0x4f,
+};
+
+type CalculationType = enum {
+    Daily = 0x44,
+    Intraday = 0x49,
+};
+

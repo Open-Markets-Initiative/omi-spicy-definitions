@@ -60,7 +60,7 @@
 [Biva.BivaEquities.News.Itch.v1.12.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.12 Pdf"
 [Biva.BivaEquities.OrderEntry.Ouch.v1.05.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/orderentry/bivaequities_orderentry_v1_05_client.spicy "Biva BivaEquities OrderEntry Ouch v1.05 Spicy Definition"
 [Biva.BivaEquities.OrderEntry.Ouch.v1.05.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.05 Url"
-[Biva.BivaEquities.OrderEntry.Ouch.v1.05.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Biva/Specifications/ "Bolsa Institucional de Valores 1.05 Pdf"
+[Biva.BivaEquities.OrderEntry.Ouch.v1.05.Pdf]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.05 Pdf"
 [Biva.BivaEquities.OrderEntry.Ouch.v1.05.Server.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/orderentry/bivaequities_orderentry_v1_05_server.spicy "Biva BivaEquities OrderEntry Ouch v1.05 Spicy Definition"
 [Biva.BivaEquities.TotalView.Glimpse.v1.12.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/biva/bivaequities/totalview/bivaequities_totalview_glimpse_v1_12_client.spicy "Biva BivaEquities TotalView Glimpse v1.12 Spicy Definition"
 [Biva.BivaEquities.TotalView.Glimpse.v1.12.Url]: https://www.biva.mx/en/web/portal-en/technology "Bolsa Institucional de Valores 1.12 Url"

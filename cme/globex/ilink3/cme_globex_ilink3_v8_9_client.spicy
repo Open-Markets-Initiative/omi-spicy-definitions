@@ -27,9 +27,15 @@ type ClientSimpleOpenFrame = unit {
         TemplateId::OrderMassStatusRequest -> order_mass_status_request: OrderMassStatusRequest;
         TemplateId::OrderStatusRequest -> order_status_request: OrderStatusRequest;
         TemplateId::PartyDetailsListRequest -> party_details_list_request: PartyDetailsListRequest;
+        TemplateId::ExecutionAck -> execution_ack: ExecutionAck;
         TemplateId::RequestForQuote -> request_for_quote: RequestForQuote;
         TemplateId::NewOrderCross -> new_order_cross: NewOrderCross;
         TemplateId::SecurityDefinitionRequest -> security_definition_request: SecurityDefinitionRequest;
+        TemplateId::RequestForCross -> request_for_cross: RequestForCross;
+        TemplateId::MassQuoteRequest -> mass_quote_request: MassQuoteRequest;
+        TemplateId::QuoteCancelBySet -> quote_cancel_by_set: QuoteCancelBySet;
+        TemplateId::QuoteCancelByGroup -> quote_cancel_by_group: QuoteCancelByGroup;
+        TemplateId::QuoteCancelByInstrument -> quote_cancel_by_instrument: QuoteCancelByInstrument;
         * -> unknown: bytes &eod;
     };
 };
@@ -385,6 +391,24 @@ type PartyIdsGroup = unit {
     party_role: uint16;
 };
 
+type ExecutionAck = unit {
+    party_details_list_req_id: uint64;
+    order_id: uint64;
+    exec_ack_status: uint8 &convert=ExecAckStatus($$);
+    seq_num: uint32;
+    clordid: bytes &size=20;
+    sec_exec_id: uint64;
+    last_px: int64;
+    security_id: int32;
+    last_qty: uint32;
+    dk_reason: uint8 &convert=DkReason($$);
+    side: uint8 &convert=Side($$);
+    sender_id: bytes &size=20;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+};
+
 type RequestForQuote = unit {
     party_details_list_req_id: uint64;
     quote_req_id: uint64;
@@ -479,6 +503,118 @@ type BrokenDatesRequestGroups = unit {
 type BrokenDatesRequestGroup = unit {
     broken_date_start: uint16;
     broken_date_end: uint16;
+};
+
+type RequestForCross = unit {
+    cross_id: uint64;
+    order_request_id: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    cross_type: uint8 &convert=CrossType($$);
+    price: int64;
+    sending_time_epoch: uint64;
+    location: bytes &size=5;
+    security_id: int32;
+    sides_groups: SidesGroups;
+};
+
+type MassQuoteRequest = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    quote_req_id_optional: uint64;
+    location: bytes &size=5;
+    quote_id: uint32;
+    tot_no_quote_entries: uint8;
+    mm_protection_reset: uint8 &convert=MmProtectionReset($$);
+    liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    short_sale_type: uint8 &convert=ShortSaleType($$);
+    quote_entry_open: uint8 &convert=QuoteEntryOpen($$);
+    quote_entry_control: uint8 &convert=QuoteEntryControl($$);
+    reserved_60: bytes &size=60;
+    mass_quote_request_entries_groups: MassQuoteRequestEntriesGroups;
+};
+
+type MassQuoteRequestEntriesGroups = unit {
+    group_size: GroupSize;
+    mass_quote_request_entries_group: MassQuoteRequestEntriesGroup[self.group_size.num_in_group];
+};
+
+type MassQuoteRequestEntriesGroup = unit {
+    security_id: int32;
+    price: int64;
+    order_qty: uint32;
+    side_side: uint8 &convert=SideSide($$);
+    quote_entry_id: uint32;
+    quote_set_id: uint16;
+};
+
+type QuoteCancelBySet = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    location: bytes &size=5;
+    quote_id: uint32;
+    cxl_linked_sessions: uint8 &convert=CxlLinkedSessions($$);
+    quote_entry_control: uint8 &convert=QuoteEntryControl($$);
+    quote_cancel_by_set_entries_groups: QuoteCancelBySetEntriesGroups;
+};
+
+type QuoteCancelBySetEntriesGroups = unit {
+    group_size: GroupSize;
+    quote_cancel_by_set_entries_group: QuoteCancelBySetEntriesGroup[self.group_size.num_in_group];
+};
+
+type QuoteCancelBySetEntriesGroup = unit {
+    quote_set_id: uint16;
+};
+
+type QuoteCancelByGroup = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    location: bytes &size=5;
+    quote_id: uint32;
+    cxl_linked_sessions: uint8 &convert=CxlLinkedSessions($$);
+    quote_entry_control: uint8 &convert=QuoteEntryControl($$);
+    quote_cancel_by_group_entries_groups: QuoteCancelByGroupEntriesGroups;
+};
+
+type QuoteCancelByGroupEntriesGroups = unit {
+    group_size: GroupSize;
+    quote_cancel_by_group_entries_group: QuoteCancelByGroupEntriesGroup[self.group_size.num_in_group];
+};
+
+type QuoteCancelByGroupEntriesGroup = unit {
+    security_group: bytes &size=6;
+};
+
+type QuoteCancelByInstrument = unit {
+    party_details_list_req_id: uint64;
+    sending_time_epoch: uint64;
+    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
+    seq_num: uint32;
+    sender_id: bytes &size=20;
+    location: bytes &size=5;
+    quote_id: uint32;
+    cxl_linked_sessions: uint8 &convert=CxlLinkedSessions($$);
+    quote_cancel_by_instrument_entries_groups: QuoteCancelByInstrumentEntriesGroups;
+};
+
+type QuoteCancelByInstrumentEntriesGroups = unit {
+    group_size: GroupSize;
+    quote_cancel_by_instrument_entries_group: QuoteCancelByInstrumentEntriesGroup[self.group_size.num_in_group];
+};
+
+type QuoteCancelByInstrumentEntriesGroup = unit {
+    security_id: int32;
 };
 
 type TemplateId = enum {
@@ -731,6 +867,22 @@ type MassStatusTif = enum {
     Gfs = 99,
 };
 
+type ExecAckStatus = enum {
+    Accepted = 1,
+    Rejected = 2,
+};
+
+type DkReason = enum {
+    UnknownSecurity = 0x41,
+    WrongSide = 0x42,
+    QuantityExceedsOrder = 0x43,
+    NoMatchingOrder = 0x44,
+    PriceExceedsLimit = 0x45,
+    CalculationDifference = 0x46,
+    NoMatchingExecutionReport = 0x47,
+    Other = 0x5a,
+};
+
 type QuoteType = enum {
     Tradeable = 1,
 };
@@ -750,5 +902,26 @@ type LegSide = enum {
     Buy = 1,
     Sell = 2,
     Undisclosed = 7,
+};
+
+type CrossType = enum {
+    Cross = 3,
+    RCross = 20,
+    CCross = 21,
+};
+
+type QuoteEntryControl = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type SideSide = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type CxlLinkedSessions = enum {
+    False_0 = 0,
+    True_1 = 1,
 };
 

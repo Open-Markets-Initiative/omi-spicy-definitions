@@ -81,8 +81,7 @@ type SymbolIndexMappingMessage = unit {
     round_lot: uint8 &convert=RoundLot($$);
     mpv: uint16;
     unit_of_trade: uint16;
-    late_close_eligible: uint8 &convert=LateCloseEligible($$);
-    eth_eligible: uint8 &convert=EthEligible($$);
+    : skip bytes &size=2;   # padding
 };
 
 type SymbolClearMessage = unit {
@@ -300,13 +299,15 @@ type MessageType = enum {
 type MarketId = enum {
     NyseEquities = 1,
     NyseArcaEquities = 3,
+    NyseArcaOptions = 4,
+    NyseBonds = 5,
+    NyseAmericanOptions = 8,
     NyseAmericanEquities = 9,
     NyseNationalEquities = 10,
     NyseTexasEquities = 11,
 };
 
 type ExchangeCode = enum {
-    Txse = 0x46,
     NyseAmerican = 0x41,
     Ltse = 0x4c,
     NyseTexas = 0x4d,
@@ -341,20 +342,10 @@ type RoundLot = enum {
     No = 0x4e,
 };
 
-type LateCloseEligible = enum {
-    NotEligible = 0,
-    Eligible = 1,
-};
-
-type EthEligible = enum {
-    NotEligible = 0,
-    Eligible = 1,
-};
-
 type SecurityStatus = enum {
     TradingHalt = 0x34,
     Resume = 0x35,
-    SuspendOperationalHalt = 0x36,
+    Suspend = 0x36,
     ShortSaleRestrictionActivatedDay1 = 0x41,
     ShortSaleRestrictionContinuedDay2 = 0x43,
     ShortSaleRestrictionDeactivated = 0x44,
@@ -375,14 +366,14 @@ type HaltCondition = enum {
     NewsPending = 0x50,
     LuldPause = 0x4d,
     EquipmentChangeover = 0x58,
-    SipOutageMaterialSipLatencyOrExtraordinaryMarketActivity = 0x41,
+    AdditionalInformationRequested = 0x41,
     RegulatoryConcern = 0x43,
     MergerEffective = 0x45,
-    EtfIivEtfComponentPricesNotAvailable = 0x46,
+    EtfComponentPricesNotAvailable = 0x46,
     CorporateAction = 0x4e,
     NewSecurityOffering = 0x4f,
-    PrimaryListingExchangeDiscretionaryHalt = 0x56,
-    SuspendOperationalHalt = 0x36,
+    IntradayIndicativeValueNotAvailable = 0x56,
+    Suspend = 0x36,
     MarketWideCircuitBreakerHaltLevel1 = 0x31,
     MarketWideCircuitBreakerHaltLevel2 = 0x32,
     MarketWideCircuitBreakerHaltLevel3 = 0x33,
@@ -390,7 +381,7 @@ type HaltCondition = enum {
 
 type SsrTriggeringExchangeId = enum {
     NyseAmerican = 0x41,
-    NasdaqOmsTx = 0x42,
+    NasdaqOmxBx = 0x42,
     NyseNational = 0x43,
     Finra = 0x44,
     N24X = 0x47,

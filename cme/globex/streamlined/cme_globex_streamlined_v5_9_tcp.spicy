@@ -5,18 +5,22 @@ import spicy;
 %byte-order = spicy::ByteOrder::Little;
 
 public type CmeGlobexStreamlinedV59 = unit {
+    tcp_frame: TcpFrame[] &eod;
+};
+
+type TcpFrame = unit {
     technical_header: TechnicalHeader;
-    tcp_message: TcpMessage[] &eod;
+    tcp_message: TcpMessage;
 };
 
 type TechnicalHeader = unit {
     encoding_type: uint16;
     message_sequence_number: uint32;
     tcp_sending_time: uint64;
+    tcp_message_size: uint16;
 };
 
 type TcpMessage = unit {
-    tcp_message_size: uint16;
     message_header: MessageHeader;
     switch ( self.message_header.template_id ) {
         TemplateId::AdminLogin -> admin_login: AdminLogin;

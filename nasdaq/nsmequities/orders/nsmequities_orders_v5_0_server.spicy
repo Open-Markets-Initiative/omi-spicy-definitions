@@ -47,7 +47,6 @@ type SequencedDataPacket = unit {
         SequencedMessageType::AiqCanceledMessage -> aiq_canceled_message: AiqCanceledMessage;
         SequencedMessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
         SequencedMessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
-        SequencedMessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
         SequencedMessageType::RejectedOrderMessage -> rejected_order_message: RejectedOrderMessage;
         SequencedMessageType::CancelPendingMessage -> cancel_pending_message: CancelPendingMessage;
         SequencedMessageType::CancelRejectMessage -> cancel_reject_message: CancelRejectMessage;
@@ -87,9 +86,9 @@ type OrderAcceptedMessage = unit {
 };
 
 type OrderAcceptedAppendage = unit {
-    optional_field_length: int8;
-    order_accepted_optional_field: int8 &convert=OrderAcceptedOptionalField($$);
-    order_accepted_optional_value: bytes &size=47;
+    optional_field_length: uint8;
+    order_accepted_optional_field: uint8 &convert=OrderAcceptedOptionalField($$);
+    order_accepted_optional_value: bytes &size=54;
 };
 
 type ReplacedMessage = unit {
@@ -113,9 +112,9 @@ type ReplacedMessage = unit {
 };
 
 type ReplacedMessageAppendage = unit {
-    optional_field_length: int8;
-    replaced_message_optional_field: int8 &convert=ReplacedMessageOptionalField($$);
-    replaced_message_optional_value: bytes &size=21;
+    optional_field_length: uint8;
+    replaced_message_optional_field: uint8 &convert=ReplacedMessageOptionalField($$);
+    replaced_message_optional_value: bytes &size=25;
 };
 
 type CanceledMessage = unit {
@@ -123,6 +122,14 @@ type CanceledMessage = unit {
     user_ref_num: uint32;
     quantity: uint32;
     cancel_order_reason: uint8 &convert=CancelOrderReason($$);
+    appendage_length: uint16;
+    canceled_message_appendage: CanceledMessageAppendage[] &eod;
+};
+
+type CanceledMessageAppendage = unit {
+    optional_field_length: uint8;
+    canceled_message_optional_field: uint8 &convert=CanceledMessageOptionalField($$);
+    canceled_message_optional_value: bytes &size=1;
 };
 
 type AiqCanceledMessage = unit {
@@ -133,6 +140,15 @@ type AiqCanceledMessage = unit {
     quantity_prevented_from_trading: uint32;
     execution_price: uint64;
     liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    aiq_strategy: uint8 &convert=AiqStrategy($$);
+    appendage_length: uint16;
+    aiq_canceled_appendage: AiqCanceledAppendage[] &eod;
+};
+
+type AiqCanceledAppendage = unit {
+    optional_field_length: uint8;
+    aiq_canceled_optional_field: uint8 &convert=AiqCanceledOptionalField($$);
+    aiq_canceled_optional_value: bytes &size=1;
 };
 
 type OrderExecutedMessage = unit {
@@ -147,9 +163,9 @@ type OrderExecutedMessage = unit {
 };
 
 type OrderExecutedAppendage = unit {
-    optional_field_length: int8;
-    order_executed_optional_field: int8 &convert=OrderExecutedOptionalField($$);
-    order_executed_optional_value: bytes &size=9;
+    optional_field_length: uint8;
+    order_executed_optional_field: uint8 &convert=OrderExecutedOptionalField($$);
+    order_executed_optional_value: bytes &size=1;
 };
 
 type BrokenTradeMessage = unit {
@@ -158,17 +174,14 @@ type BrokenTradeMessage = unit {
     match_number: uint64;
     broken_trade_reason: uint8 &convert=BrokenTradeReason($$);
     clordid: bytes &size=14;
+    appendage_length: uint16;
+    broken_trade_appendage: BrokenTradeAppendage[] &eod;
 };
 
-type TradeCorrectionMessage = unit {
-    timestamp: uint64;
-    user_ref_num: uint32;
-    quantity: uint32;
-    price: uint64;
-    liquidity_flag: uint8 &convert=LiquidityFlag($$);
-    match_number: uint64;
-    trade_correction_reason: uint8 &convert=TradeCorrectionReason($$);
-    clordid: bytes &size=14;
+type BrokenTradeAppendage = unit {
+    optional_field_length: uint8;
+    broken_trade_optional_field: uint8 &convert=BrokenTradeOptionalField($$);
+    broken_trade_optional_value: bytes &size=1;
 };
 
 type RejectedOrderMessage = unit {
@@ -176,16 +189,40 @@ type RejectedOrderMessage = unit {
     user_ref_num: uint32;
     rejected_order_reason: uint16 &convert=RejectedOrderReason($$);
     clordid: bytes &size=14;
+    appendage_length: uint16;
+    rejected_order_appendage: RejectedOrderAppendage[] &eod;
+};
+
+type RejectedOrderAppendage = unit {
+    optional_field_length: uint8;
+    rejected_order_optional_field: uint8 &convert=RejectedOrderOptionalField($$);
+    rejected_order_optional_value: bytes &size=1;
 };
 
 type CancelPendingMessage = unit {
     timestamp: uint64;
     user_ref_num: uint32;
+    appendage_length: uint16;
+    cancel_pending_appendage: CancelPendingAppendage[] &eod;
+};
+
+type CancelPendingAppendage = unit {
+    optional_field_length: uint8;
+    cancel_pending_optional_field: uint8 &convert=CancelPendingOptionalField($$);
+    cancel_pending_optional_value: bytes &size=1;
 };
 
 type CancelRejectMessage = unit {
     timestamp: uint64;
     user_ref_num: uint32;
+    appendage_length: uint16;
+    cancel_reject_appendage: CancelRejectAppendage[] &eod;
+};
+
+type CancelRejectAppendage = unit {
+    optional_field_length: uint8;
+    cancel_reject_optional_field: uint8 &convert=CancelRejectOptionalField($$);
+    cancel_reject_optional_value: bytes &size=1;
 };
 
 type OrderPriorityUpdateMessage = unit {
@@ -194,6 +231,14 @@ type OrderPriorityUpdateMessage = unit {
     price: uint64;
     display: uint8 &convert=Display($$);
     order_reference_number: uint64;
+    appendage_length: uint16;
+    order_priority_update_appendage: OrderPriorityUpdateAppendage[] &eod;
+};
+
+type OrderPriorityUpdateAppendage = unit {
+    optional_field_length: uint8;
+    order_priority_update_optional_field: uint8 &convert=OrderPriorityUpdateOptionalField($$);
+    order_priority_update_optional_value: bytes &size=1;
 };
 
 type OrderModifiedMessage = unit {
@@ -201,6 +246,14 @@ type OrderModifiedMessage = unit {
     user_ref_num: uint32;
     side: uint8 &convert=Side($$);
     quantity: uint32;
+    appendage_length: uint16;
+    order_modified_appendage: OrderModifiedAppendage[] &eod;
+};
+
+type OrderModifiedAppendage = unit {
+    optional_field_length: uint8;
+    order_modified_optional_field: uint8 &convert=OrderModifiedOptionalField($$);
+    order_modified_optional_value: bytes &size=6;
 };
 
 type OrderRestatedMessage = unit {
@@ -212,14 +265,22 @@ type OrderRestatedMessage = unit {
 };
 
 type OrderRestatedAppendage = unit {
-    optional_field_length: int8;
-    order_restated_optional_field: int8 &convert=OrderRestatedOptionalField($$);
-    order_restated_optional_value: bytes &size=20;
+    optional_field_length: uint8;
+    order_restated_optional_field: uint8 &convert=OrderRestatedOptionalField($$);
+    order_restated_optional_value: bytes &size=21;
 };
 
 type AccountQueryResponseMessage = unit {
     timestamp: uint64;
     next_user_ref_num: uint32;
+    appendage_length: uint16;
+    account_query_response_appendage: AccountQueryResponseAppendage[] &eod;
+};
+
+type AccountQueryResponseAppendage = unit {
+    optional_field_length: uint8;
+    account_query_response_optional_field: uint8 &convert=AccountQueryResponseOptionalField($$);
+    account_query_response_optional_value: bytes &size=1;
 };
 
 type MassCancelResponseMessage = unit {
@@ -232,8 +293,8 @@ type MassCancelResponseMessage = unit {
 };
 
 type MassCancelResponseAppendage = unit {
-    optional_field_length: int8;
-    mass_cancel_response_optional_field: int8 &convert=MassCancelResponseOptionalField($$);
+    optional_field_length: uint8;
+    mass_cancel_response_optional_field: uint8 &convert=MassCancelResponseOptionalField($$);
     mass_cancel_response_optional_value: bytes &size=4;
 };
 
@@ -246,8 +307,8 @@ type DisableOrderEntryResponseMessage = unit {
 };
 
 type DisableOrderEntryResponseAppendage = unit {
-    optional_field_length: int8;
-    disable_order_entry_response_optional_field: int8 &convert=DisableOrderEntryResponseOptionalField($$);
+    optional_field_length: uint8;
+    disable_order_entry_response_optional_field: uint8 &convert=DisableOrderEntryResponseOptionalField($$);
     disable_order_entry_response_optional_value: bytes &size=1;
 };
 
@@ -260,8 +321,8 @@ type EnableOrderEntryResponseMessage = unit {
 };
 
 type EnableOrderEntryResponseAppendage = unit {
-    optional_field_length: int8;
-    enable_order_entry_response_optional_field: int8 &convert=EnableOrderEntryResponseOptionalField($$);
+    optional_field_length: uint8;
+    enable_order_entry_response_optional_field: uint8 &convert=EnableOrderEntryResponseOptionalField($$);
     enable_order_entry_response_optional_value: bytes &size=1;
 };
 
@@ -287,7 +348,6 @@ type SequencedMessageType = enum {
     AiqCanceledMessage = 0x44,
     OrderExecutedMessage = 0x45,
     BrokenTradeMessage = 0x42,
-    TradeCorrectionMessage = 0x46,
     RejectedOrderMessage = 0x4a,
     CancelPendingMessage = 0x50,
     CancelRejectMessage = 0x49,
@@ -324,17 +384,7 @@ type Display = enum {
     Attributable = 0x41,
     Visible = 0x59,
     Hidden = 0x4e,
-    PostOnly = 0x50,
-    ImbalanceOnly = 0x49,
-    MidPointPeg = 0x4d,
-    MidPointPegPostOnly = 0x57,
-    PostOnlyAndAttributable = 0x4c,
-    RetailOrderType1 = 0x4f,
-    RetailOrderType2 = 0x54,
-    RetailPriceImprovementOrder = 0x51,
     Conformant = 0x5a,
-    MidPointPegAndMidPointTradeNow = 0x6d,
-    NonDisplayAndMidPoint = 0x6e,
 };
 
 type Capacity = enum {
@@ -352,11 +402,11 @@ type InterMarketSweepEligibility = enum {
 type CrossType = enum {
     ContinuousMarket = 0x4e,
     OpeningCross = 0x4f,
-    Closing = 0x43,
+    ClosingCross = 0x43,
     HaltIpo = 0x48,
     Supplemental = 0x53,
     Retail = 0x52,
-    Extended = 0x45,
+    ExtendedLife = 0x45,
     AfterHoursClose = 0x41,
 };
 
@@ -373,7 +423,7 @@ type OrderAcceptedOptionalField = enum {
     Pricetype = 6,
     Pegoffset = 7,
     Discretionprice = 9,
-    Discretionpegtype = 10,
+    Discretionpricetype = 10,
     Discretionpegoffset = 11,
     Postonly = 12,
     Randomreserves = 13,
@@ -382,6 +432,91 @@ type OrderAcceptedOptionalField = enum {
     Tradenow = 16,
     Handleinst = 17,
     BboWeightIndicator = 18,
+    GroupId = 24,
+    SharesLocated = 25,
+    Userrefidx = 28,
+    AiqStrategy = 29,
+    AiqGroupId = 30,
+};
+
+type CustomerType = enum {
+    RetailDesignatedOrder = 0x52,
+    NotRetailDesignated = 0x4e,
+};
+
+type PriceType = enum {
+    Limit = 0x4c,
+    MarketPeg = 0x50,
+    MidpointPeg = 0x4d,
+    PrimaryPeg = 0x52,
+    MarketMakerPeg = 0x51,
+    Midpoint = 0x6d,
+};
+
+type DiscretionPriceType = enum {
+    Limit = 0x4c,
+    MarketPeg = 0x50,
+    MidpointPeg = 0x4d,
+    PrimaryPeg = 0x52,
+};
+
+type PostOnly = enum {
+    PostOnly_x50 = 0x50,
+    No = 0x4e,
+};
+
+type TradeNow = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type HandleInst = enum {
+    ImbalanceOnly = 0x49,
+    RetailOrderType1 = 0x4f,
+    RetailOrderType2 = 0x54,
+    RetailPriceImprovement = 0x51,
+    ExtendedLifeContinuous = 0x42,
+    DirectListingCapitalRaise = 0x44,
+};
+
+type BboWeightIndicator = enum {
+    Weight0To02Percent = 0x30,
+    Weight02To1Percent = 0x31,
+    Weight1To2Percent = 0x32,
+    GreaterThan2 = 0x33,
+    Unspecified = 0x20,
+    SetsTheQbboWhileJoiningTheNbbo = 0x53,
+    ImprovesTheNbboUponEntry = 0x4e,
+};
+
+type SharesLocated = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type AiqStrategy = enum {
+    UsePortDefault = 0x2a,
+    Disabled = 0x4e,
+    FirmLevelDecrementBothNoDetails = 0x59,
+    FirmLevelDecrementBoth = 0x44,
+    FirmLevelCancelOldest = 0x4f,
+    FirmLevelCancelNewest = 0x57,
+    FirmLevelUseRemover = 0x52,
+    OrganizationLevelDecrementBothNoDetails = 0x79,
+    OrganizationLevelDecrementBoth = 0x64,
+    OrganizationLevelCancelOldest = 0x6f,
+    OrganizationLevelCancelNewest = 0x77,
+    OrganizationLevelUseRemover = 0x72,
+    AffiliateLevelDecrementBothNoDetails = 0x5a,
+    AffiliateLevelDecrementBoth = 0x45,
+    AffiliateLevelCancelOldest = 0x50,
+    AffiliateLevelCancelNewest = 0x58,
+    AffiliateLevelUseRemover = 0x53,
+    MatchAnyLevelDecrementBothNoDetails = 0x30,
+    MatchAnyLevelDecrementBoth = 0x31,
+    MatchAnyLevelCancelOldest = 0x32,
+    MatchAnyLevelCancelNewest = 0x34,
+    MatchAnyLevelUseRemover = 0x35,
 };
 
 type ReplacedMessageOptionalField = enum {
@@ -394,6 +529,9 @@ type ReplacedMessageOptionalField = enum {
     Tradenow = 16,
     Handleinst = 17,
     BboWeightIndicator = 18,
+    Userrefidx = 28,
+    AiqStrategy = 29,
+    AiqGroupId = 30,
 };
 
 type CancelOrderReason = enum {
@@ -404,17 +542,22 @@ type CancelOrderReason = enum {
     RegulatoryRestriction = 0x44,
     SelfMatchPrevention = 0x51,
     SystemCancel = 0x5a,
-    CrossCanceled = 0x43,
     ThisOrderCannotBeExecuted = 0x4b,
     Halted = 0x48,
     OpenProtection = 0x58,
     Closed = 0x45,
     PostOnlyCancel = 0x46,
     PostOnlyCancelContraSideDisplayed = 0x47,
+    CompanyDirectListingCapitalRaiseOrderExceedsAllowableSharesOffered = 0x65,
+};
+
+type CanceledMessageOptionalField = enum {
+    Userrefidx = 28,
 };
 
 type LiquidityFlag = enum {
     Added = 0x41,
+    Closing = 0x43,
     RetailDesignated = 0x65,
     HaltIpo = 0x48,
     AfterHoursClosing = 0x69,
@@ -433,14 +576,23 @@ type LiquidityFlag = enum {
     Removed = 0x52,
     RetailOrderRemovesRpiLiquidity = 0x72,
     RetailOrderRemovesPriceImprovingNondisplayedLiquidityOtherThanRpiLiquidity = 0x74,
+    AddedNondisplayedLiquidityViaAReserveOrder = 0x75,
     Supplemental = 0x30,
     DisplayedLiquidityaddingOrderImprovesTheNbbo = 0x37,
     DisplayedLiquidityaddingOrderSetsTheQbboWhileJoiningTheNbbo = 0x38,
+    RpiOrderProvidesLiquidityNoRpii = 0x31,
+    AddedInThePremarket = 0x32,
+    RemovedInThePremarket = 0x33,
+    DisplayedLiquidityaddingOrderImprovesTheNbboInThePremarket = 0x35,
+    NondisplayedAddingLiquidityInThePremarket = 0x39,
+};
+
+type AiqCanceledOptionalField = enum {
+    Userrefidx = 28,
 };
 
 type OrderExecutedOptionalField = enum {
-    ReferencePrice = 19,
-    ReferencePriceType = 20,
+    Userrefidx = 28,
 };
 
 type BrokenTradeReason = enum {
@@ -450,8 +602,8 @@ type BrokenTradeReason = enum {
     External = 0x58,
 };
 
-type TradeCorrectionReason = enum {
-    AdjustedToNav = 0x4e,
+type BrokenTradeOptionalField = enum {
+    Userrefidx = 28,
 };
 
 type RejectedOrderReason = enum {
@@ -486,6 +638,49 @@ type RejectedOrderReason = enum {
     InvalidPrice = 0x001d,
     SharesExceedThreshold = 0x001e,
     ExceedsMaximumAllowedNotionalValue = 0x001f,
+    RiskAggregateExposureExceeded = 0x0020,
+    RiskMarketImpact = 0x0021,
+    RiskRestrictedStock = 0x0022,
+    RiskShortSellRestricted = 0x0023,
+    RiskIsoNotAllowed = 0x0024,
+    RiskExceedsAdvLimit = 0x0025,
+    RiskFatFinger = 0x0026,
+    RiskLocateRequired = 0x0027,
+    RiskSymbolMessageRateRestriction = 0x0028,
+    RiskPortMessageRateRestriction = 0x0029,
+    RiskDuplicateMessageRateRestriction = 0x002a,
+    RiskShortSellNotAllowed = 0x002b,
+    RiskMarketOrderNotAllowed = 0x002c,
+    RiskPreMarketNotAllowed = 0x002d,
+    RiskPostMarketNotAllowed = 0x002e,
+    RiskShortSellExemptNotAllowed = 0x002f,
+    RiskSingleOrderNotionalExceeded = 0x0030,
+    RiskMaxQuantityExceeded = 0x0031,
+    RegShoStateNotAvailable = 0x0032,
+    RiskIpoMarketBuyNotAllowed = 0x0033,
+    InvalidAiq = 0x0040,
+};
+
+type RejectedOrderOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type CancelPendingOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type CancelRejectOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type OrderPriorityUpdateOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type OrderModifiedOptionalField = enum {
+    Userrefidx = 28,
+    SharesLocated = 25,
+    LocateBroker = 26,
 };
 
 type OrderRestatedReason = enum {
@@ -497,6 +692,11 @@ type OrderRestatedOptionalField = enum {
     DisplayQuantity = 22,
     DisplayPrice = 23,
     Secondaryordrefnum = 1,
+    Userrefidx = 28,
+};
+
+type AccountQueryResponseOptionalField = enum {
+    Userrefidx = 28,
 };
 
 type MassCancelResponseOptionalField = enum {

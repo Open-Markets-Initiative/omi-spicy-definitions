@@ -1,0 +1,51 @@
+module LmeLmeselectDrsignalLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectDrsignalV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::DisasterRecoverySignalMessage -> disaster_recovery_signal_message: DisasterRecoverySignalMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type DisasterRecoverySignalMessage = unit {
+    dr_status: uint32 &convert=DrStatus($$);
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    DisasterRecoverySignalMessage = 105,
+};
+
+type DrStatus = enum {
+    DrInProgress = 1,
+    DrCompleted = 2,
+};
+

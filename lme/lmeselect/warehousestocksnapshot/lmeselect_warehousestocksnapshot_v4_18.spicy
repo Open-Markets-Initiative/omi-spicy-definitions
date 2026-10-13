@@ -1,0 +1,64 @@
+module LmeLmeselectWarehousestocksnapshotLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectWarehousestocksnapshotV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::WarehouseStockMovementMessage -> warehouse_stock_movement_message: WarehouseStockMovementMessage;
+        MsgType::RefreshCompleteMessage -> refresh_complete_message: RefreshCompleteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type WarehouseStockMovementMessage = unit {
+    report_date: uint32;
+    report_level: bytes &size=12;
+    remaining_records: uint16;
+    record_count: uint16;
+    stock_records: StockRecords[self.record_count];
+};
+
+type StockRecords = unit {
+    product_code: bytes &size=2;
+    location: bytes &size=4;
+    grade_code: bytes &size=4;
+    stock_status: bytes &size=3;
+    stock_quantity: int32;
+};
+
+type RefreshCompleteMessage = unit {
+    last_seq_num: uint32;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    WarehouseStockMovementMessage = 426,
+    RefreshCompleteMessage = 203,
+};
+

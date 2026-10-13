@@ -1,0 +1,259 @@
+module LmeLmeselectLevel1retransmissionLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectLevel1retransmissionV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::MarketStateContractMessage -> market_state_contract_message: MarketStateContractMessage;
+        MsgType::MarketStateInstrumentMessage -> market_state_instrument_message: MarketStateInstrumentMessage;
+        MsgType::IndicativeOpeningPriceMessage -> indicative_opening_price_message: IndicativeOpeningPriceMessage;
+        MsgType::QuoteRequestMessage -> quote_request_message: QuoteRequestMessage;
+        MsgType::OrderBookClearMessage -> order_book_clear_message: OrderBookClearMessage;
+        MsgType::CrossRequestMessage -> cross_request_message: CrossRequestMessage;
+        MsgType::TopOfBookMessage -> top_of_book_message: TopOfBookMessage;
+        MsgType::MarketDataTradeMessage -> market_data_trade_message: MarketDataTradeMessage;
+        MsgType::LogonMessage -> logon_message: LogonMessage;
+        MsgType::LogonResponseMessage -> logon_response_message: LogonResponseMessage;
+        MsgType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MsgType::RetransmissionResponseMessage -> retransmission_response_message: RetransmissionResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type MarketStateContractMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    contract_code: bytes &size=12;
+    trading_state: uint8 &convert=TradingState($$);
+    start_time: uint64;
+    end_time: uint64;
+    trading_state_condition: uint8 &convert=TradingStateCondition($$);
+    filler_string_2: bytes &size=2;
+};
+
+type MarketStateInstrumentMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    timetable_control_type: uint8 &convert=TimetableControlType($$);
+    trading_state: uint8 &convert=TradingState($$);
+    start_time: uint64;
+    end_time: uint64;
+    trading_state_condition: uint8 &convert=TradingStateCondition($$);
+    filler_string_3: bytes &size=3;
+};
+
+type IndicativeOpeningPriceMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    indicative_opening_price: int64;
+    indicative_opening_volume: uint32;
+    indicative_opening_mid_price: int64;
+    filler_string_2: bytes &size=2;
+};
+
+type QuoteRequestMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    quote_request_type: uint8 &convert=QuoteRequestType($$);
+    buy_sell: uint8 &convert=BuySell($$);
+    volume: uint32;
+    filler_string_2: bytes &size=2;
+};
+
+type OrderBookClearMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+};
+
+type CrossRequestMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    cross_id: uint64;
+    volume: uint32;
+    expire_time: uint64;
+    filler_string_2: bytes &size=2;
+};
+
+type TopOfBookMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    aggregate_bid_volume: uint64;
+    aggregate_ask_volume: uint64;
+    bid_price: int64;
+    ask_price: int64;
+    number_bid_explicit_orders: uint32;
+    bid_qty_explicit_orders: uint64;
+    number_ask_explicit_orders: uint32;
+    ask_qty_explicit_orders: uint64;
+    number_bid_implied_orders: uint32;
+    bid_qty_implied_orders: uint64;
+    number_ask_implied_orders: uint32;
+    ask_qty_implied_orders: uint64;
+};
+
+type MarketDataTradeMessage = unit {
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    trading_venue: bytes &size=2;
+    matched_time: uint64;
+    ring_session: bytes &size=2;
+    trade_cancel_flag: uint8 &convert=TradeCancelFlag($$);
+    price: int64;
+    volume: uint32;
+    match_id: uint64;
+    trade_at_reference_price_type: uint8 &convert=TradeAtReferencePriceType($$);
+    sub_type_of_trade: uint8 &convert=SubTypeOfTrade($$);
+    remaining_records: uint16;
+    record_count: uint16;
+    strategy_leg_count: uint32;
+    trade_legs: TradeLegs[self.record_count];
+};
+
+type TradeLegs = unit {
+    leg_price: int64;
+    leg_volume: uint32;
+    leg_match_id: uint64;
+    leg_trade_at_reference_price: uint8 &convert=LegTradeAtReferencePrice($$);
+};
+
+type LogonMessage = unit {
+    username: bytes &size=12;
+};
+
+type LogonResponseMessage = unit {
+    session_status: uint8 &convert=SessionStatus($$);
+    filler_string_3: bytes &size=3;
+};
+
+type RetransmissionRequestMessage = unit {
+    channel_id: uint16;
+    filler_string_2: bytes &size=2;
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+};
+
+type RetransmissionResponseMessage = unit {
+    channel_id: uint16;
+    retrans_status: uint8 &convert=RetransStatus($$);
+    filler_string_1: bytes &size=1;
+    begin_seq_num: uint32;
+    end_seq_num: uint32;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    MarketStateContractMessage = 311,
+    MarketStateInstrumentMessage = 312,
+    IndicativeOpeningPriceMessage = 320,
+    QuoteRequestMessage = 329,
+    OrderBookClearMessage = 327,
+    CrossRequestMessage = 330,
+    TopOfBookMessage = 321,
+    MarketDataTradeMessage = 341,
+    LogonMessage = 101,
+    LogonResponseMessage = 102,
+    RetransmissionRequestMessage = 201,
+    RetransmissionResponseMessage = 202,
+};
+
+type TradingState = enum {
+    PreOpen = 1,
+    Open = 2,
+    PostTrade = 3,
+    Close = 4,
+    TechnicalHalt = 6,
+};
+
+type TradingStateCondition = enum {
+    Pause = 0x50,
+    Halt = 0x48,
+    Active = 0x20,
+};
+
+type TimetableControlType = enum {
+    AutomaticTheDefaultTradingSchedule = 0x41,
+    ManualATemporaryTradingSchedule = 0x4d,
+};
+
+type QuoteRequestType = enum {
+    ManualASingleQuoteRequest = 1,
+    AutoAStreamingQuoteRequest = 2,
+};
+
+type BuySell = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    TwoSidedQuote = 0x20,
+};
+
+type TradeCancelFlag = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type TradeAtReferencePriceType = enum {
+    Differential = 0x44,
+    Substituted = 0x53,
+    NotApplicable = 0x20,
+};
+
+type SubTypeOfTrade = enum {
+    TheTradeResultedFromAnExplicitOrder = 1,
+    TheTradeResultedFromUncrossing = 2,
+    TheTradeResultedFromAnImpliedOrder = 7,
+    TheTradeResultedFromTwoImpliedOrdersMatching = 8,
+    TheTradeResultedFromAnOffBookCrossTrade = 9,
+};
+
+type LegTradeAtReferencePrice = enum {
+    Differential = 0x44,
+    Substituted = 0x53,
+    NotApplicable = 0x20,
+};
+
+type SessionStatus = enum {
+    SessionActive = 0,
+    InvalidUsernameOrIpAddress = 5,
+    UserAlreadyConnected = 100,
+};
+
+type RetransStatus = enum {
+    RequestAccepted = 0,
+    UnknownOrUnauthorizedChannelId = 1,
+    MessagesNotAvailable = 2,
+    ExceedsMaximumSequenceRange = 100,
+    ExceedsMaximumRequestsInADay = 101,
+};
+

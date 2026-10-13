@@ -5,6 +5,10 @@ import spicy;
 %byte-order = spicy::ByteOrder::Big;
 
 public type NasdaqcanadaChixmdV34123 = unit {
+    server_frame: ServerFrame[] &eod;
+};
+
+type ServerFrame = unit {
     server_packet_header: ServerPacketHeader;
     switch ( self.server_packet_header.server_packet_type ) {
         ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
@@ -21,12 +25,12 @@ type ServerPacketHeader = unit {
 };
 
 type DebugPacket = unit {
-    text: bytes &size=1;
+    text: bytes &eod;
 };
 
 type LoginAcceptedPacket = unit {
-    session: bytes &size=10;
-    sequence_number: bytes &size=10;
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=10;
     comma: bytes &size=1;
     messages_total: bytes &size=10;
 };

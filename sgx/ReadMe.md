@@ -36,8 +36,8 @@
 
 [Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Client.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/sgx/titandt/depthofbook/sgx_titandt_depthofbook_glimpse_v1_4_client.spicy "Sgx TitanDt DepthOfBook Glimpse v1.4 Spicy Definition"
 [Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Url]: https://www.sgx.com/securities/technical-information "Singapore Exchange 1.4 Url"
-[Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Sgx/Specifications/TitanDt/Sgx.TitanDt.DepthOfBook.Itch.v1.4.pdf "Singapore Exchange 1.4 Pdf"
+[Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Pdf]: https://www.sgx.com/securities/technical-information "Singapore Exchange 1.4 Pdf"
 [Sgx.TitanDt.DepthOfBook.Glimpse.v1.4.Server.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/sgx/titandt/depthofbook/sgx_titandt_depthofbook_glimpse_v1_4_server.spicy "Sgx TitanDt DepthOfBook Glimpse v1.4 Spicy Definition"
 [Sgx.TitanDt.DepthOfBook.Itch.v1.4.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/sgx/titandt/depthofbook/sgx_titandt_depthofbook_itch_v1_4.spicy "Sgx TitanDt DepthOfBook Itch v1.4 Spicy Definition"
 [Sgx.TitanDt.DepthOfBook.Itch.v1.4.Url]: https://www.sgx.com/securities/technical-information "Singapore Exchange 1.4 Url"
-[Sgx.TitanDt.DepthOfBook.Itch.v1.4.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Sgx/Specifications/TitanDt/Sgx.TitanDt.DepthOfBook.Itch.v1.4.pdf "Singapore Exchange 1.4 Pdf"
+[Sgx.TitanDt.DepthOfBook.Itch.v1.4.Pdf]: https://www.sgx.com/securities/technical-information "Singapore Exchange 1.4 Pdf"

@@ -66,9 +66,9 @@ type EnterOrderMessage = unit {
 };
 
 type EnterOrderAppendage = unit {
-    optional_field_length: int8;
-    enter_order_optional_field: int8 &convert=EnterOrderOptionalField($$);
-    enter_order_optional_value: bytes &size=13;
+    optional_field_length: uint8;
+    enter_order_optional_field: uint8 &convert=EnterOrderOptionalField($$);
+    enter_order_optional_value: bytes &size=53;
 };
 
 type ReplaceOrderMessage = unit {
@@ -85,20 +85,36 @@ type ReplaceOrderMessage = unit {
 };
 
 type ReplaceOrderAppendage = unit {
-    optional_field_length: int8;
-    replace_order_optional_field: int8 &convert=ReplaceOrderOptionalField($$);
-    replace_order_optional_value: bytes &size=16;
+    optional_field_length: uint8;
+    replace_order_optional_field: uint8 &convert=ReplaceOrderOptionalField($$);
+    replace_order_optional_value: bytes &size=47;
 };
 
 type CancelOrderMessage = unit {
     user_ref_num: uint32;
     quantity: uint32;
+    appendage_length: uint16;
+    cancel_order_appendage: CancelOrderAppendage[] &eod;
+};
+
+type CancelOrderAppendage = unit {
+    optional_field_length: uint8;
+    cancel_order_optional_field: uint8 &convert=CancelOrderOptionalField($$);
+    cancel_order_optional_value: bytes &size=1;
 };
 
 type ModifyOrderMessage = unit {
     user_ref_num: uint32;
     side: uint8 &convert=Side($$);
     quantity: uint32;
+    appendage_length: uint16;
+    modify_order_appendage: ModifyOrderAppendage[] &eod;
+};
+
+type ModifyOrderAppendage = unit {
+    optional_field_length: uint8;
+    modify_order_optional_field: uint8 &convert=ModifyOrderOptionalField($$);
+    modify_order_optional_value: bytes &size=6;
 };
 
 type AccountQueryMessage = unit {
@@ -107,8 +123,8 @@ type AccountQueryMessage = unit {
 };
 
 type AccountQueryAppendage = unit {
-    optional_field_length: int8;
-    account_query_optional_field: int8 &convert=AccountQueryOptionalField($$);
+    optional_field_length: uint8;
+    account_query_optional_field: uint8 &convert=AccountQueryOptionalField($$);
     account_query_optional_value: bytes &size=1;
 };
 
@@ -121,8 +137,8 @@ type MassCancelRequestMessage = unit {
 };
 
 type MassCancelRequestAppendage = unit {
-    optional_field_length: int8;
-    mass_cancel_request_optional_field: int8 &convert=MassCancelRequestOptionalField($$);
+    optional_field_length: uint8;
+    mass_cancel_request_optional_field: uint8 &convert=MassCancelRequestOptionalField($$);
     mass_cancel_request_optional_value: bytes &size=4;
 };
 
@@ -134,8 +150,8 @@ type DisableOrderEntryRequestMessage = unit {
 };
 
 type DisableOrderEntryRequestAppendage = unit {
-    optional_field_length: int8;
-    disable_order_entry_request_optional_field: int8 &convert=DisableOrderEntryRequestOptionalField($$);
+    optional_field_length: uint8;
+    disable_order_entry_request_optional_field: uint8 &convert=DisableOrderEntryRequestOptionalField($$);
     disable_order_entry_request_optional_value: bytes &size=1;
 };
 
@@ -147,8 +163,8 @@ type EnableOrderEntryRequestMessage = unit {
 };
 
 type EnableOrderEntryRequestAppendage = unit {
-    optional_field_length: int8;
-    enable_order_entry_request_optional_field: int8 &convert=EnableOrderEntryRequestOptionalField($$);
+    optional_field_length: uint8;
+    enable_order_entry_request_optional_field: uint8 &convert=EnableOrderEntryRequestOptionalField($$);
     enable_order_entry_request_optional_value: bytes &size=1;
 };
 
@@ -190,17 +206,7 @@ type Display = enum {
     Attributable = 0x41,
     Visible = 0x59,
     Hidden = 0x4e,
-    PostOnly = 0x50,
-    ImbalanceOnly = 0x49,
-    MidPointPeg = 0x4d,
-    MidPointPegPostOnly = 0x57,
-    PostOnlyAndAttributable = 0x4c,
-    RetailOrderType1 = 0x4f,
-    RetailOrderType2 = 0x54,
-    RetailPriceImprovementOrder = 0x51,
     Conformant = 0x5a,
-    MidPointPegAndMidPointTradeNow = 0x6d,
-    NonDisplayAndMidPoint = 0x6e,
 };
 
 type Capacity = enum {
@@ -218,11 +224,11 @@ type InterMarketSweepEligibility = enum {
 type CrossType = enum {
     ContinuousMarket = 0x4e,
     OpeningCross = 0x4f,
-    Closing = 0x43,
+    ClosingCross = 0x43,
     HaltIpo = 0x48,
     Supplemental = 0x53,
     Retail = 0x52,
-    Extended = 0x45,
+    ExtendedLife = 0x45,
     AfterHoursClose = 0x41,
 };
 
@@ -231,6 +237,92 @@ type EnterOrderOptionalField = enum {
     Minqty = 3,
     Customertype = 4,
     Maxfloor = 5,
+    Pricetype = 6,
+    Pegoffset = 7,
+    Discretionprice = 9,
+    Discretionpricetype = 10,
+    Discretionpegoffset = 11,
+    Postonly = 12,
+    Randomreserves = 13,
+    Expiretime = 15,
+    Tradenow = 16,
+    Handleinst = 17,
+    GroupId = 24,
+    SharesLocated = 25,
+    LocateBroker = 26,
+    Userrefidx = 28,
+    AiqStrategy = 29,
+    AiqGroupId = 30,
+};
+
+type CustomerType = enum {
+    RetailDesignatedOrder = 0x52,
+    NotRetailDesignated = 0x4e,
+};
+
+type PriceType = enum {
+    Limit = 0x4c,
+    MarketPeg = 0x50,
+    MidpointPeg = 0x4d,
+    PrimaryPeg = 0x52,
+    MarketMakerPeg = 0x51,
+    Midpoint = 0x6d,
+};
+
+type DiscretionPriceType = enum {
+    Limit = 0x4c,
+    MarketPeg = 0x50,
+    MidpointPeg = 0x4d,
+    PrimaryPeg = 0x52,
+};
+
+type PostOnly = enum {
+    PostOnly_x50 = 0x50,
+    No = 0x4e,
+};
+
+type TradeNow = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type HandleInst = enum {
+    ImbalanceOnly = 0x49,
+    RetailOrderType1 = 0x4f,
+    RetailOrderType2 = 0x54,
+    RetailPriceImprovement = 0x51,
+    ExtendedLifeContinuous = 0x42,
+    DirectListingCapitalRaise = 0x44,
+};
+
+type SharesLocated = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type AiqStrategy = enum {
+    UsePortDefault = 0x2a,
+    Disabled = 0x4e,
+    FirmLevelDecrementBothNoDetails = 0x59,
+    FirmLevelDecrementBoth = 0x44,
+    FirmLevelCancelOldest = 0x4f,
+    FirmLevelCancelNewest = 0x57,
+    FirmLevelUseRemover = 0x52,
+    OrganizationLevelDecrementBothNoDetails = 0x79,
+    OrganizationLevelDecrementBoth = 0x64,
+    OrganizationLevelCancelOldest = 0x6f,
+    OrganizationLevelCancelNewest = 0x77,
+    OrganizationLevelUseRemover = 0x72,
+    AffiliateLevelDecrementBothNoDetails = 0x5a,
+    AffiliateLevelDecrementBoth = 0x45,
+    AffiliateLevelCancelOldest = 0x50,
+    AffiliateLevelCancelNewest = 0x58,
+    AffiliateLevelUseRemover = 0x53,
+    MatchAnyLevelDecrementBothNoDetails = 0x30,
+    MatchAnyLevelDecrementBoth = 0x31,
+    MatchAnyLevelCancelOldest = 0x32,
+    MatchAnyLevelCancelNewest = 0x34,
+    MatchAnyLevelUseRemover = 0x35,
 };
 
 type ReplaceOrderOptionalField = enum {
@@ -241,6 +333,27 @@ type ReplaceOrderOptionalField = enum {
     Expiretime = 15,
     Tradenow = 16,
     Handleinst = 17,
+    Randomreserves = 13,
+    Pegoffset = 7,
+    Discretionprice = 9,
+    Discretionpricetype = 10,
+    Discretionpegoffset = 11,
+    SharesLocated = 25,
+    LocateBroker = 26,
+    Userrefidx = 28,
+    Side = 27,
+    AiqStrategy = 29,
+    AiqGroupId = 30,
+};
+
+type CancelOrderOptionalField = enum {
+    Userrefidx = 28,
+};
+
+type ModifyOrderOptionalField = enum {
+    Userrefidx = 28,
+    SharesLocated = 25,
+    LocateBroker = 26,
 };
 
 type AccountQueryOptionalField = enum {

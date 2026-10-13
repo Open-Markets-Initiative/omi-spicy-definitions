@@ -8,7 +8,7 @@ public type NasdaqUtpInputV40 = unit {
     server_tcp_packet_header: ServerTcpPacketHeader;
     switch ( self.server_tcp_packet_header.server_packet_type ) {
         ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
-        ServerPacketType::DebugPacket -> debug_packet: DebugPacket;
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket(self.server_tcp_packet_header.packet_length);
         ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
         ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
         * -> unknown: bytes &eod;
@@ -661,8 +661,8 @@ type SymbolStateInquiryResponseMessage = unit {
     symbol_state: uint8 &convert=SymbolState($$);
 };
 
-type DebugPacket = unit {
-    debug_text: bytes &eod;
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
 };
 
 type LoginAcceptedPacket = unit {

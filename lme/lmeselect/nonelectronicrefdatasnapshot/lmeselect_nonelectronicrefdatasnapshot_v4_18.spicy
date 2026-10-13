@@ -1,0 +1,144 @@
+module LmeLmeselectNonelectronicrefdatasnapshotLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectNonelectronicrefdatasnapshotV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::InstrumentDefinitionMessage -> instrument_definition_message: InstrumentDefinitionMessage;
+        MsgType::TradableInstrumentDefinitionMessage -> tradable_instrument_definition_message: TradableInstrumentDefinitionMessage;
+        MsgType::OrderStatisticsIntradayMessage -> order_statistics_intraday_message: OrderStatisticsIntradayMessage;
+        MsgType::RefreshCompleteMessage -> refresh_complete_message: RefreshCompleteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type InstrumentDefinitionMessage = unit {
+    instrument_id: uint64;
+    name: bytes &size=40;
+    contract_code: bytes &size=12;
+    underlying_instrument_id: uint64;
+    expiry_date: uint32;
+    strike_price: int64;
+    option_type: uint8 &convert=OptionType($$);
+    cfi_code: bytes &size=6;
+    isin: bytes &size=12;
+};
+
+type TradableInstrumentDefinitionMessage = unit {
+    tradable_instrument_id: uint64;
+    instrument_id: uint64;
+    trading_venue: bytes &size=2;
+    business_days_to_expiry: uint32;
+    last_trading_date: uint32;
+    tick_size_id: uint32;
+    contract_code: bytes &size=12;
+    contract_type: uint8 &convert=ContractType($$);
+    instrument_type: uint8 &convert=InstrumentType($$);
+    trading_currency: bytes &size=3;
+    market_code: bytes &size=4;
+    market_segment_code: bytes &size=12;
+    product_code: bytes &size=2;
+    underlying_tradable_instrument_id: uint64;
+    settlement_date: uint32;
+    expiry_date: uint32;
+    option_type: uint8 &convert=OptionType($$);
+    strike_price: int64;
+    cfi_code: bytes &size=6;
+    isin: bytes &size=12;
+    trade_at_reference: uint8 &convert=TradeAtReference($$);
+    price_code: bytes &size=2;
+    prompt_date_label: bytes &size=6;
+    prompt_type: uint8 &convert=PromptType($$);
+    option_strike_relative_position: uint32;
+    strategy_type_code: uint32;
+    remaining_records: uint16;
+    record_count: uint16;
+    strategy_leg_count: uint32;
+    definition_legs: DefinitionLegs[self.record_count];
+};
+
+type DefinitionLegs = unit {
+    leg_number: uint32;
+    leg_buy_sell: uint8 &convert=LegBuySell($$);
+    leg_ratio: uint64;
+    leg_delta_hedge_price: int64;
+    leg_tradable_instrument_id: uint64;
+};
+
+type OrderStatisticsIntradayMessage = unit {
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    trading_venue: bytes &size=2;
+    ring_session: bytes &size=2;
+    order_high: int64;
+    order_low: int64;
+};
+
+type RefreshCompleteMessage = unit {
+    last_seq_num: uint32;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    InstrumentDefinitionMessage = 303,
+    TradableInstrumentDefinitionMessage = 304,
+    OrderStatisticsIntradayMessage = 350,
+    RefreshCompleteMessage = 203,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type ContractType = enum {
+    Future = 0x46,
+    Option = 0x4f,
+};
+
+type InstrumentType = enum {
+    Outright = 0x4f,
+    Strategy = 0x53,
+};
+
+type TradeAtReference = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type PromptType = enum {
+    Single = 0x53,
+    Rolling = 0x52,
+};
+
+type LegBuySell = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

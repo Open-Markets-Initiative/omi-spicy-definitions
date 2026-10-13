@@ -35,7 +35,6 @@ type ServerSimpleOpenFrame = unit {
         TemplateId::OrderCancelReject -> order_cancel_reject: OrderCancelReject;
         TemplateId::OrderCancelReplaceReject -> order_cancel_replace_reject: OrderCancelReplaceReject;
         TemplateId::PartyDetailsListReport -> party_details_list_report: PartyDetailsListReport;
-        TemplateId::ExecutionAck -> execution_ack: ExecutionAck;
         TemplateId::MassQuoteAck -> mass_quote_ack: MassQuoteAck;
         TemplateId::RequestForQuoteAck -> request_for_quote_ack: RequestForQuoteAck;
         TemplateId::ExecutionReportTradeAddendumOutright -> execution_report_trade_addendum_outright: ExecutionReportTradeAddendumOutright;
@@ -856,24 +855,6 @@ type PartyDetailsListReport = unit {
     trd_reg_publications_groups: TrdRegPublicationsGroups;
 };
 
-type ExecutionAck = unit {
-    party_details_list_req_id: uint64;
-    order_id: uint64;
-    exec_ack_status: uint8 &convert=ExecAckStatus($$);
-    seq_num: uint32;
-    clordid: bytes &size=20;
-    sec_exec_id: uint64;
-    last_px: int64;
-    security_id: int32;
-    last_qty: uint32;
-    dk_reason: uint8 &convert=DkReason($$);
-    side: uint8 &convert=Side($$);
-    sender_id: bytes &size=20;
-    sending_time_epoch: uint64;
-    location: bytes &size=5;
-    manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
-};
-
 type MassQuoteAck = unit {
     seq_num: uint32;
     uuid: uint64;
@@ -1604,22 +1585,6 @@ type RequestResult = enum {
 type LastFragment = enum {
     False_0 = 0,
     True_1 = 1,
-};
-
-type ExecAckStatus = enum {
-    Accepted = 1,
-    Rejected = 2,
-};
-
-type DkReason = enum {
-    UnknownSecurity = 0x41,
-    WrongSide = 0x42,
-    QuantityExceedsOrder = 0x43,
-    NoMatchingOrder = 0x44,
-    PriceExceedsLimit = 0x45,
-    CalculationDifference = 0x46,
-    NoMatchingExecutionReport = 0x47,
-    Other = 0x5a,
 };
 
 type QuoteAckStatus = enum {

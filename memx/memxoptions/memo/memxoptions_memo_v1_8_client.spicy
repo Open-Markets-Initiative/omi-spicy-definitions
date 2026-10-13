@@ -57,9 +57,9 @@ type ClientSbeMessage = unit {
         TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
         TemplateId::MassCancelRequestMessage -> mass_cancel_request_message: MassCancelRequestMessage;
         TemplateId::MassCancelClearLockoutRequestMessage -> mass_cancel_clear_lockout_request_message: MassCancelClearLockoutRequestMessage;
-        TemplateId::AllocationInstructionMessage -> allocation_instruction_message: AllocationInstructionMessage;
         TemplateId::MassCancelBulkClearAllLockoutsRequestMessage -> mass_cancel_bulk_clear_all_lockouts_request_message: MassCancelBulkClearAllLockoutsRequestMessage;
         TemplateId::MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage -> mass_cancel_bulk_clear_lockouts_by_efid_or_underlier_request_message: MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage;
+        TemplateId::AllocationInstructionMessage -> allocation_instruction_message: AllocationInstructionMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -262,6 +262,18 @@ type MassCancelClearLockoutRequestMessage = unit {
     lockout_id: uint64;
 };
 
+type MassCancelBulkClearAllLockoutsRequestMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+};
+
+type MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage = unit {
+    sending_time: uint64;
+    clordid: bytes &size=20;
+    efid_optional: bytes &size=4;
+    underlier_optional: bytes &size=6;
+};
+
 type AllocationInstructionMessage = unit {
     sending_time: uint64;
     alloc_id: bytes &size=20;
@@ -305,18 +317,6 @@ type NestedPartiesGroup = unit {
     nested_party_id: bytes &size=16;
     nested_party_id_source: bytes &size=1;
     nested_party_role: uint8 &convert=NestedPartyRole($$);
-};
-
-type MassCancelBulkClearAllLockoutsRequestMessage = unit {
-    sending_time: uint64;
-    clordid: bytes &size=20;
-};
-
-type MassCancelBulkClearLockoutsByEfidOrUnderlierRequestMessage = unit {
-    sending_time: uint64;
-    clordid: bytes &size=20;
-    efid_optional: bytes &size=4;
-    underlier_optional: bytes &size=6;
 };
 
 type MessageType = enum {

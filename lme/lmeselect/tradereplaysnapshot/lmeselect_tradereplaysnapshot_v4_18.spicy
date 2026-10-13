@@ -1,0 +1,98 @@
+module LmeLmeselectTradereplaysnapshotLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectTradereplaysnapshotV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::MarketDataTradeMessage -> market_data_trade_message: MarketDataTradeMessage;
+        MsgType::RefreshCompleteMessage -> refresh_complete_message: RefreshCompleteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type MarketDataTradeMessage = unit {
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    trading_venue: bytes &size=2;
+    matched_time: uint64;
+    ring_session: bytes &size=2;
+    trade_cancel_flag: uint8 &convert=TradeCancelFlag($$);
+    price: int64;
+    volume: uint32;
+    match_id: uint64;
+    trade_at_reference_price_type: uint8 &convert=TradeAtReferencePriceType($$);
+    sub_type_of_trade: uint8 &convert=SubTypeOfTrade($$);
+    remaining_records: uint16;
+    record_count: uint16;
+    strategy_leg_count: uint32;
+    trade_legs: TradeLegs[self.record_count];
+};
+
+type TradeLegs = unit {
+    leg_price: int64;
+    leg_volume: uint32;
+    leg_match_id: uint64;
+    leg_trade_at_reference_price: uint8 &convert=LegTradeAtReferencePrice($$);
+};
+
+type RefreshCompleteMessage = unit {
+    last_seq_num: uint32;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    MarketDataTradeMessage = 341,
+    RefreshCompleteMessage = 203,
+};
+
+type TradeCancelFlag = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type TradeAtReferencePriceType = enum {
+    Differential = 0x44,
+    Substituted = 0x53,
+    NotApplicable = 0x20,
+};
+
+type SubTypeOfTrade = enum {
+    TheTradeResultedFromAnExplicitOrder = 1,
+    TheTradeResultedFromUncrossing = 2,
+    TheTradeResultedFromAnImpliedOrder = 7,
+    TheTradeResultedFromTwoImpliedOrdersMatching = 8,
+    TheTradeResultedFromAnOffBookCrossTrade = 9,
+};
+
+type LegTradeAtReferencePrice = enum {
+    Differential = 0x44,
+    Substituted = 0x53,
+    NotApplicable = 0x20,
+};
+

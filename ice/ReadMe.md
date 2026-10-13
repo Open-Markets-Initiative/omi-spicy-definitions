@@ -40,7 +40,7 @@
 
 [Ice.IceFutures.Bgw.Sbe.v7.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/bgw/icefutures_bgw_v7_0.spicy "Ice IceFutures Bgw Sbe v7.0 Spicy Definition"
 [Ice.IceFutures.Bgw.Sbe.v7.0.Url]: https://service.ice.com/s/article/Binary-Order-API "Intercontinental Exchange 7.0 Url"
-[Ice.IceFutures.Bgw.Sbe.v7.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 7.0 Pdf"
+[Ice.IceFutures.Bgw.Sbe.v7.0.Pdf]: https://service.ice.com/s/article/Binary-Order-API "Intercontinental Exchange 7.0 Pdf"
 [Ice.IceFutures.Mdf.iMpact.v1.1.24.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/mdf/icefutures_mdf_v1_1_24.spicy "Ice IceFutures Mdf iMpact v1.1.24 Spicy Definition"
 [Ice.IceFutures.Mdf.iMpact.v1.1.24.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Ice/Specifications/ "Intercontinental Exchange 1.1.24 Pdf"
 [Ice.IceFutures.Mdf.iMpact.v1.1.33.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/ice/icefutures/mdf/icefutures_mdf_v1_1_33.spicy "Ice IceFutures Mdf iMpact v1.1.33 Spicy Definition"

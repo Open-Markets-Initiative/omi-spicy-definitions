@@ -1,0 +1,51 @@
+module LmeLmeselectTradestatisticsLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectTradestatisticsV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::TradeStatisticsIntradayMessage -> trade_statistics_intraday_message: TradeStatisticsIntradayMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type TradeStatisticsIntradayMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    open_price: int64;
+    trade_high: int64;
+    trade_low: int64;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    TradeStatisticsIntradayMessage = 352,
+};
+

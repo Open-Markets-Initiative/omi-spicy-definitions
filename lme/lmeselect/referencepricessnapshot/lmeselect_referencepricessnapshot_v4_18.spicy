@@ -1,0 +1,138 @@
+module LmeLmeselectReferencepricessnapshotLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectReferencepricessnapshotV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::ReferencePriceMessage -> reference_price_message: ReferencePriceMessage;
+        MsgType::ReferenceForwardCurvePriceMessage -> reference_forward_curve_price_message: ReferenceForwardCurvePriceMessage;
+        MsgType::ReferenceFxRateMessage -> reference_fx_rate_message: ReferenceFxRateMessage;
+        MsgType::ReferenceVolatilityPriceMessage -> reference_volatility_price_message: ReferenceVolatilityPriceMessage;
+        MsgType::RefreshCompleteMessage -> refresh_complete_message: RefreshCompleteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type ReferencePriceMessage = unit {
+    time_of_event: uint64;
+    reference_price_category: uint8 &convert=ReferencePriceCategory($$);
+    reference_price_type: bytes &size=32;
+    price_status: bytes &size=12;
+    business_date: uint32;
+    instrument_id: uint64;
+    product_code: bytes &size=2;
+    currency_code: bytes &size=3;
+    bid: int64;
+    price: int64;
+    ask: int64;
+};
+
+type ReferenceForwardCurvePriceMessage = unit {
+    time_of_event: uint64;
+    business_date: uint32;
+    product_code: bytes &size=2;
+    price_status: bytes &size=12;
+    currency_code: bytes &size=3;
+    remaining_records: uint16;
+    record_count: uint16;
+    curve_prices: CurvePrices[self.record_count];
+};
+
+type CurvePrices = unit {
+    price: int64;
+    prompt_date_1: uint32;
+    prompt_date_label_1: bytes &size=6;
+    prompt_date_2: uint32;
+    prompt_date_label_2: bytes &size=6;
+};
+
+type ReferenceFxRateMessage = unit {
+    fx_rate_category: uint8 &convert=FxRateCategory($$);
+    fx_rate_type: bytes &size=2;
+    business_date: uint32;
+    maturity_date: uint32;
+    base_currency_code: bytes &size=3;
+    target_currency_code: bytes &size=3;
+    conversion_rate: int64;
+};
+
+type ReferenceVolatilityPriceMessage = unit {
+    time_of_event: uint64;
+    business_date: uint32;
+    contract_code: bytes &size=12;
+    expiry_date: uint32;
+    remaining_records: uint16;
+    record_count: uint16;
+    volatility_points: VolatilityPoints[self.record_count];
+};
+
+type VolatilityPoints = unit {
+    surface_domain: uint8 &convert=SurfaceDomain($$);
+    delta: int64;
+    strike_price: int64;
+    atm: uint8 &convert=Atm($$);
+    call_volatility: int64;
+    put_volatility: int64;
+    call_premium: int64;
+    put_premium: int64;
+};
+
+type RefreshCompleteMessage = unit {
+    last_seq_num: uint32;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    ReferencePriceMessage = 401,
+    ReferenceForwardCurvePriceMessage = 402,
+    ReferenceFxRateMessage = 403,
+    ReferenceVolatilityPriceMessage = 404,
+    RefreshCompleteMessage = 203,
+};
+
+type ReferencePriceCategory = enum {
+    Instrument = 0x49,
+    Product = 0x50,
+};
+
+type FxRateCategory = enum {
+    Exchange = 0x45,
+    Closing = 0x43,
+};
+
+type SurfaceDomain = enum {
+    Strike = 0x53,
+    Delta = 0x44,
+};
+
+type Atm = enum {
+    DeltaPoint = 0,
+    AtmStrike = 1,
+};
+

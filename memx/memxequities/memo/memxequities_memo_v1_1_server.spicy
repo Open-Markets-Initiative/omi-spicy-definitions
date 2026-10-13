@@ -9,6 +9,7 @@ public type MemxequitiesMemoV11 = unit {
     switch ( self.common_header.message_type ) {
         MessageType::LoginAccepted -> login_accepted_message: LoginAcceptedMessage;
         MessageType::LoginRejected -> login_rejected_message: LoginRejectedMessage;
+        MessageType::StartOfSession -> start_of_session_message: StartOfSessionMessage;
         MessageType::ReplayBegin -> replay_begin_message: ReplayBeginMessage;
         MessageType::ReplayRejected -> replay_rejected_message: ReplayRejectedMessage;
         MessageType::ReplayComplete -> replay_complete_message: ReplayCompleteMessage;
@@ -31,6 +32,10 @@ type LoginAcceptedMessage = unit {
 
 type LoginRejectedMessage = unit {
     login_reject_code: uint8 &convert=LoginRejectCode($$);
+};
+
+type StartOfSessionMessage = unit {
+    session_id: uint64;
 };
 
 type ReplayBeginMessage = unit {
@@ -366,7 +371,6 @@ type MessageType = enum {
 type SupportedRequestMode = enum {
     Stream = 0x53,
     Replay = 0x52,
-    SnapshotMode = 0x54,
 };
 
 type LoginRejectCode = enum {

@@ -1,0 +1,199 @@
+module LmeLmeselectReferencedataLmesourceV418;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type LmeselectReferencedataV418 = unit {
+    packet_header: PacketHeader;
+    messages: Messages[self.packet_header.msg_count];
+};
+
+type PacketHeader = unit {
+    pkt_size: uint16;
+    msg_count: uint8;
+    filler: bytes &size=1;
+    seq_num: uint32;
+    send_time: uint64;
+};
+
+type Messages = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        MsgType::ContractDefinitionMessage -> contract_definition_message: ContractDefinitionMessage;
+        MsgType::OutrightDefinitionMessage -> outright_definition_message: OutrightDefinitionMessage;
+        MsgType::StrategyDefinitionMessage -> strategy_definition_message: StrategyDefinitionMessage;
+        MsgType::PriceLimitsMessage -> price_limits_message: PriceLimitsMessage;
+        MsgType::TradeStatisticsEndOfDayMessage -> trade_statistics_end_of_day_message: TradeStatisticsEndOfDayMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_size: uint16;
+    msg_type: uint16 &convert=MsgType($$);
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type ContractDefinitionMessage = unit {
+    trading_venue: bytes &size=2;
+    contract_code: bytes &size=12;
+    name: bytes &size=64;
+    contract_type: uint8 &convert=ContractType($$);
+    product_code: bytes &size=2;
+    underlying_type: uint8 &convert=UnderlyingType($$);
+    underlying_contract_code: bytes &size=12;
+    trading_currency: bytes &size=3;
+    settlement_type: uint8 &convert=SettlementType($$);
+    settlement_pricing_method: uint8 &convert=SettlementPricingMethod($$);
+    exercise_style: int8 &convert=ExerciseStyle($$);
+    lot_unit: bytes &size=20;
+    lot_size: uint64;
+    lot_size_type: uint8 &convert=LotSizeType($$);
+    contract_price_type: uint8 &convert=ContractPriceType($$);
+    first_trading_date: uint32;
+};
+
+type OutrightDefinitionMessage = unit {
+    trading_venue: bytes &size=2;
+    tradable_instrument_id: uint64;
+    merged_tradable_instrument_id: uint64;
+    linked_tradable_instrument_id: uint64;
+    product_code: bytes &size=2;
+    contract_type: uint8 &convert=ContractType($$);
+    trading_currency: bytes &size=3;
+    contract_code: bytes &size=12;
+    expiry_date: uint32;
+    prompt_type: uint8 &convert=PromptType($$);
+    strike_price: int64;
+    option_type: uint8 &convert=OptionType($$);
+    exercise_style: int8 &convert=ExerciseStyle($$);
+    prompt_date_label: bytes &size=6;
+    price_code: bytes &size=2;
+    isin: bytes &size=12;
+    cfi_code: bytes &size=6;
+    market_code: bytes &size=4;
+    market_segment_code: bytes &size=12;
+    tick_size_id: uint32;
+    lot_size: uint64;
+    lot_size_type: uint8 &convert=LotSizeType($$);
+    last_trading_date: uint32;
+    settlement_type: uint8 &convert=SettlementType($$);
+    settlement_pricing_method: uint8 &convert=SettlementPricingMethod($$);
+    underlying_type: uint8 &convert=UnderlyingType($$);
+};
+
+type StrategyDefinitionMessage = unit {
+    trading_venue: bytes &size=2;
+    tradable_instrument_id: uint64;
+    merged_tradable_instrument_id: uint64;
+    product_code: bytes &size=2;
+    contract_type: uint8 &convert=ContractType($$);
+    trading_currency: bytes &size=3;
+    strategy_type_code: uint32;
+    contract_code: bytes &size=12;
+    exercise_style: int8 &convert=ExerciseStyle($$);
+    price_code: bytes &size=2;
+    market_code: bytes &size=4;
+    market_segment_code: bytes &size=12;
+    tick_size_id: uint32;
+    lot_size: uint64;
+    lot_size_type: uint8 &convert=LotSizeType($$);
+    last_trading_date: uint32;
+    settlement_type: uint8 &convert=SettlementType($$);
+    settlement_pricing_method: uint8 &convert=SettlementPricingMethod($$);
+    underlying_type: uint8 &convert=UnderlyingType($$);
+    strategy_leg_count: uint32;
+    strategy_legs: StrategyLegs[self.strategy_leg_count];
+};
+
+type StrategyLegs = unit {
+    leg_number: uint32;
+    leg_buy_sell: uint8 &convert=LegBuySell($$);
+    leg_ratio: uint64;
+    leg_delta_hedge_price: int64;
+    leg_tradable_instrument_id: uint64;
+};
+
+type PriceLimitsMessage = unit {
+    tradable_instrument_id: uint64;
+    upper_price_limit: int64;
+    lower_price_limit: int64;
+    transaction_time: uint64;
+};
+
+type TradeStatisticsEndOfDayMessage = unit {
+    trading_venue: bytes &size=2;
+    time_of_event: uint64;
+    tradable_instrument_id: uint64;
+    open_price: int64;
+    trade_high: int64;
+    trade_low: int64;
+    closing_price: int64;
+};
+
+type MsgType = enum {
+    SequenceResetMessage = 100,
+    ContractDefinitionMessage = 300,
+    OutrightDefinitionMessage = 301,
+    StrategyDefinitionMessage = 302,
+    PriceLimitsMessage = 305,
+    TradeStatisticsEndOfDayMessage = 351,
+};
+
+type ContractType = enum {
+    Future = 0x46,
+    Option = 0x4f,
+};
+
+type UnderlyingType = enum {
+    Commodity = 0x43,
+    Future = 0x46,
+};
+
+type SettlementType = enum {
+    Cash = 0x43,
+    Physical = 0x50,
+};
+
+type SettlementPricingMethod = enum {
+    Daily = 0x44,
+    MonthlyAverage = 0x4d,
+};
+
+type ExerciseStyle = enum {
+    European = 0,
+    American = 1,
+    Asian = 2,
+};
+
+type LotSizeType = enum {
+    Standard = 0x53,
+    Mini = 0x4d,
+};
+
+type ContractPriceType = enum {
+    Premium = 0x50,
+    Volatility = 0x56,
+    Futures = 0x20,
+};
+
+type PromptType = enum {
+    Single = 0x53,
+    Rolling = 0x52,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type LegBuySell = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
