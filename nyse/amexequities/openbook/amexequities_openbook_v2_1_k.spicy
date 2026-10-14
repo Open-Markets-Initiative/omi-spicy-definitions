@@ -7,6 +7,7 @@ import spicy;
 public type AmexequitiesOpenbookV21K = unit {
     packet_header: PacketHeader;
     switch ( self.packet_header.message_type ) {
+        MessageType::SymbolIndexMappingResponseMessage -> symbol_index_mapping_response_messages: SymbolIndexMappingResponseMessages(self.packet_header.message_count);
         MessageType::SequenceNumberResetMessage -> sequence_number_reset_message: SequenceNumberResetMessage;
         MessageType::UnavailableMessage -> unavailable_message: UnavailableMessage;
         MessageType::RequestResponseMessage -> request_response_message: RequestResponseMessage;
@@ -15,9 +16,8 @@ public type AmexequitiesOpenbookV21K = unit {
         MessageType::HeartbeatResponseMessage -> heartbeat_response_message: HeartbeatResponseMessage;
         MessageType::ExtendedBookRefreshRequestMessage -> extended_book_refresh_request_message: ExtendedBookRefreshRequestMessage;
         MessageType::SymbolIndexMappingRequestMessage -> symbol_index_mapping_request_message: SymbolIndexMappingRequestMessage;
-        MessageType::SymbolIndexMappingResponseMessage -> symbol_index_mapping_response_message: SymbolIndexMappingResponseMessage;
-        MessageType::FullUpdateMessage -> full_update_messages: FullUpdateMessages;
-        MessageType::DeltaUpdateMessage -> delta_update_messages: DeltaUpdateMessages;
+        MessageType::FullUpdateMessage -> full_update_messages: FullUpdateMessages(self.packet_header.message_count);
+        MessageType::DeltaUpdateMessage -> delta_update_messages: DeltaUpdateMessages(self.packet_header.message_count);
         * -> unknown: bytes &eod;
     };
 };
@@ -31,6 +31,16 @@ type PacketHeader = unit {
     retransmission_flag: uint8 &convert=RetransmissionFlag($$);
     message_count: uint8;
     link_flag: uint8;
+};
+
+type SymbolIndexMappingResponseMessages = unit(message_count: uint8) {
+    symbol_index_mapping_response_message: SymbolIndexMappingResponseMessage[message_count];
+};
+
+type SymbolIndexMappingResponseMessage = unit {
+    symbol_11: bytes &size=11;
+    : skip bytes &size=1;   # padding
+    symbol_index: int32;
 };
 
 type SequenceNumberResetMessage = unit {
@@ -76,14 +86,8 @@ type SymbolIndexMappingRequestMessage = unit {
     symbol_index: int32;
 };
 
-type SymbolIndexMappingResponseMessage = unit {
-    symbol_11: bytes &size=11;
-    : skip bytes &size=1;   # padding
-    symbol_index: int32;
-};
-
-type FullUpdateMessages = unit {
-    full_update_message: FullUpdateMessage[] &eod;
+type FullUpdateMessages = unit(message_count: uint8) {
+    full_update_message: FullUpdateMessage[message_count];
 };
 
 type FullUpdateMessage = unit {
@@ -114,8 +118,8 @@ type FullPricePoint = unit {
     : skip bytes &size=1;   # padding
 };
 
-type DeltaUpdateMessages = unit {
-    delta_update_message: DeltaUpdateMessage[] &eod;
+type DeltaUpdateMessages = unit(message_count: uint8) {
+    delta_update_message: DeltaUpdateMessage[message_count];
 };
 
 type DeltaUpdateMessage = unit {

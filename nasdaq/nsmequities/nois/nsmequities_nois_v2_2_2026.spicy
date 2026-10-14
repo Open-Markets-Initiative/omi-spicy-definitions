@@ -2,7 +2,7 @@ module NasdaqNsmequitiesNoisItchV222026;
 
 import spicy;
 
-%byte-order = spicy::ByteOrder::Big;
+%byte-order = spicy::ByteOrder::Little;
 
 public type NsmequitiesNoisV222026 = unit {
     packet_header: PacketHeader;
@@ -16,6 +16,11 @@ type PacketHeader = unit {
 };
 
 type Message = unit {
+    message_length: uint16;
+    message_body: MessageData;
+};
+
+type MessageData = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
         MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
@@ -27,8 +32,7 @@ type Message = unit {
 };
 
 type MessageHeader = unit {
-    message_length: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &byte-order=spicy::ByteOrder::Big;
     message_type: uint8 &convert=MessageType($$);
 };
 

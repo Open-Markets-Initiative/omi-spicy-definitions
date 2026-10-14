@@ -2,7 +2,7 @@ module NasdaqNsmequitiesTotalviewAsciiitchV30Udp;
 
 import spicy;
 
-%byte-order = spicy::ByteOrder::Big;
+%byte-order = spicy::ByteOrder::Little;
 
 public type NsmequitiesTotalviewV30 = unit {
     packet_header: PacketHeader;
@@ -12,10 +12,15 @@ public type NsmequitiesTotalviewV30 = unit {
 type PacketHeader = unit {
     session: bytes &size=10;
     sequence_number: uint32;
-    message_count: uint16 &byte-order=spicy::ByteOrder::Little;
+    message_count: uint16;
 };
 
 type Message = unit {
+    message_length: uint16;
+    message_body: MessageData;
+};
+
+type MessageData = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
         MessageType::SecondsMessage -> seconds_message: SecondsMessage;
@@ -39,7 +44,6 @@ type Message = unit {
 };
 
 type MessageHeader = unit {
-    message_length: uint16;
     message_type: uint8 &convert=MessageType($$);
 };
 

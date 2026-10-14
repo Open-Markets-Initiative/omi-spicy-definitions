@@ -11,11 +11,16 @@ public type PhlxoptionsOrdersV192 = unit {
 
 type PacketHeader = unit {
     session: bytes &size=10;
-    sequence_number: uint32;
+    sequence_number: uint32 &byte-order=spicy::ByteOrder::Little;
     message_count: uint16 &byte-order=spicy::ByteOrder::Little;
 };
 
 type Message = unit {
+    message_length: uint16 &byte-order=spicy::ByteOrder::Little;
+    message_body: MessageData;
+};
+
+type MessageData = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
         MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
@@ -34,7 +39,6 @@ type Message = unit {
 };
 
 type MessageHeader = unit {
-    message_length: uint16;
     message_type: uint8 &convert=MessageType($$);
 };
 

@@ -2,7 +2,7 @@ module NasdaqNsmequitiesMatchviewAsciiitchV10;
 
 import spicy;
 
-%byte-order = spicy::ByteOrder::Big;
+%byte-order = spicy::ByteOrder::Little;
 
 public type NsmequitiesMatchviewV10 = unit {
     packet_header: PacketHeader;
@@ -12,16 +12,20 @@ public type NsmequitiesMatchviewV10 = unit {
 type PacketHeader = unit {
     session: bytes &size=10;
     sequence_number: uint32;
-    message_count: uint16 &byte-order=spicy::ByteOrder::Little;
+    message_count: uint16;
 };
 
 type Message = unit {
+    message_length: uint16;
+    message_body: MessageData;
+};
+
+type MessageData = unit {
     message_header: MessageHeader;
     payload: BestBidAndOfferMessage;
 };
 
 type MessageHeader = unit {
-    message_length: uint16;
     timestamp: bytes &size=8;
     message_type: uint8 &convert=MessageType($$);
 };

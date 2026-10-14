@@ -1,0 +1,795 @@
+module TaifexTaifexderivativesClearingmemberTmpV2187;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TaifexderivativesClearingmemberV2187 = unit {
+    hdr: Hdr;
+    switch ( self.hdr.message_type ) {
+        MessageType::WakeUpCallMessage -> wake_up_call_message: WakeUpCallMessage;
+        MessageType::WakeUpCallConfirmedMessage -> wake_up_call_confirmed_message: WakeUpCallConfirmedMessage;
+        MessageType::LogonNoticeMessage -> logon_notice_message: LogonNoticeMessage;
+        MessageType::FinalSequentialNumberNotificationForGroupMessage -> final_sequential_number_notification_for_group_message: FinalSequentialNumberNotificationForGroupMessage;
+        MessageType::RequestLogonMessage -> request_logon_message: RequestLogonMessage;
+        MessageType::ActivateApplicationSystemMessage -> activate_application_system_message: ActivateApplicationSystemMessage;
+        MessageType::ActivateApplicationSystemConfirmedMessage -> activate_application_system_confirmed_message: ActivateApplicationSystemConfirmedMessage;
+        MessageType::LogoutConfirmedMessage -> logout_confirmed_message: LogoutConfirmedMessage;
+        MessageType::ConfirmConnectionMessage -> confirm_connection_message: ConfirmConnectionMessage;
+        MessageType::ConnectionConfirmedMessage -> connection_confirmed_message: ConnectionConfirmedMessage;
+        MessageType::OrderStatusReportMessage -> order_status_report_message: OrderStatusReportMessage;
+        MessageType::OrderStatusReportLongFormatMessage -> order_status_report_long_format_message: OrderStatusReportLongFormatMessage;
+        MessageType::ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage -> execution_report_including_head_office_and_branch_offices_message: ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage;
+        MessageType::FlexOrderStatusReportMessage -> flex_order_status_report_message: FlexOrderStatusReportMessage;
+        MessageType::ClearingMemberInitiateOperationMessage -> clearing_member_initiate_operation_message: ClearingMemberInitiateOperationMessage;
+        MessageType::ClearingMemberInitiateOperationConfirmedMessage -> clearing_member_initiate_operation_confirmed_message: ClearingMemberInitiateOperationConfirmedMessage;
+        MessageType::FlexClearingMemberInitiateOperationMessage -> flex_clearing_member_initiate_operation_message: FlexClearingMemberInitiateOperationMessage;
+        MessageType::FlexClearingMemberInitiateOperationConfirmedMessage -> flex_clearing_member_initiate_operation_confirmed_message: FlexClearingMemberInitiateOperationConfirmedMessage;
+        * -> unknown: bytes &eod;
+    };
+    message_tail: MessageTail;
+};
+
+type Hdr = unit {
+    msg_length: uint16;
+    msg_seq_num: uint32;
+    header_time: HeaderTime;
+    message_type: uint8 &convert=MessageType($$);
+    fcmid: uint16;
+    sessionid: uint16;
+};
+
+type HeaderTime = unit {
+    header_epoch_s: int32;
+    header_ms: uint16;
+};
+
+type WakeUpCallMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    startinboundnum: uint32;
+};
+
+type WakeUpCallConfirmedMessage = unit {
+    version: uint8 &convert=Version($$);
+};
+
+type LogonNoticeMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    appendno: uint16;
+    endoutboundnum: uint32;
+    systemtype: uint8 &convert=Systemtype($$);
+    encrypt_method: uint8 &convert=EncryptMethod($$);
+};
+
+type FinalSequentialNumberNotificationForGroupMessage = unit {
+    subhdr: Subhdr;
+    statuscode_uint_162: uint16 &convert=StatuscodeUint162($$);
+    partid: uint8 &convert=Partid($$);
+    endoutboundnum: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type Subhdr = unit {
+    msg_type_ext: uint8 &convert=MsgTypeExt($$);
+    preserve: uint8;
+    msgtimens: uint32;
+};
+
+type RequestLogonMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    appendno: uint16;
+    fcmid: uint16;
+    sessionid: uint16;
+    systemtype: uint8 &convert=Systemtype($$);
+    apcode: uint8 &convert=Apcode($$);
+    keyvalue: uint8;
+    requeststartseq: uint32;
+    cancelordersec: uint8;
+};
+
+type ActivateApplicationSystemMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    heart_bt_int: uint8;
+    maxflowctrlcnt: uint16;
+};
+
+type ActivateApplicationSystemConfirmedMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+};
+
+type LogoutConfirmedMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+};
+
+type ConfirmConnectionMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+};
+
+type ConnectionConfirmedMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+};
+
+type OrderStatusReportMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    exec_type: uint8 &convert=ExecType($$);
+    cmid: uint16;
+    fcmid: uint16;
+    orderno: bytes &size=5;
+    ordid: uint32;
+    userdefine: bytes &size=8;
+    symboltype: uint8 &convert=Symboltype($$);
+    switch ( self.symboltype ) {
+        Symboltype::NumericProductId -> symbolnum: Symbolnum;
+        Symboltype::TextProductId -> symboltext: Symboltext;
+        * -> unknown: bytes &eod;
+    };
+    price: int32;
+    qty: uint16;
+    investoracno: uint32;
+    investorflag: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    position_effect: uint8 &convert=PositionEffect($$);
+    last_px: int32;
+    last_qty: uint16;
+    pxsubtotal: int64;
+    cum_qty: uint16;
+    leaves_qty: uint16;
+    beforeqty: uint16;
+    legside_uint_822: uint8 &convert=LegsideUint822($$);
+    legpx: int32;
+    legqty_uint_1624: uint16;
+    orgtranstime_msgtime: OrgtranstimeMsgtime;
+    transact_time_msgtime: TransactTimeMsgtime;
+    targetid: uint8 &convert=Targetid($$);
+    uniqid: uint32;
+    rptseq: uint32;
+    protocoltype: uint8 &convert=Protocoltype($$);
+};
+
+type Symbolnum = unit {
+    pseq_1: uint16;
+    pseq_2: uint16;
+    legside_uint_822: uint8 &convert=LegsideUint822($$);
+    combop: uint8 &convert=Combop($$);
+    : skip bytes &size=13;   # padding
+};
+
+type Symboltext = unit {
+    symbol_char_2020: bytes &size=20;
+};
+
+type OrgtranstimeMsgtime = unit {
+    epochs_int_324: int32;
+    ms: uint16;
+};
+
+type TransactTimeMsgtime = unit {
+    epochs_int_324: int32;
+    ms: uint16;
+};
+
+type OrderStatusReportLongFormatMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    exec_type: uint8 &convert=ExecType($$);
+    cmid: uint16;
+    fcmid: uint16;
+    orderno: bytes &size=5;
+    ordid: uint32;
+    userdefine: bytes &size=8;
+    symboltype: uint8 &convert=Symboltype($$);
+    switch ( self.symboltype ) {
+        Symboltype::NumericProductIdLongFormat -> longsymbolnum: Longsymbolnum;
+        Symboltype::TextProductIdLongFormat -> longsymboltext: Longsymboltext;
+        * -> unknown: bytes &eod;
+    };
+    price: int32;
+    qty: uint16;
+    investoracno: uint32;
+    investorflag: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    position_effect: uint8 &convert=PositionEffect($$);
+    last_px: int32;
+    last_qty: uint16;
+    pxsubtotal: int64;
+    cum_qty: uint16;
+    leaves_qty: uint16;
+    beforeqty: uint16;
+    legside_uint_822: uint8 &convert=LegsideUint822($$);
+    legpx: int32;
+    legqty_uint_1624: uint16;
+    orgtranstime_msgtime: OrgtranstimeMsgtime;
+    transact_time_msgtime: TransactTimeMsgtime;
+    targetid: uint8 &convert=Targetid($$);
+    uniqid: uint32;
+    rptseq: uint32;
+    protocoltype: uint8 &convert=Protocoltype($$);
+};
+
+type Longsymbolnum = unit {
+    pseq_1: uint16;
+    pseq_2: uint16;
+    legside_uint_822: uint8 &convert=LegsideUint822($$);
+    combop: uint8 &convert=Combop($$);
+    : skip bytes &size=33;   # padding
+};
+
+type Longsymboltext = unit {
+    symbol_char_4040: bytes &size=40;
+};
+
+type ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    exec_type: uint8 &convert=ExecType($$);
+    cmid: uint16;
+    fcmid: uint16;
+    orderno: bytes &size=5;
+    ordid: uint32;
+    userdefine: bytes &size=8;
+    symboltype: uint8 &convert=Symboltype($$);
+    switch ( self.symboltype ) {
+        Symboltype::NumericProductId -> symbolnum: Symbolnum;
+        Symboltype::TextProductId -> symboltext: Symboltext;
+        * -> unknown: bytes &eod;
+    };
+    price: int32;
+    qty: uint16;
+    investoracno: uint32;
+    investorflag: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    position_effect: uint8 &convert=PositionEffect($$);
+    last_px: int32;
+    last_qty: uint16;
+    pxsubtotal: int64;
+    cum_qty: uint16;
+    leaves_qty: uint16;
+    beforeqty: uint16;
+    legside_uint_822: uint8 &convert=LegsideUint822($$);
+    legpx: int32;
+    legqty_uint_1624: uint16;
+    orgtranstime_msgtime: OrgtranstimeMsgtime;
+    transact_time_msgtime: TransactTimeMsgtime;
+    targetid: uint8 &convert=Targetid($$);
+    uniqid: uint32;
+    rptseq: uint32;
+    protocoltype: uint8 &convert=Protocoltype($$);
+    rptsessionid: uint16;
+};
+
+type FlexOrderStatusReportMessage = unit {
+    subhdr: Subhdr;
+    partid: uint8 &convert=Partid($$);
+    no_leg: uint8;
+    statuscode_uint_162: uint16 &convert=StatuscodeUint162($$);
+    exec_type: uint8 &convert=ExecType($$);
+    cmid: uint16;
+    fcmid: uint16;
+    orderno: bytes &size=5;
+    ordid: uint32;
+    userdefine: bytes &size=8;
+    switch ( self.subhdr.msg_type_ext ) {
+        MsgTypeExt::SingleLegOrderWithANumericProductSerialNumber -> symbolnumx: Symbolnumx;
+        MsgTypeExt::SingleLegOrderWithATextualProductSymbol -> symboltxtx: Symboltxtx;
+        MsgTypeExt::MultiLegOrderWithANumericProductSerialNumber -> multilegnum: Multilegnum;
+        MsgTypeExt::MultiLegOrderWithATextualProductSymbol -> multilegtxt: Multilegtxt;
+        * -> unknown: bytes &eod;
+    };
+    price: int32;
+    qty: uint16;
+    investoracno: uint32;
+    investorflag: bytes &size=1;
+    side: uint8 &convert=Side($$);
+    ord_type: uint8 &convert=OrdType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    position_effect: uint8 &convert=PositionEffect($$);
+    last_px: int32;
+    last_qty: uint16;
+    pxsubtotal: int64;
+    cum_qty: uint16;
+    leaves_qty: uint16;
+    beforeqty: uint16;
+    orgtranstime_msgtimex: OrgtranstimeMsgtimex;
+    transact_time_msgtimex: TransactTimeMsgtimex;
+    targetid: uint8 &convert=Targetid($$);
+    uniqid: uint32;
+    rptseq: uint32;
+    rptsessionid: uint16;
+    rptsessionseq: uint32;
+    : skip bytes &size=12;   # padding
+};
+
+type Symbolnumx = unit {
+    pseq: uint32;
+};
+
+type Symboltxtx = unit {
+    prodid: bytes &size=20;
+};
+
+type Multilegnum = unit {
+    no_leg: uint8;
+    combop: uint8 &convert=Combop($$);
+    legentrynum: Legentrynum[self.no_leg];
+};
+
+type Legentrynum = unit {
+    legsym_symbolnumx: LegsymSymbolnumx;
+    legside_uint_81: uint8 &convert=LegsideUint81($$);
+    legqty_uint_162: uint16;
+};
+
+type LegsymSymbolnumx = unit {
+    pseq: uint32;
+};
+
+type Multilegtxt = unit {
+    no_leg: uint8;
+    combop: uint8 &convert=Combop($$);
+    legentrytxt: Legentrytxt[self.no_leg];
+};
+
+type Legentrytxt = unit {
+    legsym_symboltxtx: LegsymSymboltxtx;
+    legside_uint_81: uint8 &convert=LegsideUint81($$);
+    legqty_uint_162: uint16;
+};
+
+type LegsymSymboltxtx = unit {
+    prodid: bytes &size=20;
+};
+
+type OrgtranstimeMsgtimex = unit {
+    epochs_uint_324: uint32;
+    nanosecond: uint32;
+};
+
+type TransactTimeMsgtimex = unit {
+    epochs_uint_324: uint32;
+    nanosecond: uint32;
+};
+
+type ClearingMemberInitiateOperationMessage = unit {
+    memberid: uint16;
+    targetid: uint8 &convert=Targetid($$);
+    reqcmseq: uint32;
+};
+
+type ClearingMemberInitiateOperationConfirmedMessage = unit {
+    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    memberid: uint16;
+    targetid: uint8 &convert=Targetid($$);
+    reqcmseq: uint32;
+};
+
+type FlexClearingMemberInitiateOperationMessage = unit {
+    subhdr: Subhdr;
+    partid: uint8 &convert=Partid($$);
+    memberid: uint16;
+    targetid: uint8 &convert=Targetid($$);
+    reqcmseq: uint32;
+};
+
+type FlexClearingMemberInitiateOperationConfirmedMessage = unit {
+    subhdr: Subhdr;
+    partid: uint8 &convert=Partid($$);
+    statuscode_uint_162: uint16 &convert=StatuscodeUint162($$);
+    memberid: uint16;
+    targetid: uint8 &convert=Targetid($$);
+    reqcmseq: uint32;
+    : skip bytes &size=16;   # padding
+};
+
+type MessageTail = unit {
+    check_sum: uint8;
+};
+
+type MessageType = enum {
+    WakeUpCallMessage = 10,
+    WakeUpCallConfirmedMessage = 20,
+    LogonNoticeMessage = 30,
+    FinalSequentialNumberNotificationForGroupMessage = 230,
+    RequestLogonMessage = 40,
+    ActivateApplicationSystemMessage = 50,
+    ActivateApplicationSystemConfirmedMessage = 60,
+    LogoutMessage = 70,
+    LogoutConfirmedMessage = 80,
+    ConfirmConnectionMessage = 104,
+    ConnectionConfirmedMessage = 105,
+    OrderStatusReportMessage = 102,
+    OrderStatusReportLongFormatMessage = 132,
+    ExecutionReportIncludingHeadOfficeAndBranchOfficesMessage = 106,
+    FlexOrderStatusReportMessage = 202,
+    ClearingMemberInitiateOperationMessage = 115,
+    ClearingMemberInitiateOperationConfirmedMessage = 116,
+    FlexClearingMemberInitiateOperationMessage = 215,
+    FlexClearingMemberInitiateOperationConfirmedMessage = 216,
+};
+
+type StatuscodeUint81 = enum {
+    Succeed = 0,
+    TradingTimeOver = 1,
+    OrderAcceptanceNotYetStartedOrTradingHalt = 2,
+    PriceQuoteNotYetAccepted = 3,
+    InProcessingNoOrderAcceptedForTheTimeBeing = 4,
+    NoSuchOrderNo = 5,
+    OrderOrQuoteFilled = 6,
+    OrderOrQuoteCancelled = 7,
+    StopOrder = 8,
+    OrderLimit = 9,
+    OrderNotInTheBook = 10,
+    ExecTypeError = 11,
+    BrokerIdError = 12,
+    BranchNoError = 13,
+    InvestorAccountError = 14,
+    InvestorIdCodeError = 15,
+    RejectDeleteOrModifyOrderDuringNoncancelPeriod = 16,
+    DuplicateOrderNoOrQuoteNo = 17,
+    OrderNoOrQuoteNoError = 18,
+    TheSameSideOrderNotExist = 19,
+    ProductIdError = 20,
+    ExceedingRisefallLimit = 21,
+    OrderQuantityError = 22,
+    PriceInquiryNotAcceptedYetOrPriceIsAtRisefallLimitPriceInquiryNotAccepted = 23,
+    BuysellError = 24,
+    OrdTypeError = 25,
+    OrderTypeAndPriceNotMatched = 26,
+    TimeInForceError = 27,
+    PositionEffectError = 28,
+    PriceAndTickSizeNotMatched = 29,
+    ProductExpired = 30,
+    BrokerIdProductGroupAndMarketMakersAccountNoInconsistent = 31,
+    DecreaseSuccessfulButRequestedMoreThanTheDecreasableUnfilledPart = 32,
+    QuotedBidaskPriceMayNotExceedTheSpreadLimitOfTheProduct = 33,
+    BidPriceExceedingAskPrice = 34,
+    RemainingQuantityOfTheUnmodifiedSideIsZero = 35,
+    TheUnfilledPartOfTheOnewayQuoteIsLessThanTheMinimumQuantityLimit = 36,
+    PriceInquiryAlreadyPresent = 37,
+    MarketOrderandMwpDoesNotAcceptRod = 38,
+    DecreaseQuantityError = 39,
+    PriceErrorSinglesideQuoteOrderModification = 40,
+    SettlementMonthError = 41,
+    StrikePriceError = 42,
+    ClearingMemberIdError = 43,
+    OrdersourceError = 44,
+    InfosourceError = 45,
+    DisableKillSwitchOperationError = 46,
+    LeavesQuantityRejectedAtTheDynamicPriceBandingLimit = 47,
+    DynamicPriceBandingLimitPriceDisclosure = 48,
+    FokNotFilledAndDeletedBySystem = 51,
+    IocIsPartiallyFilled = 52,
+    IocNotFilledAndDeletedBySystem = 53,
+    DeleteTheOrderBecauseOfCod = 54,
+    BuysellCodeOfCanceldecreaseOrderNotMatchingOriginalOrder = 61,
+    ProductIdOfCanceldecreaseOrderNotMatchingOriginalOrder = 62,
+    ModifyPriceOfIocOrderNotAllowed = 63,
+    OrderPartiallyTradedModifyToMarketFokOrderOrMwpFokOrderIsNotAllowed = 64,
+    KillSwitchInOperationTheOrderExecutionTypeIsNotAllowed = 65,
+    NoSuchContract = 77,
+    OrderOfThisContractIsRestrictedForThisAccountcode = 78,
+    OrderDeletedDueToTradingSuspensionOrOrderAcceptanceBeforeCollectiveBidding = 79,
+    FcmIsNotYetApprovedToTradeThisProductOrExecuteTheFunction = 80,
+    TooManyErrors = 89,
+    MessageTimeOut = 91,
+    MessageLengthError = 92,
+    MessageFormatError = 93,
+    MajorError = 99,
+    IllegalFileCode = 110,
+    WrongFileRequestRange = 113,
+    FileIsNotReady = 114,
+    FileIsReadyButEmpty = 117,
+    FileNotFoundForBroker = 120,
+    IllegalTimeToGetFile = 121,
+    FcmuniqueidOrSerialNoDuplicate = 150,
+    ProductCanNotBlockTrade = 151,
+    BlockTradeOrderQuantityError = 152,
+    InvalidProdcount = 153,
+    ProdcountIsNotMatchWithTheNumberOfLegsInABlockTradeOrder = 154,
+    InvalidFcmuniqueidOrSerialNo = 155,
+    BlockTradeIdDuplicate = 156,
+    InvalidBlockTradeId = 157,
+    InvalidParticipantfcmcount = 158,
+    ParticipantfcmcountIsNotConsistentWithParticipantfcmidList = 159,
+    ParticipantfcmidError = 160,
+    InvalidProdcount_161 = 161,
+    BlockTradeIdDoesNotExist = 162,
+    NegotiatedBlockTradeSuccess = 163,
+    NegotiatedBlockTradeFail = 164,
+    NegotiatedBlockTradeCalcelled = 165,
+    NegotiatedBlockTradeWaitFcmToComfirmOrder = 166,
+    FcmidNotMatchingRepresentFcm = 167,
+    SymboltypeError = 168,
+    InvalidOrdercountOfNegotiatedBlockTradeConfirmInput = 169,
+    NumberOfOrdersInB31Xb31IsNotConsistentWithOrdercountField = 170,
+    NegotiatedBlockTradeIsNotInTheStatusOfWaitingForConfirmInput = 171,
+    InvestoracnoDuplicateInNegotiatedBlockTradeConfirmInput = 172,
+    NegotiatedBlockTradeTimedOut = 175,
+    TheConfirmInputDataIsNotConsistentWithB21Xb21RegisteredData = 176,
+    NegotiatedBlockTradeBeyondThePositionLimit = 177,
+    IllegalSourceId = 186,
+    SignificantSystemTimeError = 200,
+    AppendnoError = 201,
+    FcmidError = 202,
+    ApcodeError = 203,
+    KeyvalueError = 204,
+    SessionidError = 205,
+    SystemtypeError = 206,
+    MsgSeqNumError = 207,
+    TargetidError = 208,
+    FlowgroupnoError = 209,
+    SubscriptionRequestTypeError = 210,
+    MsgTypeExtError = 220,
+    PartidError = 221,
+    SessionExceedsTheFlowLimit = 240,
+    SessionExceedsFlowLimitContinuouslyAndIsLocked = 241,
+    OrderOlderThanCancelordersecAndRejected = 242,
+    SessionReach80OfTheFlowLimit = 248,
+    SessionReach90OfTheFlowLimit = 249,
+    OrderOlderThanTwoSeconds = 250,
+};
+
+type Version = enum {
+    RegularTrading = 0,
+    RegularTradingAndFlexTrading = 1,
+};
+
+type Systemtype = enum {
+    OptionsRegularMarketHours = 10,
+    FuturesRegularMarketHours = 20,
+    OptionsAfterMarketHours = 11,
+    FuturesAfterMarketHours = 21,
+};
+
+type EncryptMethod = enum {
+    Unencrypted = 0,
+};
+
+type MsgTypeExt = enum {
+    SameProductAsTheOriginalOrderInput = 0,
+    SingleLegOrderWithANumericProductSerialNumber = 1,
+    SingleLegOrderWithATextualProductSymbol = 2,
+    MultiLegOrderWithANumericProductSerialNumber = 3,
+    MultiLegOrderWithATextualProductSymbol = 4,
+    UnexpectedErrorRecord = 255,
+};
+
+type StatuscodeUint162 = enum {
+    Succeed = 0,
+    TradingTimeOver = 1,
+    OrderAcceptanceNotYetStartedOrTradingHalt = 2,
+    PriceQuoteNotYetAccepted = 3,
+    InProcessingNoOrderAcceptedForTheTimeBeing = 4,
+    NoSuchOrderNo = 5,
+    OrderOrQuoteFilled = 6,
+    OrderOrQuoteCancelled = 7,
+    StopOrder = 8,
+    OrderLimit = 9,
+    OrderNotInTheBook = 10,
+    ExecTypeError = 11,
+    BrokerIdError = 12,
+    BranchNoError = 13,
+    InvestorAccountError = 14,
+    InvestorIdCodeError = 15,
+    RejectDeleteOrModifyOrderDuringNoncancelPeriod = 16,
+    DuplicateOrderNoOrQuoteNo = 17,
+    OrderNoOrQuoteNoError = 18,
+    TheSameSideOrderNotExist = 19,
+    ProductIdError = 20,
+    ExceedingRisefallLimit = 21,
+    OrderQuantityError = 22,
+    PriceInquiryNotAcceptedYetOrPriceIsAtRisefallLimitPriceInquiryNotAccepted = 23,
+    BuysellError = 24,
+    OrdTypeError = 25,
+    OrderTypeAndPriceNotMatched = 26,
+    TimeInForceError = 27,
+    PositionEffectError = 28,
+    PriceAndTickSizeNotMatched = 29,
+    ProductExpired = 30,
+    BrokerIdProductGroupAndMarketMakersAccountNoInconsistent = 31,
+    DecreaseSuccessfulButRequestedMoreThanTheDecreasableUnfilledPart = 32,
+    QuotedBidaskPriceMayNotExceedTheSpreadLimitOfTheProduct = 33,
+    BidPriceExceedingAskPrice = 34,
+    RemainingQuantityOfTheUnmodifiedSideIsZero = 35,
+    TheUnfilledPartOfTheOnewayQuoteIsLessThanTheMinimumQuantityLimit = 36,
+    PriceInquiryAlreadyPresent = 37,
+    MarketOrderandMwpDoesNotAcceptRod = 38,
+    DecreaseQuantityError = 39,
+    PriceErrorSinglesideQuoteOrderModification = 40,
+    SettlementMonthError = 41,
+    StrikePriceError = 42,
+    ClearingMemberIdError = 43,
+    OrdersourceError = 44,
+    InfosourceError = 45,
+    DisableKillSwitchOperationError = 46,
+    LeavesQuantityRejectedAtTheDynamicPriceBandingLimit = 47,
+    DynamicPriceBandingLimitPriceDisclosure = 48,
+    FokNotFilledAndDeletedBySystem = 51,
+    IocIsPartiallyFilled = 52,
+    IocNotFilledAndDeletedBySystem = 53,
+    DeleteTheOrderBecauseOfCod = 54,
+    BuysellCodeOfCanceldecreaseOrderNotMatchingOriginalOrder = 61,
+    ProductIdOfCanceldecreaseOrderNotMatchingOriginalOrder = 62,
+    ModifyPriceOfIocOrderNotAllowed = 63,
+    OrderPartiallyTradedModifyToMarketFokOrderOrMwpFokOrderIsNotAllowed = 64,
+    KillSwitchInOperationTheOrderExecutionTypeIsNotAllowed = 65,
+    NoSuchContract = 77,
+    OrderOfThisContractIsRestrictedForThisAccountcode = 78,
+    OrderDeletedDueToTradingSuspensionOrOrderAcceptanceBeforeCollectiveBidding = 79,
+    FcmIsNotYetApprovedToTradeThisProductOrExecuteTheFunction = 80,
+    TooManyErrors = 89,
+    MessageTimeOut = 91,
+    MessageLengthError = 92,
+    MessageFormatError = 93,
+    MajorError = 99,
+    IllegalFileCode = 110,
+    WrongFileRequestRange = 113,
+    FileIsNotReady = 114,
+    FileIsReadyButEmpty = 117,
+    FileNotFoundForBroker = 120,
+    IllegalTimeToGetFile = 121,
+    FcmuniqueidOrSerialNoDuplicate = 150,
+    ProductCanNotBlockTrade = 151,
+    BlockTradeOrderQuantityError = 152,
+    InvalidProdcount = 153,
+    ProdcountIsNotMatchWithTheNumberOfLegsInABlockTradeOrder = 154,
+    InvalidFcmuniqueidOrSerialNo = 155,
+    BlockTradeIdDuplicate = 156,
+    InvalidBlockTradeId = 157,
+    InvalidParticipantfcmcount = 158,
+    ParticipantfcmcountIsNotConsistentWithParticipantfcmidList = 159,
+    ParticipantfcmidError = 160,
+    InvalidProdcount_161 = 161,
+    BlockTradeIdDoesNotExist = 162,
+    NegotiatedBlockTradeSuccess = 163,
+    NegotiatedBlockTradeFail = 164,
+    NegotiatedBlockTradeCalcelled = 165,
+    NegotiatedBlockTradeWaitFcmToComfirmOrder = 166,
+    FcmidNotMatchingRepresentFcm = 167,
+    SymboltypeError = 168,
+    InvalidOrdercountOfNegotiatedBlockTradeConfirmInput = 169,
+    NumberOfOrdersInB31Xb31IsNotConsistentWithOrdercountField = 170,
+    NegotiatedBlockTradeIsNotInTheStatusOfWaitingForConfirmInput = 171,
+    InvestoracnoDuplicateInNegotiatedBlockTradeConfirmInput = 172,
+    NegotiatedBlockTradeTimedOut = 175,
+    TheConfirmInputDataIsNotConsistentWithB21Xb21RegisteredData = 176,
+    NegotiatedBlockTradeBeyondThePositionLimit = 177,
+    IllegalSourceId = 186,
+    SignificantSystemTimeError = 200,
+    AppendnoError = 201,
+    FcmidError = 202,
+    ApcodeError = 203,
+    KeyvalueError = 204,
+    SessionidError = 205,
+    SystemtypeError = 206,
+    MsgSeqNumError = 207,
+    TargetidError = 208,
+    FlowgroupnoError = 209,
+    SubscriptionRequestTypeError = 210,
+    MsgTypeExtError = 220,
+    PartidError = 221,
+    SessionExceedsTheFlowLimit = 240,
+    SessionExceedsFlowLimitContinuouslyAndIsLocked = 241,
+    OrderOlderThanCancelordersecAndRejected = 242,
+    SessionReach80OfTheFlowLimit = 248,
+    SessionReach90OfTheFlowLimit = 249,
+    OrderOlderThanTwoSeconds = 250,
+    TheFlexContractHasBeenResubmitted = 300,
+    OpenInterestForTodayUndetermined = 301,
+    TheFlexContractIsListedForTrading = 302,
+    IncorrectExpirationDateForTheFlexContract = 303,
+    DuplicateUniqueIdOfASecurityDefinitionRequestForTheFlexContract = 304,
+    ExceedingTheFlexContractLimit = 305,
+    NoRecordOfSuccessfulFlexContractApplicationWasFound = 306,
+    NonflexibleContractApplicationPeriod = 310,
+    TheProprietaryTradingAccountHasNotBeenApprovedToApplyForFlexContracts = 311,
+    TheFcmAccountHasNotBeenApprovedToApplyForFlexContracts = 312,
+    IncorrectCoverageRangeForTheFlexContract = 313,
+    InvalidStrikepriceForTheFlexContract = 314,
+    InvalidSecurityRequestTypeForTheFlexContract = 315,
+    InvalidApplicationTypeForTheFlexContract = 316,
+    InvalidTypeForTheFlexContract = 317,
+    ExpirytypeError = 318,
+    CallputcodeError = 319,
+};
+
+type Partid = enum {
+    FlexOptionsRegularMarketHours = 102,
+    FlexFuturesRegularMarketHours = 202,
+};
+
+type Apcode = enum {
+    FcmOrderTransaction = 4,
+    FcmCondensedVersionOrderTransaction = 6,
+    TmpdcSession = 7,
+    ClearingMemberOrderTransactionReport = 8,
+};
+
+type ExecType = enum {
+    New = 0x30,
+    Cancel = 0x34,
+    Decrease = 0x35,
+    NewAndExecutionReport = 0x36,
+    ExecutionReport = 0x46,
+    Query = 0x49,
+    ModifyPriceReplyingToTheModifyingLine = 0x4d,
+    ModifyPriceReplyingToTheOriginalLine = 0x6d,
+};
+
+type Symboltype = enum {
+    NumericProductId = 1,
+    TextProductId = 2,
+    NumericProductIdLongFormat = 3,
+    TextProductIdLongFormat = 4,
+};
+
+type LegsideUint822 = enum {
+    SingleOrder = 0,
+    Buy = 1,
+    Sell = 2,
+};
+
+type Combop = enum {
+    SingleOrder = 0,
+    PriceSpread = 1,
+    TimeSpread = 2,
+    Straddle = 3,
+    Strangle = 4,
+    ConversionAndReversals = 5,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type OrdType = enum {
+    Market = 1,
+    Limit = 2,
+    MarketWithProtection = 3,
+};
+
+type TimeInForce = enum {
+    Rod = 0,
+    Ioc = 3,
+    Fok = 4,
+    AutomaticallyCancelledAfterAPeriodOfTime = 8,
+};
+
+type PositionEffect = enum {
+    Open = 0x4f,
+    Close = 0x43,
+    Daytrade = 0x44,
+    OpenAndSpecifiedPositionOffsets = 0x41,
+    OffsetByFcm = 0x37,
+    MarketMakerQuote = 0x39,
+};
+
+type Targetid = enum {
+    ExecutionReportIncludingHeadOfficeAndBranchOfficesInR02Format = 3,
+    Fcm = 4,
+    DropCopyInR02Format = 7,
+    ClearingMemberOrderAndExecutionInR02Format = 8,
+    ClearingMemberExecutionInR02Format = 9,
+    ExecutionReportIncludingHeadOfficeAndBranchOfficesInR32Format = 13,
+    DropCopyInR32Format = 17,
+    ClearingMemberOrderAndExecutionInR32Format = 18,
+    ClearingMemberExecutionInR32Format = 19,
+    ExecutionReportIncludingHeadOfficeAndBranchOfficesInR06Format = 23,
+};
+
+type Protocoltype = enum {
+    Reserved = 0,
+    Tmp = 1,
+    Fix = 2,
+};
+
+type LegsideUint81 = enum {
+    SingleOrder = 0,
+    Buy = 1,
+    Sell = 2,
+};
+
