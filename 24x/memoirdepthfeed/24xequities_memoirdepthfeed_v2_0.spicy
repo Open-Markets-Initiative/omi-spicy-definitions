@@ -1,0 +1,377 @@
+module N24x24xequitiesMemoirdepthfeedSbeV20;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type T24xequitiesMemoirdepthfeedV20 = unit {
+    common_header: CommonHeader;
+    sequenced_messages: SequencedMessage;
+};
+
+type CommonHeader = unit {
+    message_type: uint8 &convert=MessageType($$);
+    header_length: uint8;
+    session_id: uint64;
+    sequence_number: uint64;
+};
+
+type SequencedMessage = unit {
+    message_count: uint16;
+    message: Message[self.message_count];
+};
+
+type Message = unit {
+    message_length: uint16;
+    sbe_message: SbeMessage;
+};
+
+type SbeMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::InstrumentDirectoryMessage -> instrument_directory_message: InstrumentDirectoryMessage;
+        TemplateId::RegShoRestrictionMessage -> reg_sho_restriction_message: RegShoRestrictionMessage;
+        TemplateId::SecurityTradingStatusMessage -> security_trading_status_message: SecurityTradingStatusMessage;
+        TemplateId::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        TemplateId::OrderAddedMessage -> order_added_message: OrderAddedMessage;
+        TemplateId::OrderDeletedMessage -> order_deleted_message: OrderDeletedMessage;
+        TemplateId::OrderReducedMessage -> order_reduced_message: OrderReducedMessage;
+        TemplateId::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        TemplateId::TradeMessage -> trade_message: TradeMessage;
+        TemplateId::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        TemplateId::CorrectedTradeMessage -> corrected_trade_message: CorrectedTradeMessage;
+        TemplateId::ClearBookMessage -> clear_book_message: ClearBookMessage;
+        TemplateId::AuctionStatusMessage -> auction_status_message: AuctionStatusMessage;
+        TemplateId::AuctionTradeMessage -> auction_trade_message: AuctionTradeMessage;
+        TemplateId::BrokenAuctionTradeMessage -> broken_auction_trade_message: BrokenAuctionTradeMessage;
+        TemplateId::CorrectedAuctionTradeMessage -> corrected_auction_trade_message: CorrectedAuctionTradeMessage;
+        TemplateId::SnapshotCompleteMessage -> snapshot_complete_message: SnapshotCompleteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint8 &convert=TemplateId($$);
+    schema_id: uint8;
+    version: uint16;
+};
+
+type InstrumentDirectoryMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    symbol: bytes &size=6;
+    symbol_sfx: bytes &size=6;
+    round_lot: uint32;
+    is_test_symbol: uint8 &convert=IsTestSymbol($$);
+};
+
+type RegShoRestrictionMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    short_sale_restriction: uint8 &convert=ShortSaleRestriction($$);
+};
+
+type SecurityTradingStatusMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    security_trading_status_reason: uint8 &convert=SecurityTradingStatusReason($$);
+    halt_reason: uint8 &convert=HaltReason($$);
+};
+
+type TradingSessionStatusMessage = unit {
+    timestamp: uint64;
+    trading_session: uint8 &convert=TradingSession($$);
+};
+
+type OrderAddedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: int64;
+    order_flags: bitfield(8) {
+        retail_present: 0;
+        reserved_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type OrderDeletedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+};
+
+type OrderReducedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+    quantity: uint32;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    order_id: uint64;
+    trade_id: uint64;
+    quantity: uint32;
+    price: int64;
+};
+
+type TradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    trade_id: uint64;
+    quantity: uint32;
+    price: int64;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: int64;
+};
+
+type CorrectedTradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    trade_id: uint64;
+    original_quantity: uint32;
+    original_price: int64;
+    corrected_quantity: uint32;
+    corrected_price: int64;
+};
+
+type ClearBookMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+};
+
+type AuctionStatusMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    auction_id: uint64;
+    auction_type: uint8 &convert=AuctionType($$);
+    tie_breaker_price: int64;
+    lower_collar_price: int64;
+    upper_collar_price: int64;
+    reference_price: int64;
+    reference_buy_quantity: uint64;
+    reference_sell_quantity: uint64;
+    indicative_price: int64;
+    auction_only_price: int64;
+    number_of_extensions: uint32;
+};
+
+type AuctionTradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    auction_id: uint64;
+    auction_type: uint8 &convert=AuctionType($$);
+    auction_quantity: uint64;
+    auction_price: int64;
+    trade_id: uint64;
+    sale_condition_1: uint8 &convert=SaleCondition1($$);
+    sale_condition_2: uint8 &convert=SaleCondition2($$);
+    sale_condition_3: uint8 &convert=SaleCondition3($$);
+    sale_condition_4: uint8 &convert=SaleCondition4($$);
+};
+
+type BrokenAuctionTradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    auction_id: uint64;
+    trade_id: uint64;
+    original_auction_quantity: uint64;
+    original_auction_price: int64;
+};
+
+type CorrectedAuctionTradeMessage = unit {
+    timestamp: uint64;
+    security_id: uint16;
+    auction_id: uint64;
+    trade_id: uint64;
+    original_auction_quantity: uint64;
+    original_auction_price: int64;
+    original_sale_condition_1: uint8 &convert=OriginalSaleCondition1($$);
+    original_sale_condition_2: uint8 &convert=OriginalSaleCondition2($$);
+    original_sale_condition_3: uint8 &convert=OriginalSaleCondition3($$);
+    original_sale_condition_4: uint8 &convert=OriginalSaleCondition4($$);
+    corrected_auction_quantity: uint64;
+    corrected_auction_price: int64;
+    corrected_sale_condition_1: uint8 &convert=CorrectedSaleCondition1($$);
+    corrected_sale_condition_2: uint8 &convert=CorrectedSaleCondition2($$);
+    corrected_sale_condition_3: uint8 &convert=CorrectedSaleCondition3($$);
+    corrected_sale_condition_4: uint8 &convert=CorrectedSaleCondition4($$);
+};
+
+type SnapshotCompleteMessage = unit {
+    timestamp: uint64;
+    as_of_sequence_number: uint64;
+};
+
+type MessageType = enum {
+    HeartbeatMessage = 0,
+    SessionShutdownMessage = 1,
+    SequencedMessage = 2,
+};
+
+type TemplateId = enum {
+    InstrumentDirectoryMessage = 1,
+    RegShoRestrictionMessage = 2,
+    SecurityTradingStatusMessage = 3,
+    TradingSessionStatusMessage = 5,
+    OrderAddedMessage = 10,
+    OrderDeletedMessage = 11,
+    OrderReducedMessage = 12,
+    OrderExecutedMessage = 13,
+    TradeMessage = 14,
+    BrokenTradeMessage = 15,
+    CorrectedTradeMessage = 16,
+    ClearBookMessage = 18,
+    AuctionStatusMessage = 19,
+    AuctionTradeMessage = 20,
+    BrokenAuctionTradeMessage = 21,
+    CorrectedAuctionTradeMessage = 22,
+    SnapshotCompleteMessage = 100,
+};
+
+type IsTestSymbol = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type ShortSaleRestriction = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
+type SecurityTradingStatus = enum {
+    Halted = 0x48,
+    Paused = 0x50,
+    Quoting = 0x51,
+    Trading = 0x54,
+};
+
+type SecurityTradingStatusReason = enum {
+    None_x58 = 0x58,
+    Regulatory = 0x52,
+    Administrative = 0x41,
+};
+
+type HaltReason = enum {
+    Unknown = 0,
+    Admin = 1,
+    AdditionalInfoRequested = 2,
+    RegulatoryConcern = 3,
+    NewsReleased = 4,
+    MergerEffective = 5,
+    EtfComponentPricesNotAvailable = 6,
+    OrderImbalance = 7,
+    LuldTradingPause = 8,
+    CorporateAction = 9,
+    NewSecurityOffering = 10,
+    NewsPending = 11,
+    IntradayIndicativeValueNotAvailable = 12,
+    Operational = 13,
+    SubPennyTrading = 14,
+    MarketWideCircuitBreakerLevel1 = 15,
+    MarketWideCircuitBreakerLevel2 = 16,
+    MarketWideCircuitBreakerLevel3 = 17,
+};
+
+type TradingSession = enum {
+    Overnight = 0x30,
+    Opening = 0x31,
+    Trading = 0x32,
+    PostTrading = 0x33,
+    Closed = 0x34,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type AuctionType = enum {
+    Unknown = 0x20,
+    Opening = 0x4f,
+    Closing = 0x43,
+    Halt = 0x48,
+    Ipo = 0x49,
+    Pause = 0x50,
+};
+
+type SaleCondition1 = enum {
+    RegularTrade = 0x40,
+};
+
+type SaleCondition2 = enum {
+    NotApplicable = 0x20,
+    MarketCenterOpeningTrade = 0x4f,
+    MarketCenterReopeningTrade = 0x35,
+    MarketCenterClosingTrade = 0x36,
+};
+
+type SaleCondition3 = enum {
+    NotApplicable = 0x20,
+    FormT = 0x54,
+};
+
+type SaleCondition4 = enum {
+    NotApplicable = 0x20,
+    PriceVariationTrade = 0x48,
+    OddLotTrade = 0x49,
+    AuctionTrade = 0x58,
+};
+
+type OriginalSaleCondition1 = enum {
+    RegularTrade = 0x40,
+};
+
+type OriginalSaleCondition2 = enum {
+    NotApplicable = 0x20,
+    MarketCenterOpeningTrade = 0x4f,
+    MarketCenterReopeningTrade = 0x35,
+    MarketCenterClosingTrade = 0x36,
+};
+
+type OriginalSaleCondition3 = enum {
+    NotApplicable = 0x20,
+    FormT = 0x54,
+};
+
+type OriginalSaleCondition4 = enum {
+    NotApplicable = 0x20,
+    PriceVariationTrade = 0x48,
+    OddLotTrade = 0x49,
+    AuctionTrade = 0x58,
+};
+
+type CorrectedSaleCondition1 = enum {
+    RegularTrade = 0x40,
+};
+
+type CorrectedSaleCondition2 = enum {
+    NotApplicable = 0x20,
+    MarketCenterOpeningTrade = 0x4f,
+    MarketCenterReopeningTrade = 0x35,
+    MarketCenterClosingTrade = 0x36,
+};
+
+type CorrectedSaleCondition3 = enum {
+    NotApplicable = 0x20,
+    FormT = 0x54,
+};
+
+type CorrectedSaleCondition4 = enum {
+    NotApplicable = 0x20,
+    PriceVariationTrade = 0x48,
+    OddLotTrade = 0x49,
+    AuctionTrade = 0x58,
+};
+

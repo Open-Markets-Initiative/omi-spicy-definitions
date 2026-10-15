@@ -20,6 +20,12 @@ class MemxequitiesMemoirdepthfeedV13Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_instrumentdirectorymessage(self):
+        module = "memx/memxequities/memoirdepthfeed/memxequities_memoirdepthfeed_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/Memx/MemxEquities.MemoirDepthFeed.Sbe.v1.3/InstrumentDirectoryMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_orderaddedmessage(self):
         module = "memx/memxequities/memoirdepthfeed/memxequities_memoirdepthfeed_v1_3.spicy"
         for payload in payloads.of("omi-data-packets/Memx/MemxEquities.MemoirDepthFeed.Sbe.v1.3/OrderAddedMessage.pcap"):
@@ -53,6 +59,18 @@ class MemxequitiesMemoirdepthfeedV13Tests(unittest.TestCase):
     def test_securitytradingstatusmessage(self):
         module = "memx/memxequities/memoirdepthfeed/memxequities_memoirdepthfeed_v1_3.spicy"
         for payload in payloads.of("omi-data-packets/Memx/MemxEquities.MemoirDepthFeed.Sbe.v1.3/SecurityTradingStatusMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_sessionshutdown(self):
+        module = "memx/memxequities/memoirdepthfeed/memxequities_memoirdepthfeed_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/Memx/MemxEquities.MemoirDepthFeed.Sbe.v1.3/SessionShutdown.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_trademessage(self):
+        module = "memx/memxequities/memoirdepthfeed/memxequities_memoirdepthfeed_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/Memx/MemxEquities.MemoirDepthFeed.Sbe.v1.3/TradeMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

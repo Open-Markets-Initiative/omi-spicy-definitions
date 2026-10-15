@@ -1,0 +1,778 @@
+module QseQsecashMarketdataXdpV26;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type QsecashMarketdataV26 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::StockStateChangeMessage -> stock_state_change_message: StockStateChangeMessage;
+        MessageType::ClassStateChangeMessage -> class_state_change_message: ClassStateChangeMessage;
+        MessageType::MailMessage -> mail_message: MailMessage;
+        MessageType::IndicativeMatchingPriceMessage -> indicative_matching_price_message: IndicativeMatchingPriceMessage;
+        MessageType::CollarsMessage -> collars_message: CollarsMessage;
+        MessageType::SessionTimetableMessage -> session_timetable_message: SessionTimetableMessage;
+        MessageType::GlobalMarketActivitySummaryMessage -> global_market_activity_summary_message: GlobalMarketActivitySummaryMessage;
+        MessageType::StartReferentialMessage -> start_referential_message: StartReferentialMessage;
+        MessageType::EndReferentialMessage -> end_referential_message: EndReferentialMessage;
+        MessageType::ReferentialMessage -> referential_message: ReferentialMessage;
+        MessageType::TradeCreationMessage -> trade_creation_message: TradeCreationMessage;
+        MessageType::TradeCancellationMessage -> trade_cancellation_message: TradeCancellationMessage;
+        MessageType::TradeFullInformationMessage -> trade_full_information_message: TradeFullInformationMessage;
+        MessageType::PriceUpdateMessage -> price_update_message: PriceUpdateMessage;
+        MessageType::AuctionSummaryMessage -> auction_summary_message: AuctionSummaryMessage;
+        MessageType::VwapClosingPriceMessage -> vwap_closing_price_message: VwapClosingPriceMessage;
+        MessageType::QuotesMessage -> quotes_message: QuotesMessage;
+        MessageType::OrderUpdateMarketSheetMessage -> order_update_market_sheet_message: OrderUpdateMarketSheetMessage;
+        MessageType::OrderbookRetransmissionDelimiterMessage -> orderbook_retransmission_delimiter_message: OrderbookRetransmissionDelimiterMessage;
+        MessageType::RealTimeIndexMessage -> real_time_index_message: RealTimeIndexMessage;
+        MessageType::IndexSummaryMessage -> index_summary_message: IndexSummaryMessage;
+        MessageType::IndexCompositionMessage -> index_composition_message: IndexCompositionMessage;
+        MessageType::StartRefreshMessage -> start_refresh_message: StartRefreshMessage;
+        MessageType::EndRefreshMessage -> end_refresh_message: EndRefreshMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type StockStateChangeMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    : skip bytes &size=2;   # padding
+    start_date_halting: bytes &size=8;
+    start_time_halting: bytes &size=6;
+    prog_opening_time: bytes &size=6;
+    order_entry_rejection: uint8 &convert=OrderEntryRejection($$);
+    instrument_state: uint8 &convert=InstrumentState($$);
+    instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
+    halt_reason: uint8 &convert=HaltReason($$);
+    action_affecting_state: uint8 &convert=ActionAffectingState($$);
+    instrument_state_tcs: uint8 &convert=InstrumentStateTcs($$);
+    period_side: uint8 &convert=PeriodSide($$);
+    : skip bytes &size=1;   # padding
+};
+
+type ClassStateChangeMessage = unit {
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    instrument_group_code: bytes &size=3;
+    instrument_group_state: uint8 &convert=InstrumentGroupState($$);
+    session_type: uint8 &convert=SessionType($$);
+    : skip bytes &size=1;   # padding
+    class_state: bytes &size=4;
+};
+
+type MailMessage = unit {
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    e_mail_msg_number: uint16;
+    number_of_message: uint16;
+    sequence_number: uint16;
+    instrument_group_code: bytes &size=3;
+    : skip bytes &size=1;   # padding
+    priority_indicator: uint8 &convert=PriorityIndicator($$);
+    type_of_message: uint8 &convert=TypeOfMessage($$);
+    address_type: bytes &size=2;
+    title: bytes &size=80;
+    text: bytes &size=854;
+    : skip bytes &size=2;   # padding
+};
+
+type IndicativeMatchingPriceMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    im_price: uint32;
+    variation: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    price_scale_code: uint8;
+    variation_scale_code: uint8;
+    im_volume: uint32;
+};
+
+type CollarsMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    high_collar: uint32;
+    low_collar: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    high_scale_code: uint8;
+    low_scale_code: uint8;
+    collar_type: uint8 &convert=CollarType($$);
+    : skip bytes &size=3;   # padding
+};
+
+type SessionTimetableMessage = unit {
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    instrument_group_code: bytes &size=3;
+    session_type: uint8 &convert=SessionType($$);
+    time_pre_opening_1: bytes &size=6;
+    time_opening_1: bytes &size=6;
+    time_closing_1: bytes &size=6;
+    time_pre_opening_2: bytes &size=6;
+    time_opening_2: bytes &size=6;
+    time_closing_2: bytes &size=6;
+    time_pre_opening_3: bytes &size=6;
+    time_opening_3: bytes &size=6;
+    time_closing_3: bytes &size=6;
+    eod_time: bytes &size=6;
+    : skip bytes &size=2;   # padding
+};
+
+type GlobalMarketActivitySummaryMessage = unit {
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    nb_trades: uint32;
+    qty_shares: uint32;
+    amount_traded: uint32;
+    price_scale_code: uint8;
+    : skip bytes &size=3;   # padding
+};
+
+type StartReferentialMessage = unit {
+    indicator: bytes &size=1;
+    : skip bytes &size=3;   # padding
+};
+
+type EndReferentialMessage = unit {
+    indicator: bytes &size=1;
+    : skip bytes &size=3;   # padding
+};
+
+type ReferentialMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    last_adj_price: uint32;
+    system_id: uint32;
+    prev_volume_traded: uint32;
+    fix_price_tick: uint32;
+    source_time_micro_secs: uint16;
+    stock_exchange_code: uint16;
+    type_of_instrument: uint16;
+    event_date: bytes &size=8;
+    instrument_name: bytes &size=18;
+    period_indicator: uint8 &convert=PeriodIndicator($$);
+    type_of_market_admission: bytes &size=1;
+    issuing_country_code: bytes &size=3;
+    trading_currency: bytes &size=3;
+    instrument_group_code: bytes &size=3;
+    instrument_category: uint8 &convert=InstrumentCategory($$);
+    instrument_code: bytes &size=12;
+    date_of_last_trade: bytes &size=8;
+    underlying_repo_isin_code: bytes &size=12;
+    repo_expiry_date: bytes &size=8;
+    first_settlement_date: bytes &size=8;
+    type_of_derivatives: uint8 &convert=TypeOfDerivatives($$);
+    bic_depositary: bytes &size=11;
+    icb: bytes &size=4;
+    mic: bytes &size=4;
+    underlying_wisin_code: bytes &size=12;
+    depositary_list: bytes &size=25;
+    main_depositary: bytes &size=5;
+    type_of_corporate_event: bytes &size=2;
+    time_lag_euronext_utc: bytes &size=5;
+    time_lag_mi_fid_reg_utc: bytes &size=5;
+    cfi: bytes &size=6;
+    quantity_notation: bytes &size=4;
+    index_set_of_var_price_tick: bytes &size=2;
+    market_feed_code: bytes &size=2;
+    mic_list: bytes &size=24;
+    industry_code: bytes &size=4;
+    industry_text: bytes &size=100;
+    financial_market_code: bytes &size=3;
+    us_indicators: bytes &size=7;
+    : skip bytes &size=2;   # padding
+    prev_day_capital_traded: uint64;
+    nom_mkt_price: uint64;
+    lot_size: uint64;
+    number_instrument_circ: uint64;
+    shares_out: uint64;
+    auth_shares: uint64;
+    heading_number: uint16;
+    section_number: uint8;
+    repo_indicator: uint8 &convert=RepoIndicator($$);
+    last_adj_price_scale_code: uint8;
+    type_of_unit_exp: uint8 &convert=TypeOfUnitExp($$);
+    market_indicator: uint8 &convert=MarketIndicator($$);
+    prev_day_capital_traded_scale_code: uint8;
+    tax_code: uint8 &convert=TaxCode($$);
+    nom_mkdt_price_scale_code: uint8;
+    lot_size_scale_code: uint8;
+    fix_price_tick_scale_code: uint8;
+    mnemo: bytes &size=5;
+    trading_code: bytes &size=12;
+    : skip bytes &size=3;   # padding
+    strike_price: uint32;
+    strike_currency: bytes &size=3;
+    strike_scale_code: uint8;
+    currency_coef: uint32;
+    currency_coef_scale_code: uint8;
+    trading_currency_indicator: uint8;
+    strike_currency_indicator: uint8;
+    market_segment: bytes &size=2;
+    algo: uint8 &convert=Algo($$);
+    local_name: bytes &size=30;
+    small_trade: uint32;
+    : skip bytes &size=12;   # padding
+};
+
+type TradeCreationMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    trade_id_number: uint32;
+    quote_link_id: uint32;
+    source_seq_num: uint32;
+    price: uint32;
+    volume: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    small_trade_indicator: uint8 &convert=SmallTradeIndicator($$);
+    trad_cond_2: uint8 &convert=TradCond2($$);
+    trad_cond_3: uint8 &convert=TradCond3($$);
+    trade_origin: uint8 &convert=TradeOrigin($$);
+    opening_trade_indicator: uint8 &convert=OpeningTradeIndicator($$);
+    price_scale_code: uint8;
+};
+
+type TradeCancellationMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    original_trade_id_number: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    : skip bytes &size=2;   # padding
+};
+
+type TradeFullInformationMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    trade_id_number: uint32;
+    quote_link_id: uint32;
+    source_seq_num: uint32;
+    price: uint32;
+    volume: uint32;
+    cumulative_quantity: uint32;
+    highest_price: uint32;
+    lowest_price: uint32;
+    variation_last_price: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    : skip bytes &size=2;   # padding
+    small_trade_indicator: uint8 &convert=SmallTradeIndicator($$);
+    trad_cond_2: uint8 &convert=TradCond2($$);
+    trad_cond_3: uint8 &convert=TradCond3($$);
+    trade_origin: uint8 &convert=TradeOrigin($$);
+    tick_direction: uint8 &convert=TickDirection($$);
+    opening_trade_indicator: uint8 &convert=OpeningTradeIndicator($$);
+    variation_scale_code: uint8;
+    price_scale_code: uint8;
+};
+
+type PriceUpdateMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    price: uint32;
+    highest_price: uint32;
+    lowest_price: uint32;
+    variation_last_price: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    type_of_price: uint16 &convert=TypeOfPrice($$);
+    : skip bytes &size=2;   # padding
+    price_scale_code: uint8;
+    variation_scale_code: uint8;
+};
+
+type AuctionSummaryMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    first_price: uint32;
+    last_price: uint32;
+    highest_price: uint32;
+    lowest_price: uint32;
+    cumulative_quantity: uint32;
+    variation: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    type_of_last_price: uint16 &convert=TypeOfLastPrice($$);
+    tick_direction: uint8 &convert=TickDirection($$);
+    instrument_valuation_price: uint8 &convert=InstrumentValuationPrice($$);
+    price_scale_code: uint8;
+    variation_scale_code: uint8;
+};
+
+type VwapClosingPriceMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    sending_indicator: uint16;
+    closing_price_rule: uint16;
+    closing_price: uint32;
+    adjusted_closing_price: uint32;
+    nb_trades: uint32;
+    qty_shares: uint32;
+    amount_traded: uint32;
+    system_id: uint32;
+    price_scale_code: uint8;
+    : skip bytes &size=3;   # padding
+};
+
+type QuotesMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    quote_link_id: uint32;
+    ask_price: uint32;
+    ask_size: uint32;
+    bid_price: uint32;
+    bid_size: uint32;
+    system_id: uint32;
+    number_ask_orders: uint16;
+    number_bid_orders: uint16;
+    source_time_micro_secs: uint16;
+    type_of_ask_price: uint8 &convert=TypeOfAskPrice($$);
+    type_of_bid_price: uint8 &convert=TypeOfBidPrice($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    quote_number: uint8;
+    price_scale_code: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type OrderUpdateMarketSheetMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    price: uint32;
+    aggregated_volume: uint32;
+    volume: uint32;
+    link_id: uint32;
+    order_id: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    number_orders: uint16;
+    side: bytes &size=1;
+    order_type: uint8 &convert=OrderType($$);
+    action_type: uint8 &convert=ActionType($$);
+    price_scale_code: uint8;
+    order_date: uint32;
+    order_priority_date: uint32;
+    order_priority_time: uint32;
+    order_priority_micro_secs: uint16;
+    order_origin: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type OrderbookRetransmissionDelimiterMessage = unit {
+    source_time: uint32;
+    source_seq_num: uint32;
+    trading_engine_id: bytes &size=2;
+    instance_id: uint8;
+    retransmission_indicator: bytes &size=1;
+};
+
+type RealTimeIndexMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    index_level: uint32;
+    forerunner_level: uint32;
+    session_high: uint32;
+    session_low: uint32;
+    percentage_of_capitalization: uint32;
+    variation_from_previous_days_price: int32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    num_of_securities_quoted: uint16;
+    index_level_code: bytes &size=1;
+    type_of_level: bytes &size=1;
+    level_scale_code: uint8;
+    percentage_scale_code: uint8;
+    variation_scale_code: uint8;
+    rebroadcast_indicator: uint8 &convert=RebroadcastIndicator($$);
+    : skip bytes &size=2;   # padding
+};
+
+type IndexSummaryMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    preliminary_opening_level: uint32;
+    preliminary_opening_time: uint32;
+    first_level: uint32;
+    first_time: uint32;
+    opening_reference_level: uint32;
+    opening_reference_time: uint32;
+    closing_reference_level: uint32;
+    closing_reference_time: uint32;
+    percent_variation_prev_clos: uint32;
+    high_level: uint32;
+    high_time: uint32;
+    low_level: uint32;
+    low_time: uint32;
+    clearing_level: uint32;
+    clearing_time: uint32;
+    liquidation_level: uint32;
+    liquidation_time: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    type_of_level: bytes &size=1;
+    level_scale_code: uint8;
+    variation_scale_code: uint8;
+    : skip bytes &size=3;   # padding
+};
+
+type IndexCompositionMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    instrument_weight: uint32;
+    instrument_factor: uint32;
+    previous_close: uint32;
+    system_id: uint32;
+    source_time_micro_secs: uint16;
+    number_of_conponents: uint16;
+    instrument_id_of_component: bytes &size=12;
+    mnemo: bytes &size=5;
+    index_frequency: bytes &size=1;
+    price_scale_code: uint8;
+    level_scale_code: uint8;
+};
+
+type StartRefreshMessage = unit {
+    last_seq_num: uint32;
+};
+
+type EndRefreshMessage = unit {
+    last_seq_num: uint32;
+};
+
+type PacketType = enum {
+    GenericQuotes = 994,
+    GenericMarketInformation = 995,
+    GenericIndices = 996,
+    GenericTrades = 998,
+    GenericOrderbook = 230,
+    RefreshCombinedPacketType = 999,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RefreshMessageZlibCompressed = 17,
+};
+
+type MessageType = enum {
+    StockStateChangeMessage = 505,
+    ClassStateChangeMessage = 516,
+    MailMessage = 523,
+    IndicativeMatchingPriceMessage = 530,
+    CollarsMessage = 537,
+    SessionTimetableMessage = 539,
+    GlobalMarketActivitySummaryMessage = 545,
+    StartReferentialMessage = 550,
+    EndReferentialMessage = 551,
+    ReferentialMessage = 555,
+    TradeCreationMessage = 220,
+    TradeCancellationMessage = 221,
+    TradeFullInformationMessage = 240,
+    PriceUpdateMessage = 241,
+    AuctionSummaryMessage = 245,
+    VwapClosingPriceMessage = 247,
+    QuotesMessage = 140,
+    OrderUpdateMarketSheetMessage = 230,
+    OrderbookRetransmissionDelimiterMessage = 231,
+    RealTimeIndexMessage = 542,
+    IndexSummaryMessage = 543,
+    IndexCompositionMessage = 544,
+    StartRefreshMessage = 580,
+    EndRefreshMessage = 581,
+};
+
+type OrderEntryRejection = enum {
+    NotApplicable = 0x30,
+    OrderEntryAllowed = 0x4e,
+    OrderEntryForbidden = 0x59,
+};
+
+type InstrumentState = enum {
+    NotApplicable = 0x30,
+    Auction = 0x41,
+    Halted = 0x48,
+    Closed = 0x43,
+};
+
+type InstrumentTradingStatus = enum {
+    Suspended = 0x53,
+};
+
+type HaltReason = enum {
+    NotApplicable = 0x30,
+    HaltedNoLiquidityProvider = 0x52,
+    OpeningPriceOutsideCollars = 0x43,
+    ManuelHaltingByMarketOperations = 0x4d,
+};
+
+type ActionAffectingState = enum {
+    NotApplicable = 0x30,
+    TradingOnTheInstrumentAtTheOpeningSentBeforeO = 0x43,
+    CancelledProgrammedOpening = 0x44,
+    InstrumentManuallyHaltedByMarketOperations = 0x4d,
+    InstrumentIsBeingInitializedBeginningOfTheTradingDay = 0x4e,
+    InstrumentOpened = 0x4f,
+    DeferredProgrammedOpening = 0x50,
+    AutomaticHaltingAtTheClassAuction = 0x52,
+};
+
+type InstrumentStateTcs = enum {
+    NotApplicable = 0x30,
+    InstrumentIsForbidden = 0x53,
+    InstrumentIsAuthorized = 0x41,
+};
+
+type PeriodSide = enum {
+    NotApplicable = 0x30,
+    BidOnlyPeriod = 0x41,
+    OfferOnlyPeriod = 0x56,
+};
+
+type InstrumentGroupState = enum {
+    PreOpening = 0x50,
+    BeginningOfDayConsultation = 0x43,
+    Opening = 0x4f,
+    MarketSession = 0x53,
+    TradingAtLast = 0x52,
+    SurveillanceIntervention = 0x4e,
+    EndOfDayInquiry = 0x46,
+    Interrupted = 0x5a,
+    Forbidden = 0x49,
+};
+
+type SessionType = enum {
+    Early = 0x45,
+    CoreSession = 0x43,
+    Late = 0x4c,
+};
+
+type PriorityIndicator = enum {
+    UrgentMessage = 0x4f,
+    NonUrgentMessage = 0x4e,
+};
+
+type TypeOfMessage = enum {
+    MarketInformationContents = 0x42,
+    TechnicalInformation = 0x54,
+    MarketAndTechnicalInformation = 0x52,
+};
+
+type CollarType = enum {
+    DynamicCollars = 0x44,
+    StaticThresholds = 0x53,
+};
+
+type PeriodIndicator = enum {
+    MorningEffectiveForTheCurrentDay = 0x4d,
+    EveningEffectiveForTheNextTradingDay = 0x45,
+};
+
+type InstrumentCategory = enum {
+    Stock = 0x41,
+    Bond = 0x4f,
+    WarrantAndCertificate = 0x57,
+    Tracker = 0x54,
+    Miscellaneous = 0x44,
+};
+
+type TypeOfDerivatives = enum {
+    InavIndicativeNetAssetValueForEtfExchangeTraded = 0x31,
+    SupportsShortTermsOptions = 0x34,
+    SupportsLongTermOptions = 0x36,
+    No = 0x39,
+};
+
+type TypeOfCorporateEvent = enum {
+    NoSpecificEvent = 0,
+    DividendPaymentInCashOrInStocks = 1,
+    InterestPaymentBondsForWhichThePriceIsNotExpressedIn = 2,
+    Split = 4,
+    BonusIeAttribution = 5,
+    Subscription = 6,
+    ShareAllocation = 7,
+    ShareSwap = 8,
+    ReverseSplit = 9,
+    Merger = 10,
+    FinalBondRedemption = 11,
+    CapitalAmortization = 12,
+    DrawAnnouncementBelgianBondsOnly = 13,
+    BlockTradeOfControllingInterest = 14,
+    OptionalCorporateEventsdividendOption = 15,
+    ComplexCorporateEvent = 16,
+    PurgeOfTheOrderBookPurgeIsInitiatedManuallyInThe = 17,
+};
+
+type RepoIndicator = enum {
+    InstrumentNeitherEligibleForTheSrdNorEligibleForTheLoan = 0x30,
+    InstrumentEligibleForTheSrdAndForTheLoanAndLending = 0x31,
+    InstrumentEligibleForTheSrdButNotForTheLoanAndLending = 0x32,
+    InstrumentEligibleForTheLoanAndLendingMarketButNotForThe = 0x33,
+    NonSignificant = 0x38,
+};
+
+type TypeOfUnitExp = enum {
+    InUnits = 1,
+    AsAOfNominal = 2,
+    AsAOfNominalIncludingAccruedInterest = 3,
+    InKilograms = 8,
+    InOunces = 9,
+};
+
+type MarketIndicator = enum {
+    NotUsed = 0,
+    Cash = 1,
+    NotDefined = 9,
+};
+
+type TaxCode = enum {
+    NotEligibleToPea = 0,
+    EligibleToPea = 3,
+    NotProvided = 9,
+};
+
+type Algo = enum {
+    Fifo = 0x46,
+    FifoOrigin = 0x4f,
+};
+
+type SmallTradeIndicator = enum {
+    NotASmallTrade = 0x31,
+    SmallTrade = 0x32,
+};
+
+type TradCond2 = enum {
+    NotLastOfASeriesOfTradesAtTheSamePrice = 0x30,
+    LastOfASeriesOfTradeAtTheSamePrice = 0x31,
+};
+
+type TradCond3 = enum {
+    TradeDoesNotStemFromACrossOrder = 0x30,
+    TradeStemsFromACrossOrder = 0x31,
+    ValuationTrade = 0x34,
+};
+
+type TradeOrigin = enum {
+    OrdersFromTheBook = 0x42,
+    BlockTrade = 0x4f,
+};
+
+type OpeningTradeIndicator = enum {
+    Opening = 0x4f,
+    CoreSession = 0x53,
+};
+
+type TickDirection = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+    NoVariationOrDataFieldNotSignificant = 0x30,
+};
+
+type TypeOfPrice = enum {
+    TradeCancellation = 0,
+    AskPrice = 2,
+    BidPrice = 3,
+    FirstTradedPriceOneQuotationOnly = 4,
+    MarketImbalanceAskPrice = 5,
+    MarketImbalanceBidPrice = 6,
+    ChangeOfFirstPrice = 30,
+    NewHighPrice = 31,
+    NewLowPrice = 32,
+    NewLastPrice = 33,
+    NewPreviousDaysClosingPrice = 34,
+    WarrantOpeningIndicativeValue = 41,
+    WarrantClosingIndicativeValue = 42,
+    IndicativePrice = 51,
+};
+
+type TypeOfLastPrice = enum {
+    T1TradedPrice = 4,
+    NTradedPriceResumeAfterReservation = 7,
+};
+
+type InstrumentValuationPrice = enum {
+    NotAValuationPrice = 0x30,
+    ValuationPrice = 0x31,
+};
+
+type TypeOfAskPrice = enum {
+    LimitOrder = 0,
+    MarketOrder = 1,
+    AtOpeningOrderNscOnly = 2,
+};
+
+type TypeOfBidPrice = enum {
+    LimitOrder = 0,
+    MarketOrder = 1,
+    AtOpeningOrderNscOnly = 2,
+};
+
+type QuoteCondition = enum {
+    NoLiquidityProviderLp = 0x30,
+    LpOnlyOnAskSide = 0x31,
+    LpOnlyOnBidSide = 0x32,
+    LpOnAskAndBidSides = 0x33,
+};
+
+type OrderType = enum {
+    MarketOrder = 0x31,
+    LimitOrder = 0x32,
+    MarketToLimitOrder = 0x4b,
+    PegOrder = 0x50,
+};
+
+type ActionType = enum {
+    NewOrder = 0x41,
+    DeletionOfOrderIdentifiedByOrderId = 0x44,
+    DeletionOfOrderIdentifiedByOrderIdAndAllPrecedingOrders = 0x50,
+    DeletionOfAllOrdersForTheGivenInstrumentDependingOnThe = 0x46,
+    RetransmissionOfAllOrdersForTheGivenInstrument = 0x59,
+};
+
+type RebroadcastIndicator = enum {
+    CurrentDay = 0x30,
+    PreviousDay = 0x31,
+};
+

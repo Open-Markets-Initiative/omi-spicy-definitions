@@ -14,6 +14,18 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class BlueequitiesMemoirdepthfeedV13Tests(unittest.TestCase):
 
+    def test_heartbeat(self):
+        module = "blueoceanats/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/BlueOceanAts/BlueEquities.MemoirDepthFeed.Sbe.v1.3/Heartbeat.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_instrumentdirectorymessage(self):
+        module = "blueoceanats/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/BlueOceanAts/BlueEquities.MemoirDepthFeed.Sbe.v1.3/InstrumentDirectoryMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_orderaddedmessage(self):
         module = "blueoceanats/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy"
         for payload in payloads.of("omi-data-packets/BlueOceanAts/BlueEquities.MemoirDepthFeed.Sbe.v1.3/OrderAddedMessage.pcap"):
@@ -35,6 +47,18 @@ class BlueequitiesMemoirdepthfeedV13Tests(unittest.TestCase):
     def test_orderreducedmessage(self):
         module = "blueoceanats/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy"
         for payload in payloads.of("omi-data-packets/BlueOceanAts/BlueEquities.MemoirDepthFeed.Sbe.v1.3/OrderReducedMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_securitytradingstatusmessage(self):
+        module = "blueoceanats/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/BlueOceanAts/BlueEquities.MemoirDepthFeed.Sbe.v1.3/SecurityTradingStatusMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_tradingsessionstatusmessage(self):
+        module = "blueoceanats/memoirdepthfeed/blueequities_memoirdepthfeed_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/BlueOceanAts/BlueEquities.MemoirDepthFeed.Sbe.v1.3/TradingSessionStatusMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
