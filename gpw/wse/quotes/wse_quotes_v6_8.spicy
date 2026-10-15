@@ -1,0 +1,133 @@
+module GpwWseQuotesXdpV68;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type WseQuotesV68 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::QuotesAndBbo5Message -> quotes_and_bbo_5_message: QuotesAndBbo5Message;
+        MessageType::IndicationOfInterestMessage -> indication_of_interest_message: IndicationOfInterestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type QuotesAndBbo5Message = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    quote_link_id: uint32;
+    ask_price: uint32;
+    ask_size: uint32;
+    bid_price: uint32;
+    bid_size: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    number_ask_orders: uint16;
+    number_bid_orders: uint16;
+    source_time_micro_secs: uint16;
+    type_of_ask_price: uint8 &convert=TypeOfAskPrice($$);
+    type_of_bid_price: uint8 &convert=TypeOfBidPrice($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    quote_number: uint8;
+    price_scale_code: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IndicationOfInterestMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    ioiutpid: uint32;
+    ioi_qty: uint32;
+    price: uint32;
+    validity_time: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    price_scale_code: uint8;
+    ioi_trans_type: uint8 &convert=IoiTransType($$);
+    firm_id: bytes &size=11;
+    side: uint8 &convert=Side($$);
+    settlement_date: bytes &size=8;
+    text: bytes &size=100;
+    trade_type: uint8 &convert=TradeType($$);
+    : skip bytes &size=3;   # padding
+};
+
+type PacketType = enum {
+    MarketDataMessages = 501,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RealTimeMessageZlibCompressed = 16,
+    RefreshMessageZlibCompressed = 17,
+    RetransmissionMessageCompressed = 18,
+};
+
+type MessageType = enum {
+    QuotesAndBbo5Message = 140,
+    IndicationOfInterestMessage = 142,
+};
+
+type SystemId = enum {
+    AllNonUtpSystems = 1,
+    UtpTradingUnit1 = 11,
+    UtpTradingUnit2 = 12,
+};
+
+type TypeOfAskPrice = enum {
+    LimitOrderAndPegOrder = 0,
+    MarketOrderAndMarketToLimitOrder = 1,
+};
+
+type TypeOfBidPrice = enum {
+    LimitOrderAndPegOrder = 0,
+    MarketOrderAndMarketToLimitOrder = 1,
+};
+
+type QuoteCondition = enum {
+    NoLiquidityProviderLp = 0x30,
+    LpOnlyOnAskSide = 0x31,
+    LpOnlyOnBidSide = 0x32,
+    LpOnAskAndBidSides = 0x33,
+};
+
+type IoiTransType = enum {
+    New = 0x4e,
+    Cancel = 0x43,
+    Expire = 0x45,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    SellShortEquivalentToValue2SellOptionalForExchangeMembersAndNotMonitoredByTheWse = 0x35,
+};
+
+type TradeType = enum {
+    BlockTrade = 0x4f,
+    BisoTrade = 0x53,
+};
+

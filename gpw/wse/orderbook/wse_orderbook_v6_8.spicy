@@ -1,0 +1,116 @@
+module GpwWseOrderbookXdpV68;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type WseOrderbookV68 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::OrderUpdateMarketSheetMessage -> order_update_market_sheet_message: OrderUpdateMarketSheetMessage;
+        MessageType::OrderBookRetransmissionDelimiterMessage -> order_book_retransmission_delimiter_message: OrderBookRetransmissionDelimiterMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type OrderUpdateMarketSheetMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    price: uint32;
+    aggregated_volume: uint32;
+    volume: uint32;
+    link_id: uint32;
+    order_id: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    number_orders: uint16;
+    side: uint8 &convert=Side($$);
+    order_type: uint8 &convert=OrderType($$);
+    action_type: uint8 &convert=ActionType($$);
+    price_scale_code: uint8;
+    order_date: uint32;
+    order_priority_date: uint32;
+    order_priority_time: uint32;
+    order_priority_micro_secs: uint16;
+    order_origin: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type OrderBookRetransmissionDelimiterMessage = unit {
+    source_time: uint32;
+    source_seq_num: uint32;
+    application_id: bytes &size=2;
+    instance_num: uint8;
+    retransmission_indicator: uint8 &convert=RetransmissionIndicator($$);
+};
+
+type PacketType = enum {
+    MarketDataMessages = 501,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RealTimeMessageZlibCompressed = 16,
+    RefreshMessageZlibCompressed = 17,
+    RetransmissionMessageCompressed = 18,
+};
+
+type MessageType = enum {
+    OrderUpdateMarketSheetMessage = 230,
+    OrderBookRetransmissionDelimiterMessage = 231,
+};
+
+type SystemId = enum {
+    AllNonUtpSystems = 1,
+    UtpTradingUnit1 = 11,
+    UtpTradingUnit2 = 12,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    SellShortEquivalentToValue2SellOptionalForExchangeMembersAndNotMonitoredByTheWse = 0x35,
+};
+
+type OrderType = enum {
+    MarketOrder = 0x31,
+    LimitOrder = 0x32,
+    MarketToLimitOrder = 0x4b,
+    PegOrder = 0x50,
+};
+
+type ActionType = enum {
+    NewOrder = 0x41,
+    ModificationOfExistingOrderCaseOfPartialFill = 0x4d,
+    DeletionOfOrderIdentifiedByOrderId = 0x44,
+    DeletionAllOrdersForOneInstrumentAtTheStartOfTheDayBeforeTheOrderBookRetransmission = 0x46,
+    RetransmissionOfAllOrdersForTheGivenInstrument = 0x59,
+};
+
+type RetransmissionIndicator = enum {
+    BeginningOfTheRetransmission = 0x42,
+    EndOfTheRetransmission = 0x45,
+};
+

@@ -1,0 +1,265 @@
+module GpwWseIndicesXdpV68;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type WseIndicesV68 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::RealTimeIndexMessage -> real_time_index_message: RealTimeIndexMessage;
+        MessageType::IndexSummaryMessage -> index_summary_message: IndexSummaryMessage;
+        MessageType::IndexPortfolioMessage -> index_portfolio_message: IndexPortfolioMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type RealTimeIndexMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    index_level: uint32;
+    session_high: uint32;
+    session_low: uint32;
+    ind_index_opening_portfolio: uint32;
+    percent_change_toi: uint32;
+    pct_change_index_val_prev_session: uint32;
+    pct_change_index_val_prev_year: uint32;
+    toi: uint32;
+    point_change: uint32;
+    value_trading: uint64;
+    index_value_bid: uint32;
+    index_value_ask: uint32;
+    mid_spread_index: uint32;
+    difference_central_spread: uint32;
+    num_of_active_instruments: uint16;
+    num_of_instr_of_decreasing_qt: uint16;
+    num_of_instr_of_increasing_qt: uint16;
+    num_of_instr_of_unchanged_qt: uint16;
+    source_time_micro_secs: uint16;
+    level_scale_code: uint8;
+    time_first_high: bytes &size=6;
+    time_first_low: bytes &size=6;
+    index_status_indicator: bytes &size=2;
+    index_level_code: uint8 &convert=IndexLevelCode($$);
+    marker_percent_change_toi: uint8 &convert=MarkerPercentChangeToi($$);
+    marker_pct_chg_index_val_prev_sess: bytes &size=1;
+    marker_pct_chg_index_val_prev_year: bytes &size=1;
+    marker_point_change: uint8 &convert=MarkerPointChange($$);
+    marker_difference_central_spread: uint8 &convert=MarkerDifferenceCentralSpread($$);
+    dissemination_frequency_marker: uint8 &convert=DisseminationFrequencyMarker($$);
+};
+
+type IndexSummaryMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    closing_index_value: uint32;
+    ind_opening_portfolio: uint32;
+    opening_index_value: uint32;
+    session_high: uint32;
+    session_low: uint32;
+    pct_chg_high_index_val_prev_session: uint32;
+    pct_chg_low_index_val_prev_session: uint32;
+    pct_change_index_val_prev_session: uint32;
+    pct_change_index_val_prev_year: uint32;
+    capitalisation_portfolio: uint32;
+    index_adjustment_coefficient: uint32;
+    source_time_micro_secs: uint16;
+    level_scale_code: uint8;
+    capitalisation_scale_code: uint8;
+    index_adjustment_scale_code: uint8;
+    time_closing: bytes &size=6;
+    time_opening: bytes &size=6;
+    time_full_opening: bytes &size=6;
+    time_high: bytes &size=6;
+    time_low: bytes &size=6;
+    marker_high: uint8 &convert=MarkerHigh($$);
+    marker_low: uint8 &convert=MarkerLow($$);
+    marker_closing_prev_session: uint8 &convert=MarkerClosingPrevSession($$);
+    marker_closing_prev_year: uint8 &convert=MarkerClosingPrevYear($$);
+    : skip bytes &size=1;   # padding
+};
+
+type IndexPortfolioMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    index_adjustment_coefficient: uint32;
+    level_cash_portfolio: uint32;
+    value_last_closing_index: uint32;
+    number_of_components: uint16;
+    source_time_micro_secs: uint16;
+    index_adjustment_scale_code: uint8;
+    cash_portfolio_scale_code: uint8;
+    level_scale_code: uint8;
+    index_portfolio_component: IndexPortfolioComponent[20];
+    date_validity: bytes &size=8;
+    index_currency: bytes &size=3;
+    index_status_indicator: bytes &size=2;
+    index_pres_seq: bytes &size=2;
+    mode_index_dissemination: uint8 &convert=ModeIndexDissemination($$);
+    product_classification: uint8 &convert=ProductClassification($$);
+    opening_calc_formula: uint8 &convert=OpeningCalcFormula($$);
+    : skip bytes &size=1;   # padding
+    toi_dissemination: uint8 &convert=ToiDissemination($$);
+    spread_dissemination: uint8 &convert=SpreadDissemination($$);
+    trading_value_publication: uint8 &convert=TradingValuePublication($$);
+    message_continuation: uint8 &convert=MessageContinuation($$);
+    : skip bytes &size=2;   # padding
+};
+
+type IndexPortfolioComponent = unit {
+    instrument_isin: bytes &size=12;
+    instrument_abbrev_name: bytes &size=10;
+    instrument_packet: bytes &size=10;
+};
+
+type PacketType = enum {
+    MarketDataMessages = 501,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RealTimeMessageZlibCompressed = 16,
+    RefreshMessageZlibCompressed = 17,
+    RetransmissionMessageCompressed = 18,
+};
+
+type MessageType = enum {
+    RealTimeIndexMessage = 546,
+    IndexSummaryMessage = 547,
+    IndexPortfolioMessage = 548,
+};
+
+type SystemId = enum {
+    AllNonUtpSystems = 1,
+    UtpTradingUnit1 = 11,
+    UtpTradingUnit2 = 12,
+};
+
+type IndexLevelCode = enum {
+    FirstValueOfTheIndexAtTheSession = 0x31,
+    CurrentIndex = 0x32,
+    TheoreticalValueOfTheIndexBeforeItsOpening = 0x33,
+    ClosingIndexFromPreviousSessionReferenceIndex = 0x35,
+    TheoreticalOpeningIndexBeforeOpeningTheSession = 0x38,
+    IndexWithoutOpening = 0x39,
+    PreliminaryOpeningIndex = 0x41,
+    SyntheticOpeningIndex100 = 0x42,
+    FinalOpeningIndex = 0x43,
+    AverageWeightedIndex = 0x52,
+    CancellationOfTheCurrentValuesOfTheIndex = 0x58,
+    RecalculatedCurrentValuesOfTheIndex = 0x59,
+};
+
+type MarkerPercentChangeToi = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type MarkerPointChange = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type MarkerDifferenceCentralSpread = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type DisseminationFrequencyMarker = enum {
+    WhenTheMessageAtAParticularLevelIsPublishedRegularlyAtTheSession = 0x30,
+    WhenTheMessageAtAParticularLevelIsPublishedAtTheSessionOnAOneTimeBasis = 0x31,
+};
+
+type MarkerHigh = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type MarkerLow = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type MarkerClosingPrevSession = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type MarkerClosingPrevYear = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type ModeIndexDissemination = enum {
+    IndexIsQuotedInDeterminedTimeIntervals = 0x43,
+    IndexIsQuotedOnDeterminedHours = 0x46,
+};
+
+type ProductClassification = enum {
+    WseIndexFromTheMainMarket = 0x57,
+    ExternalIndex = 0x5a,
+    AnotherWseInformationProduct = 0x56,
+    WseStrategyDividendPointIndex = 0x4d,
+    WseStrategyIndexOfShortType = 0x53,
+    WseStrategyIndexOfLeverageType = 0x4c,
+};
+
+type OpeningCalcFormula = enum {
+    Synthetic = 0x53,
+    Chronological = 0x4f,
+};
+
+type ToiDissemination = enum {
+    Message546WithLevel8IsSent = 0x59,
+    Message546WithLevel8IsNotSent = 0x4e,
+};
+
+type SpreadDissemination = enum {
+    SpreadIndicatorsArePublished = 0x59,
+    SpreadIndicatorsAreNotPublished = 0x4e,
+};
+
+type TradingValuePublication = enum {
+    ValueIsProvided = 0x59,
+    ValueIsNotProvided = 0x4e,
+};
+
+type MessageContinuation = enum {
+    TheMessageIsNotTheLastMessageInformationOfTheCompositionOfTheIndexPortfolio = 0x30,
+    TheMessageIsTheLastMessageInformationOfTheCompositionOfTheIndexPortfolio = 0x31,
+};
+

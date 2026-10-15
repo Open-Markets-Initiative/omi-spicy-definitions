@@ -1,0 +1,89 @@
+module GpwWseBondsXdpV68;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type WseBondsV68 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::AccruedInterestMessage -> accrued_interest_message: AccruedInterestMessage;
+        MessageType::InterestForSettlementDayMessage -> interest_for_settlement_day_message: InterestForSettlementDayMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type AccruedInterestMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    number_days: uint16;
+    source_time_micro_secs: uint16;
+    accrued_interest_scale_code: uint8;
+    : skip bytes &size=3;   # padding
+    accrued_interest_group: AccruedInterestGroup[31];
+};
+
+type AccruedInterestGroup = unit {
+    date: uint32;
+    accrued_interest: uint32;
+};
+
+type InterestForSettlementDayMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    date: uint32;
+    settlement_date: bytes &size=8;
+    interest: uint32;
+    source_time_micro_secs: uint16;
+    currency: bytes &size=3;
+    interest_scale_code: uint8;
+    : skip bytes &size=2;   # padding
+};
+
+type PacketType = enum {
+    MarketDataMessages = 501,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RealTimeMessageZlibCompressed = 16,
+    RefreshMessageZlibCompressed = 17,
+    RetransmissionMessageCompressed = 18,
+};
+
+type MessageType = enum {
+    AccruedInterestMessage = 601,
+    InterestForSettlementDayMessage = 602,
+};
+
+type SystemId = enum {
+    AllNonUtpSystems = 1,
+    UtpTradingUnit1 = 11,
+    UtpTradingUnit2 = 12,
+};
+

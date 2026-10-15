@@ -1,0 +1,523 @@
+module GpwBondspotMarketinformationXdpV68;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BondspotMarketinformationV68 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::ClassStateChangeMessage -> class_state_change_message: ClassStateChangeMessage;
+        MessageType::MailMessage -> mail_message: MailMessage;
+        MessageType::CollarsMessage -> collars_message: CollarsMessage;
+        MessageType::SessionTimetableMessage -> session_timetable_message: SessionTimetableMessage;
+        MessageType::StartReferentialMessage -> start_referential_message: StartReferentialMessage;
+        MessageType::EndReferentialMessage -> end_referential_message: EndReferentialMessage;
+        MessageType::ReferentialMessage -> referential_message: ReferentialMessage;
+        MessageType::SessionSummaryMessage -> session_summary_message: SessionSummaryMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type ClassStateChangeMessage = unit {
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    instrument_group_code: bytes &size=3;
+    instrument_group_state: bytes &size=1;
+    session_type: uint8 &convert=SessionType($$);
+    : skip bytes &size=1;   # padding
+    class_state: bytes &size=4;
+};
+
+type MailMessage = unit {
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    scope: bytes &size=1;
+    title: bytes &size=80;
+    text: bytes &size=1000;
+    : skip bytes &size=3;   # padding
+};
+
+type CollarsMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    high_collar: uint32;
+    low_collar: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    high_scale_code: uint8;
+    low_scale_code: uint8;
+    collar_type: uint8 &convert=CollarType($$);
+    : skip bytes &size=3;   # padding
+};
+
+type SessionTimetableMessage = unit {
+    source_seq_num: uint32;
+    source_time: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    instrument_group_code: bytes &size=3;
+    : skip bytes &size=1;   # padding
+    class_phase_number: uint16;
+    class_phase: ClassPhase[15];
+};
+
+type ClassPhase = unit {
+    class_state_time: bytes &size=4;
+    class_state: bytes &size=4;
+};
+
+type StartReferentialMessage = unit {
+    indicator: bytes &size=1;
+    : skip bytes &size=3;   # padding
+};
+
+type EndReferentialMessage = unit {
+    indicator: bytes &size=1;
+    : skip bytes &size=3;   # padding
+};
+
+type ReferentialMessage = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    last_adj_price: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    prev_volume_traded: uint32;
+    : skip bytes &size=4;   # padding
+    source_time_micro_secs: uint16;
+    stock_exchange_code: uint16 &convert=StockExchangeCode($$);
+    type_of_instrument: uint16 &convert=TypeOfInstrument($$);
+    event_date: bytes &size=8;
+    instrument_name: bytes &size=18;
+    period_indicator: bytes &size=1;
+    type_of_market_admission: bytes &size=1;
+    issuing_country_code: bytes &size=3;
+    trading_currency: bytes &size=3;
+    instrument_group_code: bytes &size=3;
+    instrument_category: uint8 &convert=InstrumentCategory($$);
+    instrument_code: bytes &size=12;
+    date_of_last_trade: bytes &size=8;
+    underlying_repo_isin_code: bytes &size=12;
+    expiry_date: bytes &size=8;
+    first_settlement_date: bytes &size=8;
+    type_of_derivatives: uint8 &convert=TypeOfDerivatives($$);
+    bic_depositary: bytes &size=11;
+    icb: bytes &size=4;
+    mic: bytes &size=4;
+    underlying_isin_code: bytes &size=12;
+    depositary_list: bytes &size=25;
+    main_depositary: bytes &size=5;
+    type_of_corporate_event: bytes &size=2;
+    time_lag_euronext_utc: bytes &size=5;
+    time_lag_mi_fid_reg_utc: bytes &size=5;
+    cfi: bytes &size=6;
+    : skip bytes &size=4;   # padding
+    index_set_of_var_price_tick: bytes &size=2;
+    market_feed_code: bytes &size=2;
+    mic_list: bytes &size=24;
+    industry_code: bytes &size=4;
+    industry_text: bytes &size=100;
+    financial_market_code: bytes &size=3;
+    us_indicators: bytes &size=7;
+    : skip bytes &size=2;   # padding
+    prev_day_capital_traded: uint64;
+    lot_size: uint64;
+    number_instrument_circ: uint64;
+    shares_out: uint64;
+    auth_shares: uint64;
+    price_notation: bytes &size=4;
+    repo_indicator: bytes &size=1;
+    notional_amount: bytes &size=20;
+    notional_currency: bytes &size=3;
+    last_adj_price_scale_code: uint8;
+    market_indicator: uint8 &convert=MarketIndicator($$);
+    prev_day_capital_traded_scale_code: uint8;
+    tax_code: uint8;
+    : skip bytes &size=1;   # padding
+    lot_size_scale_code: uint8;
+    : skip bytes &size=1;   # padding
+    mnemo: bytes &size=5;
+    trading_code: bytes &size=12;
+    : skip bytes &size=4;   # padding
+    strike_price: uint32;
+    strike_currency: bytes &size=3;
+    strike_scale_code: uint8;
+    currency_coef: uint32;
+    currency_coef_scale_code: uint8;
+    trading_currency_indicator: uint8;
+    strike_currency_indicator: uint8;
+    market_segment: bytes &size=2;
+    algo: uint8 &convert=Algo($$);
+    local_name: bytes &size=30;
+    block_size: uint32;
+    ss_market_maker: uint8 &convert=SsMarketMaker($$);
+    ss_non_market_maker: uint8 &convert=SsNonMarketMaker($$);
+    settlement_delay: bytes &size=2;
+    option_type: uint8 &convert=OptionType($$);
+    delivery_type: uint8 &convert=DeliveryType($$);
+    exercise_type: uint8 &convert=ExerciseType($$);
+    multiplier_scale_code: uint8;
+    warrant_threshold_min_scale_code: uint8;
+    warrant_threshold_max_scale_code: uint8;
+    : skip bytes &size=2;   # padding
+    warrant_threshold_min: uint32;
+    warrant_threshold_max: uint32;
+    min_quantity: uint32;
+    max_quantity: uint32;
+    multiplier: uint32;
+    : skip bytes &size=4;   # padding
+    max_value: uint64;
+};
+
+type SessionSummaryMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    date: uint32;
+    multiplier: uint32;
+    accumulated_interest: uint32;
+    opening_price: uint32;
+    maximum_price: uint32;
+    minimum_price: uint32;
+    closing_price: uint32;
+    implied_volatility: uint32;
+    average_weighted_price: uint32;
+    reference_price: uint32;
+    pct_change_price: uint32;
+    dividend_rate: uint32;
+    settlement_price: uint32;
+    settlement_value: uint32;
+    : skip bytes &size=4;   # padding
+    open_positions: uint32;
+    trading_volume: uint32;
+    transactions_number: uint32;
+    trading_value: uint64;
+    currency_price: uint32;
+    delta: uint32;
+    gamma: uint32;
+    rho: uint32;
+    theta: uint32;
+    vega: uint32;
+    end_trading: uint32;
+    number_of_instruments: uint32;
+    trading_value_currency: uint64;
+    interest_rate: uint32;
+    volatility: uint32;
+    strike_price: uint32;
+    short_selling_trades_number: uint32;
+    volume_short_selling_trades: uint32;
+    value_short_selling_trades: uint32;
+    last_trade_date: uint32;
+    last_trade_price: uint32;
+    block_trades_number: uint32;
+    volume_block_trades: uint32;
+    value_block_trades: uint32;
+    vwap_blocktrade: uint32;
+    maximum_block_price: uint32;
+    minimum_block_price: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    multiplier_scale_code: uint8;
+    accumulated_interest_scale_code: uint8;
+    opening_price_scale_code: uint8;
+    maximum_price_scale_code: uint8;
+    minimum_price_scale_code: uint8;
+    closing_price_scale_code: uint8;
+    implied_volatility_scale_code: uint8;
+    average_weighted_price_scale_code: uint8;
+    reference_price_scale_code: uint8;
+    pct_change_price_scale_code: uint8;
+    dividend_rate_scale_code: uint8;
+    settlement_price_scale_code: uint8;
+    settlement_value_scale_code: uint8;
+    : skip bytes &size=1;   # padding
+    trading_value_scale_code: uint8;
+    currency_price_scale_code: uint8;
+    delta_scale_code: uint8;
+    gamma_scale_code: uint8;
+    rho_scale_code: uint8;
+    theta_scale_code: uint8;
+    vega_scale_code: uint8;
+    trading_value_currency_scale_code: uint8;
+    interest_rate_scale_code: uint8;
+    volatility_scale_code: uint8;
+    strike_price_scale_code: uint8;
+    value_short_selling_trades_scale_code: uint8;
+    last_trade_price_scale_code: uint8;
+    value_block_trades_scale_code: uint8;
+    vwap_blocktrade_scale_code: uint8;
+    maximum_block_price_scale_code: uint8;
+    minimum_block_price_scale_code: uint8;
+    status_indicator: uint8 &convert=StatusIndicator($$);
+    sector: bytes &size=3;
+    market: uint8 &convert=Market($$);
+    : skip bytes &size=1;   # padding
+    short_sale: bytes &size=1;
+    marker_pct_change_price: uint8 &convert=MarkerPctChangePrice($$);
+    symbol_delta: uint8 &convert=SymbolDelta($$);
+    symbol_gamma: uint8 &convert=SymbolGamma($$);
+    symbol_rho: uint8 &convert=SymbolRho($$);
+    symbol_theta: uint8 &convert=SymbolTheta($$);
+    symbol_vega: uint8 &convert=SymbolVega($$);
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    segment: bytes &size=2;
+    lower_liquidity: bytes &size=1;
+    dividend: bytes &size=2;
+    subscription_right: bytes &size=2;
+    split: bytes &size=2;
+    interim_dividend_right: bytes &size=2;
+    quotation_system: bytes &size=2;
+    liquidity_support_pge: bytes &size=2;
+    : skip bytes &size=1;   # padding
+};
+
+type PacketType = enum {
+    MarketDataMessages = 501,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RealTimeMessageZlibCompressed = 16,
+    RefreshMessageZlibCompressed = 17,
+    RetransmissionMessageCompressed = 18,
+};
+
+type MessageType = enum {
+    ClassStateChangeMessage = 516,
+    MailMessage = 523,
+    CollarsMessage = 537,
+    SessionTimetableMessage = 539,
+    StartReferentialMessage = 550,
+    EndReferentialMessage = 551,
+    ReferentialMessage = 556,
+    SessionSummaryMessage = 561,
+};
+
+type SystemId = enum {
+    AllNonUtpSystems = 1,
+    UtpTradingUnit1 = 11,
+    UtpTradingUnit2 = 12,
+};
+
+type SessionType = enum {
+    EarlyNotUsed = 0x45,
+    CoreSession = 0x43,
+    LateNotUsed = 0x4c,
+};
+
+type ClassState = enum {
+    InactiveClassPhaseListedForTheClassStateOfThe539SessionTimetableMessage = 0,
+};
+
+type CollarType = enum {
+    DynamicCollars = 0x44,
+    StaticThresholds = 0x53,
+};
+
+type StockExchangeCode = enum {
+    WarsawStockExchange = 243,
+    BondSpotNonExchangeRegulatedMarket = 986,
+    TreasuryBondSpotPoland = 988,
+    BondSpotAts = 989,
+};
+
+type TypeOfInstrument = enum {
+    Index = 0,
+    EquityOrdinaryShares = 100,
+    EquityPreferredShares = 101,
+    EquityPreferenceShares = 102,
+    EquityConvertibleShares = 103,
+    EquityDepositaryReceipts = 104,
+    EquityUnitTrustUnits = 105,
+    EquityInvestmentTrustShares = 106,
+    EquityNationalFundCertificates = 107,
+    EquityLinkedAllotmentRights = 108,
+    EquityLinkedSubscriptionRights = 109,
+    EquityLinkedIssueRights = 110,
+    StructuredProductCashCertificates = 111,
+    EquityLinkedSubscriptionWarrants = 112,
+    BondBonds = 200,
+    BondTreasuryBonds = 201,
+    BondTreasuryNotes = 202,
+    BondTreasuryBills = 203,
+    BondMunicipalBond = 204,
+    BondCorporateBonds = 205,
+    BondCommercialPapers = 206,
+    BondConvertibleBonds = 207,
+    BondMortgageBackedBonds = 208,
+    BondPublicMortgageBonds = 209,
+    StructuredProductCashStructuredBonds = 210,
+    TrackerEtf = 300,
+    TrackerEtn = 301,
+    TrackerEtc = 302,
+    TrackerEtv = 303,
+    StructuredProductWarrants = 400,
+    StructuredProductWarrantsWithKnockOut = 401,
+    StructuredProductCertificatesWithKnockOut = 402,
+    StructuredProductLeveragedStructuredCertificates = 403,
+    StructuredProductCertificates = 404,
+    StructuredProductStructuredBonds = 410,
+    FuturesFutures = 500,
+    OptionsVanillaOptions = 600,
+    OptionsBinaryOptions = 601,
+    ParticipationUnitIndexParticipationUnits = 700,
+};
+
+type InstrumentCategory = enum {
+    Stock = 0x41,
+    WarrantAndCertificate = 0x57,
+    Tracker = 0x54,
+    Index = 0x49,
+    Future = 0x46,
+    Option = 0x58,
+    BondQuotedOnInformationFixing = 0x5a,
+    TreasuryBillsAndBondsNotQuotedOnInformationFixing = 0x4f,
+};
+
+type TypeOfDerivatives = enum {
+    InavIndicativeNetAssetValueForEtfExchangeTradedFunds = 0x31,
+    SupportsShortTermsOptions = 0x34,
+    SupportsLongTermOptions = 0x36,
+    No = 0x39,
+};
+
+type TypeOfCorporateEvent = enum {
+    NoSpecificEvent = 0,
+    DividendPaymentInCashOrInStocks = 1,
+    InterestPaymentBondsForWhichThePriceIsExpressedInOfTheNominal = 3,
+    Split = 4,
+    BonusIeAttribution = 5,
+    ReverseSplit = 9,
+    PurgeOfTheOrderBookInTheAbsenceOfACorporateEventEgFollowingTheModificationOfTheVariableTickOfTheListedInstrument = 12,
+    Spinoff = 17,
+    Rights = 18,
+    BonusAndRights = 19,
+    BonusAlsoEntitledForRights = 20,
+    RightsAlsoEntitledForBonus = 21,
+    MultipleCorporateEvents = 99,
+};
+
+type MarketIndicator = enum {
+    NotUsed = 0,
+};
+
+type Algo = enum {
+    Fifo = 0x46,
+    FifoOrigin = 0x4f,
+};
+
+type SsMarketMaker = enum {
+    ShortSaleIsAuthorized = 0x59,
+    ShortSaleIsForbiddenWhichThe561SessionSummaryMessageWordsAsSuspended = 0x4e,
+    NotSignificantForWarrantsAndDerivativesInstrumentsAsWellAsInstrumentsTradedOnIpoAndToSegments = 0x20,
+};
+
+type SsNonMarketMaker = enum {
+    ShortSaleIsAuthorized = 0x59,
+    ShortSaleIsForbiddenWhichThe561SessionSummaryMessageWordsAsSuspended = 0x4e,
+    NotSignificantForWarrantsAndDerivativesInstrumentsAsWellAsInstrumentsTradedOnIpoAndToSegments = 0x20,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type DeliveryType = enum {
+    CashSettlement = 0x43,
+    PhysicalDelivery = 0x50,
+};
+
+type ExerciseType = enum {
+    American = 0x41,
+    European = 0x45,
+};
+
+type StatusIndicator = enum {
+    Suspended = 0x5a,
+    Active = 0x20,
+};
+
+type Market = enum {
+    PrimaryMarket = 0x50,
+    ParallelMarket = 0x52,
+    NewConnectMarketPriceDrivenMarket = 0x5a,
+    NewConnectMarketorderDrivenMarket = 0x43,
+    CatalystRegulatedMarket = 0x4f,
+    CatalystAso = 0x4e,
+};
+
+type MarkerPctChangePrice = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+    NoChange = 0x20,
+};
+
+type SymbolDelta = enum {
+    PositiveValue = 0x2b,
+    NegativeValue = 0x2d,
+    ZeroValue = 0x20,
+};
+
+type SymbolGamma = enum {
+    PositiveValue = 0x2b,
+    NegativeValue = 0x2d,
+    ZeroValue = 0x20,
+};
+
+type SymbolRho = enum {
+    PositiveValue = 0x2b,
+    NegativeValue = 0x2d,
+    ZeroValue = 0x20,
+};
+
+type SymbolTheta = enum {
+    PositiveValue = 0x2b,
+    NegativeValue = 0x2d,
+    ZeroValue = 0x20,
+};
+
+type SymbolVega = enum {
+    PositiveValue = 0x2b,
+    NegativeValue = 0x2d,
+    ZeroValue = 0x20,
+};
+
+type QuotationSystem = enum {
+    SinglePriceQuotationSystemWithASingleFixing = 81,
+    ContinuousTrading = 82,
+    SinglePriceQuotationSystemWithTwoFixings = 83,
+};
+

@@ -1,0 +1,262 @@
+module GpwWsePricesandtradesXdpV68;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type WsePricesandtradesV68 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TradeFullInformationMessage -> trade_full_information_message: TradeFullInformationMessage;
+        MessageType::PriceUpdateMessage -> price_update_message: PriceUpdateMessage;
+        MessageType::TradePublicationMessage -> trade_publication_message: TradePublicationMessage;
+        MessageType::AuctionSummaryMessage -> auction_summary_message: AuctionSummaryMessage;
+        MessageType::VwapClosingPriceMessage -> vwap_closing_price_message: VwapClosingPriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type TradeFullInformationMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    trade_id_number: uint32;
+    venue_of_execution: bytes &size=4;
+    source_seq_num: uint32;
+    price_notation: bytes &size=4;
+    transaction_to_be_cleared: bytes &size=4;
+    cumulative_quantity: uint32;
+    highest_price: uint32;
+    lowest_price: uint32;
+    variation_last_price: int32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    price_currency: bytes &size=3;
+    last_trade_indicator: uint8 &convert=LastTradeIndicator($$);
+    type_of_trade: uint8 &convert=TypeOfTrade($$);
+    trade_origin: uint8 &convert=TradeOrigin($$);
+    tick_direction: uint8 &convert=TickDirection($$);
+    opening_trade_indicator: uint8 &convert=OpeningTradeIndicator($$);
+    variation_scale_code: uint8;
+    price_scale_code: uint8;
+    trading_date_time: bytes &size=27;
+    publication_date_time: bytes &size=27;
+    instrument_id_code_type: bytes &size=4;
+    instrument_id_code: bytes &size=12;
+    price_ascii_ch_20: bytes &size=20;
+    quantity: bytes &size=20;
+    notional_amount: bytes &size=20;
+    notional_currency: bytes &size=3;
+    : skip bytes &size=1;   # padding
+    transaction_id_code: bytes &size=52;
+    mmt_market_mechanism: bytes &size=1;
+    mmt_trading_mode: bytes &size=1;
+    mmt_algorithmic_indicator: bytes &size=4;
+    mmt_modification_indicator: bytes &size=4;
+    mmt_negotiation_indicator: bytes &size=4;
+    mmt_special_dividend_indicator: bytes &size=4;
+    mmt_contribution_to_price: bytes &size=4;
+    mmt_benchmark_indicator: bytes &size=4;
+};
+
+type PriceUpdateMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    price_binary_int_4: uint32;
+    highest_price: uint32;
+    lowest_price: uint32;
+    variation_last_price: int32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    type_of_price: uint16 &convert=TypeOfPrice($$);
+    : skip bytes &size=2;   # padding
+    price_scale_code: uint8;
+    variation_scale_code: uint8;
+};
+
+type TradePublicationMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    venue_of_execution: bytes &size=4;
+    instrument_id_code_type: bytes &size=4;
+    price_multiplier: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    trading_date_time: bytes &size=27;
+    price_currency: bytes &size=3;
+    instrument_id_code: bytes &size=12;
+    publication_date_time: bytes &size=27;
+    notional_currency: bytes &size=3;
+    tcs_trade_id: bytes &size=16;
+    price_notation: bytes &size=4;
+    : skip bytes &size=1;   # padding
+    transaction_to_be_cleared: bytes &size=4;
+    mmt_benchmark_indicator: bytes &size=4;
+    mmt_contribution_to_price: bytes &size=4;
+    multiplier_scale_code: uint8;
+    price_ascii_ch_20: bytes &size=20;
+    quantity: bytes &size=20;
+    notional_amount: bytes &size=20;
+    transaction_id_code: bytes &size=52;
+    mmt_market_mechanism: bytes &size=1;
+    mmt_trading_mode: bytes &size=1;
+    mmt_special_dividend_indicator: bytes &size=4;
+    mmt_negotiation_indicator: bytes &size=4;
+    mmt_agency_cross_indicator: bytes &size=4;
+    mmt_transaction_category: bytes &size=4;
+    mmt_modification_indicator: bytes &size=4;
+    mmt_duplicative_indicator: bytes &size=4;
+    mmt_publication_mode: bytes &size=4;
+    mmt_algorithmic_indicator: bytes &size=4;
+    : skip bytes &size=2;   # padding
+};
+
+type AuctionSummaryMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    first_price: uint32;
+    last_price: uint32;
+    highest_price: uint32;
+    lowest_price: uint32;
+    cumulative_quantity: uint32;
+    variation: int32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    type_of_last_price: uint16 &convert=TypeOfLastPrice($$);
+    tick_direction: uint8 &convert=TickDirection($$);
+    instrument_valuation_price: uint8 &convert=InstrumentValuationPrice($$);
+    price_scale_code: uint8;
+    variation_scale_code: uint8;
+};
+
+type VwapClosingPriceMessage = unit {
+    symbol_index: uint32;
+    source_time: uint32;
+    source_seq_num: uint32;
+    sending_indicator: uint16 &convert=SendingIndicator($$);
+    closing_price_rule: uint16 &convert=ClosingPriceRule($$);
+    closing_price: uint32;
+    adjusted_closing_price: uint32;
+    nb_trades: uint32;
+    amount_traded: uint64;
+    qty_shares: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    source_time_micro_secs: uint16;
+    scale_code: uint8;
+    : skip bytes &size=5;   # padding
+};
+
+type PacketType = enum {
+    MarketDataMessages = 501,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RealTimeMessageZlibCompressed = 16,
+    RefreshMessageZlibCompressed = 17,
+    RetransmissionMessageCompressed = 18,
+};
+
+type MessageType = enum {
+    TradeFullInformationMessage = 240,
+    PriceUpdateMessage = 241,
+    TradePublicationMessage = 243,
+    AuctionSummaryMessage = 245,
+    VwapClosingPriceMessage = 247,
+};
+
+type SystemId = enum {
+    AllNonUtpSystems = 1,
+    UtpTradingUnit1 = 11,
+    UtpTradingUnit2 = 12,
+};
+
+type LastTradeIndicator = enum {
+    NotLastOfASeriesOfTradeAtTheSamePrice = 0x30,
+    LastOfASeriesOfTradeAtTheSamePriceAnd = 0x31,
+};
+
+type TypeOfTrade = enum {
+    TradeDoesNotStemFromACrossOrder = 0x30,
+    TradeStemsFromACrossOrder = 0x31,
+    ValuationTrade = 0x34,
+    InternalizedTrade = 0x35,
+    InternalizedCrossTrade = 0x36,
+};
+
+type TradeOrigin = enum {
+    OrdersFromTheBook = 0x42,
+    BlockTrade = 0x4f,
+    IpoTrade = 0x49,
+    TenderOfferTrade = 0x54,
+    BisoTrade = 0x53,
+    TradeReportingForFutureUse = 0x52,
+};
+
+type TickDirection = enum {
+    PositiveRising = 0x2b,
+    NegativeFalling = 0x2d,
+    NoVariationUnchangedOrDataFieldNotSignificantUsedForTradeCancellation = 0x30,
+};
+
+type OpeningTradeIndicator = enum {
+    Opening = 0x4f,
+    CoreContinuous = 0x53,
+    BondSpotAlwaysFillsTheFieldWithASpace = 0x20,
+};
+
+type TypeOfPrice = enum {
+    BidPrice = 2,
+    AskPrice = 3,
+    FirstTradedPriceOfTheDay = 30,
+    NewLastPrice = 33,
+    NewPreviousDaysClosingPriceTheLastAdjustedClosingPriceOrLpMidpoint = 34,
+    DailySettlementPrice = 35,
+    FinalSettlementPrice = 36,
+    TheoreticalPrice = 37,
+    AlternativeIndicativePriceAip = 51,
+};
+
+type TypeOfLastPrice = enum {
+    FirstTradedPrice = 4,
+    NThTradedPriceResumeAfterUnhaltingOfTheInstrument = 7,
+};
+
+type InstrumentValuationPrice = enum {
+    NotAValuationPrice = 0x30,
+    ValuationPrice = 0x31,
+};
+
+type SendingIndicator = enum {
+    RealTimeNotUsedForWse = 1,
+    BatchMode = 2,
+};
+
+type ClosingPriceRule = enum {
+    LtpLastTradedPrice = 1,
+    VwapVolumeWeightedAveragePriceNotProvidedForDerivatives = 2,
+};
+

@@ -1,0 +1,91 @@
+module GpwBondspotQuotesXdpV68;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BondspotQuotesV68 = unit {
+    packet_header: PacketHeader;
+    message: Message[self.packet_header.number_msg_entries];
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint16 &convert=PacketType($$);
+    packet_sequence_number: uint32;
+    send_time: uint32;
+    service_id: uint16;
+    delivery_flag: uint8 &convert=DeliveryFlag($$);
+    number_msg_entries: uint8;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    payload: QuotesAndBbo5Message;
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type QuotesAndBbo5Message = unit {
+    symbol_index: uint32;
+    source_seq_num: uint32;
+    source_time: uint32;
+    quote_link_id: uint32;
+    ask_price: uint32;
+    ask_size: uint32;
+    bid_price: uint32;
+    bid_size: uint32;
+    system_id: uint32 &convert=SystemId($$);
+    number_ask_orders: uint16;
+    number_bid_orders: uint16;
+    source_time_micro_secs: uint16;
+    type_of_ask_price: uint8 &convert=TypeOfAskPrice($$);
+    type_of_bid_price: uint8 &convert=TypeOfBidPrice($$);
+    quote_condition: uint8 &convert=QuoteCondition($$);
+    quote_number: uint8;
+    price_scale_code: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type PacketType = enum {
+    MarketDataMessages = 501,
+};
+
+type DeliveryFlag = enum {
+    RealTimeMessageUncompressed = 0,
+    RetransmissionMessageUncompressed = 2,
+    RealTimeMessageZlibCompressed = 16,
+    RefreshMessageZlibCompressed = 17,
+    RetransmissionMessageCompressed = 18,
+};
+
+type MessageType = enum {
+    QuotesAndBbo5Message = 140,
+};
+
+type SystemId = enum {
+    AllNonUtpSystems = 1,
+    UtpTradingUnit1 = 11,
+    UtpTradingUnit2 = 12,
+};
+
+type TypeOfAskPrice = enum {
+    LimitOrderAndPegOrder = 0,
+    MarketOrderAndMarketToLimitOrder = 1,
+};
+
+type TypeOfBidPrice = enum {
+    LimitOrderAndPegOrder = 0,
+    MarketOrderAndMarketToLimitOrder = 1,
+};
+
+type QuoteCondition = enum {
+    NoLiquidityProviderLp = 0x30,
+    LpOnlyOnAskSide = 0x31,
+    LpOnlyOnBidSide = 0x32,
+    LpOnAskAndBidSides = 0x33,
+};
+
