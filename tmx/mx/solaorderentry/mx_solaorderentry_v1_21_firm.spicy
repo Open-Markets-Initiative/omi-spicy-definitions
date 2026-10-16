@@ -12,6 +12,7 @@ public type MxSolaorderentryV121 = unit {
         0 -> disconnection_instruction: DisconnectionInstruction;
         0 -> heartbeat_response: HeartbeatResponse;
         0 -> user_disconnection: UserDisconnection;
+        0 -> order_request: OrderRequest;
         0 -> bulk_quote_data: BulkQuoteData;
         0 -> firm_risk_config: FirmRiskConfig;
         0 -> global_cancellation: GlobalCancellation;
@@ -71,6 +72,16 @@ type UserDisconnection = unit {
     session_id: bytes &size=4;
 };
 
+type OrderRequest = unit {
+    incoming_messages_header: IncomingMessagesHeader;
+};
+
+type IncomingMessagesHeader = unit {
+    user_timestamp_local_hhmmss: bytes &size=6;
+    trader_id: bytes &size=8;
+    user_sequence_id: bytes &size=8;
+};
+
 type BulkQuoteData = unit {
     incoming_messages_header: IncomingMessagesHeader;
     group: bytes &size=2;
@@ -86,12 +97,6 @@ type BulkQuoteData = unit {
     delta_maximum_value: bytes &size=8;
     anti_wash_id: bytes &size=8;
     : skip bytes &size=20;   # padding
-};
-
-type IncomingMessagesHeader = unit {
-    user_timestamp_local_hhmmss: bytes &size=6;
-    trader_id: bytes &size=8;
-    user_sequence_id: bytes &size=8;
 };
 
 type ClearingData = unit {

@@ -1,0 +1,149 @@
+module BinanceBinancespotMarketdataSbeV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type BinancespotMarketdataV10 = unit {
+    sbe_message: SbeMessage;
+};
+
+type SbeMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.template_id ) {
+        TemplateId::TradesStreamEventMessage -> trades_stream_event_message: TradesStreamEventMessage;
+        TemplateId::BestBidAskStreamEventMessage -> best_bid_ask_stream_event_message: BestBidAskStreamEventMessage;
+        TemplateId::DepthSnapshotStreamEventMessage -> depth_snapshot_stream_event_message: DepthSnapshotStreamEventMessage;
+        TemplateId::DepthDiffStreamEventMessage -> depth_diff_stream_event_message: DepthDiffStreamEventMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type TradesStreamEventMessage = unit {
+    event_time: int64;
+    transact_time: int64;
+    price_exponent: int8;
+    qty_exponent: int8;
+    trades_stream_event_message_trades_groups: TradesStreamEventMessageTradesGroups;
+    symbol: Symbol;
+};
+
+type TradesStreamEventMessageTradesGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    trades_stream_event_message_trades_group: TradesStreamEventMessageTradesGroup[self.group_size_encoding.num_in_group_uint_32];
+};
+
+type GroupSizeEncoding = unit {
+    block_length: uint16;
+    num_in_group_uint_32: uint32;
+};
+
+type TradesStreamEventMessageTradesGroup = unit {
+    id: int64;
+    price: int64;
+    qty: int64;
+    is_buyer_maker: uint8 &convert=IsBuyerMaker($$);
+};
+
+type Symbol = unit {
+    symbol_length: uint8;
+    symbol_data: bytes &size=self.symbol_length;
+};
+
+type BestBidAskStreamEventMessage = unit {
+    event_time: int64;
+    book_update_id: int64;
+    price_exponent: int8;
+    qty_exponent: int8;
+    bid_price: int64;
+    bid_qty: int64;
+    ask_price: int64;
+    ask_qty: int64;
+    symbol: Symbol;
+};
+
+type DepthSnapshotStreamEventMessage = unit {
+    event_time: int64;
+    book_update_id: int64;
+    price_exponent: int8;
+    qty_exponent: int8;
+    depth_snapshot_stream_event_message_bids_groups: DepthSnapshotStreamEventMessageBidsGroups;
+    depth_snapshot_stream_event_message_asks_groups: DepthSnapshotStreamEventMessageAsksGroups;
+    symbol: Symbol;
+};
+
+type DepthSnapshotStreamEventMessageBidsGroups = unit {
+    group_size_16_encoding: GroupSize16Encoding;
+    depth_snapshot_stream_event_message_bids_group: DepthSnapshotStreamEventMessageBidsGroup[self.group_size_16_encoding.num_in_group_uint_16];
+};
+
+type GroupSize16Encoding = unit {
+    block_length: uint16;
+    num_in_group_uint_16: uint16;
+};
+
+type DepthSnapshotStreamEventMessageBidsGroup = unit {
+    price: int64;
+    qty: int64;
+};
+
+type DepthSnapshotStreamEventMessageAsksGroups = unit {
+    group_size_16_encoding: GroupSize16Encoding;
+    depth_snapshot_stream_event_message_asks_group: DepthSnapshotStreamEventMessageAsksGroup[self.group_size_16_encoding.num_in_group_uint_16];
+};
+
+type DepthSnapshotStreamEventMessageAsksGroup = unit {
+    price: int64;
+    qty: int64;
+};
+
+type DepthDiffStreamEventMessage = unit {
+    event_time: int64;
+    first_book_update_id: int64;
+    last_book_update_id: int64;
+    price_exponent: int8;
+    qty_exponent: int8;
+    depth_diff_stream_event_message_bids_groups: DepthDiffStreamEventMessageBidsGroups;
+    depth_diff_stream_event_message_asks_groups: DepthDiffStreamEventMessageAsksGroups;
+    symbol: Symbol;
+};
+
+type DepthDiffStreamEventMessageBidsGroups = unit {
+    group_size_16_encoding: GroupSize16Encoding;
+    depth_diff_stream_event_message_bids_group: DepthDiffStreamEventMessageBidsGroup[self.group_size_16_encoding.num_in_group_uint_16];
+};
+
+type DepthDiffStreamEventMessageBidsGroup = unit {
+    price: int64;
+    qty: int64;
+};
+
+type DepthDiffStreamEventMessageAsksGroups = unit {
+    group_size_16_encoding: GroupSize16Encoding;
+    depth_diff_stream_event_message_asks_group: DepthDiffStreamEventMessageAsksGroup[self.group_size_16_encoding.num_in_group_uint_16];
+};
+
+type DepthDiffStreamEventMessageAsksGroup = unit {
+    price: int64;
+    qty: int64;
+};
+
+type TemplateId = enum {
+    TradesStreamEventMessage = 10000,
+    BestBidAskStreamEventMessage = 10001,
+    DepthSnapshotStreamEventMessage = 10002,
+    DepthDiffStreamEventMessage = 10003,
+};
+
+type IsBuyerMaker = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
