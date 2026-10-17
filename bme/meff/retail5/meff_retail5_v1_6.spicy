@@ -1,0 +1,823 @@
+module BmeMeffRetail5BmegateV16;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MeffRetail5V16 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::LogonResponseMessage -> logon_response_message: LogonResponseMessage;
+        MessageType::LogoutResponseMessage -> logout_response_message: LogoutResponseMessage;
+        MessageType::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        MessageType::NetworkStatusMessage -> network_status_message: NetworkStatusMessage;
+        MessageType::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        MessageType::NewsMessage -> news_message: NewsMessage;
+        MessageType::SecurityListCancellationReportMessage -> security_list_cancellation_report_message: SecurityListCancellationReportMessage;
+        MessageType::StatisticsMessage -> statistics_message: StatisticsMessage;
+        MessageType::SecurityListMessage -> security_list_message: SecurityListMessage;
+        MessageType::SecurityListUpdateReportMessage -> security_list_update_report_message: SecurityListUpdateReportMessage;
+        MessageType::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
+        MessageType::FamilyStatusMessage -> family_status_message: FamilyStatusMessage;
+        MessageType::TradeMarketPostTransparencyInformationTopofbookMessage -> trade_market_post_transparency_information_topofbook_message: TradeMarketPostTransparencyInformationTopofbookMessage;
+        MessageType::TradeTradeAmendmentOrCancellationMessage -> trade_trade_amendment_or_cancellation_message: TradeTradeAmendmentOrCancellationMessage;
+        MessageType::IndicationOfInterestMessage -> indication_of_interest_message: IndicationOfInterestMessage;
+        MessageType::RfqMarketPreTransparencyInformationMessage -> rfq_market_pre_transparency_information_message: RfqMarketPreTransparencyInformationMessage;
+        MessageType::TopofbookRetailMessage -> topofbook_retail_message: TopofbookRetailMessage;
+        MessageType::TopofbookRetail5LevelsMessage -> topofbook_retail_5_levels_message: TopofbookRetail5LevelsMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_size: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type LogonResponseMessage = unit {
+    sequence_number: uint32;
+    heart_bt_int: uint8;
+    protocol_version: bytes &size=6;
+    test_production_ind: bytes &size=1;
+    environment_code: bytes &size=2;
+    session_date: int32;
+    expected_sequence_number: uint32;
+    sequence_number_to: uint32;
+};
+
+type LogoutResponseMessage = unit {
+    sequence_number: uint32;
+    logout_reason: uint8 &convert=LogoutReason($$);
+};
+
+type HeartbeatMessage = unit {
+    sequence_number: uint32;
+};
+
+type NetworkStatusMessage = unit {
+    sequence_number: uint32;
+    network_status_value: uint8 &convert=NetworkStatusValue($$);
+};
+
+type TradingSessionStatusMessage = unit {
+    sequence_number: uint32;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
+    trad_ses_status: uint8 &convert=TradSesStatus($$);
+    transaction_date_and_time: int64;
+};
+
+type NewsMessage = unit {
+    sequence_number: uint32;
+    news_text: bytes &size=78;
+};
+
+type SecurityListCancellationReportMessage = unit {
+    sequence_number: uint32;
+    market_id: bytes &size=4;
+    market_segment_id: bytes &size=4;
+    security_code: uint32;
+    symbol: bytes &size=22;
+    symbol_isin: bytes &size=12;
+};
+
+type StatisticsMessage = unit {
+    sequence_number: uint32;
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    data_count: uint8;
+    data_code: bytes &size=1;
+};
+
+type SecurityListMessage = unit {
+    sequence_number: uint32;
+    market_id: bytes &size=4;
+    market_segment_id: bytes &size=4;
+    security_code: uint32;
+    symbol: bytes &size=22;
+    symbol_isin: bytes &size=12;
+    fisn: bytes &size=35;
+    issuer_lei: bytes &size=20;
+    security_group: bytes &size=2;
+    family_code: bytes &size=5;
+    cfi_code: bytes &size=6;
+    security_type: bytes &size=2;
+    maturity_date: int32;
+    issue_date: int32;
+    contract_multiplier: int64;
+    li_spre: int64;
+    sst_ipre: int64;
+    li_spost: int64;
+    sst_ipost: int64;
+    liquid_instrument: uint8 &convert=LiquidInstrument($$);
+    admission_requested_by_issuer: uint8 &convert=AdmissionRequestedByIssuer($$);
+    min_trade_vol: uint32;
+    round_lot: uint32;
+    currency: bytes &size=3;
+    modality_mask_b_4: uint32;
+    security_description: bytes &size=80;
+    trading_obligation: uint8 &convert=TradingObligation($$);
+    sec_description: bytes &size=20;
+    underlying_asset: bytes &size=22;
+    security_sub_type: bytes &size=12;
+    maturity_month_year: bytes &size=8;
+    strike_price: int64;
+    strike_value: int64;
+    opt_attribute: bytes &size=1;
+    min_price_increment: int64;
+    unit_of_measure: bytes &size=20;
+    settl_method: uint8 &convert=SettlMethod($$);
+    exercise_style: uint8 &convert=ExerciseStyle($$);
+    put_or_call: uint8 &convert=PutOrCall($$);
+    flexible_indicator: uint8 &convert=FlexibleIndicator($$);
+    last_trading_day: int32;
+    number_of_decimals: uint8;
+    order_number_of_decimals: uint8;
+    adjustments_rule: uint8 &convert=AdjustmentsRule($$);
+    maximum_order_size: int64;
+    self_match_prevention: uint8 &convert=SelfMatchPrevention($$);
+    commodity_derivative_indicator: uint8 &convert=CommodityDerivativeIndicator($$);
+    stock_when_underlying_is_dividend: bytes &size=22;
+    base_product: bytes &size=4;
+    sub_product: bytes &size=4;
+    further_sub_product: bytes &size=4;
+    base_currency: bytes &size=3;
+    quoted_currency: bytes &size=3;
+    maturity_month_year_increment_units: uint8 &convert=MaturityMonthYearIncrementUnits($$);
+    start_maturity_month_year: bytes &size=8;
+    end_maturity_month_year: bytes &size=8;
+    maturity_month_year_increment: uint8;
+    underlying_symbol: bytes &size=22;
+    underlying_isin: bytes &size=12;
+    underlying_currency: bytes &size=3;
+    underlying_security_issuer_lei: bytes &size=20;
+    x_rolling_closing_type: uint8 &convert=XRollingClosingType($$);
+    x_rolling_reference_buyer_rate: uint8 &convert=XRollingReferenceBuyerRate($$);
+    x_rolling_buyer_markup: int64;
+    x_rolling_reference_seller_rate: uint8 &convert=XRollingReferenceSellerRate($$);
+    x_rolling_seller_markup: int64;
+    x_rolling_dividend_percentage: int64;
+    x_rolling_dividend_pay_date_diff: uint16;
+    leg_symbol_1: bytes &size=22;
+    leg_ratio_qty_1: uint32;
+    leg_side_1: uint8 &convert=LegSide1($$);
+    leg_price_1: int64;
+    leg_symbol_2: bytes &size=22;
+    leg_ratio_qty_2: uint32;
+    leg_side_2: uint8 &convert=LegSide2($$);
+    leg_price_2: int64;
+    leg_symbol_3: bytes &size=22;
+    leg_ratio_qty_3: uint32;
+    leg_side_3: uint8 &convert=LegSide3($$);
+    leg_price_3: int64;
+    leg_symbol_4: bytes &size=22;
+    leg_ratio_qty_4: uint32;
+    leg_side_4: uint8 &convert=LegSide4($$);
+    leg_price_4: int64;
+    leg_symbol_5: bytes &size=22;
+    leg_ratio_qty_5: uint32;
+    leg_side_5: uint8 &convert=LegSide5($$);
+    leg_price_5: int64;
+};
+
+type SecurityListUpdateReportMessage = unit {
+    sequence_number: uint32;
+    market_id: bytes &size=4;
+    market_segment_id: bytes &size=4;
+    security_code: uint32;
+    symbol: bytes &size=22;
+    symbol_isin: bytes &size=12;
+    fisn: bytes &size=35;
+    issuer_lei: bytes &size=20;
+    security_group: bytes &size=2;
+    family_code: bytes &size=5;
+    cfi_code: bytes &size=6;
+    security_type: bytes &size=2;
+    maturity_date: int32;
+    issue_date: int32;
+    contract_multiplier: int64;
+    li_spre: int64;
+    sst_ipre: int64;
+    li_spost: int64;
+    sst_ipost: int64;
+    liquid_instrument: uint8 &convert=LiquidInstrument($$);
+    admission_requested_by_issuer: uint8 &convert=AdmissionRequestedByIssuer($$);
+    min_trade_vol: uint32;
+    round_lot: uint32;
+    currency: bytes &size=3;
+    modality_mask_b_4: uint32;
+    security_description: bytes &size=80;
+    trading_obligation: uint8 &convert=TradingObligation($$);
+    sec_description: bytes &size=20;
+    underlying_asset: bytes &size=22;
+    security_sub_type: bytes &size=12;
+    maturity_month_year: bytes &size=8;
+    strike_price: int64;
+    strike_value: int64;
+    opt_attribute: bytes &size=1;
+    min_price_increment: int64;
+    unit_of_measure: bytes &size=20;
+    settl_method: uint8 &convert=SettlMethod($$);
+    exercise_style: uint8 &convert=ExerciseStyle($$);
+    put_or_call: uint8 &convert=PutOrCall($$);
+    flexible_indicator: uint8 &convert=FlexibleIndicator($$);
+    last_trading_day: int32;
+    number_of_decimals: uint8;
+    order_number_of_decimals: uint8;
+    adjustments_rule: uint8 &convert=AdjustmentsRule($$);
+    maximum_order_size: int64;
+    self_match_prevention: uint8 &convert=SelfMatchPrevention($$);
+    commodity_derivative_indicator: uint8 &convert=CommodityDerivativeIndicator($$);
+    stock_when_underlying_is_dividend: bytes &size=22;
+    base_product: bytes &size=4;
+    sub_product: bytes &size=4;
+    further_sub_product: bytes &size=4;
+    base_currency: bytes &size=3;
+    quoted_currency: bytes &size=3;
+    maturity_month_year_increment_units: uint8 &convert=MaturityMonthYearIncrementUnits($$);
+    start_maturity_month_year: bytes &size=8;
+    end_maturity_month_year: bytes &size=8;
+    maturity_month_year_increment: uint8;
+    underlying_symbol: bytes &size=22;
+    underlying_isin: bytes &size=12;
+    underlying_currency: bytes &size=3;
+    underlying_security_issuer_lei: bytes &size=20;
+    x_rolling_closing_type: uint8 &convert=XRollingClosingType($$);
+    x_rolling_reference_buyer_rate: uint8 &convert=XRollingReferenceBuyerRate($$);
+    x_rolling_buyer_markup: int64;
+    x_rolling_reference_seller_rate: uint8 &convert=XRollingReferenceSellerRate($$);
+    x_rolling_seller_markup: int64;
+    x_rolling_dividend_percentage: int64;
+    x_rolling_dividend_pay_date_diff: uint16;
+    leg_symbol_1: bytes &size=22;
+    leg_ratio_qty_1: uint32;
+    leg_side_1: uint8 &convert=LegSide1($$);
+    leg_price_1: int64;
+    leg_symbol_2: bytes &size=22;
+    leg_ratio_qty_2: uint32;
+    leg_side_2: uint8 &convert=LegSide2($$);
+    leg_price_2: int64;
+    leg_symbol_3: bytes &size=22;
+    leg_ratio_qty_3: uint32;
+    leg_side_3: uint8 &convert=LegSide3($$);
+    leg_price_3: int64;
+    leg_symbol_4: bytes &size=22;
+    leg_ratio_qty_4: uint32;
+    leg_side_4: uint8 &convert=LegSide4($$);
+    leg_price_4: int64;
+    leg_symbol_5: bytes &size=22;
+    leg_ratio_qty_5: uint32;
+    leg_side_5: uint8 &convert=LegSide5($$);
+    leg_price_5: int64;
+};
+
+type SecurityStatusMessage = unit {
+    sequence_number: uint32;
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    non_availability_reason: uint8 &convert=NonAvailabilityReason($$);
+    high_limit_price: int64;
+    low_limit_price: int64;
+};
+
+type FamilyStatusMessage = unit {
+    sequence_number: uint32;
+    security_group: bytes &size=2;
+    family_code: bytes &size=5;
+    transaction_date_and_time: int64;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    non_availability_reason: uint8 &convert=NonAvailabilityReason($$);
+};
+
+type TradeMarketPostTransparencyInformationTopofbookMessage = unit {
+    sequence_number: uint32;
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    market_segment_id: bytes &size=4;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    trd_match_id: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    last_px: int64;
+    last_qty: uint32;
+    gross_trade_amt: int64;
+    designation: uint8 &convert=Designation($$);
+    market_mechanism: uint8 &convert=MarketMechanism($$);
+    algo_flag: uint8 &convert=AlgoFlag($$);
+    transaction_category: uint8 &convert=TransactionCategory($$);
+    strategy_trd_match_id: uint32;
+};
+
+type TradeTradeAmendmentOrCancellationMessage = unit {
+    sequence_number: uint32;
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    market_segment_id: bytes &size=4;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    trd_match_id: uint32;
+    trade_type: uint8 &convert=TradeType($$);
+    last_px: int64;
+    last_qty: uint32;
+    gross_trade_amt: int64;
+    designation: uint8 &convert=Designation($$);
+    market_mechanism: uint8 &convert=MarketMechanism($$);
+    algo_flag: uint8 &convert=AlgoFlag($$);
+    transaction_category: uint8 &convert=TransactionCategory($$);
+    strategy_trd_match_id: uint32;
+    last_change_flag: uint8 &convert=LastChangeFlag($$);
+    bencrfpt_flag: uint8 &convert=BencrfptFlag($$);
+    trade_price_condition: uint8 &convert=TradePriceCondition($$);
+    pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
+    deferral_waiver: uint8 &convert=DeferralWaiver($$);
+    post_deferral_publication_type: uint8 &convert=PostDeferralPublicationType($$);
+    publish_date_and_time: int64;
+    trade_date: int64;
+    trade_session_date: int32;
+    amended_trade_type: uint8 &convert=AmendedTradeType($$);
+    exec_ref_id: uint32;
+    amended_trade_date: int32;
+};
+
+type IndicationOfInterestMessage = unit {
+    sequence_number: uint32;
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    ioiid: uint32;
+    ioi_trans_type: uint8 &convert=IoiTransType($$);
+    side: uint8 &convert=Side($$);
+    ioi_qty: uint32;
+    ioi_price: int64;
+    ioi_qlty_ind: uint8 &convert=IoiQltyInd($$);
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+};
+
+type RfqMarketPreTransparencyInformationMessage = unit {
+    sequence_number: uint32;
+    rfqid: uint32;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    mid_buy_price: int64;
+    mid_buy_volume: uint32;
+    buy_rf_qs_number: uint16;
+    mid_sell_price: int64;
+    mid_sell_volume: uint32;
+    sell_rf_qs_number: uint16;
+    bid_orders_1: uint16;
+    bid_size_1: uint32;
+    bid_px_1: int64;
+    ask_orders_1: uint16;
+    ask_size_1: uint32;
+    ask_px_1: int64;
+    bid_orders_2: uint16;
+    bid_size_2: uint32;
+    bid_px_2: int64;
+    ask_orders_2: uint16;
+    ask_size_2: uint32;
+    ask_px_2: int64;
+    bid_orders_3: uint16;
+    bid_size_3: uint32;
+    bid_px_3: int64;
+    ask_orders_3: uint16;
+    ask_size_3: uint32;
+    ask_px_3: int64;
+    bid_orders_4: uint16;
+    bid_size_4: uint32;
+    bid_px_4: int64;
+    ask_orders_4: uint16;
+    ask_size_4: uint32;
+    ask_px_4: int64;
+    bid_orders_5: uint16;
+    bid_size_5: uint32;
+    bid_px_5: int64;
+    ask_orders_5: uint16;
+    ask_size_5: uint32;
+    ask_px_5: int64;
+};
+
+type TopofbookRetailMessage = unit {
+    sequence_number: uint32;
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    bid_orders_1: uint16;
+    bid_size_1: uint32;
+    bid_px_1: int64;
+    ask_orders_1: uint16;
+    ask_size_1: uint32;
+    ask_px_1: int64;
+};
+
+type TopofbookRetail5LevelsMessage = unit {
+    sequence_number: uint32;
+    security_code: uint32;
+    transaction_date_and_time: int64;
+    bid_orders_1: uint16;
+    bid_size_1: uint32;
+    bid_px_1: int64;
+    ask_orders_1: uint16;
+    ask_size_1: uint32;
+    ask_px_1: int64;
+    bid_orders_2: uint16;
+    bid_size_2: uint32;
+    bid_px_2: int64;
+    ask_orders_2: uint16;
+    ask_size_2: uint32;
+    ask_px_2: int64;
+    bid_orders_3: uint16;
+    bid_size_3: uint32;
+    bid_px_3: int64;
+    ask_orders_3: uint16;
+    ask_size_3: uint32;
+    ask_px_3: int64;
+    bid_orders_4: uint16;
+    bid_size_4: uint32;
+    bid_px_4: int64;
+    ask_orders_4: uint16;
+    ask_size_4: uint32;
+    ask_px_4: int64;
+    bid_orders_5: uint16;
+    bid_size_5: uint32;
+    bid_px_5: int64;
+    ask_orders_5: uint16;
+    ask_size_5: uint32;
+    ask_px_5: int64;
+};
+
+type MessageType = enum {
+    LogonResponseMessage = 0x08,
+    LogoutResponseMessage = 0x0b,
+    HeartbeatMessage = 0x30,
+    NetworkStatusMessage = 0x0a,
+    TradingSessionStatusMessage = 0x68,
+    NewsMessage = 0x42,
+    SecurityListCancellationReportMessage = 0x78,
+    StatisticsMessage = 0x84,
+    SecurityListMessage = 0x79,
+    SecurityListUpdateReportMessage = 0x80,
+    SecurityStatusMessage = 0x66,
+    FamilyStatusMessage = 0x89,
+    TradeMarketPostTransparencyInformationTopofbookMessage = 0x10,
+    TradeTradeAmendmentOrCancellationMessage = 0x18,
+    IndicationOfInterestMessage = 0x36,
+    RfqMarketPreTransparencyInformationMessage = 0x85,
+    TopofbookRetailMessage = 0x91,
+    TopofbookRetail5LevelsMessage = 0x92,
+};
+
+type LogoutReason = enum {
+    TerminationAfterASolicitedLogoutRequest = 0,
+    EndOfSessionTerminationInRecoveryServerEndOfRecoverySnapshot = 1,
+    TimeoutConnectionLost = 2,
+    LackOfHeartbeat = 3,
+    InvalidUsernameOrPassword = 16,
+    InvalidExpectedSequenceNumber = 17,
+    InvalidProtocolVersion = 18,
+    NewConnectionFromUser = 19,
+};
+
+type NetworkStatusValue = enum {
+    Connected = 1,
+    NotConnectedDownExpectedUp = 2,
+    NotConnectedDownExpectedDown = 3,
+    InProcess = 4,
+};
+
+type TradingSessionId = enum {
+    ContinuousTrading = 100,
+    BlockTrades = 102,
+    NormalHours = 105,
+    DeltaAndBasisTrade = 106,
+    BonoHours = 107,
+    CrossTradesNormalHours = 108,
+    CrossTradesBonoHours = 109,
+    RfqIbexFuturesHours = 115,
+    RfqNormalHours = 116,
+    RfqBonoHours = 117,
+    XRollingOnStocks = 118,
+};
+
+type TradingSessionSubId = enum {
+    PreTradingNotStarted = 1,
+    ScheduledOpeningAuction = 2,
+    ContinuousTrading = 3,
+    ScheduledClosingAuction = 4,
+    PostTrading = 5,
+    ScheduledIntradayAuction = 6,
+    UnscheduledIntradayAuction = 9,
+    NotStarted = 202,
+    Open = 203,
+    Closed = 204,
+};
+
+type TradSesStatus = enum {
+    Halted = 1,
+    Open = 2,
+    Closed = 3,
+    PreOpenNotStarted = 4,
+    PreClose = 5,
+    RequestRejected = 6,
+};
+
+type SecurityGroup = enum {
+    Bono10 = 2,
+    IbexMicro = 19,
+    MiniIbex = 20,
+    Ibex = 21,
+    Bbva = 23,
+    Endesa = 25,
+    Iberdrola = 27,
+    BancoSantander = 28,
+    Repsol = 30,
+    Telefonica = 31,
+    Acerinox = 33,
+    Bankinter = 35,
+    Naturgy = 37,
+    Indra = 38,
+    Amadeus = 41,
+    Inditex = 43,
+    Acs = 45,
+    Bsabadell = 46,
+    Acciona = 48,
+    Sacyr = 50,
+    Fcc = 51,
+    Enagas = 52,
+    RedeiaCorporacion = 53,
+    Mapfre = 57,
+    Atresmedia = 58,
+    Colonial = 66,
+    Grifols = 68,
+    Arcelormittal = 72,
+    TcnicasReunidas = 73,
+    ObrascnHuarte = 74,
+    Ferrovial = 75,
+    EbroFoods = 76,
+    Iag = 78,
+    Caixabank = 80,
+    Viscofan = 85,
+    Aena = 87,
+    MerlinProperties = 88,
+    Cellnex = 89,
+    Melia = 90,
+    CieAutomotive = 91,
+    Ence = 92,
+    Almirall = 94,
+    PharmaMar = 95,
+    Solaria = 96,
+    Fluidra = 98,
+    IbexImpactoDiv = 99,
+};
+
+type SecurityType = enum {
+    Strategy = 0x45,
+    Future = 0x46,
+    Option = 0x4f,
+    TimeSpread = 0x52,
+    Swap = 0x57,
+    Other = 0x58,
+    XRolling = 0x47,
+};
+
+type LiquidInstrument = enum {
+    False_0 = 0,
+    True_1 = 1,
+    Undefined = 255,
+};
+
+type AdmissionRequestedByIssuer = enum {
+    False_0 = 0,
+    True_1 = 1,
+    Undefined = 255,
+};
+
+type TradingObligation = enum {
+    False_0 = 0,
+    True_1 = 1,
+    Undefined = 255,
+};
+
+type SettlMethod = enum {
+    Cash = 0x43,
+    Physical = 0x50,
+};
+
+type ExerciseStyle = enum {
+    American = 0x41,
+    European = 0x45,
+    EuropeanAutomatic = 0x56,
+};
+
+type PutOrCall = enum {
+    Call = 0x43,
+    Put = 0x50,
+    Other = 0x4f,
+};
+
+type FlexibleIndicator = enum {
+    Flexible = 0x59,
+    Standard = 0x4e,
+};
+
+type AdjustmentsRule = enum {
+    ExtraordinaryDividendAdjustmentsOnly = 0x45,
+    Total = 0x54,
+};
+
+type SelfMatchPrevention = enum {
+    False_0 = 0,
+    True_1 = 1,
+    Undefined = 255,
+};
+
+type CommodityDerivativeIndicator = enum {
+    CommodityDerivative = 0x53,
+    NonDerivative = 0x4e,
+    Derivative = 0x44,
+};
+
+type MaturityMonthYearIncrementUnits = enum {
+    Months = 0x30,
+    Days = 0x31,
+    Weeks = 0x32,
+    Years = 0x33,
+};
+
+type XRollingClosingType = enum {
+    MarketDefaultValueValueToBeUsedInFlexXRollingWithAClosedExpiryDateAndNoPossibilityToModifyIt = 0x4d,
+    ByBuyer = 0x31,
+    BySeller = 0x32,
+};
+
+type XRollingReferenceBuyerRate = enum {
+    StrDefaultValueForNonFlexXRolling = 0x53,
+    FisAnalitics = 0x46,
+    MeffRate = 0x4d,
+    Zero = 0x30,
+    NaUsedInFlexInTheFinancingLeg = 0x20,
+};
+
+type XRollingReferenceSellerRate = enum {
+    Str = 0x53,
+    FisAnalitics = 0x46,
+    MeffRateDefaultValueForNonFlexXRolling = 0x4d,
+    Cero = 0x30,
+    NaUsedInFlexInTheFinancingLeg = 0x20,
+};
+
+type LegSide1 = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type LegSide2 = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type LegSide3 = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type LegSide4 = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type LegSide5 = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type SecurityTradingStatus = enum {
+    ReadyToTrade = 17,
+    NotAvailableForTrading = 18,
+    NotTradedOnThisSegment = 19,
+    UnknownOrInvalid = 20,
+    PreOpen = 21,
+    PostcloseReadyToTradeInTal = 26,
+    FastMarket = 23,
+    ExtraordinaryMarketConditions = 100,
+};
+
+type NonAvailabilityReason = enum {
+    NotHalted = 0,
+    HaltedByRegulator = 100,
+    HaltedByMarketSurveillance = 101,
+    Knockout = 102,
+    KnockinPending = 103,
+};
+
+type TradeType = enum {
+    CrossTradeDuringTradingHours = 0x48,
+    Delta = 0x4c,
+    Market = 0x4d,
+    StrategyTradesTimeSpreadFuturesAndStrategies = 0x52,
+    ComponentsOfTradeR = 0x53,
+    TradeAmendment = 0x57,
+    Countertrade = 0x58,
+    Rfq = 0x33,
+    RfqXRolling = 0x34,
+    RfqXRollingDuringAuction = 0x36,
+    RfqXRollingAmendment = 0x38,
+    RfqXRollingDuringAuctionAmendment = 0x39,
+};
+
+type Designation = enum {
+    TradeDuringOpenMarket = 0x31,
+    TradeDuringOpeningAuction = 0x32,
+    TradeDuringClosingAuction = 0x33,
+    TradeDuringVolatilityAuction = 0x34,
+    TradeDuringManualAuction = 0x35,
+    TradeDuringOpeningAuctionExtension = 0x36,
+    TradeDuringClosingAuctionExtension = 0x37,
+    TradeDuringTalPeriod = 0x38,
+    TradeInSpainAtMidDarkBook = 0x43,
+};
+
+type MarketMechanism = enum {
+    CentralLimitOrderBook = 0x30,
+    OffBookMessagingTrading = 0x31,
+    RequestForQuotes = 0x36,
+};
+
+type AlgoFlag = enum {
+    False_0 = 0,
+    True_1 = 1,
+    Undefined = 255,
+};
+
+type TransactionCategory = enum {
+    NormalCategory = 0x20,
+    ExchangeForPhysicalsXfph = 0x59,
+    PackageTradeExcludingExchangeForPhysicalsTpac = 0x5a,
+};
+
+type LastChangeFlag = enum {
+    False_0 = 0,
+    True_1 = 1,
+    Undefined = 255,
+};
+
+type BencrfptFlag = enum {
+    NormalTrade = 0x20,
+    BenchmarkTradeBenc = 0x36,
+};
+
+type TradePriceCondition = enum {
+    PlainVanillaTrade = 0x20,
+    NonPriceFormingTradeFormerlyDefinedAsATechnicalTradeNpft = 0x35,
+};
+
+type PreTradeTransparencyWaiver = enum {
+    NegotiatedTradeNego = 0x20,
+};
+
+type DeferralWaiver = enum {
+    ImmediatePublication = 0x20,
+    NonImmediatePublicationDeferralForLargeInScaleLrgs = 0x36,
+    NonImmediatePublicationDeferralForIlliquidInstrumentIlqd = 0x37,
+    NonImmediatePublicationDeferralForSizeSpecificSizeRts2 = 0x38,
+};
+
+type PostDeferralPublicationType = enum {
+    NotApplicableNoRelevantDeferralOrEnrichmentType = 0x20,
+    FullDetailsOfEarlierDailyAggregatedTradeDatf = 0x38,
+};
+
+type AmendedTradeType = enum {
+    CrossTradeDuringTradingHours = 0x48,
+    Delta = 0x4c,
+    Market = 0x4d,
+    StrategyTradesTimeSpreadFuturesAndStrategies = 0x52,
+    ComponentsOfTradeR = 0x53,
+    TradeAmendment = 0x57,
+    Countertrade = 0x58,
+    Rfq = 0x33,
+    RfqXRolling = 0x34,
+    RfqXRollingDuringAuction = 0x36,
+    RfqXRollingAmendment = 0x38,
+    RfqXRollingDuringAuctionAmendment = 0x39,
+};
+
+type IoiTransType = enum {
+    New = 0x4e,
+    Cancel = 0x43,
+    Replace = 0x52,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    Undisclosed = 0x37,
+    Notspecified = 0x3f,
+};
+
+type IoiQltyInd = enum {
+    HighRfqRequested = 0x48,
+    MediumOrderRequested = 0x4d,
+};
+
