@@ -1,0 +1,2238 @@
+module GpwWseStreambboWatsV17620;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type WseStreambboV17620 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::WeekPlan -> week_plan: WeekPlan;
+        MessageType::CalendarException -> calendar_exception: CalendarException;
+        MessageType::TickTableEntry -> tick_table_entry: TickTableEntry;
+        MessageType::CollarTableEntry -> collar_table_entry: CollarTableEntry;
+        MessageType::TradingPhaseScheduleEntry -> trading_phase_schedule_entry: TradingPhaseScheduleEntry;
+        MessageType::MarketStructure -> market_structure: MarketStructure;
+        MessageType::CollarGroup -> collar_group: CollarGroup;
+        MessageType::ExternalUnderlying -> external_underlying: ExternalUnderlying;
+        MessageType::Instrument -> instrument: Instrument;
+        MessageType::AccruedInterestTableEntry -> accrued_interest_table_entry: AccruedInterestTableEntry;
+        MessageType::IndexationTableEntry -> indexation_table_entry: IndexationTableEntry;
+        MessageType::IndexParams -> index_params: IndexParams;
+        MessageType::IndexPortfolioEntry -> index_portfolio_entry: IndexPortfolioEntry;
+        MessageType::AuctionSummary -> auction_summary: AuctionSummary;
+        MessageType::AuctionUpdate -> auction_update: AuctionUpdate;
+        MessageType::PriceLevelSnapshot -> price_level_snapshot: PriceLevelSnapshot;
+        MessageType::TopPriceLevelUpdate -> top_price_level_update: TopPriceLevelUpdate;
+        MessageType::Trade -> trade: Trade;
+        MessageType::PositionReport -> position_report: PositionReport;
+        MessageType::InstrumentStatusChange -> instrument_status_change: InstrumentStatusChange;
+        MessageType::OrderCollars -> order_collars: OrderCollars;
+        MessageType::TradeCollars -> trade_collars: TradeCollars;
+        MessageType::InstrumentSummary -> instrument_summary: InstrumentSummary;
+        MessageType::ProductSummary -> product_summary: ProductSummary;
+        MessageType::PriceUpdate -> price_update: PriceUpdate;
+        MessageType::News -> news: News;
+        MessageType::RealTimeIndex -> real_time_index: RealTimeIndex;
+        MessageType::IndexSummary -> index_summary: IndexSummary;
+        MessageType::TradingSessionStatus -> trading_session_status: TradingSessionStatus;
+        MessageType::TestEvent -> test_event: TestEvent;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint16 &convert=MessageType($$);
+    message_version: uint16;
+    sequence_number: uint32;
+    timestamp: uint64;
+    source_timestamp: uint64;
+    is_encrypted: uint8;
+    encryption_offset: uint64;
+    encryption_key_id: uint32;
+    session_id: uint16;
+    stream_id: uint8;
+};
+
+type WeekPlan = unit {
+    calendar_id: uint32;
+    weekdays: bytes &size=7;
+};
+
+type CalendarException = unit {
+    calendar_id: uint32;
+    calendar_exception_date: uint32;
+    calendar_exception_type: uint8 &convert=CalendarExceptionType($$);
+};
+
+type TickTableEntry = unit {
+    tick_size: int64;
+    lower_bound: int64;
+    tick_table_id: uint32;
+};
+
+type CollarTableEntry = unit {
+    collar_table_id: uint32;
+    collar_mode: uint8 &convert=CollarMode($$);
+    collar_expression: uint8 &convert=CollarExpression($$);
+    collar_lower_bound: int64;
+    collar_value: int64;
+    collar_lower_bid: int64;
+    collar_upper_bid: int64;
+    collar_upper_ask: int64;
+    collar_lower_ask: int64;
+};
+
+type TradingPhaseScheduleEntry = unit {
+    trading_schedule_id: uint32;
+    trading_phase_id: uint32;
+    trading_phase_settlement_cycle: uint8;
+    trading_phase_max_block_settlement_cycle: uint8;
+    static_collar_volatility_auction_id: uint32;
+    dynamic_collar_volatility_auction_id: uint32;
+    trading_phase_start_time: uint64;
+    trading_phase_type: uint8 &convert=TradingPhaseType($$);
+    uncrossing: uint8;
+    ext_static_collar_volatility_auction_id: uint32;
+    ext_dynamic_collar_volatility_auction_id: uint32;
+    clat_id: uint32;
+};
+
+type MarketStructure = unit {
+    id: uint32;
+    parent_id: uint32;
+    mic: bytes &size=4;
+    name: bytes &size=50;
+    market_model_type: uint8 &convert=MarketModelType($$);
+};
+
+type CollarGroup = unit {
+    id: uint32;
+    order_static_collar_table_id: uint32;
+    order_dynamic_collar_table_id: uint32;
+    trade_static_collar_table_id: uint32;
+    trade_dynamic_collar_table_id: uint32;
+};
+
+type ExternalUnderlying = unit {
+    external_underlying_id: uint32;
+    product_identification_product_identification: bytes &size=30;
+    product_identification_type: uint8 &convert=ProductIdentificationType($$);
+    product_code: bytes &size=20;
+    product_name: bytes &size=50;
+    mic: bytes &size=4;
+    nominal_currency: uint16 &convert=NominalCurrency($$);
+    trading_currency: uint16 &convert=TradingCurrency($$);
+};
+
+type Instrument = unit {
+    instrument_id: uint32;
+    product_type: uint8 &convert=ProductType($$);
+    product_subtype: uint8 &convert=ProductSubtype($$);
+    first_trading_date: uint32;
+    last_trading_date: uint32;
+    product_id: uint32;
+    currency: uint16 &convert=Currency($$);
+    iceberg_min_value: int64;
+    lot_size: uint32;
+    price_expression_type: uint8 &convert=PriceExpressionType($$);
+    calendar_id: uint32;
+    market_structure_id: uint32;
+    tick_table_id: uint32;
+    reference_instrument_id: uint32;
+    collar_group_id: uint32;
+    trading_schedule_id: uint32;
+    description: bytes &size=64;
+    mic: bytes &size=4;
+    nominal_value_price: int64;
+    nominal_value_type: uint8 &convert=NominalValueType($$);
+    multiplier_multiplier: int64;
+    strike_price: int64;
+    strike_price_currency: uint16 &convert=StrikePriceCurrency($$);
+    product_identification_product_identification: bytes &size=30;
+    product_identification_type: uint8 &convert=ProductIdentificationType($$);
+    settlement_calendar_id: uint32;
+    bond_coupon_type: uint8 &convert=BondCouponType($$);
+    pre_trade_check_min_price: int64;
+    pre_trade_check_max_price: int64;
+    pre_trade_check_min_quantity: uint64;
+    pre_trade_check_max_quantity: uint64;
+    pre_trade_check_max_value: int64;
+    pre_trade_check_min_value: int64;
+    liquidity: uint8;
+    market_model_type: uint8 &convert=MarketModelType($$);
+    issuer: bytes &size=150;
+    issuer_reg_country: uint16 &convert=IssuerRegCountry($$);
+    underlying_instrument_id: uint32;
+    product_code: bytes &size=20;
+    cfi: bytes &size=6;
+    fisn: bytes &size=35;
+    issue_size: uint64;
+    nominal_currency: uint16 &convert=NominalCurrency($$);
+    us_indicator: uint8 &convert=UsIndicator($$);
+    expiry_date: uint32;
+    version_number: uint8;
+    settlement_type: uint8 &convert=SettlementType($$);
+    option_type: uint8 &convert=OptionType($$);
+    exercise_type: uint8 &convert=ExerciseType($$);
+    product_name: bytes &size=50;
+    reference_price: int64;
+    status: uint8 &convert=Status($$);
+    initial_phase_id: uint32;
+    threshold_max: int64;
+    threshold_min: int64;
+    is_leverage: uint8 &convert=IsLeverage($$);
+    accrued_interest_value: int64;
+    kid: bytes &size=128;
+    kid_issue_date: uint32;
+    value_at_risk: uint8;
+    external_underlying_id: uint32;
+};
+
+type AccruedInterestTableEntry = unit {
+    product_id: uint32;
+    accrued_interest_table_entry_date: uint32;
+    accrued_interest_table_entry_value: int64;
+};
+
+type IndexationTableEntry = unit {
+    product_id: uint32;
+    indexation_table_entry_date: uint32;
+    indexation_table_entry_value: int64;
+};
+
+type IndexParams = unit {
+    instrument_id: uint32;
+    index_base_value: int64;
+    index_base_capitalisation: int64;
+    index_base_date: uint32;
+    correction_coefficient: int64;
+    num_of_components: uint16;
+    index_publication_schedule: uint8 &convert=IndexPublicationSchedule($$);
+    index_type: uint8 &convert=IndexType($$);
+    presence_flags_index_params_presence_flags: bitfield(8) {
+        has_days_since_last_publication: 0;
+        has_number_of_dividends: 1;
+        reserved_27_index_params_presence_flags: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    days_since_last_publication: uint8;
+    number_of_dividends: uint16;
+    index_underlyings: IndexUnderlyings;
+    publication_order: uint16;
+    currency: uint16 &convert=Currency($$);
+    date_validity: uint32;
+};
+
+type IndexUnderlyings = unit {
+    count: uint8;
+    items: Items[3];
+};
+
+type Items = unit {
+    index_underlying: IndexUnderlying;
+};
+
+type IndexUnderlying = unit {
+    product_identification_public_product_identification: ProductIdentificationPublicProductIdentification;
+    index_underlying_type: uint8 &convert=IndexUnderlyingType($$);
+};
+
+type ProductIdentificationPublicProductIdentification = unit {
+    product_identification_product_identification: bytes &size=30;
+    product_identification_type: uint8 &convert=ProductIdentificationType($$);
+};
+
+type IndexPortfolioEntry = unit {
+    id: uint32;
+    index_id: uint32;
+    presence_flags_index_portfolio_entry_presence_flags: bitfield(8) {
+        has_instrument_id: 0;
+        reserved_17_index_portfolio_entry_presence_flags: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    instrument_id: uint32;
+    public_product_identification: PublicProductIdentification;
+    mic: bytes &size=4;
+    currency: uint16 &convert=Currency($$);
+    instrument_packet: uint64;
+    suspended: uint8;
+};
+
+type PublicProductIdentification = unit {
+    product_identification_product_identification: bytes &size=30;
+    product_identification_type: uint8 &convert=ProductIdentificationType($$);
+};
+
+type AuctionSummary = unit {
+    instrument_id: uint32;
+    price: int64;
+    quantity: uint64;
+    auction_type: uint8 &convert=AuctionType($$);
+};
+
+type AuctionUpdate = unit {
+    instrument_id: uint32;
+    indicative_matching_price: int64;
+    indicative_matching_volume: uint64;
+    total_sell_quantity_at_imp: uint64;
+    total_buy_quantity_at_imp: uint64;
+    best_sell_level: int64;
+    best_sell_level_quantity: uint64;
+    best_buy_level: int64;
+    best_buy_level_quantity: uint64;
+};
+
+type PriceLevelSnapshot = unit {
+    instrument_id: uint32;
+    max_depth: uint8;
+    mm_buy_quote_level: uint8;
+    mm_sell_quote_level: uint8;
+    buy: Buy[5];
+    sell: Sell[5];
+};
+
+type Buy = unit {
+    price_level: PriceLevel;
+};
+
+type PriceLevel = unit {
+    is_encrypted: uint8;
+    encryption_offset: uint64;
+    encryption_key_id: uint32;
+    price: int64;
+    quantity: uint64;
+    order_count: uint16;
+};
+
+type Sell = unit {
+    price_level: PriceLevel;
+};
+
+type TopPriceLevelUpdate = unit {
+    instrument_id: uint32;
+    price: int64;
+    quantity: uint64;
+    side: uint8 &convert=Side($$);
+    order_count: uint16;
+};
+
+type Trade = unit {
+    instrument_id: uint32;
+    settlement_value_value: int64;
+    settlement_date: uint32;
+    trading_timestamp: uint64;
+    public_product_identification: PublicProductIdentification;
+    price: int64;
+    price_currency: uint16 &convert=PriceCurrency($$);
+    price_notation: uint8 &convert=PriceNotation($$);
+    quantity: uint64;
+    nominal_value_value: int64;
+    nominal_currency: uint16 &convert=NominalCurrency($$);
+    mic: bytes &size=4;
+    publication_timestamp: uint64;
+    trade_id: uint32;
+    trade_to_be_cleared: uint8;
+    pct_change: int64;
+    vwap: int64;
+    no_trades: uint64;
+    total_volume: uint64;
+    total_value: int64;
+    opening_price: int64;
+    max_price: int64;
+    min_price: int64;
+    mmt_market_mechanism: uint8 &convert=MmtMarketMechanism($$);
+    mmt_trading_mode: uint8 &convert=MmtTradingMode($$);
+    mmt_transaction_category: uint8 &convert=MmtTransactionCategory($$);
+    mmt_negotiation_indicator: uint8 &convert=MmtNegotiationIndicator($$);
+    mmt_agency_cross_trade_indicator: uint8 &convert=MmtAgencyCrossTradeIndicator($$);
+    mmt_modification_indicator: uint8 &convert=MmtModificationIndicator($$);
+    mmt_benchmark_reference_price_indicator: uint8 &convert=MmtBenchmarkReferencePriceIndicator($$);
+    mmt_special_dividend_indicator: uint8 &convert=MmtSpecialDividendIndicator($$);
+    mmt_off_book_automated_indicator: uint8 &convert=MmtOffBookAutomatedIndicator($$);
+    mmt_ordinary_trade_indicator: uint8 &convert=MmtOrdinaryTradeIndicator($$);
+    mmt_algorithmic_indicator: uint8 &convert=MmtAlgorithmicIndicator($$);
+    mmt_post_trade_deferral_reason: uint8 &convert=MmtPostTradeDeferralReason($$);
+    mmt_post_trade_deferral_type: uint8 &convert=MmtPostTradeDeferralType($$);
+};
+
+type PositionReport = unit {
+    public_product_identification: PublicProductIdentification;
+    pos_type: uint8 &convert=PosType($$);
+    open_positions: uint32;
+    trade_id: uint32;
+};
+
+type InstrumentStatusChange = unit {
+    instrument_id: uint32;
+    trading_phase_id: uint32;
+    trading_phase_type: uint8 &convert=TradingPhaseType($$);
+    status: uint8 &convert=Status($$);
+    stressed_market: uint8;
+};
+
+type OrderCollars = unit {
+    instrument_id: uint32;
+    collar_type: uint8 &convert=CollarType($$);
+    price: int64;
+    lower_bid: int64;
+    upper_bid: int64;
+    lower_ask: int64;
+    upper_ask: int64;
+};
+
+type TradeCollars = unit {
+    instrument_id: uint32;
+    collar_type: uint8 &convert=CollarType($$);
+    price: int64;
+    lower: int64;
+    upper: int64;
+};
+
+type InstrumentSummary = unit {
+    instrument_id: uint32;
+    last_traded_price: int64;
+    closing_price: int64;
+    closing_price_type: uint8 &convert=ClosingPriceType($$);
+    adjusted_closing_price: int64;
+    adjusted_closing_price_reason: uint8 &convert=AdjustedClosingPriceReason($$);
+    pct_change: int64;
+    vwap: int64;
+    no_trades: uint64;
+    total_volume: uint64;
+    total_value: int64;
+    opening_price: int64;
+    max_price: int64;
+    min_price: int64;
+    is_correction: uint8;
+};
+
+type ProductSummary = unit {
+    clob_instrument: ClobInstrument;
+    cross_instrument: CrossInstrument;
+    block_instrument: BlockInstrument;
+    hybrid_instrument: HybridInstrument;
+    product_identification_type: uint8 &convert=ProductIdentificationType($$);
+    product_identification_product_identification: bytes &size=30;
+    product_id: uint32;
+    mic: bytes &size=4;
+    accumulated_interest: int64;
+    interest_rate: int64;
+    currency: uint16 &convert=Currency($$);
+    session_date: uint32;
+    trading_value_currency: int64;
+    status: uint8 &convert=Status($$);
+    sector: uint16;
+    market: uint8;
+    marker_price_change: uint8 &convert=MarkerPriceChange($$);
+    lower_liquidity: uint8;
+    multiplier_number: int64;
+    dividend_rate: int64;
+    delta: int64;
+    gamma: int64;
+    rho: int64;
+    theta: int64;
+    vega: int64;
+    volatility: int64;
+    options_strike_price: int64;
+    dividend: uint8;
+    subscription_right: uint8;
+    interim_dividend_right: uint8;
+    split: uint8;
+    quotation_system: uint8 &convert=QuotationSystem($$);
+    liquidity_support_pge: uint8;
+};
+
+type ClobInstrument = unit {
+    instrument_id: uint32;
+    market_model_type: uint8 &convert=MarketModelType($$);
+    last_traded_price: int64;
+    closing_price: int64;
+    closing_price_type: uint8 &convert=ClosingPriceType($$);
+    adjusted_closing_price: int64;
+    adjusted_closing_price_reason: uint8 &convert=AdjustedClosingPriceReason($$);
+    pct_change: int64;
+    vwap: int64;
+    no_trades: uint64;
+    total_volume: uint64;
+    total_value: int64;
+    opening_price: int64;
+    max_price: int64;
+    min_price: int64;
+    settlement_price: int64;
+    settlement_value_price: int64;
+    end_trading_date: uint32;
+    last_trade_date: uint32;
+};
+
+type CrossInstrument = unit {
+    instrument_id: uint32;
+    market_model_type: uint8 &convert=MarketModelType($$);
+    last_traded_price: int64;
+    closing_price: int64;
+    closing_price_type: uint8 &convert=ClosingPriceType($$);
+    adjusted_closing_price: int64;
+    adjusted_closing_price_reason: uint8 &convert=AdjustedClosingPriceReason($$);
+    pct_change: int64;
+    vwap: int64;
+    no_trades: uint64;
+    total_volume: uint64;
+    total_value: int64;
+    opening_price: int64;
+    max_price: int64;
+    min_price: int64;
+    settlement_price: int64;
+    settlement_value_price: int64;
+    end_trading_date: uint32;
+    last_trade_date: uint32;
+};
+
+type BlockInstrument = unit {
+    instrument_id: uint32;
+    market_model_type: uint8 &convert=MarketModelType($$);
+    last_traded_price: int64;
+    closing_price: int64;
+    closing_price_type: uint8 &convert=ClosingPriceType($$);
+    adjusted_closing_price: int64;
+    adjusted_closing_price_reason: uint8 &convert=AdjustedClosingPriceReason($$);
+    pct_change: int64;
+    vwap: int64;
+    no_trades: uint64;
+    total_volume: uint64;
+    total_value: int64;
+    opening_price: int64;
+    max_price: int64;
+    min_price: int64;
+    settlement_price: int64;
+    settlement_value_price: int64;
+    end_trading_date: uint32;
+    last_trade_date: uint32;
+};
+
+type HybridInstrument = unit {
+    instrument_id: uint32;
+    market_model_type: uint8 &convert=MarketModelType($$);
+    last_traded_price: int64;
+    closing_price: int64;
+    closing_price_type: uint8 &convert=ClosingPriceType($$);
+    adjusted_closing_price: int64;
+    adjusted_closing_price_reason: uint8 &convert=AdjustedClosingPriceReason($$);
+    pct_change: int64;
+    vwap: int64;
+    no_trades: uint64;
+    total_volume: uint64;
+    total_value: int64;
+    opening_price: int64;
+    max_price: int64;
+    min_price: int64;
+    settlement_price: int64;
+    settlement_value_price: int64;
+    end_trading_date: uint32;
+    last_trade_date: uint32;
+};
+
+type PriceUpdate = unit {
+    instrument_id: uint32;
+    price_update_type: uint8 &convert=PriceUpdateType($$);
+    price_ytm_presence: bitfield(16) {
+        value_price_ytm_presence: 0;
+        value_bid_price_ytm_presence: 1;
+        value_ask_price_ytm_presence: 2;
+        ytm_no_calc: 3;
+        ytm_bid_no_calc: 4;
+        ytm_ask_no_calc: 5;
+        reserved_615: 6..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    value: int64;
+    value_bid: int64;
+    value_ask: int64;
+};
+
+type News = unit {
+    market_structure_id: uint32;
+    news_id: uint32;
+    title: bytes &size=80;
+    entry_number: uint8;
+    total: uint8;
+    text: bytes &size=800;
+};
+
+type RealTimeIndex = unit {
+    instrument_id: uint32;
+    index_level_code: uint8 &convert=IndexLevelCode($$);
+    num_of_active_instruments: uint16;
+    ind_index_opening_portfolio: int64;
+    index_value: int64;
+    pct_change_index_val_prev_session: int64;
+    session_low: int64;
+    session_high: int64;
+    presence_flags_real_time_index_presence_flags: bitfield(8) {
+        has_trading_value: 0;
+        has_index_value_bid: 1;
+        has_index_value_ask: 2;
+        has_mid_spread_index: 3;
+        has_difference_central_spread: 4;
+        reserved_57: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    trading_value: int64;
+    index_value_bid: int64;
+    index_value_ask: int64;
+    mid_spread_index: int64;
+    difference_central_spread: int64;
+};
+
+type IndexSummary = unit {
+    instrument_id: uint32;
+    opening_index_value: int64;
+    session_low: int64;
+    session_high: int64;
+    closing_index_value: int64;
+    presence_flags_index_summary_presence_flags: bitfield(8) {
+        has_session_avg: 0;
+        reserved_17_index_summary_presence_flags: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    session_avg: int64;
+    pct_change_index_val_prev_session: int64;
+    pct_change_index_val_prev_year: int64;
+    closing_capitalisation_portfolio: int64;
+    ind_index_opening_portfolio: int64;
+};
+
+type TradingSessionStatus = unit {
+    market_id: bytes &size=4;
+    market_structure_id: uint32;
+    trading_session_event: uint8 &convert=TradingSessionEvent($$);
+    date: uint32;
+};
+
+type TestEvent = unit {
+    scenario_name: bytes &size=200;
+    event_type: uint8 &convert=EventType($$);
+};
+
+type MessageType = enum {
+    WeekPlan = 33,
+    CalendarException = 35,
+    TickTableEntry = 32,
+    CollarTableEntry = 108,
+    TradingPhaseScheduleEntry = 27,
+    MarketStructure = 275,
+    CollarGroup = 299,
+    ExternalUnderlying = 806,
+    Instrument = 279,
+    AccruedInterestTableEntry = 36,
+    IndexationTableEntry = 37,
+    IndexParams = 503,
+    IndexPortfolioEntry = 502,
+    AuctionSummary = 270,
+    AuctionUpdate = 268,
+    PriceLevelSnapshot = 257,
+    TopPriceLevelUpdate = 256,
+    Trade = 38,
+    PositionReport = 801,
+    InstrumentStatusChange = 26,
+    OrderCollars = 272,
+    TradeCollars = 273,
+    InstrumentSummary = 671,
+    ProductSummary = 672,
+    PriceUpdate = 271,
+    News = 517,
+    RealTimeIndex = 500,
+    IndexSummary = 501,
+    TradingSessionStatus = 23,
+    Heartbeat = 1,
+    TestEvent = 8192,
+};
+
+type CalendarExceptionType = enum {
+    Closed = 1,
+    Open = 2,
+};
+
+type CollarMode = enum {
+    TradePriceCollar = 1,
+    OrderPriceCollar = 2,
+};
+
+type CollarExpression = enum {
+    Percentage = 1,
+    AbsoluteValue = 2,
+};
+
+type TradingPhaseType = enum {
+    ContinuousPriceTime = 1,
+    ContinuousRefPriceTime = 2,
+    ContinuousLastAuctionTime = 3,
+    AuctionOpening = 4,
+    BlockExactMatching = 5,
+    NoTradingClosed = 6,
+    Uncrossing = 7,
+    AuctionClosing = 8,
+    AuctionIntraday = 9,
+    AuctionVolatilityStatic = 10,
+    AuctionVolatilityDynamic = 11,
+    AuctionExtendedVolatilityStatic = 12,
+    AuctionExtendedVolatilityDynamic = 13,
+    NoTradingEarlyMonitoring = 14,
+    NoTradingLateMonitoring = 15,
+    Hybrid = 16,
+    HybridBuyOnly = 17,
+    HybridPreTrade = 18,
+    UnsuspensionAuction = 19,
+    Ipo = 20,
+    TenderOffer = 21,
+    HybridPreTradeBuyOnly = 22,
+    Distribution = 23,
+};
+
+type MarketModelType = enum {
+    NotApplicable = 1,
+    Clob = 2,
+    Block = 3,
+    Hybrid = 4,
+    Cross = 5,
+    Ipo = 6,
+    TenderOffer = 7,
+    Redistribution = 8,
+};
+
+type ProductIdentificationType = enum {
+    NotApplicable = 1,
+    Isin = 2,
+};
+
+type NominalCurrency = enum {
+    All = 8,
+    Dzd = 12,
+    Ars = 32,
+    Aud = 36,
+    Bsd = 44,
+    Bhd = 48,
+    Bdt = 50,
+    Amd = 51,
+    Bbd = 52,
+    Bmd = 60,
+    Btn = 64,
+    Bob = 68,
+    Bwp = 72,
+    Bzd = 84,
+    Sbd = 90,
+    Bnd = 96,
+    Mmk = 104,
+    Bif = 108,
+    Khr = 116,
+    Cad = 124,
+    Cve = 132,
+    Kyd = 136,
+    Lkr = 144,
+    Clp = 152,
+    Cny = 156,
+    Cop = 170,
+    Kmf = 174,
+    Crc = 188,
+    Hrk = 191,
+    Cup = 192,
+    Czk = 203,
+    Dkk = 208,
+    Dop = 214,
+    Svc = 222,
+    Etb = 230,
+    Ern = 232,
+    Fkp = 238,
+    Fjd = 242,
+    Djf = 262,
+    Gmd = 270,
+    Gip = 292,
+    Gtq = 320,
+    Gnf = 324,
+    Gyd = 328,
+    Htg = 332,
+    Hnl = 340,
+    Hkd = 344,
+    Huf = 348,
+    Isk = 352,
+    Inr = 356,
+    Idr = 360,
+    Irr = 364,
+    Iqd = 368,
+    Ils = 376,
+    Jmd = 388,
+    Jpy = 392,
+    Kzt = 398,
+    Jod = 400,
+    Kes = 404,
+    Kpw = 408,
+    Krw = 410,
+    Kwd = 414,
+    Kgs = 417,
+    Lak = 418,
+    Lbp = 422,
+    Lsl = 426,
+    Lrd = 430,
+    Lyd = 434,
+    Mop = 446,
+    Mwk = 454,
+    Myr = 458,
+    Mvr = 462,
+    Mur = 480,
+    Mxn = 484,
+    Mnt = 496,
+    Mdl = 498,
+    Mad = 504,
+    Omr = 512,
+    Nad = 516,
+    Npr = 524,
+    Ang = 532,
+    Awg = 533,
+    Vuv = 548,
+    Nzd = 554,
+    Nio = 558,
+    Ngn = 566,
+    Nok = 578,
+    Pkr = 586,
+    Pab = 590,
+    Pgk = 598,
+    Pyg = 600,
+    Pen = 604,
+    Php = 608,
+    Qar = 634,
+    Rub = 643,
+    Rwf = 646,
+    Shp = 654,
+    Sar = 682,
+    Scr = 690,
+    Sgd = 702,
+    Vnd = 704,
+    Sos = 706,
+    Zar = 710,
+    Ssp = 728,
+    Szl = 748,
+    Sek = 752,
+    Chf = 756,
+    Syp = 760,
+    Thb = 764,
+    Top = 776,
+    Ttd = 780,
+    Aed = 784,
+    Tnd = 788,
+    Ugx = 800,
+    Mkd = 807,
+    Egp = 818,
+    Gbp = 826,
+    Tzs = 834,
+    Usd = 840,
+    Uyu = 858,
+    Uzs = 860,
+    Wst = 882,
+    Yer = 886,
+    Twd = 901,
+    Sle = 925,
+    Ved = 926,
+    Uyw = 927,
+    Ves = 928,
+    Mru = 929,
+    Stn = 930,
+    Cuc = 931,
+    Zwl = 932,
+    Byn = 933,
+    Tmt = 934,
+    Ghs = 936,
+    Sdg = 938,
+    Uyi = 940,
+    Rsd = 941,
+    Mzn = 943,
+    Azn = 944,
+    Ron = 946,
+    Che = 947,
+    Chw = 948,
+    Try = 949,
+    Xaf = 950,
+    Xcd = 951,
+    Xof = 952,
+    Xpf = 953,
+    Xba = 955,
+    Xbb = 956,
+    Xbc = 957,
+    Xbd = 958,
+    Xau = 959,
+    Xdr = 960,
+    Xag = 961,
+    Xpt = 962,
+    Xts = 963,
+    Xpd = 964,
+    Xua = 965,
+    Zmw = 967,
+    Srd = 968,
+    Mga = 969,
+    Cou = 970,
+    Afn = 971,
+    Tjs = 972,
+    Aoa = 973,
+    Bgn = 975,
+    Cdf = 976,
+    Bam = 977,
+    Eur = 978,
+    Mxv = 979,
+    Uah = 980,
+    Gel = 981,
+    Bov = 984,
+    Pln = 985,
+    Brl = 986,
+    Clf = 990,
+    Xsu = 994,
+    Usn = 997,
+    Xxx = 999,
+};
+
+type TradingCurrency = enum {
+    All = 8,
+    Dzd = 12,
+    Ars = 32,
+    Aud = 36,
+    Bsd = 44,
+    Bhd = 48,
+    Bdt = 50,
+    Amd = 51,
+    Bbd = 52,
+    Bmd = 60,
+    Btn = 64,
+    Bob = 68,
+    Bwp = 72,
+    Bzd = 84,
+    Sbd = 90,
+    Bnd = 96,
+    Mmk = 104,
+    Bif = 108,
+    Khr = 116,
+    Cad = 124,
+    Cve = 132,
+    Kyd = 136,
+    Lkr = 144,
+    Clp = 152,
+    Cny = 156,
+    Cop = 170,
+    Kmf = 174,
+    Crc = 188,
+    Hrk = 191,
+    Cup = 192,
+    Czk = 203,
+    Dkk = 208,
+    Dop = 214,
+    Svc = 222,
+    Etb = 230,
+    Ern = 232,
+    Fkp = 238,
+    Fjd = 242,
+    Djf = 262,
+    Gmd = 270,
+    Gip = 292,
+    Gtq = 320,
+    Gnf = 324,
+    Gyd = 328,
+    Htg = 332,
+    Hnl = 340,
+    Hkd = 344,
+    Huf = 348,
+    Isk = 352,
+    Inr = 356,
+    Idr = 360,
+    Irr = 364,
+    Iqd = 368,
+    Ils = 376,
+    Jmd = 388,
+    Jpy = 392,
+    Kzt = 398,
+    Jod = 400,
+    Kes = 404,
+    Kpw = 408,
+    Krw = 410,
+    Kwd = 414,
+    Kgs = 417,
+    Lak = 418,
+    Lbp = 422,
+    Lsl = 426,
+    Lrd = 430,
+    Lyd = 434,
+    Mop = 446,
+    Mwk = 454,
+    Myr = 458,
+    Mvr = 462,
+    Mur = 480,
+    Mxn = 484,
+    Mnt = 496,
+    Mdl = 498,
+    Mad = 504,
+    Omr = 512,
+    Nad = 516,
+    Npr = 524,
+    Ang = 532,
+    Awg = 533,
+    Vuv = 548,
+    Nzd = 554,
+    Nio = 558,
+    Ngn = 566,
+    Nok = 578,
+    Pkr = 586,
+    Pab = 590,
+    Pgk = 598,
+    Pyg = 600,
+    Pen = 604,
+    Php = 608,
+    Qar = 634,
+    Rub = 643,
+    Rwf = 646,
+    Shp = 654,
+    Sar = 682,
+    Scr = 690,
+    Sgd = 702,
+    Vnd = 704,
+    Sos = 706,
+    Zar = 710,
+    Ssp = 728,
+    Szl = 748,
+    Sek = 752,
+    Chf = 756,
+    Syp = 760,
+    Thb = 764,
+    Top = 776,
+    Ttd = 780,
+    Aed = 784,
+    Tnd = 788,
+    Ugx = 800,
+    Mkd = 807,
+    Egp = 818,
+    Gbp = 826,
+    Tzs = 834,
+    Usd = 840,
+    Uyu = 858,
+    Uzs = 860,
+    Wst = 882,
+    Yer = 886,
+    Twd = 901,
+    Sle = 925,
+    Ved = 926,
+    Uyw = 927,
+    Ves = 928,
+    Mru = 929,
+    Stn = 930,
+    Cuc = 931,
+    Zwl = 932,
+    Byn = 933,
+    Tmt = 934,
+    Ghs = 936,
+    Sdg = 938,
+    Uyi = 940,
+    Rsd = 941,
+    Mzn = 943,
+    Azn = 944,
+    Ron = 946,
+    Che = 947,
+    Chw = 948,
+    Try = 949,
+    Xaf = 950,
+    Xcd = 951,
+    Xof = 952,
+    Xpf = 953,
+    Xba = 955,
+    Xbb = 956,
+    Xbc = 957,
+    Xbd = 958,
+    Xau = 959,
+    Xdr = 960,
+    Xag = 961,
+    Xpt = 962,
+    Xts = 963,
+    Xpd = 964,
+    Xua = 965,
+    Zmw = 967,
+    Srd = 968,
+    Mga = 969,
+    Cou = 970,
+    Afn = 971,
+    Tjs = 972,
+    Aoa = 973,
+    Bgn = 975,
+    Cdf = 976,
+    Bam = 977,
+    Eur = 978,
+    Mxv = 979,
+    Uah = 980,
+    Gel = 981,
+    Bov = 984,
+    Pln = 985,
+    Brl = 986,
+    Clf = 990,
+    Xsu = 994,
+    Usn = 997,
+    Xxx = 999,
+};
+
+type ProductType = enum {
+    Equity = 1,
+    FixedIncome = 2,
+    DerivativeFutures = 3,
+    DerivativeOptions = 4,
+    Index = 5,
+    Currency = 6,
+    StructuredProduct = 7,
+    Tracker = 9,
+};
+
+type ProductSubtype = enum {
+    Share = 1,
+    AllotmentRight = 2,
+    SubscriptionRight = 3,
+    TenderOffer = 4,
+    IssueRight = 5,
+    SubscriptionWarrant = 6,
+    BankSecurities = 7,
+    Bond = 8,
+    TreasuryBond = 9,
+    AgencyBond = 10,
+    MunicipalBond = 11,
+    CorporateBankBond = 12,
+    CorporateFirmBond = 13,
+    ConvertibleBond = 14,
+    MortgageBond = 15,
+    MortgageBackedBond = 16,
+    PublicMortgageBond = 17,
+    Bill = 18,
+    TreasuryBill = 19,
+    CommercialBill = 20,
+    ExchangeTradedFund = 21,
+    ExchangeTradedNote = 22,
+    ExchangeTradedCommodity = 23,
+    InvestmentCertificate = 24,
+    IndexFutures = 25,
+    StockFutures = 26,
+    CurrencyFutures = 27,
+    BondFutures = 28,
+    InterestRateFutures = 29,
+    IndexOptions = 30,
+    StockOptions = 31,
+    OptionWarrants = 32,
+    FactorCertificates = 33,
+    TurboCertificates = 34,
+    CapitalProtectionCertificates = 35,
+    BonusCertificates = 36,
+    ReverseConvertibleCertificates = 37,
+    ExpressCertificates = 38,
+    DiscountCertificates = 39,
+    IndexTrackerCertificates = 40,
+    OtherInvestmentCertificates = 41,
+    StructuredNotes = 42,
+    ReferenceRate = 43,
+    InterestRate = 44,
+    ExchangeRate = 45,
+    PriceIndex = 46,
+    TotalReturnIndex = 47,
+    SectorPriceIndex = 48,
+    SectorTotalReturnIndex = 49,
+    DividendIndex = 50,
+    StrategyPriceIndex = 51,
+    StrategyTotalReturnIndex = 52,
+    CommodityIndex = 53,
+    BondTotalReturnIndex = 54,
+    SupranationalBond = 55,
+    WarrantWithKnockOut = 56,
+};
+
+type Currency = enum {
+    All = 8,
+    Dzd = 12,
+    Ars = 32,
+    Aud = 36,
+    Bsd = 44,
+    Bhd = 48,
+    Bdt = 50,
+    Amd = 51,
+    Bbd = 52,
+    Bmd = 60,
+    Btn = 64,
+    Bob = 68,
+    Bwp = 72,
+    Bzd = 84,
+    Sbd = 90,
+    Bnd = 96,
+    Mmk = 104,
+    Bif = 108,
+    Khr = 116,
+    Cad = 124,
+    Cve = 132,
+    Kyd = 136,
+    Lkr = 144,
+    Clp = 152,
+    Cny = 156,
+    Cop = 170,
+    Kmf = 174,
+    Crc = 188,
+    Hrk = 191,
+    Cup = 192,
+    Czk = 203,
+    Dkk = 208,
+    Dop = 214,
+    Svc = 222,
+    Etb = 230,
+    Ern = 232,
+    Fkp = 238,
+    Fjd = 242,
+    Djf = 262,
+    Gmd = 270,
+    Gip = 292,
+    Gtq = 320,
+    Gnf = 324,
+    Gyd = 328,
+    Htg = 332,
+    Hnl = 340,
+    Hkd = 344,
+    Huf = 348,
+    Isk = 352,
+    Inr = 356,
+    Idr = 360,
+    Irr = 364,
+    Iqd = 368,
+    Ils = 376,
+    Jmd = 388,
+    Jpy = 392,
+    Kzt = 398,
+    Jod = 400,
+    Kes = 404,
+    Kpw = 408,
+    Krw = 410,
+    Kwd = 414,
+    Kgs = 417,
+    Lak = 418,
+    Lbp = 422,
+    Lsl = 426,
+    Lrd = 430,
+    Lyd = 434,
+    Mop = 446,
+    Mwk = 454,
+    Myr = 458,
+    Mvr = 462,
+    Mur = 480,
+    Mxn = 484,
+    Mnt = 496,
+    Mdl = 498,
+    Mad = 504,
+    Omr = 512,
+    Nad = 516,
+    Npr = 524,
+    Ang = 532,
+    Awg = 533,
+    Vuv = 548,
+    Nzd = 554,
+    Nio = 558,
+    Ngn = 566,
+    Nok = 578,
+    Pkr = 586,
+    Pab = 590,
+    Pgk = 598,
+    Pyg = 600,
+    Pen = 604,
+    Php = 608,
+    Qar = 634,
+    Rub = 643,
+    Rwf = 646,
+    Shp = 654,
+    Sar = 682,
+    Scr = 690,
+    Sgd = 702,
+    Vnd = 704,
+    Sos = 706,
+    Zar = 710,
+    Ssp = 728,
+    Szl = 748,
+    Sek = 752,
+    Chf = 756,
+    Syp = 760,
+    Thb = 764,
+    Top = 776,
+    Ttd = 780,
+    Aed = 784,
+    Tnd = 788,
+    Ugx = 800,
+    Mkd = 807,
+    Egp = 818,
+    Gbp = 826,
+    Tzs = 834,
+    Usd = 840,
+    Uyu = 858,
+    Uzs = 860,
+    Wst = 882,
+    Yer = 886,
+    Twd = 901,
+    Sle = 925,
+    Ved = 926,
+    Uyw = 927,
+    Ves = 928,
+    Mru = 929,
+    Stn = 930,
+    Cuc = 931,
+    Zwl = 932,
+    Byn = 933,
+    Tmt = 934,
+    Ghs = 936,
+    Sdg = 938,
+    Uyi = 940,
+    Rsd = 941,
+    Mzn = 943,
+    Azn = 944,
+    Ron = 946,
+    Che = 947,
+    Chw = 948,
+    Try = 949,
+    Xaf = 950,
+    Xcd = 951,
+    Xof = 952,
+    Xpf = 953,
+    Xba = 955,
+    Xbb = 956,
+    Xbc = 957,
+    Xbd = 958,
+    Xau = 959,
+    Xdr = 960,
+    Xag = 961,
+    Xpt = 962,
+    Xts = 963,
+    Xpd = 964,
+    Xua = 965,
+    Zmw = 967,
+    Srd = 968,
+    Mga = 969,
+    Cou = 970,
+    Afn = 971,
+    Tjs = 972,
+    Aoa = 973,
+    Bgn = 975,
+    Cdf = 976,
+    Bam = 977,
+    Eur = 978,
+    Mxv = 979,
+    Uah = 980,
+    Gel = 981,
+    Bov = 984,
+    Pln = 985,
+    Brl = 986,
+    Clf = 990,
+    Xsu = 994,
+    Usn = 997,
+    Xxx = 999,
+};
+
+type PriceExpressionType = enum {
+    NotApplicable = 3,
+    Price = 1,
+    Percentage = 2,
+};
+
+type NominalValueType = enum {
+    NotApplicable = 1,
+    Constant = 2,
+};
+
+type StrikePriceCurrency = enum {
+    All = 8,
+    Dzd = 12,
+    Ars = 32,
+    Aud = 36,
+    Bsd = 44,
+    Bhd = 48,
+    Bdt = 50,
+    Amd = 51,
+    Bbd = 52,
+    Bmd = 60,
+    Btn = 64,
+    Bob = 68,
+    Bwp = 72,
+    Bzd = 84,
+    Sbd = 90,
+    Bnd = 96,
+    Mmk = 104,
+    Bif = 108,
+    Khr = 116,
+    Cad = 124,
+    Cve = 132,
+    Kyd = 136,
+    Lkr = 144,
+    Clp = 152,
+    Cny = 156,
+    Cop = 170,
+    Kmf = 174,
+    Crc = 188,
+    Hrk = 191,
+    Cup = 192,
+    Czk = 203,
+    Dkk = 208,
+    Dop = 214,
+    Svc = 222,
+    Etb = 230,
+    Ern = 232,
+    Fkp = 238,
+    Fjd = 242,
+    Djf = 262,
+    Gmd = 270,
+    Gip = 292,
+    Gtq = 320,
+    Gnf = 324,
+    Gyd = 328,
+    Htg = 332,
+    Hnl = 340,
+    Hkd = 344,
+    Huf = 348,
+    Isk = 352,
+    Inr = 356,
+    Idr = 360,
+    Irr = 364,
+    Iqd = 368,
+    Ils = 376,
+    Jmd = 388,
+    Jpy = 392,
+    Kzt = 398,
+    Jod = 400,
+    Kes = 404,
+    Kpw = 408,
+    Krw = 410,
+    Kwd = 414,
+    Kgs = 417,
+    Lak = 418,
+    Lbp = 422,
+    Lsl = 426,
+    Lrd = 430,
+    Lyd = 434,
+    Mop = 446,
+    Mwk = 454,
+    Myr = 458,
+    Mvr = 462,
+    Mur = 480,
+    Mxn = 484,
+    Mnt = 496,
+    Mdl = 498,
+    Mad = 504,
+    Omr = 512,
+    Nad = 516,
+    Npr = 524,
+    Ang = 532,
+    Awg = 533,
+    Vuv = 548,
+    Nzd = 554,
+    Nio = 558,
+    Ngn = 566,
+    Nok = 578,
+    Pkr = 586,
+    Pab = 590,
+    Pgk = 598,
+    Pyg = 600,
+    Pen = 604,
+    Php = 608,
+    Qar = 634,
+    Rub = 643,
+    Rwf = 646,
+    Shp = 654,
+    Sar = 682,
+    Scr = 690,
+    Sgd = 702,
+    Vnd = 704,
+    Sos = 706,
+    Zar = 710,
+    Ssp = 728,
+    Szl = 748,
+    Sek = 752,
+    Chf = 756,
+    Syp = 760,
+    Thb = 764,
+    Top = 776,
+    Ttd = 780,
+    Aed = 784,
+    Tnd = 788,
+    Ugx = 800,
+    Mkd = 807,
+    Egp = 818,
+    Gbp = 826,
+    Tzs = 834,
+    Usd = 840,
+    Uyu = 858,
+    Uzs = 860,
+    Wst = 882,
+    Yer = 886,
+    Twd = 901,
+    Sle = 925,
+    Ved = 926,
+    Uyw = 927,
+    Ves = 928,
+    Mru = 929,
+    Stn = 930,
+    Cuc = 931,
+    Zwl = 932,
+    Byn = 933,
+    Tmt = 934,
+    Ghs = 936,
+    Sdg = 938,
+    Uyi = 940,
+    Rsd = 941,
+    Mzn = 943,
+    Azn = 944,
+    Ron = 946,
+    Che = 947,
+    Chw = 948,
+    Try = 949,
+    Xaf = 950,
+    Xcd = 951,
+    Xof = 952,
+    Xpf = 953,
+    Xba = 955,
+    Xbb = 956,
+    Xbc = 957,
+    Xbd = 958,
+    Xau = 959,
+    Xdr = 960,
+    Xag = 961,
+    Xpt = 962,
+    Xts = 963,
+    Xpd = 964,
+    Xua = 965,
+    Zmw = 967,
+    Srd = 968,
+    Mga = 969,
+    Cou = 970,
+    Afn = 971,
+    Tjs = 972,
+    Aoa = 973,
+    Bgn = 975,
+    Cdf = 976,
+    Bam = 977,
+    Eur = 978,
+    Mxv = 979,
+    Uah = 980,
+    Gel = 981,
+    Bov = 984,
+    Pln = 985,
+    Brl = 986,
+    Clf = 990,
+    Xsu = 994,
+    Usn = 997,
+    Xxx = 999,
+};
+
+type BondCouponType = enum {
+    NotApplicable = 1,
+    Zero = 2,
+    Fixed = 3,
+    Floating = 4,
+    Indexed = 5,
+};
+
+type IssuerRegCountry = enum {
+    Afg = 4,
+    Alb = 8,
+    Ata = 10,
+    Dza = 12,
+    Asm = 16,
+    And = 20,
+    Ago = 24,
+    Atg = 28,
+    Aze = 31,
+    Arg = 32,
+    Aus = 36,
+    Aut = 40,
+    Bhs = 44,
+    Bhr = 48,
+    Bgd = 50,
+    Arm = 51,
+    Brb = 52,
+    Bel = 56,
+    Bmu = 60,
+    Btn = 64,
+    Bol = 68,
+    Bih = 70,
+    Bwa = 72,
+    Bvt = 74,
+    Bra = 76,
+    Blz = 84,
+    Iot = 86,
+    Slb = 90,
+    Vgb = 92,
+    Brn = 96,
+    Bgr = 100,
+    Mmr = 104,
+    Bdi = 108,
+    Blr = 112,
+    Khm = 116,
+    Cmr = 120,
+    Can = 124,
+    Cpv = 132,
+    Cym = 136,
+    Caf = 140,
+    Lka = 144,
+    Tcd = 148,
+    Chl = 152,
+    Chn = 156,
+    Twn = 158,
+    Cxr = 162,
+    Cck = 166,
+    Col = 170,
+    Com = 174,
+    Myt = 175,
+    Cog = 178,
+    Cod = 180,
+    Cok = 184,
+    Cri = 188,
+    Hrv = 191,
+    Cub = 192,
+    Cyp = 196,
+    Cze = 203,
+    Ben = 204,
+    Dnk = 208,
+    Dma = 212,
+    Dom = 214,
+    Ecu = 218,
+    Slv = 222,
+    Gnq = 226,
+    Eth = 231,
+    Eri = 232,
+    Est = 233,
+    Fro = 234,
+    Flk = 238,
+    Sgs = 239,
+    Fji = 242,
+    Fin = 246,
+    Ala = 248,
+    Fra = 250,
+    Guf = 254,
+    Pyf = 258,
+    Atf = 260,
+    Dji = 262,
+    Gab = 266,
+    Geo = 268,
+    Gmb = 270,
+    Pse = 275,
+    Deu = 276,
+    Gha = 288,
+    Gib = 292,
+    Kir = 296,
+    Grc = 300,
+    Grl = 304,
+    Grd = 308,
+    Glp = 312,
+    Gum = 316,
+    Gtm = 320,
+    Gin = 324,
+    Guy = 328,
+    Hti = 332,
+    Hmd = 334,
+    Vat = 336,
+    Hnd = 340,
+    Hkg = 344,
+    Hun = 348,
+    Isl = 352,
+    Ind = 356,
+    Idn = 360,
+    Irn = 364,
+    Irq = 368,
+    Irl = 372,
+    Isr = 376,
+    Ita = 380,
+    Civ = 384,
+    Jam = 388,
+    Jpn = 392,
+    Kaz = 398,
+    Jor = 400,
+    Ken = 404,
+    Prk = 408,
+    Kor = 410,
+    Kwt = 414,
+    Kgz = 417,
+    Lao = 418,
+    Lbn = 422,
+    Lso = 426,
+    Lva = 428,
+    Lbr = 430,
+    Lby = 434,
+    Lie = 438,
+    Ltu = 440,
+    Lux = 442,
+    Mac = 446,
+    Mdg = 450,
+    Mwi = 454,
+    Mys = 458,
+    Mdv = 462,
+    Mli = 466,
+    Mlt = 470,
+    Mtq = 474,
+    Mrt = 478,
+    Mus = 480,
+    Mex = 484,
+    Mco = 492,
+    Mng = 496,
+    Mda = 498,
+    Mne = 499,
+    Msr = 500,
+    Mar = 504,
+    Moz = 508,
+    Omn = 512,
+    Nam = 516,
+    Nru = 520,
+    Npl = 524,
+    Nld = 528,
+    Cuw = 531,
+    Abw = 533,
+    Sxm = 534,
+    Bes = 535,
+    Ncl = 540,
+    Vut = 548,
+    Nzl = 554,
+    Nic = 558,
+    Ner = 562,
+    Nga = 566,
+    Niu = 570,
+    Nfk = 574,
+    Nor = 578,
+    Mnp = 580,
+    Umi = 581,
+    Fsm = 583,
+    Mhl = 584,
+    Plw = 585,
+    Pak = 586,
+    Pan = 591,
+    Png = 598,
+    Pry = 600,
+    Per = 604,
+    Phl = 608,
+    Pcn = 612,
+    Pol = 616,
+    Prt = 620,
+    Gnb = 624,
+    Tls = 626,
+    Pri = 630,
+    Qat = 634,
+    Reu = 638,
+    Rou = 642,
+    Rus = 643,
+    Rwa = 646,
+    Blm = 652,
+    Shn = 654,
+    Kna = 659,
+    Aia = 660,
+    Lca = 662,
+    Maf = 663,
+    Spm = 666,
+    Vct = 670,
+    Smr = 674,
+    Stp = 678,
+    Sau = 682,
+    Sen = 686,
+    Srb = 688,
+    Syc = 690,
+    Sle = 694,
+    Sgp = 702,
+    Svk = 703,
+    Vnm = 704,
+    Svn = 705,
+    Som = 706,
+    Zaf = 710,
+    Zwe = 716,
+    Esp = 724,
+    Ssd = 728,
+    Sdn = 729,
+    Esh = 732,
+    Sur = 740,
+    Sjm = 744,
+    Swz = 748,
+    Swe = 752,
+    Che = 756,
+    Syr = 760,
+    Tjk = 762,
+    Tha = 764,
+    Tgo = 768,
+    Tkl = 772,
+    Ton = 776,
+    Tto = 780,
+    Are = 784,
+    Tun = 788,
+    Tur = 792,
+    Tkm = 795,
+    Tca = 796,
+    Tuv = 798,
+    Uga = 800,
+    Ukr = 804,
+    Mkd = 807,
+    Egy = 818,
+    Gbr = 826,
+    Ggy = 831,
+    Jey = 832,
+    Imn = 833,
+    Tza = 834,
+    Usa = 840,
+    Vir = 850,
+    Bfa = 854,
+    Ury = 858,
+    Uzb = 860,
+    Ven = 862,
+    Wlf = 876,
+    Wsm = 882,
+    Yem = 887,
+    Zmb = 894,
+};
+
+type UsIndicator = enum {
+    NotApplicable = 1,
+    RegulationS = 2,
+    RegulationSPlusRule144a = 3,
+};
+
+type SettlementType = enum {
+    NotApplicable = 1,
+    CashSettlement = 2,
+    PhysicalDelivery = 3,
+};
+
+type OptionType = enum {
+    NotApplicable = 1,
+    Call = 2,
+    Put = 3,
+};
+
+type ExerciseType = enum {
+    Amer = 1,
+    Euro = 2,
+    Na = 3,
+};
+
+type Status = enum {
+    Active = 1,
+    Inactive = 2,
+    MarketOperationsSuspension = 3,
+    OutsideCollarsStatic = 4,
+    OutsideCollarsDynamic = 5,
+    RegulatorySuspension = 6,
+    HybridNoQuotes = 8,
+    HybridKnockout = 9,
+    HybridKnockoutByIssuer = 10,
+};
+
+type IsLeverage = enum {
+    NotApplicable = 1,
+    Yes = 2,
+    No = 3,
+};
+
+type IndexPublicationSchedule = enum {
+    Continuous = 1,
+    Fixing = 2,
+    Closing = 3,
+};
+
+type IndexType = enum {
+    W = 1,
+    Z = 2,
+    V = 3,
+    M = 4,
+    S = 5,
+    L = 6,
+};
+
+type IndexUnderlyingType = enum {
+    NotApplicable = 1,
+    Index = 2,
+    ReferenceRate = 3,
+};
+
+type AuctionType = enum {
+    NotApplicable = 1,
+    AuctionOpening = 2,
+    AuctionClosing = 3,
+    AuctionIntraday = 4,
+    AuctionVolatilityStatic = 5,
+    AuctionVolatilityDynamic = 6,
+    AuctionExtendedVolatilityStatic = 7,
+    AuctionExtendedVolatilityDynamic = 8,
+    UnsuspensionAuction = 9,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type PriceCurrency = enum {
+    All = 8,
+    Dzd = 12,
+    Ars = 32,
+    Aud = 36,
+    Bsd = 44,
+    Bhd = 48,
+    Bdt = 50,
+    Amd = 51,
+    Bbd = 52,
+    Bmd = 60,
+    Btn = 64,
+    Bob = 68,
+    Bwp = 72,
+    Bzd = 84,
+    Sbd = 90,
+    Bnd = 96,
+    Mmk = 104,
+    Bif = 108,
+    Khr = 116,
+    Cad = 124,
+    Cve = 132,
+    Kyd = 136,
+    Lkr = 144,
+    Clp = 152,
+    Cny = 156,
+    Cop = 170,
+    Kmf = 174,
+    Crc = 188,
+    Hrk = 191,
+    Cup = 192,
+    Czk = 203,
+    Dkk = 208,
+    Dop = 214,
+    Svc = 222,
+    Etb = 230,
+    Ern = 232,
+    Fkp = 238,
+    Fjd = 242,
+    Djf = 262,
+    Gmd = 270,
+    Gip = 292,
+    Gtq = 320,
+    Gnf = 324,
+    Gyd = 328,
+    Htg = 332,
+    Hnl = 340,
+    Hkd = 344,
+    Huf = 348,
+    Isk = 352,
+    Inr = 356,
+    Idr = 360,
+    Irr = 364,
+    Iqd = 368,
+    Ils = 376,
+    Jmd = 388,
+    Jpy = 392,
+    Kzt = 398,
+    Jod = 400,
+    Kes = 404,
+    Kpw = 408,
+    Krw = 410,
+    Kwd = 414,
+    Kgs = 417,
+    Lak = 418,
+    Lbp = 422,
+    Lsl = 426,
+    Lrd = 430,
+    Lyd = 434,
+    Mop = 446,
+    Mwk = 454,
+    Myr = 458,
+    Mvr = 462,
+    Mur = 480,
+    Mxn = 484,
+    Mnt = 496,
+    Mdl = 498,
+    Mad = 504,
+    Omr = 512,
+    Nad = 516,
+    Npr = 524,
+    Ang = 532,
+    Awg = 533,
+    Vuv = 548,
+    Nzd = 554,
+    Nio = 558,
+    Ngn = 566,
+    Nok = 578,
+    Pkr = 586,
+    Pab = 590,
+    Pgk = 598,
+    Pyg = 600,
+    Pen = 604,
+    Php = 608,
+    Qar = 634,
+    Rub = 643,
+    Rwf = 646,
+    Shp = 654,
+    Sar = 682,
+    Scr = 690,
+    Sgd = 702,
+    Vnd = 704,
+    Sos = 706,
+    Zar = 710,
+    Ssp = 728,
+    Szl = 748,
+    Sek = 752,
+    Chf = 756,
+    Syp = 760,
+    Thb = 764,
+    Top = 776,
+    Ttd = 780,
+    Aed = 784,
+    Tnd = 788,
+    Ugx = 800,
+    Mkd = 807,
+    Egp = 818,
+    Gbp = 826,
+    Tzs = 834,
+    Usd = 840,
+    Uyu = 858,
+    Uzs = 860,
+    Wst = 882,
+    Yer = 886,
+    Twd = 901,
+    Sle = 925,
+    Ved = 926,
+    Uyw = 927,
+    Ves = 928,
+    Mru = 929,
+    Stn = 930,
+    Cuc = 931,
+    Zwl = 932,
+    Byn = 933,
+    Tmt = 934,
+    Ghs = 936,
+    Sdg = 938,
+    Uyi = 940,
+    Rsd = 941,
+    Mzn = 943,
+    Azn = 944,
+    Ron = 946,
+    Che = 947,
+    Chw = 948,
+    Try = 949,
+    Xaf = 950,
+    Xcd = 951,
+    Xof = 952,
+    Xpf = 953,
+    Xba = 955,
+    Xbb = 956,
+    Xbc = 957,
+    Xbd = 958,
+    Xau = 959,
+    Xdr = 960,
+    Xag = 961,
+    Xpt = 962,
+    Xts = 963,
+    Xpd = 964,
+    Xua = 965,
+    Zmw = 967,
+    Srd = 968,
+    Mga = 969,
+    Cou = 970,
+    Afn = 971,
+    Tjs = 972,
+    Aoa = 973,
+    Bgn = 975,
+    Cdf = 976,
+    Bam = 977,
+    Eur = 978,
+    Mxv = 979,
+    Uah = 980,
+    Gel = 981,
+    Bov = 984,
+    Pln = 985,
+    Brl = 986,
+    Clf = 990,
+    Xsu = 994,
+    Usn = 997,
+    Xxx = 999,
+};
+
+type PriceNotation = enum {
+    NotApplicable = 3,
+    Price = 1,
+    Percentage = 2,
+};
+
+type MmtMarketMechanism = enum {
+    CentralLimitOrderBook = 1,
+    QuoteDrivenMarket = 2,
+    DarkOrderBook = 3,
+    OffBook = 4,
+    PeriodicAuction = 5,
+    RequestForQuotes = 6,
+    Other = 7,
+};
+
+type MmtTradingMode = enum {
+    UndefinedAuction = 1,
+    ScheduledOpeningAuction = 2,
+    ScheduledClosingAuction = 3,
+    ScheduledIntradayAuction = 4,
+    UnscheduledAuction = 5,
+    ContinuousTrading = 6,
+    AtMarketCloseTrading = 7,
+    OutOfMainSessionTrading = 8,
+    TradeReportingOnExchange = 9,
+    TradeReportingOffExchange = 10,
+    TradeReportingSystematicInternaliser = 11,
+};
+
+type MmtTransactionCategory = enum {
+    DarkTrade = 1,
+    TradePriceImprovement = 2,
+    PackageTrade = 3,
+    ExchangeForPhysicalsTrade = 4,
+    None_5 = 5,
+};
+
+type MmtNegotiationIndicator = enum {
+    NegotiatedTrade = 1,
+    NegotiatedTradeLiquidFinancialInstruments = 2,
+    NegotiatedTradeIlliquidFinancialInstruments = 3,
+    NegotiatedTradeOther = 4,
+    NoNegotiatedTrade = 5,
+    PreTradeTransparencyWaiverIlliquidInstrument = 6,
+    PreTradeTransparencyWaiverStandardMarketSize = 7,
+    PreTradeTransparencyWaiversIlqdAndSize = 8,
+};
+
+type MmtAgencyCrossTradeIndicator = enum {
+    AgencyCrossTrade = 1,
+    NoAgencyCrossTrade = 2,
+};
+
+type MmtModificationIndicator = enum {
+    TradeCancellation = 1,
+    TradeAmendment = 2,
+    NewTrade = 3,
+};
+
+type MmtBenchmarkReferencePriceIndicator = enum {
+    BenchmarkTrade = 1,
+    ReferencePriceTrade = 2,
+    NoBenchmarkorReferencePriceTrade = 3,
+};
+
+type MmtSpecialDividendIndicator = enum {
+    SpecialDividendTrade = 1,
+    NoSpecialDividendTrade = 2,
+};
+
+type MmtOffBookAutomatedIndicator = enum {
+    UnspecifiedOrNotApply = 1,
+    OffBookNonAutomated = 2,
+    OffBookAutomated = 3,
+};
+
+type MmtOrdinaryTradeIndicator = enum {
+    PlainVanillaTrade = 1,
+    NonPriceFormingTrade = 2,
+    TradeNotContributingToPriceDiscovery = 3,
+    PricePending = 4,
+};
+
+type MmtAlgorithmicIndicator = enum {
+    AlgorithmicTrade = 1,
+    NoAlgorithmicTrade = 2,
+};
+
+type MmtPostTradeDeferralReason = enum {
+    ImmediatePublication = 1,
+    NonImmediatePublication = 2,
+    NonImmediatePublicationLargeInScale = 3,
+    NonImmediatePublicationIlliquidInstrument = 4,
+    NonImmediatePublicationSizeSpecific = 5,
+    NonImmediatePublicationIlqdAndSize = 6,
+    NonImmediatePublicationIlqdAndLrgs = 7,
+};
+
+type MmtPostTradeDeferralType = enum {
+    LimitedDetailsTrade = 1,
+    DailyAggregatedTrade = 2,
+    VolumeOmissionTrade = 3,
+    FourWeeksAggregationTrade = 4,
+    IndefiniteAggregationTrade = 5,
+    VolumeOmissionTradeAggregated = 6,
+    NotApplicable = 7,
+};
+
+type PosType = enum {
+    Sod = 1,
+    Itd = 2,
+    Fin = 3,
+};
+
+type CollarType = enum {
+    Static = 1,
+    Dynamic = 2,
+};
+
+type ClosingPriceType = enum {
+    InitialPrice = 1,
+    Ltp = 2,
+    LastAcp = 3,
+    FairValue = 4,
+    DailySettlementPrice = 5,
+    FinalSettlementPrice = 6,
+};
+
+type AdjustedClosingPriceReason = enum {
+    NotApplicable = 1,
+    Dividend = 2,
+    IssueRight = 3,
+    Split = 4,
+    ReverseSplit = 5,
+    Bonus = 6,
+    SpinOff = 7,
+    TickSizeChange = 8,
+    OrderPurge = 9,
+    OtherReason = 10,
+};
+
+type MarkerPriceChange = enum {
+    Increase = 1,
+    Decrease = 2,
+    NoChange = 3,
+    NotApplicable = 4,
+};
+
+type QuotationSystem = enum {
+    Na = 1,
+    SinglePriceSingleFixing = 2,
+    ContinuousTrading = 3,
+    SinglePriceTwoFixings = 4,
+};
+
+type PriceUpdateType = enum {
+    ReferencePrice = 1,
+    ReferenceIndexPrice = 2,
+    ReferenceFixingIndexPrice = 3,
+    MidPrice = 4,
+    FixingPrice = 5,
+    FixingYtm = 6,
+};
+
+type IndexLevelCode = enum {
+    PreviousClosingValue = 1,
+    TheoreticalValueBeforeOpening = 2,
+    ValueBeforeOpening = 3,
+    OpeningValue = 4,
+    CurrentValue = 5,
+    PreClosingValue = 6,
+    ClosingValue = 7,
+    ValueWithoutOpening = 8,
+};
+
+type TradingSessionEvent = enum {
+    Na = 1,
+    StartOfTechnicalSession = 2,
+    EndOfTechnicalSession = 3,
+    InitialReferenceDataStart = 4,
+    InitialReferenceDataEnd = 5,
+    PreviousDayRestateStart = 6,
+    PreviousDayRestateEnd = 7,
+    NextSessionReferenceDataStart = 8,
+    NextSessionReferenceDataEnd = 9,
+    StartOfTradingSessionMic = 12,
+    EndOfTradingSessionMic = 13,
+};
+
+type EventType = enum {
+    Flush = 1,
+    ScenarioStart = 2,
+    ScenarioEnd = 3,
+};
+

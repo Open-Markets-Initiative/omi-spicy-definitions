@@ -1,0 +1,30 @@
+module GpwWseReplaybboWatsV17620ReplayRequest;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type WseReplaybboV17620 = unit {
+    replay_request_message: ReplayRequestMessage[] &eod;
+};
+
+type ReplayRequestMessage = unit {
+    replay_request_header: ReplayRequestHeader;
+    replay_request_payload: ReplayRequest;
+};
+
+type ReplayRequestHeader = unit {
+    replay_message_length: uint16;
+    replay_message_type: uint16 &convert=ReplayMessageType($$);
+};
+
+type ReplayRequest = unit {
+    seq_num: uint32;
+    end_seq_num: uint32;
+    stream_id: uint8;
+};
+
+type ReplayMessageType = enum {
+    ReplayRequest = 1,
+};
+

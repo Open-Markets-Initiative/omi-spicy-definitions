@@ -1,0 +1,1165 @@
+module GpwWseOrderentryWatsV17620;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type WseOrderentryV17620 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::Login -> login: Login;
+        MessageType::LoginResponse -> login_response: LoginResponse;
+        MessageType::ConnectionClose -> connection_close: ConnectionClose;
+        MessageType::Reject -> reject_field: Reject;
+        MessageType::Test -> test: Test;
+        MessageType::TestEvent -> test_event: TestEvent;
+        MessageType::TradingSessionStatus -> trading_session_status: TradingSessionStatus;
+        MessageType::OrderAdd -> order_add: OrderAdd;
+        MessageType::OrderAddResponse -> order_add_response: OrderAddResponse;
+        MessageType::OrderCancel -> order_cancel: OrderCancel;
+        MessageType::OrderCancelResponse -> order_cancel_response: OrderCancelResponse;
+        MessageType::OrderModify -> order_modify: OrderModify;
+        MessageType::OrderModifyResponse -> order_modify_response: OrderModifyResponse;
+        MessageType::OrderMassCancel -> order_mass_cancel: OrderMassCancel;
+        MessageType::OrderMassCancelResponse -> order_mass_cancel_response: OrderMassCancelResponse;
+        MessageType::OrderExecute -> order_execute: OrderExecute;
+        MessageType::MassQuote -> mass_quote: MassQuote;
+        MessageType::MassQuoteResponse -> mass_quote_response: MassQuoteResponse;
+        MessageType::MarketMakerCommand -> market_maker_command: MarketMakerCommand;
+        MessageType::MarketMakerCommandResponse -> market_maker_command_response: MarketMakerCommandResponse;
+        MessageType::RequestForExecution -> request_for_execution: RequestForExecution;
+        MessageType::BidOfferUpdate -> bid_offer_update: BidOfferUpdate;
+        MessageType::TradeCaptureReportSingle -> trade_capture_report_single: TradeCaptureReportSingle;
+        MessageType::TradeCaptureReportDual -> trade_capture_report_dual: TradeCaptureReportDual;
+        MessageType::TradeCaptureReportResponse -> trade_capture_report_response: TradeCaptureReportResponse;
+        MessageType::TradeBust -> trade_bust: TradeBust;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint16 &convert=MessageType($$);
+    sequence_number: uint32;
+    timestamp: uint64;
+    source_timestamp: uint64;
+};
+
+type Login = unit {
+    version: uint16;
+    token: bytes &size=8;
+    connection_id: uint16;
+    next_expected_seq_num: uint32;
+    last_sent_seq_num: uint32;
+};
+
+type LoginResponse = unit {
+    result_login_result: uint8 &convert=ResultLoginResult($$);
+    next_expected_seq_num: uint32;
+    last_replay_seq_num: uint32;
+    session_id: uint16;
+};
+
+type ConnectionClose = unit {
+    reason_connection_close_reason: uint8 &convert=ReasonConnectionCloseReason($$);
+};
+
+type Reject = unit {
+    ref_seq_num: uint32;
+    reject_reason: uint8 &convert=RejectReason($$);
+};
+
+type Test = unit {
+    target_timestamp: uint64;
+};
+
+type TestEvent = unit {
+    scenario_name: bytes &size=200;
+    event_type: uint8 &convert=EventType($$);
+};
+
+type TradingSessionStatus = unit {
+    market_id: bytes &size=4;
+    date: uint32;
+    trading_session_event: uint8 &convert=TradingSessionEvent($$);
+};
+
+type OrderAdd = unit {
+    stp_id: uint8;
+    instrument_id: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8 &convert=Side($$);
+    price: int64;
+    trigger_price: int64;
+    quantity: uint64;
+    display_qty: uint64;
+    capacity: uint8 &convert=Capacity($$);
+    account: bytes &size=16;
+    account_type: uint8 &convert=AccountType($$);
+    flags: bitfield(8) {
+        liquidity_provision_activity: 0;
+        direct_or_sponsored_access: 1;
+        market_maker_or_specialist: 2;
+        reserved_3_to_7: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mifid_fields: MifidFields;
+    expire: uint64;
+    memo: bytes &size=18;
+    client_order_id: bytes &size=20;
+    clearing_member_code: bytes &size=20;
+    clearing_member_clearing_identifier: uint8 &convert=ClearingMemberClearingIdentifier($$);
+    exec_inst: bitfield(8) {
+        cancel_on_connection_loss: 0;
+        reserved_1_to_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    fee_structure_id: uint8;
+    interested_party: bytes &size=8;
+};
+
+type MifidFields = unit {
+    client: Client;
+    executing_trader: ExecutingTrader;
+    investment_decision_maker: InvestmentDecisionMaker;
+};
+
+type Client = unit {
+    short_code: uint32;
+    qualifier: uint8 &convert=Qualifier($$);
+};
+
+type ExecutingTrader = unit {
+    short_code: uint32;
+    qualifier: uint8 &convert=Qualifier($$);
+};
+
+type InvestmentDecisionMaker = unit {
+    short_code: uint32;
+    qualifier: uint8 &convert=Qualifier($$);
+};
+
+type OrderAddResponse = unit {
+    order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    public_order_id: uint64;
+    display_qty: uint64;
+    filled: uint64;
+    status_order_status: uint8 &convert=StatusOrderStatus($$);
+    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+    exec_type_reason: uint8 &convert=ExecTypeReason($$);
+    client_order_id: bytes &size=20;
+};
+
+type OrderCancel = unit {
+    order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    mifid_fields: MifidFields;
+    client_order_id: bytes &size=20;
+};
+
+type OrderCancelResponse = unit {
+    order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    status_order_status: uint8 &convert=StatusOrderStatus($$);
+    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+    exec_type_reason: uint8 &convert=ExecTypeReason($$);
+    client_order_id: bytes &size=20;
+};
+
+type OrderModify = unit {
+    order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    price: int64;
+    trigger_price: int64;
+    quantity: uint64;
+    display_qty: uint64;
+    expire: uint64;
+    mifid_fields: MifidFields;
+    client_order_id: bytes &size=20;
+};
+
+type OrderModifyResponse = unit {
+    order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    filled: uint64;
+    status_order_status: uint8 &convert=StatusOrderStatus($$);
+    priority_flag: uint8 &convert=PriorityFlag($$);
+    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+    client_order_id: bytes &size=20;
+};
+
+type OrderMassCancel = unit {
+    mass_cancel_request_type: uint8 &convert=MassCancelRequestType($$);
+    target_party_role: uint8 &convert=TargetPartyRole($$);
+    target_party_id: uint32;
+    market_segment_id: uint32;
+    instrument_id: uint32;
+    executing_trader: ExecutingTrader;
+    client_order_id: bytes &size=20;
+};
+
+type OrderMassCancelResponse = unit {
+    total_affected_orders: uint64;
+    mass_cancel_request_type: uint8 &convert=MassCancelRequestType($$);
+    mass_cancel_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    target_party_role: uint8 &convert=TargetPartyRole($$);
+    target_party_id: uint32;
+    market_segment_id: uint32;
+    reason_mass_cancel_rejection_reason: uint16 &convert=ReasonMassCancelRejectionReason($$);
+    client_order_id: bytes &size=20;
+};
+
+type OrderExecute = unit {
+    instrument_id: uint32;
+    order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    trade_id: uint32;
+    price: int64;
+    quantity: uint64;
+    leaves_qty: uint64;
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    currency: uint16 &convert=Currency($$);
+    side: uint8 &convert=Side($$);
+    client_order_id: bytes &size=20;
+};
+
+type MassQuote = unit {
+    stp_id: uint8;
+    capacity: uint8 &convert=Capacity($$);
+    account: bytes &size=16;
+    account_type: uint8 &convert=AccountType($$);
+    flags: bitfield(8) {
+        liquidity_provision_activity: 0;
+        direct_or_sponsored_access: 1;
+        market_maker_or_specialist: 2;
+        reserved_3_to_7: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mifid_fields: MifidFields;
+    memo: bytes &size=18;
+    clearing_member_code: bytes &size=20;
+    clearing_member_clearing_identifier: uint8 &convert=ClearingMemberClearingIdentifier($$);
+    quotes: Quotes;
+    fee_structure_id: uint8;
+    interested_party: bytes &size=8;
+    quote_id: bytes &size=20;
+};
+
+type Quotes = unit {
+    count: uint8;
+    items_quotes_array: ItemsQuotesArray[30];
+};
+
+type ItemsQuotesArray = unit {
+    quote: Quote;
+};
+
+type Quote = unit {
+    instrument_id: uint32;
+    bid: Bid;
+    ask: Ask;
+};
+
+type Bid = unit {
+    price: int64;
+    quantity: uint64;
+};
+
+type Ask = unit {
+    price: int64;
+    quantity: uint64;
+};
+
+type MassQuoteResponse = unit {
+    mass_quote_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    responses: Responses;
+    status_mass_quote_status: uint8 &convert=StatusMassQuoteStatus($$);
+    reason_mass_quote_rejection_reason: uint16 &convert=ReasonMassQuoteRejectionReason($$);
+    fee_structure_id: uint8;
+};
+
+type Responses = unit {
+    count: uint8;
+    items_quote_order_response_array: ItemsQuoteOrderResponseArray[30];
+};
+
+type ItemsQuoteOrderResponseArray = unit {
+    quote_order_response: QuoteOrderResponse;
+};
+
+type QuoteOrderResponse = unit {
+    instrument_id: uint32;
+    bid_order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    ask_order_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    status_order_status: uint8 &convert=StatusOrderStatus($$);
+    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+};
+
+type MarketMakerCommand = unit {
+    instrument_id: uint32;
+    action: uint8 &convert=Action($$);
+};
+
+type MarketMakerCommandResponse = unit {
+    ref_id: uint32;
+    result_command_result: uint8 &convert=ResultCommandResult($$);
+    rejection_code: uint16 &convert=RejectionCode($$);
+};
+
+type RequestForExecution = unit {
+    instrument_id: uint32;
+    reason_request_for_execution_reason: uint8 &convert=ReasonRequestForExecutionReason($$);
+};
+
+type BidOfferUpdate = unit {
+    instrument_id: uint32;
+    update_type: uint8 &convert=UpdateType($$);
+    total_bid_size: uint64;
+    total_offer_size: uint64;
+    bid_orders: uint32;
+    offer_orders: uint32;
+};
+
+type TradeCaptureReportSingle = unit {
+    instrument_id: uint32;
+    trade_report_id: bytes &size=21;
+    secondary_trade_report_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    trade_id: uint32;
+    trade_report_trans_type: uint8 &convert=TradeReportTransType($$);
+    trade_report_type: uint8 &convert=TradeReportType($$);
+    trade_type: uint8 &convert=TradeType($$);
+    algorithmic_trade_indicator: uint8 &convert=AlgorithmicTradeIndicator($$);
+    exec_type: uint8 &convert=ExecType($$);
+    trade_report_ref_id: bytes &size=21;
+    last_qty: uint64;
+    last_px: int64;
+    settlement_date: uint32;
+    side: uint8 &convert=Side($$);
+    counterparty_code: bytes &size=16;
+    tcr_party: TcrParty;
+};
+
+type TcrParty = unit {
+    flags: bitfield(8) {
+        liquidity_provision_activity: 0;
+        direct_or_sponsored_access: 1;
+        market_maker_or_specialist: 2;
+        reserved_3_to_7: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mifid_fields: MifidFields;
+    clearing_member_code: bytes &size=20;
+    clearing_member_clearing_identifier: uint8 &convert=ClearingMemberClearingIdentifier($$);
+    account: bytes &size=16;
+    account_type: uint8 &convert=AccountType($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    fee_structure_id: uint8;
+    interested_party: bytes &size=8;
+    memo: bytes &size=18;
+};
+
+type TradeCaptureReportDual = unit {
+    instrument_id: uint32;
+    trade_report_id: bytes &size=21;
+    secondary_trade_report_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    trade_id: uint32;
+    trade_report_trans_type: uint8 &convert=TradeReportTransType($$);
+    trade_report_type: uint8 &convert=TradeReportType($$);
+    trade_type: uint8 &convert=TradeType($$);
+    algorithmic_trade_indicator: uint8 &convert=AlgorithmicTradeIndicator($$);
+    exec_type: uint8 &convert=ExecType($$);
+    trade_report_ref_id: bytes &size=21;
+    last_qty: uint64;
+    last_px: int64;
+    settlement_date: uint32;
+    tcr_party_buy: TcrPartyBuy;
+    tcr_party_sell: TcrPartySell;
+};
+
+type TcrPartyBuy = unit {
+    flags: bitfield(8) {
+        liquidity_provision_activity: 0;
+        direct_or_sponsored_access: 1;
+        market_maker_or_specialist: 2;
+        reserved_3_to_7: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mifid_fields: MifidFields;
+    clearing_member_code: bytes &size=20;
+    clearing_member_clearing_identifier: uint8 &convert=ClearingMemberClearingIdentifier($$);
+    account: bytes &size=16;
+    account_type: uint8 &convert=AccountType($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    fee_structure_id: uint8;
+    interested_party: bytes &size=8;
+    memo: bytes &size=18;
+};
+
+type TcrPartySell = unit {
+    flags: bitfield(8) {
+        liquidity_provision_activity: 0;
+        direct_or_sponsored_access: 1;
+        market_maker_or_specialist: 2;
+        reserved_3_to_7: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    mifid_fields: MifidFields;
+    clearing_member_code: bytes &size=20;
+    clearing_member_clearing_identifier: uint8 &convert=ClearingMemberClearingIdentifier($$);
+    account: bytes &size=16;
+    account_type: uint8 &convert=AccountType($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    fee_structure_id: uint8;
+    interested_party: bytes &size=8;
+    memo: bytes &size=18;
+};
+
+type TradeCaptureReportResponse = unit {
+    instrument_id: uint32;
+    trade_id: uint32;
+    trade_report_id: bytes &size=21;
+    secondary_trade_report_id: bitfield(64) {
+        seq_num: 0..27;
+        bulk_seq_num: 28..35;
+        session_id_order_id: 36..49;
+        connection_id_order_id: 50..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    status_tcr_status: uint8 &convert=StatusTcrStatus($$);
+    reason_tcr_rejection_reason: uint16 &convert=ReasonTcrRejectionReason($$);
+};
+
+type TradeBust = unit {
+    trade_id: uint32;
+};
+
+type MessageType = enum {
+    Login = 2,
+    LoginResponse = 3,
+    Logout = 11,
+    LogoutResponse = 14,
+    ConnectionClose = 12,
+    Heartbeat = 13,
+    Reject = 15,
+    GapFill = 34,
+    Test = 1,
+    TestEvent = 255,
+    TradingSessionStatus = 35,
+    OrderAdd = 4,
+    OrderAddResponse = 5,
+    OrderCancel = 6,
+    OrderCancelResponse = 7,
+    OrderModify = 8,
+    OrderModifyResponse = 9,
+    OrderMassCancel = 29,
+    OrderMassCancelResponse = 30,
+    OrderExecute = 10,
+    MassQuote = 24,
+    MassQuoteResponse = 25,
+    MarketMakerCommand = 32,
+    MarketMakerCommandResponse = 33,
+    RequestForExecution = 28,
+    BidOfferUpdate = 31,
+    TradeCaptureReportSingle = 18,
+    TradeCaptureReportDual = 19,
+    TradeCaptureReportResponse = 20,
+    TradeBust = 23,
+};
+
+type ResultLoginResult = enum {
+    Ok = 1,
+    NotFound = 2,
+    InvalidToken = 3,
+    AlreadyLoggedIn = 4,
+    AccountLocked = 5,
+    LoginNotAllowed = 6,
+    InvalidLoginParameters = 7,
+    ThrottlingTemporaryLock = 8,
+    Other = 9,
+};
+
+type ReasonConnectionCloseReason = enum {
+    ProtocolError = 1,
+    InvalidSeqNum = 2,
+    EndOfDay = 3,
+    SyncFail = 4,
+    AntiFloodingThresholdExceeded = 5,
+    ConnectionConfigChanged = 6,
+    CloseOps = 7,
+    Disconnect = 8,
+};
+
+type RejectReason = enum {
+    Na = 0,
+    MaxThroughputExceeded = 1,
+    InvalidMsgType = 2,
+    InvalidExpireTimePrecision = 3,
+    InvalidSettlementDate = 4,
+    SettlementDateRequired = 5,
+    TradeReportIdRequired = 6,
+    MissingReportIdSecondaryTradeReportIdOrTradeReportRefId = 7,
+    InvalidTradeId = 8,
+    InvalidAlgorithmicTradeIndicator = 9,
+    InvalidTradeReportId = 10,
+    InvalidGapFillSeqNum = 11,
+};
+
+type EventType = enum {
+    Flush = 1,
+    ScenarioStart = 2,
+    ScenarioEnd = 3,
+};
+
+type TradingSessionEvent = enum {
+    PreviousDayRestateStart = 1,
+    PreviousDayRestateEnd = 2,
+    StartOfTradingSessionMic = 3,
+    EndOfTradingSessionMic = 4,
+};
+
+type OrderType = enum {
+    Limit = 1,
+    Market = 2,
+    MarketToLimit = 3,
+    Iceberg = 4,
+    StopLimit = 5,
+    StopLoss = 6,
+};
+
+type TimeInForce = enum {
+    Day = 1,
+    Gtc = 2,
+    Ioc = 3,
+    Fok = 4,
+    Vfa = 5,
+    Gtd = 6,
+    Vfc = 7,
+    Gtt = 8,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type Capacity = enum {
+    Agency = 1,
+    Principal = 2,
+    RisklessPrincipal = 3,
+};
+
+type AccountType = enum {
+    Missing = 1,
+    Customer = 2,
+    House = 3,
+};
+
+type Qualifier = enum {
+    Na = 1,
+    Algorithm = 2,
+    FirmOrLegalEntity = 3,
+    NaturalPerson = 4,
+};
+
+type ClearingMemberClearingIdentifier = enum {
+    NotApplicable = 33,
+    Lei = 78,
+    Custom = 68,
+};
+
+type StatusOrderStatus = enum {
+    New = 1,
+    Cancelled = 2,
+    Rejected = 3,
+    Filled = 4,
+    PartiallyFilled = 5,
+    Expired = 6,
+};
+
+type ReasonOrderRejectionReason = enum {
+    Na = 0,
+    UnknownOrder = 1,
+    ExchangeClosed = 2,
+    InvalidPriceIncrement = 18,
+    Other = 99,
+    InstrumentPhaseNoTrading = 106,
+    UnknownInstrument = 1001,
+    InvalidExecutionTrader = 1005,
+    InvalidDecisionMaker = 1006,
+    InvalidClientId = 1007,
+    InvalidPartyRoleQualifierForClientId = 1008,
+    InvalidPartyRoleQualifierForExecutingTrader = 1009,
+    InvalidPartyRoleQualifierForInvestmentDecisionMaker = 1010,
+    CannotModifyMifidFlags = 1012,
+    WrongDisplayQtyValue = 1013,
+    InvalidDisplayQty = 1014,
+    IcebergOrderValueLessThanRequired = 1015,
+    CodDisabledForTheConnectionId = 1019,
+    OrderQuantityMustBeGreaterThanMinimumQuantity = 1025,
+    OrderQuantityMustBeLowerThanMaximumQuantity = 1026,
+    OrderPriceMustBeGreaterThanMinimumPrice = 1027,
+    OrderPriceMustBeLowerThanMaximumPrice = 1028,
+    OrderPriceMustBeNonzero = 1029,
+    OrderValueMustBeGreaterThanMinimumValue = 1030,
+    OrderValueMustBeLowerThanMaximumValue = 1031,
+    InvalidOrdTypeForSelectedMarketModel = 1032,
+    LeavesQuantityMustBeGreaterThanZeroAfterModification = 1034,
+    PriceNotAllowed = 1035,
+    InvalidTimeInForceForOrderType = 1039,
+    InvalidTimeInForceForCurrentMarketPhase = 1040,
+    InvalidTimeInForceForSelectedMarketModel = 1041,
+    ForbiddenOrdTypeAndTimeInForceCombinationForMarketSegment = 1042,
+    ExpireTimeCannotBeModified = 1043,
+    ObsoleteExpireDate = 1044,
+    ExpireDateInPast = 1045,
+    ObsoleteExpireTime = 1046,
+    ExpireTimeInPast = 1047,
+    AmbigousExpire = 1048,
+    ExpireDateExceedsLimit = 1049,
+    PriceBelowLowCollar = 1037,
+    PriceAboveHighCollar = 1038,
+    FirmIsNotAMarketMaker = 1050,
+    MissingOrderOriginationForSponsoredAccessConnection = 1055,
+    OperationOnRedistributedInstrumentsForbidden = 1056,
+    FirmNotAuthorizedToBuyAndSellTheInstrument = 1057,
+    FirmNotAuthorizedToBuyTheInstrument = 1058,
+    FirmNotAuthorizedToSellTheInstrument = 1059,
+    OperationsOnOrdersAndQuotesForbiddenDuringUncrossing = 1060,
+    OperationsOnOrdersAndQuotesForbiddenDuringInstrumentSuspension = 1061,
+    OperationsOnOrdersAndQuotesForbiddenDueToDropCopyDisconnection = 1062,
+    TriggerPriceNotAllowed = 1063,
+    TriggerPriceNotHigherThanLtp = 1064,
+    TriggerPriceNotLowerThanLtp = 1065,
+    TriggerPriceLowerThanPrice = 1066,
+    TriggerPriceHigherThanPrice = 1067,
+    TriggerPriceModifiedForActivatedOrder = 1068,
+    TriggerPriceMustBeGreaterThanZero = 1069,
+    InvalidPartyIdForClientId = 1070,
+    InvalidPartyIdForExecutingTrader = 1071,
+    InvalidPartyIdForInvestmentDecisionMaker = 1072,
+    InvalidPartyRoleQualifierForPartyId = 1075,
+    MissingClearingMemberCode = 1076,
+    ForbiddenClearingMemberCode = 1077,
+    InvalidClientIdForSponsoredConnection = 1078,
+    InvalidOrdTypeForSponsoredConnection = 1079,
+    ForbiddenOrderCapacityValueForSponsoredConnection = 1080,
+    MarketModelNotSupportedOnSponsoredConnection = 1081,
+    InvalidTimeInForceForSponsoredConnection = 1083,
+    OperationForbiddenDuringEarlyLateMonitoring = 1084,
+    InvalidClearingMemberCodeLength = 1085,
+    OperationUnsuccessfulRetryNeeded = 1086,
+    MassQuoteNotAllowedForSelectedMarketModel = 1201,
+    InstrumentClosed = 1203,
+    InvalidBidAskSpread = 1208,
+    NotAuthorizedToQuoteInstrument = 1209,
+    BuyOrderNotAllowed = 1301,
+    StopOrdersNotAllowed = 1307,
+    TriggerPriceMustBeHigherThanLpSellQuote = 1308,
+    TriggerPriceMustBeLowerThanLpBuyQuote = 1309,
+    MarketMakingViaMassQuoteOnlyOnHybridMarket = 1310,
+    SellQuotesNotAllowedDuringBuyOnlyState = 1311,
+    InstrumentKnockedOut = 1312,
+    OnlyOneSellOrderIsAllowedForIpo = 1401,
+    OnlyOneBuyOrderIsAllowedForTender = 1402,
+    RequestNotAllowedForBlockInstrument = 2026,
+    RequestNotAllowedForCrossInstrument = 2028,
+    RiskLimitNotDefined = 7000,
+    RiskMaximumOrderVolumeExceeded = 7001,
+    RiskMaximumOrderValueExceeded = 7002,
+    RiskOrderPriceCollarExceeded = 7003,
+    DynamicOrderPriceCollarNotDefined = 7004,
+    StaticOrderPriceCollarNotDefined = 7005,
+    TotalTradedValueExceeded = 7011,
+    TotalTradedBuyValueExceeded = 7012,
+    TotalTradedSellValueExceeded = 7013,
+    TotalOpenValueExceeded = 7014,
+    TotalOpenBuyValueExceeded = 7015,
+    TotalOpenSellValueExceeded = 7016,
+    TotalRiskValueExceeded = 7017,
+    TotalBuyRiskValueExceeded = 7018,
+    TotalSellRiskValueExceeded = 7019,
+    TotalNetRiskValueExceeded = 7020,
+    MaxOrderCountExceeded = 7021,
+    RejectedDueToKillSwitchActivation = 7022,
+};
+
+type ExecTypeReason = enum {
+    Na = 1,
+    CancelOnDisconnect = 2,
+    Expired = 3,
+    Triggered = 4,
+    CancelOnSuspension = 5,
+    OrderRestatement = 6,
+    IcebergOrderRefill = 7,
+    CancelByStp = 8,
+    CancelByCorporateAction = 9,
+    CancelByMassCancel = 10,
+    CancelIocFokOrder = 11,
+    CancelByMarketOperations = 12,
+    Replaced = 13,
+    FirstTradeOnAggressiveOrder = 14,
+    Rejected = 15,
+    CancelonBuyOnlyStateEntry = 16,
+    CancelonKnockedOutStateEntry = 17,
+    CancelByRiskManagement = 18,
+    CancelOnDcDisconnect = 19,
+    VfaActivated = 20,
+    HybridActivated = 21,
+};
+
+type PriorityFlag = enum {
+    Lost = 1,
+    Retained = 2,
+};
+
+type MassCancelRequestType = enum {
+    CancelForSecurity = 1,
+    CancelAllOrders = 7,
+    CancelOrdersForMarketSegment = 9,
+};
+
+type TargetPartyRole = enum {
+    None_0 = 0,
+    LiquidityProvider = 35,
+    SenderLocation = 54,
+    MarketMaker = 66,
+    ClientId = 3,
+    ExecutingTrader = 12,
+    InvestmentDecisionMaker = 122,
+};
+
+type ReasonMassCancelRejectionReason = enum {
+    Other = 99,
+    Na = 101,
+    UnknownInstrument = 1001,
+    InvalidExecutionTrader = 1005,
+    UnknownMarketSegmentId = 1016,
+    UnknownConnectionId = 1017,
+    InstrumentForbidden = 1053,
+    MarketSegmentIdForbidden = 1054,
+    OperationOnRedistributedInstrumentsForbidden = 1056,
+    RequestNotAllowedOnSponsoredConnection = 2025,
+};
+
+type LiquidityIndicator = enum {
+    BuyOrderExecution = 1,
+    SellOrderExecution = 2,
+    AuctionExecution = 3,
+    NotApplicable = 4,
+};
+
+type Currency = enum {
+    All = 8,
+    Dzd = 12,
+    Ars = 32,
+    Aud = 36,
+    Bsd = 44,
+    Bhd = 48,
+    Bdt = 50,
+    Amd = 51,
+    Bbd = 52,
+    Bmd = 60,
+    Btn = 64,
+    Bob = 68,
+    Bwp = 72,
+    Bzd = 84,
+    Sbd = 90,
+    Bnd = 96,
+    Mmk = 104,
+    Bif = 108,
+    Khr = 116,
+    Cad = 124,
+    Cve = 132,
+    Kyd = 136,
+    Lkr = 144,
+    Clp = 152,
+    Cny = 156,
+    Cop = 170,
+    Kmf = 174,
+    Crc = 188,
+    Hrk = 191,
+    Cup = 192,
+    Czk = 203,
+    Dkk = 208,
+    Dop = 214,
+    Svc = 222,
+    Etb = 230,
+    Ern = 232,
+    Fkp = 238,
+    Fjd = 242,
+    Djf = 262,
+    Gmd = 270,
+    Gip = 292,
+    Gtq = 320,
+    Gnf = 324,
+    Gyd = 328,
+    Htg = 332,
+    Hnl = 340,
+    Hkd = 344,
+    Huf = 348,
+    Isk = 352,
+    Inr = 356,
+    Idr = 360,
+    Irr = 364,
+    Iqd = 368,
+    Ils = 376,
+    Jmd = 388,
+    Jpy = 392,
+    Kzt = 398,
+    Jod = 400,
+    Kes = 404,
+    Kpw = 408,
+    Krw = 410,
+    Kwd = 414,
+    Kgs = 417,
+    Lak = 418,
+    Lbp = 422,
+    Lsl = 426,
+    Lrd = 430,
+    Lyd = 434,
+    Mop = 446,
+    Mwk = 454,
+    Myr = 458,
+    Mvr = 462,
+    Mur = 480,
+    Mxn = 484,
+    Mnt = 496,
+    Mdl = 498,
+    Mad = 504,
+    Omr = 512,
+    Nad = 516,
+    Npr = 524,
+    Ang = 532,
+    Awg = 533,
+    Vuv = 548,
+    Nzd = 554,
+    Nio = 558,
+    Ngn = 566,
+    Nok = 578,
+    Pkr = 586,
+    Pab = 590,
+    Pgk = 598,
+    Pyg = 600,
+    Pen = 604,
+    Php = 608,
+    Qar = 634,
+    Rub = 643,
+    Rwf = 646,
+    Shp = 654,
+    Sar = 682,
+    Scr = 690,
+    Sgd = 702,
+    Vnd = 704,
+    Sos = 706,
+    Zar = 710,
+    Ssp = 728,
+    Szl = 748,
+    Sek = 752,
+    Chf = 756,
+    Syp = 760,
+    Thb = 764,
+    Top = 776,
+    Ttd = 780,
+    Aed = 784,
+    Tnd = 788,
+    Ugx = 800,
+    Mkd = 807,
+    Egp = 818,
+    Gbp = 826,
+    Tzs = 834,
+    Usd = 840,
+    Uyu = 858,
+    Uzs = 860,
+    Wst = 882,
+    Yer = 886,
+    Twd = 901,
+    Sle = 925,
+    Ved = 926,
+    Uyw = 927,
+    Ves = 928,
+    Mru = 929,
+    Stn = 930,
+    Cuc = 931,
+    Zwl = 932,
+    Byn = 933,
+    Tmt = 934,
+    Ghs = 936,
+    Sdg = 938,
+    Uyi = 940,
+    Rsd = 941,
+    Mzn = 943,
+    Azn = 944,
+    Ron = 946,
+    Che = 947,
+    Chw = 948,
+    Try = 949,
+    Xaf = 950,
+    Xcd = 951,
+    Xof = 952,
+    Xpf = 953,
+    Xba = 955,
+    Xbb = 956,
+    Xbc = 957,
+    Xbd = 958,
+    Xau = 959,
+    Xdr = 960,
+    Xag = 961,
+    Xpt = 962,
+    Xts = 963,
+    Xpd = 964,
+    Xua = 965,
+    Zmw = 967,
+    Srd = 968,
+    Mga = 969,
+    Cou = 970,
+    Afn = 971,
+    Tjs = 972,
+    Aoa = 973,
+    Bgn = 975,
+    Cdf = 976,
+    Bam = 977,
+    Eur = 978,
+    Mxv = 979,
+    Uah = 980,
+    Gel = 981,
+    Bov = 984,
+    Pln = 985,
+    Brl = 986,
+    Clf = 990,
+    Xsu = 994,
+    Usn = 997,
+    Xxx = 999,
+};
+
+type StatusMassQuoteStatus = enum {
+    Accepted = 1,
+    Rejected = 2,
+};
+
+type ReasonMassQuoteRejectionReason = enum {
+    Na = 1,
+    ExchangeClosed = 2,
+    Other = 99,
+    InvalidExecutionTrader = 1005,
+    InvalidDecisionMaker = 1006,
+    InvalidClientId = 1007,
+    InvalidPartyRoleQualifierForClientId = 1008,
+    InvalidPartyRoleQualifierForExecutingTrader = 1009,
+    InvalidPartyRoleQualifierForInvestmentDecisionMaker = 1010,
+    MissingOrderOriginationForSponsoredAccessConnection = 1055,
+    OperationsOnOrdersAndQuotesForbiddenDuringInstrumentSuspension = 1061,
+    InvalidPartyIdForClientId = 1070,
+    InvalidPartyIdForExecutingTrader = 1071,
+    InvalidPartyIdForInvestmentDecisionMaker = 1072,
+    InvalidPartyRoleQualifierForPartyId = 1075,
+    MissingClearingMemberCode = 1076,
+    ForbiddenClearingMemberCode = 1077,
+    InvalidClientIdForSponsoredConnection = 1078,
+    ForbiddenOrderCapacityValueForSponsoredConnection = 1080,
+    MarketModelNotSupportedOnSponsoredConnection = 1081,
+    InvalidClearingMemberCodeLength = 1085,
+    DuplicateInstrument = 1202,
+    InvalidQuotesCount = 1204,
+    ForbiddenOrderCapacityValue = 1210,
+    LiquidityProvisionActivityFlagNotSetForMassQuote = 1212,
+};
+
+type Action = enum {
+    ChangeToHybridBuyOnly = 1,
+    ChangeToKnockOut = 2,
+    RevokeKnockOut = 3,
+};
+
+type ResultCommandResult = enum {
+    Success = 1,
+    Failure = 2,
+};
+
+type RejectionCode = enum {
+    Other = 99,
+    UnknownInstrument = 1001,
+    FirmNotAuthorizedForMmCommand = 1304,
+    InstrumentAlreadyKnockedOut = 1313,
+    MmCannotRevokeMarketOperationKnockOut = 1314,
+    KnockOutOrRevokeKnockOutOperationsNotAllowedDuringInstrumentSuspension = 1315,
+    RevokeKnockOutOperationsNotAllowedOnceBarrierIsReached = 1316,
+    MmCommandNotAllowedForSelectedMarketModel = 1317,
+    RevokeKnockOutOperationsNotAllowedForActiveInstrument = 1318,
+    RequestNotAllowedForBlockInstrument = 2026,
+    RequestNotAllowedForClobInstrument = 2027,
+    RequestNotAllowedForCrossInstrument = 2028,
+    ExchangeClosed = 3002,
+    FirmNotAuthorizedToQuoteInstrument = 3009,
+    CommandNotAllowedInCurrentState = 3020,
+};
+
+type ReasonRequestForExecutionReason = enum {
+    PassiveQuote = 1,
+    AggressiveQuote = 2,
+};
+
+type UpdateType = enum {
+    Ipo = 1,
+    TenderOffer = 2,
+};
+
+type TradeReportTransType = enum {
+    New = 1,
+    Cancel = 2,
+    Replace = 3,
+};
+
+type TradeReportType = enum {
+    Submit = 1,
+    Alleged = 2,
+    Accept = 3,
+    Decline = 4,
+    TradeReportCancel = 7,
+    TradeBreak = 8,
+};
+
+type TradeType = enum {
+    PrivatelyNegotiatedTrade = 22,
+    BlockTrade = 38,
+};
+
+type AlgorithmicTradeIndicator = enum {
+    Na = 1,
+    NonAlgorithmicTrade = 2,
+    AlgorithmicTrade = 3,
+};
+
+type ExecType = enum {
+    Na = 1,
+    Rejected = 8,
+    Expired = 12,
+    Trade = 15,
+    TradeCorrect = 16,
+    TradeCancel = 17,
+};
+
+type OrderCapacity = enum {
+    Agency = 1,
+    Principal = 2,
+    RisklessPrincipal = 3,
+};
+
+type StatusTcrStatus = enum {
+    New = 1,
+    Accepted = 2,
+    Rejected = 3,
+    Cancelled = 4,
+};
+
+type ReasonTcrRejectionReason = enum {
+    Na = 1,
+    ExchangeClosed = 2,
+    InvalidPriceIncrement = 18,
+    Other = 99,
+    InstrumentPhaseNoTrading = 106,
+    UnknownInstrument = 1001,
+    InvalidExecutionTrader = 1005,
+    InvalidDecisionMaker = 1006,
+    InvalidClientId = 1007,
+    InvalidPartyRoleQualifierForClientId = 1008,
+    InvalidPartyRoleQualifierForExecutingTrader = 1009,
+    InvalidPartyRoleQualifierForInvestmentDecisionMaker = 1010,
+    OrderQuantityMustBeGreaterThanMinimumQuantity = 1025,
+    OrderQuantityMustBeLowerThanMaximumQuantity = 1026,
+    OrderPriceMustBeGreaterThanMinimumPrice = 1027,
+    OrderPriceMustBeLowerThanMaximumPrice = 1028,
+    OrderPriceMustBeNonzero = 1029,
+    OrderValueMustBeGreaterThanMinimumValue = 1030,
+    OrderValueMustBeLowerThanMaximumValue = 1031,
+    PriceBelowLowCollar = 1037,
+    PriceAboveHighCollar = 1038,
+    FirmIsNotAMarketMaker = 1050,
+    OperationOnRedistributedInstrumentsForbidden = 1056,
+    FirmNotAuthorizedToBuyAndSellTheInstrument = 1057,
+    FirmNotAuthorizedToBuyTheInstrument = 1058,
+    FirmNotAuthorizedToSellTheInstrument = 1059,
+    OperationsOnOrdersAndQuotesForbiddenDuringInstrumentSuspension = 1061,
+    InvalidPartyIdForClientId = 1070,
+    InvalidPartyIdForExecutingTrader = 1071,
+    InvalidPartyIdForInvestmentDecisionMaker = 1072,
+    InvalidPartyRoleQualifierForPartyId = 1075,
+    MissingClearingMemberCode = 1076,
+    ForbiddenClearingMemberCode = 1077,
+    MarketModelNotSupportedOnSponsoredConnection = 1081,
+    OperationForbiddenDuringEarlyLateMonitoring = 1084,
+    InvalidClearingMemberCodeLength = 1085,
+    NotAuthorizedToQuoteInstrument = 1209,
+    UnknownTradeReport = 2001,
+    DuplicateTradeReportId = 2002,
+    TradeReportTypeNotCompatibleWithTradeReportTransType = 2005,
+    InvalidExecType = 2008,
+    TradeReportRefIdNotAllowed = 2009,
+    SettlementDateCannotBeEarlierThanMinimumSettlementDate = 2015,
+    SettlementDateCannotBeLaterThanMaximumSettlementDate = 2016,
+    SettlementDateMustBeASettlementDay = 2017,
+    UnknownContraFirm = 2022,
+    SentAttributeDoesNotMatchOriginalValue = 2024,
+    RequestNotAllowedForBlockInstrument = 2026,
+    RequestNotAllowedForClobInstrument = 2027,
+    RequestNotAllowedForCrossInstrument = 2028,
+    CrossNotAllowedOutsideOfClobInstrumentSpread = 2030,
+    CrossPriceNotEqualToTheReferencePrice = 2031,
+    CrossNotAllowedDuringClobInstrumentAuctionOrSuspension = 2032,
+    ForbiddenSecondaryTradereportId = 2033,
+    UnknownSecondaryTradereportId = 2034,
+    NoTradeForClobReferenceInstrument = 2035,
+};
+
