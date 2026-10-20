@@ -1,0 +1,65 @@
+module TmxTsxIndexfeedQrtmdV119;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TsxIndexfeedV119 = unit {
+    qrtmd_stx: uint8;
+    message_header: MessageHeader;
+    message_body: SAndPTsxOfficialIndexLevelMessage;
+    qrtmd_etx: uint8;
+};
+
+type MessageHeader = unit {
+    message_length: bytes &size=4;
+    sequence_number: bytes &size=9;
+    service_identifier: bytes &size=3;
+    retransmission_identifier: uint8 &convert=RetransmissionIdentifier($$);
+    continuation_identifier: uint8 &convert=ContinuationIdentifier($$);
+    message_type: bytes &size=2;
+    exchange_identifier: bytes &size=2;
+};
+
+type SAndPTsxOfficialIndexLevelMessage = unit {
+    time_field: bytes &size=6;
+    index_id: bytes &size=4;
+    last_level: bytes &size=8;
+    net_change: bytes &size=7;
+    volume: bytes &size=11;
+    value: bytes &size=12;
+    open_level: bytes &size=8;
+    settlement_value: bytes &size=8;
+    special_opening_quote: bytes &size=8;
+    percent_trading: bytes &size=7;
+    high_level: bytes &size=8;
+    low_level: bytes &size=8;
+    pe: bytes &size=7;
+    yield: bytes &size=5;
+    markers: uint8 &convert=Markers($$);
+    bid_price: bytes &size=7;
+    ask_price: bytes &size=7;
+};
+
+type RetransmissionIdentifier = enum {
+    NormalTransmission = 0x30,
+};
+
+type ContinuationIdentifier = enum {
+    StandAloneMessage = 0x30,
+};
+
+type MessageType = enum {
+    SAndPTsxOfficialIndexLevelMessage = 0x4b,
+};
+
+type ExchangeIdentifier = enum {
+    TorontoStockExchange = 0x54,
+    TsxVentureExchange = 0x56,
+    TsxAlphaExchange = 0x41,
+};
+
+type Markers = enum {
+    Close = 0x43,
+};
+

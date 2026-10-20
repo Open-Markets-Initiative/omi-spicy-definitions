@@ -1,0 +1,209 @@
+module AthexAthexsecuritiesRelaxedIdsV52;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AthexsecuritiesRelaxedV52 = unit {
+    soh: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        MessageCategory::ApaPostTradeMessage -> apa_post_trade_message: ApaPostTradeMessage;
+        MessageCategory::ApaPreTradeMessage -> apa_pre_trade_message: ApaPreTradeMessage;
+        * -> unknown: bytes &eod;
+    };
+    etx: uint8;
+    lrc: uint8;
+};
+
+type MessageHeader = unit {
+    vendor_identifier: bytes &size=2;
+    message_category: uint8 &convert=MessageCategory($$);
+    message_subcategory: uint8 &convert=MessageSubcategory($$);
+    venue_id: bytes &size=4;
+    message_sequence_number: bytes &size=7;
+    publication_timestamp: bytes &size=20;
+};
+
+type ApaPostTradeMessage = unit {
+    report_status: bytes &size=4;
+    trading_date_and_time: bytes &size=20;
+    trade_id_indicator: uint8 &convert=TradeIdIndicator($$);
+    trade_id: bytes &size=52;
+    venue: bytes &size=4;
+    transaction_to_be_cleared: uint8 &convert=TransactionToBeCleared($$);
+    price_notation: bytes &size=4;
+    price: bytes &size=18;
+    price_currency: bytes &size=3;
+    quantity: bytes &size=18;
+    quantity_currency: bytes &size=3;
+    notation_of_the_quantity_in_measurement_unit: bytes &size=25;
+    quantity_in_measurement_unit: bytes &size=18;
+    notional_amount: bytes &size=18;
+    notional_currency: bytes &size=3;
+    instrument_id_type: bytes &size=4;
+    instrument_id: bytes &size=12;
+    instrument_full_name: bytes &size=350;
+    instrument_classification: bytes &size=6;
+    price_multiplier: bytes &size=18;
+    underlying_instrument_code: bytes &size=12;
+    underlying_index_name: bytes &size=25;
+    term_of_the_underlying_index: bytes &size=7;
+    option_type: bytes &size=4;
+    strike_price: bytes &size=18;
+    strike_price_currency: bytes &size=3;
+    strike_price_notation: bytes &size=4;
+    option_exercise_style: bytes &size=4;
+    maturity_date: bytes &size=8;
+    expiry_date: bytes &size=8;
+    delivery_type: bytes &size=4;
+    type_emission_allowance: bytes &size=4;
+    otc_posttrade_indicator: bytes &size=4;
+    deferral_indicator: uint8 &convert=DeferralIndicator($$);
+    lmtf: uint8 &convert=Lmtf($$);
+    fulf: uint8 &convert=Fulf($$);
+    datf: uint8 &convert=Datf($$);
+    fula: uint8 &convert=Fula($$);
+    volo: uint8 &convert=Volo($$);
+    fulv: uint8 &convert=Fulv($$);
+    fwaf: uint8 &convert=Fwaf($$);
+    fulj: uint8 &convert=Fulj($$);
+    idaf: uint8 &convert=Idaf($$);
+    volw: uint8 &convert=Volw($$);
+    coaf: uint8 &convert=Coaf($$);
+};
+
+type ApaPreTradeMessage = unit {
+    report_status: bytes &size=4;
+    quote_type: uint8 &convert=QuoteType($$);
+    quote_id: bytes &size=52;
+    event_time: bytes &size=20;
+    quote_liquidity: uint8 &convert=QuoteLiquidity($$);
+    venue_mic: bytes &size=4;
+    submitting_entity_identification_code: bytes &size=20;
+    price_notation: bytes &size=4;
+    price: bytes &size=18;
+    price_currency: bytes &size=3;
+    quantity: bytes &size=18;
+    quantity_currency: bytes &size=3;
+    notation_of_the_quantity_in_measurement_unit: bytes &size=25;
+    quantity_in_measurement_unit: bytes &size=18;
+    notional_amount: bytes &size=18;
+    notional_currency: bytes &size=3;
+    instrument_id_type: bytes &size=4;
+    instrument_id: bytes &size=12;
+    instrument_full_name: bytes &size=350;
+    instrument_classification: bytes &size=6;
+    price_multiplier: bytes &size=18;
+    underlying_instrument_code: bytes &size=12;
+    underlying_index_name: bytes &size=25;
+    term_of_the_underlying_index: bytes &size=7;
+    option_type: bytes &size=4;
+    strike_price: bytes &size=18;
+    strike_price_currency: bytes &size=3;
+    strike_price_notation: bytes &size=4;
+    option_exercise_style: bytes &size=4;
+    maturity_date: bytes &size=8;
+    expiry_date: bytes &size=8;
+    delivery_type: bytes &size=4;
+};
+
+type MessageCategory = enum {
+    ApaPostTradeMessage = 0x55,
+    ApaPreTradeMessage = 0x56,
+};
+
+type MessageSubcategory = enum {
+    Generic = 0x20,
+    Bond = 0x42,
+    Etf = 0x45,
+    StockIndex = 0x49,
+    EtfIndicativeNetAssetValue = 0x4e,
+    StockRights = 0x53,
+    Warrant = 0x57,
+    Option = 0x4f,
+    Future = 0x46,
+    Repos = 0x52,
+    StandardCombinations = 0x56,
+};
+
+type TradeIdIndicator = enum {
+    OasisTradeId = 0x31,
+    OtherVenueTradeId = 0x32,
+};
+
+type TransactionToBeCleared = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type DeferralIndicator = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Lmtf = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Fulf = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Datf = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Fula = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Volo = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Fulv = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Fwaf = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Fulj = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Idaf = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Volw = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type Coaf = enum {
+    False_x30 = 0x30,
+    True_x31 = 0x31,
+};
+
+type QuoteType = enum {
+    Bid = 0x31,
+    Offer = 0x32,
+};
+
+type QuoteLiquidity = enum {
+    LiquidMarket = 0x31,
+    IlliquidMarket = 0x32,
+};
+

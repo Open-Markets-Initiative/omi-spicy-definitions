@@ -1,21 +1,26 @@
-module CmeGlobexBrokertecustSbeV101Udp;
+module CmeBrokertecUstreasurySbeV101Tcp;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Little;
 
-public type CmeGlobexBrokertecustV101 = unit {
-    binary_packet_header: BinaryPacketHeader;
-    message: Message[] &eod;
+public type BrokertecUstreasuryV101 = unit {
+    tcp_frame: TcpFrame[] &eod;
 };
 
-type BinaryPacketHeader = unit {
-    packet_sequence_number: uint32;
-    sending_time: uint64;
+type TcpFrame = unit {
+    technical_header: TechnicalHeader;
+    tcp_message: TcpMessage;
 };
 
-type Message = unit {
-    message_size: uint16;
+type TechnicalHeader = unit {
+    encoding_type: uint16;
+    message_sequence_number: uint32;
+    tcp_sending_time: uint64;
+    tcp_message_size: uint16;
+};
+
+type TcpMessage = unit {
     message_header: MessageHeader;
     payload: MdIncrementalRefreshBtec;
 };

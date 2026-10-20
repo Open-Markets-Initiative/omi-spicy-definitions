@@ -1,0 +1,856 @@
+module JpxTseequitiesIndexstatisticsFlexV195;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TseequitiesIndexstatisticsV195 = unit {
+    start_of_message: uint8;
+    service_header: ServiceHeader;
+    separation_between_service_header_and_data_section: uint8;
+    tag_information: TagInformation[] &eod;
+};
+
+type ServiceHeader = unit {
+    message_length: bytes &size=6;
+    message_serial_no: MessageSerialNo;
+    message_type: MessageType;
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    session_distinction: bytes &size=2;
+    issue_classification: IssueClassification;
+    switch ( self.issue_classification.issue_classification_large_classification ) {
+        IssueClassificationLargeClassification::Stockrelated -> stock_issue_code: StockIssueCode;
+        IssueClassificationLargeClassification::Cbrelated -> cb_issue_code: CbIssueCode;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageSerialNo = unit {
+    multicast_group_number: bytes &size=3;
+    sequence_number: bytes &size=8;
+};
+
+type MessageType = unit {
+    message_type_large_classification: uint8 &convert=MessageTypeLargeClassification($$);
+    message_type_medium_classification: bytes &size=10;
+};
+
+type IssueClassification = unit {
+    issue_classification_large_classification: bytes &size=2;
+    issue_classification_medium_classification: bytes &size=2;
+};
+
+type StockIssueCode = unit {
+    stock_space: bytes &size=7;
+    stock_proper_name_code: bytes &size=4;
+    stock_reserved_code: bytes &size=1;
+};
+
+type CbIssueCode = unit {
+    cb_space: bytes &size=3;
+    cb_reserved_code: uint8 &convert=CbReservedCode($$);
+    time_symbol: bytes &size=4;
+    cb_proper_name_code: bytes &size=4;
+};
+
+type TagInformation = unit {
+    tag_id: bytes &size=2;
+    switch ( self.tag_id ) {
+        0 -> market_value_message: MarketValueMessage;
+        0 -> simple_yield_message: SimpleYieldMessage;
+        0 -> weighted_yield_message: WeightedYieldMessage;
+        0 -> simple_stock_price_average_message: SimpleStockPriceAverageMessage;
+        0 -> weighted_stock_price_average_message: WeightedStockPriceAverageMessage;
+        0 -> simple_stock_price_average_by_industry_message: SimpleStockPriceAverageByIndustryMessage;
+        0 -> japanese_yen_cb_indicator_message: JapaneseYenCbIndicatorMessage;
+        0 -> number_of_gainers_decliners_message: NumberOfGainersDeclinersMessage;
+        0 -> estimated_total_trading_volume_message: EstimatedTotalTradingVolumeMessage;
+        0 -> estimated_total_turnover_message: EstimatedTotalTurnoverMessage;
+        0 -> vwap_by_market_message: VwapByMarketMessage;
+        0 -> ranking_by_trading_volume_message: RankingByTradingVolumeMessage;
+        0 -> ranking_by_turnover_message: RankingByTurnoverMessage;
+        0 -> ranking_by_net_change_message: RankingByNetChangeMessage;
+        0 -> ranking_by_net_change_rate_message: RankingByNetChangeRateMessage;
+        0 -> tostnet_statistics_message: TostnetStatisticsMessage;
+        0 -> index_open_high_low_and_closing_prices_message: IndexOpenHighLowAndClosingPricesMessage;
+        0 -> special_quotation_message: SpecialQuotationMessage;
+        0 -> control_message: ControlMessage;
+        * -> unknown: bytes &eod;
+    };
+    separation_of_tag: uint8 &convert=SeparationOfTag($$);
+};
+
+type MarketValueMessage = unit {
+    reserved_2: bytes &size=2;
+    time_c_6_hhmm: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    total_market_value: TotalMarketValue;
+    market_value_dayonday_comparison: MarketValueDayondayComparison;
+};
+
+type TotalMarketValue = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    total_market_value_c_14: bytes &size=14;
+};
+
+type MarketValueDayondayComparison = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    dayonday_comparison_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type SimpleYieldMessage = unit {
+    reserved_2: bytes &size=2;
+    time_c_6_hhmm: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    simple_yield: SimpleYield;
+    yield_dayonday_comparison: YieldDayondayComparison;
+};
+
+type SimpleYield = unit {
+    simple_yield_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+};
+
+type YieldDayondayComparison = unit {
+    dayonday_comparison_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+};
+
+type WeightedYieldMessage = unit {
+    reserved_2: bytes &size=2;
+    time_c_6_hhmm: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    weighted_yield: WeightedYield;
+    yield_dayonday_comparison: YieldDayondayComparison;
+};
+
+type WeightedYield = unit {
+    weighted_yield_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+};
+
+type SimpleStockPriceAverageMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    simple_stock_price_average: SimpleStockPriceAverage;
+    stock_price_average_dayonday_comparison: StockPriceAverageDayondayComparison;
+};
+
+type SimpleStockPriceAverage = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    simple_stock_price_average_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type StockPriceAverageDayondayComparison = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    dayonday_comparison_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type WeightedStockPriceAverageMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    weighted_stock_price_average: WeightedStockPriceAverage;
+    stock_price_average_dayonday_comparison: StockPriceAverageDayondayComparison;
+};
+
+type WeightedStockPriceAverage = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    weighted_stock_price_average_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type SimpleStockPriceAverageByIndustryMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    industry_code: bytes &size=4;
+    simple_stock_price_average: SimpleStockPriceAverage;
+    stock_price_average_dayonday_comparison: StockPriceAverageDayondayComparison;
+};
+
+type JapaneseYenCbIndicatorMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    overall: Overall;
+    parity_100_or_higher: Parity100OrHigher;
+    parity_less_than_100: ParityLessThan100;
+};
+
+type Overall = unit {
+    overall_simple_average: OverallSimpleAverage;
+    overall_divergence_average: OverallDivergenceAverage;
+    overall_parity_average: OverallParityAverage;
+    overall_direct_yield_average: OverallDirectYieldAverage;
+};
+
+type OverallSimpleAverage = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    simple_average_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    second_unit_flag: uint8 &convert=SecondUnitFlag($$);
+    dayonday_comparison_c_14: bytes &size=14;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type OverallDivergenceAverage = unit {
+    divergence_average_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+    dayonday_comparison_c_8: bytes &size=8;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type OverallParityAverage = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    parity_average_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    second_unit_flag: uint8 &convert=SecondUnitFlag($$);
+    dayonday_comparison_c_14: bytes &size=14;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type OverallDirectYieldAverage = unit {
+    direct_yield_average_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+    dayonday_comparison_c_8: bytes &size=8;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type Parity100OrHigher = unit {
+    simple_average: SimpleAverage;
+    divergence_average: DivergenceAverage;
+    parity_average: ParityAverage;
+    direct_yield_average: DirectYieldAverage;
+};
+
+type SimpleAverage = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    simple_average_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type DivergenceAverage = unit {
+    divergence_average_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+};
+
+type ParityAverage = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    parity_average_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type DirectYieldAverage = unit {
+    direct_yield_average_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+};
+
+type ParityLessThan100 = unit {
+    simple_average: SimpleAverage;
+    divergence_average: DivergenceAverage;
+    parity_average: ParityAverage;
+    direct_yield_average: DirectYieldAverage;
+};
+
+type NumberOfGainersDeclinersMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    number_of_listed_companies: bytes &size=5;
+    number_of_listed_issues: bytes &size=5;
+    number_of_active_issues: NumberOfActiveIssues;
+    number_of_gainers: NumberOfGainers;
+    number_of_decliners: NumberOfDecliners;
+    number_of_issues_with_no_change: NumberOfIssuesWithNoChange;
+    number_of_issues_with_no_comparison: NumberOfIssuesWithNoComparison;
+    number_of_inactive_issues: NumberOfInactiveIssues;
+};
+
+type NumberOfActiveIssues = unit {
+    number_of_issues: bytes &size=5;
+    ratio: bytes &size=5;
+};
+
+type NumberOfGainers = unit {
+    number_of_issues: bytes &size=5;
+    ratio: bytes &size=5;
+};
+
+type NumberOfDecliners = unit {
+    number_of_issues: bytes &size=5;
+    ratio: bytes &size=5;
+};
+
+type NumberOfIssuesWithNoChange = unit {
+    number_of_issues: bytes &size=5;
+    ratio: bytes &size=5;
+};
+
+type NumberOfIssuesWithNoComparison = unit {
+    number_of_issues: bytes &size=5;
+    ratio: bytes &size=5;
+};
+
+type NumberOfInactiveIssues = unit {
+    number_of_issues: bytes &size=5;
+    ratio: bytes &size=5;
+};
+
+type EstimatedTotalTradingVolumeMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    other_classification_code: bytes &size=2;
+    estimated_total_trading_volume: EstimatedTotalTradingVolume;
+};
+
+type EstimatedTotalTradingVolume = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    estimated_total_trading_volume_c_14: bytes &size=14;
+};
+
+type EstimatedTotalTurnoverMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    other_classification_flag: bytes &size=2;
+    estimated_total_turnover: EstimatedTotalTurnover;
+};
+
+type EstimatedTotalTurnover = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    estimated_total_turnover_c_14: bytes &size=14;
+    reserved_1: bytes &size=1;
+};
+
+type VwapByMarketMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    vwap_by_market: VwapByMarket;
+};
+
+type VwapByMarket = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    vwap_by_market_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    reserved_1: bytes &size=1;
+    second_unit_flag: uint8 &convert=SecondUnitFlag($$);
+    dayonday_comparison_c_14: bytes &size=14;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type RankingByTradingVolumeMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    top_rank_by_trading_volume: TopRankByTradingVolume[30];
+};
+
+type TopRankByTradingVolume = unit {
+    rank: bytes &size=2;
+    ranked_issue_code: bytes &size=12;
+    reserved_1: bytes &size=1;
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    trading_volume_c_14: bytes &size=14;
+};
+
+type RankingByTurnoverMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    top_rank_by_turnover: TopRankByTurnover[30];
+};
+
+type TopRankByTurnover = unit {
+    rank: bytes &size=2;
+    ranked_issue_code: bytes &size=12;
+    reserved_1: bytes &size=1;
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    turnover_c_14: bytes &size=14;
+};
+
+type RankingByNetChangeMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    net_change_distinction: uint8 &convert=NetChangeDistinction($$);
+    top_rank_by_net_change: TopRankByNetChange[30];
+};
+
+type TopRankByNetChange = unit {
+    rank: bytes &size=2;
+    ranked_issue_code: bytes &size=12;
+    state_sign: uint8 &convert=StateSign($$);
+    unit_flag: uint8 &convert=UnitFlag($$);
+    current_price_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    comparison_type: uint8 &convert=ComparisonType($$);
+    second_unit_flag: uint8 &convert=SecondUnitFlag($$);
+    net_change: bytes &size=14;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type RankingByNetChangeRateMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    issue_classification_code: bytes &size=4;
+    net_change_distinction: uint8 &convert=NetChangeDistinction($$);
+    top_rank_by_net_change_rate: TopRankByNetChangeRate[30];
+};
+
+type TopRankByNetChangeRate = unit {
+    rank: bytes &size=2;
+    ranked_issue_code: bytes &size=12;
+    state_sign: uint8 &convert=StateSign($$);
+    unit_flag: uint8 &convert=UnitFlag($$);
+    current_price_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    comparison_type: uint8 &convert=ComparisonType($$);
+    net_change_rate: bytes &size=8;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type TostnetStatisticsMessage = unit {
+    reserved_2: bytes &size=2;
+    output_time: bytes &size=6;
+    other_classification_flag: bytes &size=2;
+    trading_volume: TradingVolume;
+    turnover: Turnover;
+    number_of_transactions: NumberOfTransactions;
+};
+
+type TradingVolume = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    singleissue_transaction_c_14: bytes &size=14;
+    second_trading_volumeturnover_unit_flag: uint8 &convert=SecondTradingVolumeturnoverUnitFlag($$);
+    closing_price_transaction: bytes &size=14;
+    third_trading_volumeturnover_unit_flag: uint8 &convert=ThirdTradingVolumeturnoverUnitFlag($$);
+    basket_transaction_c_14: bytes &size=14;
+    fourth_trading_volumeturnover_unit_flag: uint8 &convert=FourthTradingVolumeturnoverUnitFlag($$);
+    aggregate_trading_volume: bytes &size=14;
+};
+
+type Turnover = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    singleissue_transaction_c_14: bytes &size=14;
+    second_trading_volumeturnover_unit_flag: uint8 &convert=SecondTradingVolumeturnoverUnitFlag($$);
+    closing_price_transaction: bytes &size=14;
+    third_trading_volumeturnover_unit_flag: uint8 &convert=ThirdTradingVolumeturnoverUnitFlag($$);
+    basket_transaction_c_14: bytes &size=14;
+    fourth_trading_volumeturnover_unit_flag: uint8 &convert=FourthTradingVolumeturnoverUnitFlag($$);
+    aggregate_turnover: bytes &size=14;
+};
+
+type NumberOfTransactions = unit {
+    singleissue_transaction_c_8: bytes &size=8;
+    basket_transaction_c_8: bytes &size=8;
+};
+
+type IndexOpenHighLowAndClosingPricesMessage = unit {
+    reserved_2: bytes &size=2;
+    index_type: bytes &size=4;
+    open: Open;
+    highest: Highest;
+    lowest: Lowest;
+    current_price: CurrentPrice;
+    index_dayonday_comparison: IndexDayondayComparison;
+};
+
+type Open = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    index_value: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6_hhmmss: bytes &size=6;
+    flag: uint8 &convert=Flag($$);
+};
+
+type Highest = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    index_value: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6_hhmmss: bytes &size=6;
+    flag: uint8 &convert=Flag($$);
+};
+
+type Lowest = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    index_value: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6_hhmmss: bytes &size=6;
+    flag: uint8 &convert=Flag($$);
+};
+
+type CurrentPrice = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    index_value: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6_hhmmss: bytes &size=6;
+    flag: uint8 &convert=Flag($$);
+};
+
+type IndexDayondayComparison = unit {
+    net_change_rate: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+    unit_flag: uint8 &convert=UnitFlag($$);
+    net_change: bytes &size=14;
+    second_sign: uint8 &convert=SecondSign($$);
+};
+
+type SpecialQuotationMessage = unit {
+    reserved_2: bytes &size=2;
+    sq_type: bytes &size=4;
+    index: Index;
+    reserved_1: bytes &size=1;
+};
+
+type Index = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    index_value: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6_hhmmss: bytes &size=6;
+};
+
+type ControlMessage = unit {
+    reserved_2: bytes &size=2;
+    test_mode_flag: uint8 &convert=TestModeFlag($$);
+    startend_flag: uint8 &convert=StartendFlag($$);
+    time_c_6_hhmm: bytes &size=6;
+};
+
+type MessageTypeLargeClassification = enum {
+    IssueRealtimeMessage = 0x31,
+    StatisticsMessage = 0x32,
+    IndexMessage = 0x33,
+    IssueBasicMessage = 0x34,
+    ControlMessage = 0x39,
+};
+
+type IssueRealtimeMediumClassification = enum {
+    New = 0,
+    Backup = 1,
+    Allday = 2,
+};
+
+type StatisticsMediumClassification = enum {
+    StatisticsMessage = 0,
+};
+
+type IndexMediumClassification = enum {
+    IndexMessage = 0,
+};
+
+type IssueBasicMediumClassification = enum {
+    Regular = 0,
+    Special = 1,
+};
+
+type ControlMediumClassification = enum {
+    CommunicationControl = 0,
+    IssueInformationControl = 2,
+    AlldayInformationControl = 4,
+    HealthCheckControl = 5,
+    StockBasePriceInformationControl = 6,
+    CbBasePriceInformationControl = 7,
+    MulticastGroupNumberInformationControl = 8,
+    BackupInformationControl = 9,
+    TcpTransmissionControl = 90,
+};
+
+type ExchangeCode = enum {
+    TokyoStockExchange = 0x31,
+    NagoyaStockExchange = 0x33,
+    FukuokaStockExchange = 0x36,
+    SapporoSecuritiesExchange = 0x38,
+    Other = 0x30,
+    ControlMessage = 0x20,
+};
+
+type SessionDistinction = enum {
+    MorningSession = 1,
+    AfternoonSession = 2,
+    OutOfService = 0,
+};
+
+type IssueClassificationLargeClassification = enum {
+    Stockrelated = 1,
+    Cbrelated = 2,
+};
+
+type CbReservedCode = enum {
+    Sw = 0x34,
+    ExchangeableBond = 0x38,
+    Cb = 0x39,
+    OtherBond = 0x20,
+};
+
+type IssueClassificationCode = enum {
+    PrimeMarketDomesticStock = 111,
+    StandardMarketDomesticStock = 112,
+    ForeignStock = 113,
+    GrowthMarketDomesticStock = 114,
+    TokyoProMarketDomesticStock = 122,
+    Cb = 211,
+    ExchangeableBond = 214,
+};
+
+type TradingVolumeTurnoverUnitFlag = enum {
+    One = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NoNumericalValue = 0x20,
+};
+
+type Sign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+    NoSign = 0x20,
+};
+
+type UnitFlag = enum {
+    ToTheFourthDecimalPlace = 0x30,
+    ToTheThirdDecimalPlace = 0x31,
+    ToTheSecondDecimalPlace = 0x32,
+    ToTheFirstDecimalPlace = 0x33,
+    NoDecimalPlaces = 0x34,
+    NoNumericalValue = 0x20,
+};
+
+type IndustryCode = enum {
+    FisheryAgricultureForestry = 50,
+    Mining = 1050,
+    Construction = 2050,
+    Foods = 3050,
+    TextilesApparels = 3100,
+    PulpPaper = 3150,
+    Chemicals = 3200,
+    Pharmaceuticals = 3250,
+    OilCoalProducts = 3300,
+    RubberProducts = 3350,
+    GlassCeramicsProducts = 3400,
+    IronSteel = 3450,
+    NonferrousMetals = 3500,
+    MetalProducts = 3550,
+    Machinery = 3600,
+    ElectricAppliances = 3650,
+    TransportationEquipment = 3700,
+    PrecisionInstruments = 3750,
+    OtherProducts = 3800,
+    ElectricPowerGas = 4050,
+    LandTransportation = 5050,
+    MarineTransportation = 5100,
+    AirTransportation = 5150,
+    WarehouseHarborTransportationServices = 5200,
+    InformationCommunication = 5250,
+    WholesaleTrade = 6050,
+    RetailTrade = 6100,
+    Banks = 7050,
+    SecuritiesCommodityFutures = 7100,
+    Insurance = 7150,
+    OtherFinancingBusiness = 7200,
+    RealEstate = 8050,
+    Services = 9050,
+    Others = 9999,
+};
+
+type SecondUnitFlag = enum {
+    ToTheFourthDecimalPlace = 0x30,
+    ToTheThirdDecimalPlace = 0x31,
+    ToTheSecondDecimalPlace = 0x32,
+    ToTheFirstDecimalPlace = 0x33,
+    NoDecimalPlaces = 0x34,
+    NoNumericalValue = 0x20,
+};
+
+type SecondSign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+    NoSign = 0x20,
+};
+
+type OtherClassificationCode = enum {
+    TotalOfStock = 11,
+    TotalOfCb = 21,
+    NotApplicable = 0,
+};
+
+type OtherClassificationFlag = enum {
+    StockTotal = 11,
+    CbTotal = 21,
+    TostnetStock = 12,
+    TostnetCb = 22,
+    NotApplicable = 0,
+};
+
+type NetChangeDistinction = enum {
+    Up = 0x31,
+    Down = 0x32,
+};
+
+type StateSign = enum {
+    AskSpecialQuote = 0x31,
+    BidSpecialQuote = 0x32,
+    AskContinuousExecutionQuote = 0x33,
+    BidContinuousExecutionQuote = 0x34,
+    OtherThanTheAbove = 0x20,
+};
+
+type ComparisonType = enum {
+    ChangeFromBasePriceForTheDay = 0x31,
+    ChangeFromTheLastPriceFromThePreviousDay = 0x20,
+};
+
+type SecondTradingVolumeturnoverUnitFlag = enum {
+    One = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NoNumericalValue = 0x20,
+};
+
+type ThirdTradingVolumeturnoverUnitFlag = enum {
+    One = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NoNumericalValue = 0x20,
+};
+
+type FourthTradingVolumeturnoverUnitFlag = enum {
+    One = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NoNumericalValue = 0x20,
+};
+
+type IndexType = enum {
+    TokyoStockPriceIndexTopix = 0,
+    LargeType = 2,
+    MediumType = 3,
+    SmallType = 4,
+    TopixCore30 = 28,
+    TopixLarge70 = 29,
+    FisheryAgricultureForestry = 40,
+    Mining = 41,
+    Construction = 42,
+    Foods = 43,
+    TextilesApparels = 44,
+    PulpPaper = 45,
+    Chemicals = 46,
+    Pharmaceutical = 47,
+    OilCoalProducts = 48,
+    RubberProducts = 49,
+    TransportationEquipment = 50,
+    PrecisionInstruments = 51,
+    OtherProducts = 52,
+    ElectricPowerGas = 53,
+    LandTransportation = 54,
+    MarineTransportation = 55,
+    AirTransportation = 56,
+    WarehousingHarborTransportationServices = 57,
+    InformationCommunication = 58,
+    WholesaleTrade = 59,
+    Services = 60,
+    TseGrowthMarket250Index = 70,
+    ReitGeneral = 75,
+    Topix17Foods = 80,
+    Topix17EnergyResources = 81,
+    Topix17ConstructionMaterials = 82,
+    Topix17RawMaterialsChemicals = 83,
+    Topix17Pharmaceutical = 84,
+    Topix17AutomobilesTransportationEquipment = 85,
+    Topix17SteelNonferrousMetals = 86,
+    Topix17Machinery = 87,
+    Topix17ElectricAppliancesPrecisionInstruments = 88,
+    Topix17ItServicesOthers = 89,
+    Topix17RealEstate = 90,
+    TokyoStockExchangeInfrastructureFundsIndex = 99,
+    TokyoStockExchangePrimeMarketIndex = 500,
+    TokyoStockExchangeStandardMarketIndex = 501,
+    TokyoStockExchangeGrowthMarketIndex = 502,
+    JpxPrime150Index = 503,
+    JpxStartUpAcceleration100Index = 504,
+    ExTopix = 8000,
+    TopixValue = 8100,
+    TopixGrowth = 8200,
+    TokyoStockExchangeDividendFocus100Index = 8500,
+    TokyoStockExchangeReitOfficeIndex = 8501,
+    TokyoStockExchangeReitResidentialIndex = 8502,
+    TokyoStockExchangeReitRetailLogisticsOthersIndex = 8503,
+    TopixExFinancials = 8506,
+    JpxNikkeiIndex400 = 8507,
+    JpxNikkeiMidAndSmallCapIndex = 8508,
+    JpxNikkeiIndexHumanCapital100 = 8509,
+    TseGrowthMarketCoreIndex = 8801,
+    TseStandardMarketTop20Index = 8802,
+    TopixLeveraged2XIndex = 1000,
+    TopixInverse1XIndex = 1001,
+    TopixDoubleInverse2XIndex = 1002,
+    JpxNikkei400Leveraged2XIndex = 1003,
+    JpxNikkei400Inverse1XIndex = 1004,
+    JpxNikkei400DoubleInverse2XIndex = 1005,
+    TokyoStockExchangeReitInverse1XIndex = 1006,
+    TokyoStockExchangeReitLeveraged2XIndex = 1007,
+    TokyoStockExchangeReitDoubleInverse2XIndex = 1008,
+};
+
+type Flag = enum {
+    FinalIndexFlag = 0x31,
+    FinalIndexCorrectionFlag = 0x33,
+    OtherThanTheAbove = 0x20,
+};
+
+type SqType = enum {
+    TseStockIndexTopix = 0,
+    TopixCore30 = 28,
+    TseGrowthMarket250Index = 70,
+    TseReitIndex = 75,
+    JpxPrime150Index = 503,
+    JpxNikkeiIndex400 = 8507,
+};
+
+type TestModeFlag = enum {
+    RealOperation = 0x31,
+    TestOperation = 0x32,
+};
+
+type StartendFlag = enum {
+    Start = 0x31,
+    End = 0x32,
+    NotApplicable = 0x20,
+};
+
+type SeparationOfTag = enum {
+    SeparationBetweenTag = 19,
+    EndOfMessage = 17,
+};
+

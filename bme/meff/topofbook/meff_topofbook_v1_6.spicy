@@ -41,7 +41,7 @@ type LogonResponseMessage = unit {
     sequence_number: uint32;
     heart_bt_int: uint8;
     protocol_version: bytes &size=6;
-    test_production_ind: bytes &size=1;
+    test_production_ind: uint8 &convert=TestProductionInd($$);
     environment_code: bytes &size=2;
     session_date: int32;
     expected_sequence_number: uint32;
@@ -89,7 +89,12 @@ type StatisticsMessage = unit {
     security_code: uint32;
     transaction_date_and_time: int64;
     data_count: uint8;
-    data_code: bytes &size=1;
+    statistics_repeating_group: StatisticsRepeatingGroup[self.data_count];
+};
+
+type StatisticsRepeatingGroup = unit {
+    data_code: uint8 &convert=DataCode($$);
+    data_value: int64;
 };
 
 type SecurityListMessage = unit {
@@ -432,6 +437,11 @@ type MessageType = enum {
     TopofbookMessage = 0x82,
 };
 
+type TestProductionInd = enum {
+    Test = 0x54,
+    Production = 0x50,
+};
+
 type LogoutReason = enum {
     TerminationAfterASolicitedLogoutRequest = 0,
     EndOfSessionTerminationInRecoveryServerEndOfRecoverySnapshot = 1,
@@ -486,6 +496,32 @@ type TradSesStatus = enum {
     RequestRejected = 6,
 };
 
+type DataCode = enum {
+    AveragePrice = 0x44,
+    PreviousForwardPrice = 0x64,
+    PublishedCashAmount = 0x45,
+    OrderModalityCashAmount = 0x65,
+    EndOfSessionIndicator = 0x66,
+    First = 0x47,
+    High = 0x48,
+    MaximumBid = 0x68,
+    NotPublishedVolume = 0x4a,
+    Last = 0x4d,
+    NumberOfTrades = 0x4e,
+    PreviousClosingPrice = 0x51,
+    OpeningVolatility = 0x52,
+    PublishedVolume = 0x56,
+    PublishedVolumeOrderModality = 0x76,
+    VolumeOfLastTrade = 0x57,
+    Low = 0x5a,
+    MinimumAsk = 0x7a,
+    ClosingPrice = 0x6a,
+    ClosingYield = 0x6b,
+    Volatility = 0x6c,
+    Delta = 0x6d,
+    ForwardPrice = 0x6e,
+};
+
 type SecurityGroup = enum {
     Bono10 = 2,
     IbexMicro = 19,
@@ -533,6 +569,13 @@ type SecurityGroup = enum {
     Solaria = 96,
     Fluidra = 98,
     IbexImpactoDiv = 99,
+    FutureBaseMibel = 1,
+    FutureMiniBaseMibel = 3,
+    SwapMiniBaseMibel = 4,
+    FuturePeakMibel = 11,
+    SwapPeakMibel = 12,
+    FutureMiniPeakMibel = 13,
+    SwapMiniPeakMibel = 14,
 };
 
 type SecurityType = enum {
@@ -548,19 +591,16 @@ type SecurityType = enum {
 type LiquidInstrument = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AdmissionRequestedByIssuer = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingObligation = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SettlMethod = enum {
@@ -593,7 +633,6 @@ type AdjustmentsRule = enum {
 type SelfMatchPrevention = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type CommodityDerivativeIndicator = enum {
@@ -610,9 +649,10 @@ type MaturityMonthYearIncrementUnits = enum {
 };
 
 type XRollingClosingType = enum {
-    MarketDefaultValueValueToBeUsedInFlexXRollingWithAClosedExpiryDateAndNoPossibilityToModifyIt = 0x4d,
+    Market = 0x4d,
     ByBuyer = 0x31,
     BySeller = 0x32,
+    ByBoth = 0x41,
 };
 
 type XRollingReferenceBuyerRate = enum {
@@ -620,7 +660,6 @@ type XRollingReferenceBuyerRate = enum {
     FisAnalitics = 0x46,
     MeffRate = 0x4d,
     Zero = 0x30,
-    NaUsedInFlexInTheFinancingLeg = 0x20,
 };
 
 type XRollingReferenceSellerRate = enum {
@@ -628,7 +667,6 @@ type XRollingReferenceSellerRate = enum {
     FisAnalitics = 0x46,
     MeffRateDefaultValueForNonFlexXRolling = 0x4d,
     Cero = 0x30,
-    NaUsedInFlexInTheFinancingLeg = 0x20,
 };
 
 type LegSide1 = enum {
@@ -711,7 +749,6 @@ type MarketMechanism = enum {
 type AlgoFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TransactionCategory = enum {
@@ -723,7 +760,6 @@ type TransactionCategory = enum {
 type LastChangeFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BencrfptFlag = enum {
@@ -777,7 +813,6 @@ type Side = enum {
     Buy = 0x31,
     Sell = 0x32,
     Undisclosed = 0x37,
-    Notspecified = 0x3f,
 };
 
 type IoiQltyInd = enum {
@@ -788,12 +823,10 @@ type IoiQltyInd = enum {
 type RetailClBidFlag1 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type RetailClAskFlag1 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 

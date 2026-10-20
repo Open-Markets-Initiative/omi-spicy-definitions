@@ -69,7 +69,7 @@ type LogonResponseMessage = unit {
     sequence_number: uint32;
     heart_bt_int: uint8;
     protocol_version: bytes &size=6;
-    test_production_ind: bytes &size=1;
+    test_production_ind: uint8 &convert=TestProductionInd($$);
     environment_code: bytes &size=2;
     session_date: int32;
     expected_sequence_number: uint32;
@@ -133,7 +133,12 @@ type StatisticsMessage = unit {
     security_code: uint32;
     transaction_date_and_time: int64;
     data_count: uint8;
-    data_code: bytes &size=1;
+    statistics_repeating_group: StatisticsRepeatingGroup[self.data_count];
+};
+
+type StatisticsRepeatingGroup = unit {
+    data_code: uint8 &convert=DataCode($$);
+    data_value: int64;
 };
 
 type SecurityListMessage = unit {
@@ -218,7 +223,7 @@ type SecurityListMessage = unit {
     sub_product: bytes &size=4;
     further_sub_product: bytes &size=4;
     adnt: int64;
-    price_tick_rule: uint8;
+    price_tick_rule: uint8 &convert=PriceTickRule($$);
     underlying_symbol: bytes &size=22;
     underlying_isin: bytes &size=12;
     underlying_currency: bytes &size=3;
@@ -309,7 +314,7 @@ type SecurityListUpdateReportMessage = unit {
     sub_product: bytes &size=4;
     further_sub_product: bytes &size=4;
     adnt: int64;
-    price_tick_rule: uint8;
+    price_tick_rule: uint8 &convert=PriceTickRule($$);
     underlying_symbol: bytes &size=22;
     underlying_isin: bytes &size=12;
     underlying_currency: bytes &size=3;
@@ -431,7 +436,7 @@ type TradeTradeAmendmentOrCancellationMessage = unit {
     buyer_bolsa_code: uint8 &convert=BuyerBolsaCode($$);
     settl_date: int32;
     transaction_category: uint8 &convert=TransactionCategory($$);
-    last_change_flag_f_1: uint8;
+    last_change_flag: uint8 &convert=LastChangeFlag($$);
     bencrfpt_flag: uint8 &convert=BencrfptFlag($$);
     trade_price_condition: uint8 &convert=TradePriceCondition($$);
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
@@ -521,8 +526,8 @@ type SimpleNewOrderMessage = unit {
     side: uint8 &convert=Side($$);
     price: int64;
     order_qty: uint32;
-    time_in_force: bytes &size=1;
-    order_placement: uint8;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_placement: uint8 &convert=OrderPlacement($$);
 };
 
 type SimpleNewOrderWithClientDataMessage = unit {
@@ -532,8 +537,8 @@ type SimpleNewOrderWithClientDataMessage = unit {
     side: uint8 &convert=Side($$);
     price: int64;
     order_qty: uint32;
-    time_in_force: bytes &size=1;
-    order_placement: uint8;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_placement: uint8 &convert=OrderPlacement($$);
     algorithmic_trade_indicator: uint8 &convert=AlgorithmicTradeIndicator($$);
     client_id: uint32;
     account_bolsa: bytes &size=16;
@@ -713,6 +718,7 @@ type OrderCancelRejectMessage = unit {
     ord_status: uint8 &convert=OrdStatus($$);
     cxl_rej_response_to: uint8 &convert=CxlRejResponseTo($$);
     cxl_rej_reason: uint8 &convert=CxlRejReason($$);
+    request_id: uint32;
 };
 
 type MassOrderquoteCancellationCompletionMessage = unit {
@@ -736,6 +742,7 @@ type BusinessMessageRejectMessage = unit {
     ref_msg_type: uint8;
     business_reject_reason: uint8 &convert=BusinessRejectReason($$);
     text_c_65: bytes &size=65;
+    request_id: uint32;
 };
 
 type ExecutionPrivateInformation2LegsMessage = unit {
@@ -780,7 +787,7 @@ type ExecutionPrivateInformation2LegsMessage = unit {
     ccp_code_2: uint8 &convert=CcpCode2($$);
     aggressor_indicator_2: uint8 &convert=AggressorIndicator2($$);
     request_id_2: uint32;
-    client_data_id_2_u_2: uint16;
+    client_data_id_2: uint16;
 };
 
 type TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage = unit {
@@ -800,7 +807,7 @@ type TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage = unit {
     buyer_bolsa_code: uint8 &convert=BuyerBolsaCode($$);
     settl_date: int32;
     transaction_category: uint8 &convert=TransactionCategory($$);
-    last_change_flag_b_1: uint8;
+    last_change_flag: uint8 &convert=LastChangeFlag($$);
     bencrfpt_flag: uint8 &convert=BencrfptFlag($$);
     trade_price_condition: uint8 &convert=TradePriceCondition($$);
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
@@ -848,7 +855,7 @@ type TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage = unit {
     trader: bytes &size=3;
     sub_member: bytes &size=1;
     cross_id: uint32;
-    bolsa_code: bytes &size=1;
+    bolsa_code: uint8 &convert=BolsaCode($$);
     csdbic: bytes &size=11;
     participant: bytes &size=11;
     cta_liq: bytes &size=35;
@@ -874,7 +881,7 @@ type TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage = unit {
     buyer_bolsa_code: uint8 &convert=BuyerBolsaCode($$);
     settl_date: int32;
     transaction_category: uint8 &convert=TransactionCategory($$);
-    last_change_flag_b_1: uint8;
+    last_change_flag: uint8 &convert=LastChangeFlag($$);
     bencrfpt_flag: uint8 &convert=BencrfptFlag($$);
     trade_price_condition: uint8 &convert=TradePriceCondition($$);
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
@@ -922,7 +929,7 @@ type TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage = unit {
     trader: bytes &size=3;
     sub_member: bytes &size=1;
     cross_id: uint32;
-    bolsa_code: bytes &size=1;
+    bolsa_code: uint8 &convert=BolsaCode($$);
     csdbic: bytes &size=11;
     participant: bytes &size=11;
     cta_liq: bytes &size=35;
@@ -948,7 +955,7 @@ type TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage = unit {
     buyer_bolsa_code: uint8 &convert=BuyerBolsaCode($$);
     settl_date: int32;
     transaction_category: uint8 &convert=TransactionCategory($$);
-    last_change_flag_b_1: uint8;
+    last_change_flag: uint8 &convert=LastChangeFlag($$);
     bencrfpt_flag: uint8 &convert=BencrfptFlag($$);
     trade_price_condition: uint8 &convert=TradePriceCondition($$);
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
@@ -996,7 +1003,7 @@ type TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage = unit {
     trader: bytes &size=3;
     sub_member: bytes &size=1;
     cross_id: uint32;
-    bolsa_code: bytes &size=1;
+    bolsa_code: uint8 &convert=BolsaCode($$);
     csdbic: bytes &size=11;
     participant: bytes &size=11;
     cta_liq: bytes &size=35;
@@ -1015,7 +1022,7 @@ type TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage = unit {
     ccp_code_2: uint8 &convert=CcpCode2($$);
     aggressor_indicator_2: uint8 &convert=AggressorIndicator2($$);
     request_id_2: uint32;
-    client_data_id_2_u_2: uint16;
+    client_data_id_2: uint16;
     algorithmic_trade_indicator_2: uint8 &convert=AlgorithmicTradeIndicator2($$);
     client_id_2: uint32;
     account_bolsa_2: bytes &size=16;
@@ -1038,7 +1045,7 @@ type TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage = unit {
     trader_2: bytes &size=3;
     sub_member_2: bytes &size=1;
     cross_id_2: uint32;
-    bolsa_code_2: bytes &size=1;
+    bolsa_code_2: uint8 &convert=BolsaCode2($$);
     csdbic_2: bytes &size=11;
     participant_2: bytes &size=11;
     cta_liq_2: bytes &size=35;
@@ -1120,7 +1127,7 @@ type ExecutionPrivateInformation1LegSellMarketOrderMessage = unit {
     ccp_code_2: uint8 &convert=CcpCode2($$);
     aggressor_indicator_2: uint8 &convert=AggressorIndicator2($$);
     request_id_2: uint32;
-    client_data_id_2_b_2: uint16;
+    client_data_id_2: uint16;
 };
 
 type MessageType = enum {
@@ -1172,6 +1179,11 @@ type MessageType = enum {
     ExecutionPrivateInformation1LegSellMarketOrderMessage = 0x15,
 };
 
+type TestProductionInd = enum {
+    Test = 0x54,
+    Production = 0x50,
+};
+
 type LogoutReason = enum {
     TerminationAfterASolicitedLogoutRequest = 0,
     EndOfSessionTerminationInRecoveryServerEndOfRecoverySnapshot = 1,
@@ -1217,7 +1229,7 @@ type TradingSessionSubId = enum {
     ScheduledIntradayAuction = 6,
     UnscheduledIntradayAuction = 9,
     TradingPeriodAtClosingPriceTal = 100,
-    EndOfClosingAuctionAndBeginningOfTalPeriodForInstrumentsWithoutExtension = 101,
+    EndOfClosingAuctionBeginningOfTal = 101,
     PublicationOfPreviousDaySpecialOperations = 201,
     NotStarted = 202,
     Open = 203,
@@ -1231,6 +1243,32 @@ type TradSesStatus = enum {
     PreOpenNotStarted = 4,
     PreClose = 5,
     RequestRejected = 6,
+};
+
+type DataCode = enum {
+    AveragePrice = 0x44,
+    PreviousForwardPrice = 0x64,
+    PublishedCashAmount = 0x45,
+    OrderModalityCashAmount = 0x65,
+    EndOfSessionIndicator = 0x66,
+    First = 0x47,
+    High = 0x48,
+    MaximumBid = 0x68,
+    NotPublishedVolume = 0x4a,
+    Last = 0x4d,
+    NumberOfTrades = 0x4e,
+    PreviousClosingPrice = 0x51,
+    OpeningVolatility = 0x52,
+    PublishedVolume = 0x56,
+    PublishedVolumeOrderModality = 0x76,
+    VolumeOfLastTrade = 0x57,
+    Low = 0x5a,
+    MinimumAsk = 0x7a,
+    ClosingPrice = 0x6a,
+    ClosingYield = 0x6b,
+    Volatility = 0x6c,
+    Delta = 0x6d,
+    ForwardPrice = 0x6e,
 };
 
 type SecurityType = enum {
@@ -1267,19 +1305,16 @@ type SecurityType = enum {
 type LiquidInstrument = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AdmissionRequestedByIssuer = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingObligation = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SecuritySubType = enum {
@@ -1321,13 +1356,11 @@ type PutOrCall = enum {
 type CpRegType = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AutomaticExpiration = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingScope = enum {
@@ -1345,7 +1378,6 @@ type TradingScope = enum {
 type NetAssetValueIndicator = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type ReferenceTradingVenue = enum {
@@ -1363,7 +1395,6 @@ type SettlementSystem = enum {
 type InvestmentFundClass = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type NavCommunicationTerm = enum {
@@ -1381,25 +1412,31 @@ type CommodityDerivativeIndicator = enum {
 type DoubleVolumeCapReached = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
+};
+
+type PriceTickRule = enum {
+    TickRule1 = 1,
+    TickRule2 = 2,
+    TickRule3 = 3,
+    TickRule4 = 4,
+    TickRule5 = 5,
+    TickRule6 = 6,
+    TickRule7 = 7,
 };
 
 type RetailServiceFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SelfMatchPrevention = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BonusWarrantsWithActiveBonus = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SecurityTradingStatus = enum {
@@ -1445,14 +1482,12 @@ type StaticRangeType = enum {
 type RetailFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type Side = enum {
     Buy = 0x31,
     Sell = 0x32,
     Undisclosed = 0x37,
-    Notspecified = 0x3f,
 };
 
 type TradeType = enum {
@@ -1466,6 +1501,31 @@ type TradeType = enum {
     AuthorisedApplicationExecutionOfContracts = 0x34,
     AuthorisedApplicationOtherCauses = 0x35,
     ValidationCommunicated = 0x36,
+    AuthorisedValidationTrades = 0x37,
+    AuthorisedValidationCorporateInterest = 0x38,
+    AuthorisedValidationExecutionOfContracts = 0x39,
+    AuthorisedValidationOtherCauses = 0x30,
+    TransactionBetweenMembersCommunicated = 0x41,
+    TransactionBetweenMembersTrades = 0x42,
+    TransactionBetweenMembersCorporateInterest = 0x43,
+    TransactionBetweenMembersExecutionOfContracts = 0x46,
+    TransactionBetweenMembersOtherCauses = 0x47,
+    ApplicationToCaterForALinkedPosition = 0x49,
+    TransactionToCaterForALinkedPosition = 0x4a,
+    TransactionOfExerciseOfOptions = 0x45,
+    PublicShareBidOfferTypeTransaction = 0x4e,
+    PublicShareAskOfferTypeTransaction = 0x4f,
+    PublicShareSubscriptionOfferTypeTransaction = 0x50,
+    SpecialTradesDeltaType = 0x4c,
+    NetAssetValueSpecialTradeDPlus1 = 0x61,
+    NetAssetValueSpecialTradeDPlus2 = 0x62,
+    NetAssetValueSpecialTradeDPlus3 = 0x63,
+    ApplicationWithoutCcp = 0x44,
+    TransactionWithoutCcp = 0x4b,
+    InvestmentFundDPlus1 = 0x64,
+    InvestmentFundDPlus2 = 0x65,
+    InvestmentFundDPlus3 = 0x66,
+    Vwap = 0x57,
 };
 
 type Designation = enum {
@@ -1490,7 +1550,6 @@ type MarketMechanism = enum {
 type AlgoFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BuyerBolsaCode = enum {
@@ -1505,6 +1564,11 @@ type TransactionCategory = enum {
     DarkTrade = 0x44,
 };
 
+type LastChangeFlag = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
 type BencrfptFlag = enum {
     NormalTrade = 0x20,
     BenchmarkTradeBenc = 0x36,
@@ -1516,13 +1580,13 @@ type BencrfptFlag = enum {
 type TradePriceCondition = enum {
     PlainVanillaTrade = 0x20,
     NonPriceFormingTradeFormerlyDefinedAsATechnicalTradeNpft = 0x35,
-    TradeNotContributingToThePriceDiscoveryProcessFormerlyDefinedAsATechnicalTradeTncpToBeDiscontinuedAsOf1StJanuary2024 = 0x36,
+    TradeNotContributingToPriceDiscoveryTncp = 0x36,
 };
 
 type PreTradeTransparencyWaiver = enum {
     NegotiatedTradeInLiquidFinancialInstrumentsNliq = 0x30,
     NegotiatedTradeInIlliquidFinancialInstrumentsOilq = 0x31,
-    NegotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPricePric = 0x32,
+    NegotiatedTradeOtherThanCurrentMarketPricePric = 0x32,
 };
 
 type DeferralWaiver = enum {
@@ -1532,7 +1596,6 @@ type DeferralWaiver = enum {
 type SicavFundCounterpartySide = enum {
     Buyer = 0x31,
     Seller = 0x32,
-    Na = 0x20,
 };
 
 type AmendedTradeType = enum {
@@ -1546,30 +1609,51 @@ type AmendedTradeType = enum {
     AuthorisedApplicationExecutionOfContracts = 0x34,
     AuthorisedApplicationOtherCauses = 0x35,
     ValidationCommunicated = 0x36,
+    AuthorisedValidationTrades = 0x37,
+    AuthorisedValidationCorporateInterest = 0x38,
+    AuthorisedValidationExecutionOfContracts = 0x39,
+    AuthorisedValidationOtherCauses = 0x30,
+    TransactionBetweenMembersCommunicated = 0x41,
+    TransactionBetweenMembersTrades = 0x42,
+    TransactionBetweenMembersCorporateInterest = 0x43,
+    TransactionBetweenMembersExecutionOfContracts = 0x46,
+    TransactionBetweenMembersOtherCauses = 0x47,
+    ApplicationToCaterForALinkedPosition = 0x49,
+    TransactionToCaterForALinkedPosition = 0x4a,
+    TransactionOfExerciseOfOptions = 0x45,
+    PublicShareBidOfferTypeTransaction = 0x4e,
+    PublicShareAskOfferTypeTransaction = 0x4f,
+    PublicShareSubscriptionOfferTypeTransaction = 0x50,
+    SpecialTradesDeltaType = 0x4c,
+    NetAssetValueSpecialTradeDPlus1 = 0x61,
+    NetAssetValueSpecialTradeDPlus2 = 0x62,
+    NetAssetValueSpecialTradeDPlus3 = 0x63,
+    ApplicationWithoutCcp = 0x44,
+    TransactionWithoutCcp = 0x4b,
+    InvestmentFundDPlus1 = 0x64,
+    InvestmentFundDPlus2 = 0x65,
+    InvestmentFundDPlus3 = 0x66,
+    Vwap = 0x57,
 };
 
 type RetailFlag2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AlgorithmicTradeIndicator = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type DeaFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LiquidityProvisionActivity = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LastCapacity = enum {
@@ -1582,7 +1666,6 @@ type AutomaticOrderFilterFlag = enum {
     ForOrdersEnteredByAnAuthorizedTrader = 0x32,
     ForAuthorizedArbitrationOrders = 0x67,
     ForOrdersNotEnteredByAnAuthorizedTrader = 0x43,
-    Na = 0x20,
 };
 
 type ReceivedDeptId = enum {
@@ -1612,7 +1695,19 @@ type SelfMatchPreventionType = enum {
     RejectAggressiveOrder = 0x31,
     CancelPasiveOrder = 0x32,
     CancelBothPassiveAndAggressiveOrder = 0x33,
-    NoOrderGetsCancelledBothAggressiveAndPassiveOrdersRemainOnlyValidForSpainAtMidDirectOrders = 0x34,
+    NoOrderCancelled = 0x34,
+};
+
+type TimeInForce = enum {
+    Day = 0x30,
+    ImmediateOrCancelIoc = 0x33,
+    FillOrKillFok = 0x34,
+    AtTheCloseAtc = 0x37,
+};
+
+type OrderPlacement = enum {
+    SpainAtMidDirect = 1,
+    SpainAtMidSweep = 2,
 };
 
 type OrderOrQuoteCancel = enum {
@@ -1624,7 +1719,6 @@ type OrderOrQuoteCancel = enum {
 type Status = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type OrdStatus = enum {
@@ -1669,6 +1763,17 @@ type OrdRejReason = enum {
     ByContractStatus = 0x6b,
     KillButton = 0x6d,
     InvalidOrkFields = 0x78,
+    PriorityChangeDueToChangeInPrice = 0x4c,
+    PriorityChangeDueToVolumeIncrease = 0x4d,
+    PriorityChangeDueToNewClientAccountCapacity = 0x4e,
+    PriorityChangeDueToBothPriceChangeAndVolumeIncrease = 0x50,
+    PriorityChangeDueToBothPriceAndClientAccount = 0x52,
+    PriorityChangeDueToBothVolumeIncreaseAndClientAccount = 0x53,
+    ModificationWithoutPriorityChange = 0x54,
+    StopOrderTriggeredAtTheCloseOrderActivation = 0x55,
+    NotAMemberOfPit = 0x56,
+    NewVolumeShown = 0x59,
+    NotExecutedDueToExcededVolumeCap = 0x71,
 };
 
 type ExecType = enum {
@@ -1730,6 +1835,17 @@ type OrdRejReason2 = enum {
     ByContractStatus = 0x6b,
     KillButton = 0x6d,
     InvalidOrkFields = 0x78,
+    PriorityChangeDueToChangeInPrice = 0x4c,
+    PriorityChangeDueToVolumeIncrease = 0x4d,
+    PriorityChangeDueToNewClientAccountCapacity = 0x4e,
+    PriorityChangeDueToBothPriceChangeAndVolumeIncrease = 0x50,
+    PriorityChangeDueToBothPriceAndClientAccount = 0x52,
+    PriorityChangeDueToBothVolumeIncreaseAndClientAccount = 0x53,
+    ModificationWithoutPriorityChange = 0x54,
+    StopOrderTriggeredAtTheCloseOrderActivation = 0x55,
+    NotAMemberOfPit = 0x56,
+    NewVolumeShown = 0x59,
+    NotExecutedDueToExcededVolumeCap = 0x71,
 };
 
 type ExecType2 = enum {
@@ -1795,43 +1911,43 @@ type BusinessRejectReason = enum {
 };
 
 type CcpCode = enum {
-    Na = 0x30,
     BmeClearingOthersToBeDefined = 0x31,
 };
 
 type AggressorIndicator = enum {
-    Na = 0x20,
     Passive = 0x50,
     Aggresive = 0x41,
 };
 
 type CcpCode2 = enum {
-    Na = 0x30,
     BmeClearingOthersToBeDefined = 0x31,
 };
 
 type AggressorIndicator2 = enum {
-    Na = 0x20,
     Passive = 0x50,
     Aggressive = 0x41,
+};
+
+type BolsaCode = enum {
+    Valencia = 0x33,
+    Barcelona = 0x34,
+    Bilbao = 0x35,
+    Madrid = 0x36,
 };
 
 type AlgorithmicTradeIndicator2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type DeaFlag2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LiquidityProvisionActivity2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LastCapacity2 = enum {
@@ -1844,7 +1960,6 @@ type AutomaticOrderFilterFlag2 = enum {
     ForOrdersEnteredByAnAuthorizedTrader = 0x32,
     ForAuthorizedArbitrationOrders = 0x67,
     ForOrdersNotEnteredByAnAuthorizedTrader = 0x43,
-    Na = 0x20,
 };
 
 type ReceivedDeptId2 = enum {
@@ -1872,8 +1987,15 @@ type AccountType2 = enum {
 type SelfMatchPreventionType2 = enum {
     NaOrDefaultBehaviourAggressiveOrderIsRejected = 0x20,
     RejectAggressiveOrder = 0x31,
-    Cancel139AssiveOrder = 0x32,
+    CancelPasiveOrder = 0x32,
     CancelBothPassiveAndAggressiveOrder = 0x33,
-    NoOrderGetsCancelledBothAggressiveAndPassiveOrdersRemainOnlyValidForSpainAtMidDirectOrders = 0x34,
+    NoOrderCancelled = 0x34,
+};
+
+type BolsaCode2 = enum {
+    Valencia = 0x33,
+    Barcelona = 0x34,
+    Bilbao = 0x35,
+    Madrid = 0x36,
 };
 

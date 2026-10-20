@@ -1,0 +1,376 @@
+module AthexAthexsecuritiesRealtimeIdsV52;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AthexsecuritiesRealtimeV52 = unit {
+    soh: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_category ) {
+        MessageCategory::ControlMessage -> control_message: ControlMessage;
+        MessageCategory::TradeMessage -> trade_message: TradeMessage;
+        MessageCategory::QuoteMessage -> quote_message: QuoteMessage;
+        MessageCategory::IndexMessage -> index_message: IndexMessage;
+        MessageCategory::InstrumentSummaryMessage -> instrument_summary_message: InstrumentSummaryMessage;
+        MessageCategory::CancelledTradeMessage -> cancelled_trade_message: CancelledTradeMessage;
+        MessageCategory::ClosingPriceMessage -> closing_price_message: ClosingPriceMessage;
+        MessageCategory::ProjectedAuctionAuctionOpenProjectedClosePriceMessage -> projected_auction_auction_open_projected_close_price_message: ProjectedAuctionAuctionOpenProjectedClosePriceMessage;
+        MessageCategory::HighLowLimitModificationMessage -> high_low_limit_modification_message: HighLowLimitModificationMessage;
+        MessageCategory::InstrumentStateMessage -> instrument_state_message: InstrumentStateMessage;
+        MessageCategory::MarketStatusMessage -> market_status_message: MarketStatusMessage;
+        MessageCategory::OrderMessage -> order_message: OrderMessage;
+        MessageCategory::CancelledOrderMessage -> cancelled_order_message: CancelledOrderMessage;
+        MessageCategory::ExchangeNotificationsMessage -> exchange_notifications_message: ExchangeNotificationsMessage;
+        * -> unknown: bytes &eod;
+    };
+    etx: uint8;
+    lrc: uint8;
+};
+
+type MessageHeader = unit {
+    vendor_identifier: bytes &size=2;
+    message_category: uint8 &convert=MessageCategory($$);
+    message_subcategory: uint8 &convert=MessageSubcategory($$);
+    venue_id: bytes &size=4;
+    message_sequence_number: bytes &size=7;
+    publication_timestamp: bytes &size=20;
+};
+
+type ControlMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    control_message_text: AdministrativeMessage;
+};
+
+type AdministrativeMessage = unit {
+    free_text: bytes &eod;
+};
+
+type TradeMessage = unit {
+    symbol: bytes &size=15;
+    board_id: uint8 &convert=BoardId($$);
+    trade_number: bytes &size=6;
+    buy_order_number: bytes &size=8;
+    buy_order_date: bytes &size=8;
+    sell_order_number: bytes &size=8;
+    sell_order_date: bytes &size=8;
+    price: bytes &size=9;
+    volume: bytes &size=17;
+    total_volume: bytes &size=17;
+    trade_type: uint8 &convert=TradeType($$);
+    trade_source: uint8 &convert=TradeSource($$);
+    buy_order_type: uint8 &convert=BuyOrderType($$);
+    sell_order_type: uint8 &convert=SellOrderType($$);
+    buy_waiver_indicator: bytes &size=4;
+    sell_waiver_indicator: bytes &size=4;
+    notional_amount: bytes &size=14;
+    buy_algo_flag: uint8 &convert=BuyAlgoFlag($$);
+    sell_algo_flag: uint8 &convert=SellAlgoFlag($$);
+    sdiv_flag: uint8 &convert=SdivFlag($$);
+    dupl_flag: uint8 &convert=DuplFlag($$);
+    time_stamp: bytes &size=20;
+};
+
+type QuoteMessage = unit {
+    symbol: bytes &size=15;
+    quote_levels: bytes &size=3;
+    quote_level: QuoteLevel[self.quote_levels];
+};
+
+type QuoteLevel = unit {
+    bid_price: bytes &size=9;
+    bid_size: bytes &size=17;
+    bid_orders: bytes &size=7;
+    ask_price: bytes &size=9;
+    ask_size: bytes &size=17;
+    ask_orders: bytes &size=7;
+};
+
+type IndexMessage = unit {
+    symbol: bytes &size=15;
+    index_price: bytes &size=9;
+};
+
+type InstrumentSummaryMessage = unit {
+    symbol: bytes &size=15;
+    opening_price: bytes &size=9;
+    high: bytes &size=9;
+    low: bytes &size=9;
+    last: bytes &size=9;
+    closing_price: bytes &size=9;
+    start_of_day_price: bytes &size=9;
+    total_volume: bytes &size=17;
+    total_value: bytes &size=17;
+};
+
+type CancelledTradeMessage = unit {
+    symbol: bytes &size=15;
+    board_id: uint8 &convert=BoardId($$);
+    trade_number: bytes &size=6;
+    buy_order_number: bytes &size=8;
+    buy_order_date: bytes &size=8;
+    sell_order_number: bytes &size=8;
+    sell_order_date: bytes &size=8;
+    cancelled_trade_price: bytes &size=9;
+    cancelled_volume: bytes &size=17;
+    total_volume: bytes &size=17;
+    trade_type: uint8 &convert=TradeType($$);
+    trade_source: uint8 &convert=TradeSource($$);
+    buy_order_type: uint8 &convert=BuyOrderType($$);
+    sell_order_type: uint8 &convert=SellOrderType($$);
+    buy_waiver_indicator: bytes &size=4;
+    sell_waiver_indicator: bytes &size=4;
+    notional_amount: bytes &size=14;
+    buy_algo_flag: uint8 &convert=BuyAlgoFlag($$);
+    sell_algo_flag: uint8 &convert=SellAlgoFlag($$);
+    sdiv_flag: uint8 &convert=SdivFlag($$);
+    dupl_flag: uint8 &convert=DuplFlag($$);
+    time_stamp: bytes &size=20;
+};
+
+type ClosingPriceMessage = unit {
+    symbol: bytes &size=15;
+    closing: bytes &size=9;
+    open_interest: bytes &size=8;
+};
+
+type ProjectedAuctionAuctionOpenProjectedClosePriceMessage = unit {
+    symbol: bytes &size=15;
+    price_flag: uint8 &convert=PriceFlag($$);
+    price: bytes &size=9;
+    volume: bytes &size=17;
+    time_stamp: bytes &size=20;
+};
+
+type HighLowLimitModificationMessage = unit {
+    symbol: bytes &size=15;
+    ceiling_price: bytes &size=9;
+    floor_price: bytes &size=9;
+    start_of_day_price: bytes &size=9;
+    accrued_interest: bytes &size=14;
+};
+
+type InstrumentStateMessage = unit {
+    symbol: bytes &size=15;
+    phase_id: uint8 &convert=PhaseId($$);
+    instrument_status: uint8 &convert=InstrumentStatus($$);
+    halt_suspend_reason: uint8 &convert=HaltSuspendReason($$);
+    time_stamp: bytes &size=20;
+};
+
+type MarketStatusMessage = unit {
+    market_id: bytes &size=1;
+    market_status: uint8 &convert=MarketStatus($$);
+};
+
+type OrderMessage = unit {
+    symbol: bytes &size=15;
+    board_id: uint8 &convert=BoardId($$);
+    order_number: bytes &size=8;
+    order_entry_date: bytes &size=8;
+    order_status: bytes &size=2;
+    side: uint8 &convert=Side($$);
+    volume: bytes &size=17;
+    matched_volume: bytes &size=17;
+    price: bytes &size=9;
+    original_price_type: uint8 &convert=OriginalPriceType($$);
+    order_lifetime: uint8 &convert=OrderLifetime($$);
+    special_conditions: uint8 &convert=SpecialConditions($$);
+    condition_volume: bytes &size=17;
+    order_release_date: bytes &size=8;
+    order_release_time: bytes &size=12;
+    last_order_update_date: bytes &size=8;
+    order_type: uint8 &convert=OrderType($$);
+    time_stamp: bytes &size=20;
+};
+
+type CancelledOrderMessage = unit {
+    symbol: bytes &size=15;
+    board_id: uint8 &convert=BoardId($$);
+    order_number: bytes &size=8;
+    order_entry_date: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    volume: bytes &size=17;
+    matched_volume: bytes &size=17;
+    price: bytes &size=9;
+    original_price_type: uint8 &convert=OriginalPriceType($$);
+    order_lifetime: uint8 &convert=OrderLifetime($$);
+    special_conditions: uint8 &convert=SpecialConditions($$);
+    condition_volume: bytes &size=17;
+    order_type: uint8 &convert=OrderType($$);
+    time_stamp: bytes &size=20;
+};
+
+type ExchangeNotificationsMessage = unit {
+    notification_headline_in_english: bytes &size=72;
+    notification_headline_in_local: bytes &size=72;
+    text_size_in_english: bytes &size=5;
+    text_size_in_local: bytes &size=5;
+    english_notification_text: bytes &size=self.text_size_in_english;
+    local_notification_text: bytes &size=self.text_size_in_local;
+};
+
+type MessageCategory = enum {
+    ControlMessage = 0x4b,
+    TradeMessage = 0x41,
+    QuoteMessage = 0x42,
+    IndexMessage = 0x43,
+    InstrumentSummaryMessage = 0x47,
+    CancelledTradeMessage = 0x49,
+    ClosingPriceMessage = 0x4c,
+    ProjectedAuctionAuctionOpenProjectedClosePriceMessage = 0x4d,
+    HighLowLimitModificationMessage = 0x4e,
+    InstrumentStateMessage = 0x4f,
+    MarketStatusMessage = 0x50,
+    OrderMessage = 0x51,
+    CancelledOrderMessage = 0x52,
+    ExchangeNotificationsMessage = 0x53,
+};
+
+type MessageSubcategory = enum {
+    Generic = 0x20,
+    Bond = 0x42,
+    Etf = 0x45,
+    StockIndex = 0x49,
+    EtfIndicativeNetAssetValue = 0x4e,
+    StockRights = 0x53,
+    Warrant = 0x57,
+    Option = 0x4f,
+    Future = 0x46,
+    Repos = 0x52,
+    StandardCombinations = 0x56,
+};
+
+type MessageType = enum {
+    StartOfDayControlMessage = 0x41,
+    AdministrativeMessage = 0x46,
+    EndOfDayControlMessage = 0x48,
+    LineVerificationControlMessage = 0x54,
+};
+
+type BoardId = enum {
+    MainBoard = 0x4d,
+    OddLotBoard = 0x4f,
+    PreAgreedBoard = 0x42,
+    SpecialTermsBoard = 0x53,
+    ForcedSalesBoard = 0x46,
+};
+
+type TradeType = enum {
+    New = 0x4e,
+    Edit = 0x45,
+    Cancel = 0x43,
+};
+
+type TradeSource = enum {
+    TradingPlatform = 0x54,
+    ClearingSystem = 0x43,
+};
+
+type BuyOrderType = enum {
+    Strategy = 0x42,
+    Quote = 0x51,
+    Normal = 0x4e,
+};
+
+type SellOrderType = enum {
+    Strategy = 0x42,
+    Quote = 0x51,
+    Normal = 0x4e,
+};
+
+type BuyAlgoFlag = enum {
+    FlagOn = 0x59,
+};
+
+type SellAlgoFlag = enum {
+    FlagOn = 0x59,
+};
+
+type SdivFlag = enum {
+    FlagOn = 0x59,
+};
+
+type DuplFlag = enum {
+    FlagOn = 0x59,
+};
+
+type PriceFlag = enum {
+    ProjectedAuctionPrice = 0x30,
+    AuctionOpenPrice = 0x31,
+    ProjectedClose = 0x32,
+};
+
+type PhaseId = enum {
+    StartPhase = 0x20,
+    PreCall = 0x50,
+    Continuous = 0x54,
+    AtcOrdersReleased = 0x41,
+    ClosingPriceTrading = 0x43,
+    Stop = 0x53,
+};
+
+type InstrumentStatus = enum {
+    Active = 0x41,
+    Halt = 0x48,
+    Suspended = 0x53,
+    Resumed = 0x52,
+};
+
+type HaltSuspendReason = enum {
+    NoReason = 0x20,
+    Exchange = 0x45,
+    VolatilityInterrupter = 0x56,
+};
+
+type MarketStatus = enum {
+    PreCall = 0x50,
+    ProjectedAuction = 0x4a,
+    Continuous = 0x54,
+    ClosingPriceTrading = 0x43,
+    RunOff = 0x52,
+    EndOfDay = 0x45,
+    Halt = 0x48,
+};
+
+type OrderStatus = enum {
+    NotReleased = 0x4e,
+    Inactive = 0x49,
+    Open = 0x4f,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OriginalPriceType = enum {
+    LimitPrice = 0x4c,
+    Market = 0x4d,
+    AtTheOpen = 0x4f,
+    AtTheClose = 0x43,
+};
+
+type OrderLifetime = enum {
+    Day = 0x44,
+    GoodTillCancel = 0x43,
+    GoodTillDate = 0x45,
+};
+
+type SpecialConditions = enum {
+    None_x4e = 0x4e,
+    FillOrKill = 0x46,
+    ImmediateOrCancel = 0x49,
+    StopInstrument = 0x53,
+    StopIndex = 0x44,
+    AllOrNone = 0x41,
+    MinimumFill = 0x4d,
+    MultipleOf = 0x4f,
+};
+
+type OrderType = enum {
+    Strategy = 0x42,
+    Quote = 0x51,
+    Normal = 0x4e,
+};
+

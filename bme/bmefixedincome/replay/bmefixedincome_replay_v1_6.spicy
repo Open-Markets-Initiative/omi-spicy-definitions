@@ -50,7 +50,7 @@ type LogonResponseMessage = unit {
     sequence_number: uint32;
     heart_bt_int: uint8;
     protocol_version: bytes &size=6;
-    test_production_ind: bytes &size=1;
+    test_production_ind: uint8 &convert=TestProductionInd($$);
     environment_code: bytes &size=2;
     session_date: int32;
     expected_sequence_number: uint32;
@@ -90,6 +90,7 @@ type RejectMessage = unit {
 type ReplayRequestMessage = unit {
     sequence_number_from: uint32;
     sequence_number_to: uint32;
+    request_id: uint32;
 };
 
 type ReplayRequestAckNackMessage = unit {
@@ -127,7 +128,12 @@ type StatisticsMessage = unit {
     security_code: uint32;
     transaction_date_and_time: int64;
     data_count: uint8;
-    data_code: bytes &size=1;
+    statistics_repeating_group: StatisticsRepeatingGroup[self.data_count];
+};
+
+type StatisticsRepeatingGroup = unit {
+    data_code: uint8 &convert=DataCode($$);
+    data_value: int64;
 };
 
 type SecurityListMessage = unit {
@@ -510,6 +516,11 @@ type MessageType = enum {
     TopofbookMessage = 0x82,
 };
 
+type TestProductionInd = enum {
+    Test = 0x54,
+    Production = 0x50,
+};
+
 type LogoutReason = enum {
     TerminationAfterASolicitedLogoutRequest = 0,
     EndOfSessionTerminationInRecoveryServerEndOfRecoverySnapshot = 1,
@@ -539,7 +550,6 @@ type SessionRejectReason = enum {
 type Status = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingSessionId = enum {
@@ -567,22 +577,45 @@ type TradSesStatus = enum {
     RequestRejected = 6,
 };
 
+type DataCode = enum {
+    AveragePrice = 0x44,
+    PreviousForwardPrice = 0x64,
+    PublishedCashAmount = 0x45,
+    OrderModalityCashAmount = 0x65,
+    EndOfSessionIndicator = 0x66,
+    First = 0x47,
+    High = 0x48,
+    MaximumBid = 0x68,
+    NotPublishedVolume = 0x4a,
+    Last = 0x4d,
+    NumberOfTrades = 0x4e,
+    PreviousClosingPrice = 0x51,
+    OpeningVolatility = 0x52,
+    PublishedVolume = 0x56,
+    PublishedVolumeOrderModality = 0x76,
+    VolumeOfLastTrade = 0x57,
+    Low = 0x5a,
+    MinimumAsk = 0x7a,
+    ClosingPrice = 0x6a,
+    ClosingYield = 0x6b,
+    Volatility = 0x6c,
+    Delta = 0x6d,
+    ForwardPrice = 0x6e,
+};
+
 type LiquidInstrument = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AdmissionRequestedByIssuer = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingObligation = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SecurityStatus = enum {
@@ -599,25 +632,21 @@ type SettlementSystem = enum {
 type Benchmark = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type Strippable = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type CouponType = enum {
     Fixed = 0x46,
     Variable = 0x56,
-    Na = 0x20,
 };
 
 type CouponQuotation = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AccruedInterestCalculationProcedure = enum {
@@ -666,7 +695,6 @@ type Side = enum {
     Buy = 0x31,
     Sell = 0x32,
     Undisclosed = 0x37,
-    Notspecified = 0x3f,
 };
 
 type TradeType = enum {
@@ -705,7 +733,6 @@ type MarketMechanism = enum {
 type AlgoFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TransactionCategory = enum {
@@ -716,7 +743,6 @@ type TransactionCategory = enum {
 type LastChangeFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BencrfptFlag = enum {
@@ -742,7 +768,7 @@ type DeferralWaiver = enum {
     NonImmediatePublicationDeferralForLargeSizeIlliquidMarketLif4 = 0x44,
     NonImmediatePublicationDeferralForVeryLargeSizeLiquidMarketVlf5 = 0x45,
     NonImmediatePublicationDeferralForVeryLargeSizeIlliquidMarketVif5 = 0x46,
-    NonImmediatePublicationDeferralForEtCsEtNsSfPsEmissionAllowancesDeff = 0x47,
+    DeferralForEtcsEtnsSfpsEmissionAllowancesDeff = 0x47,
 };
 
 type PostDeferralPublicationType = enum {

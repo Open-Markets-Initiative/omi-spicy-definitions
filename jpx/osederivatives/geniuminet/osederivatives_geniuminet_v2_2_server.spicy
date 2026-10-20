@@ -1,0 +1,234 @@
+module JpxOsederivativesGeniuminetGlimpseV22Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type OsederivativesGeniuminetV22 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket(self.server_packet_header.packet_length);
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        SequencedMessageType::SeriesInformationBasicMessage -> series_information_basic_message: SeriesInformationBasicMessage;
+        SequencedMessageType::SeriesInformationBasicCombinationMessage -> series_information_basic_combination_message: SeriesInformationBasicCombinationMessage;
+        SequencedMessageType::TickSizeDataMessage -> tick_size_data_message: TickSizeDataMessage;
+        SequencedMessageType::SystemEventDataMessage -> system_event_data_message: SystemEventDataMessage;
+        SequencedMessageType::TradingStatusDataMessage -> trading_status_data_message: TradingStatusDataMessage;
+        SequencedMessageType::NewOrderMessage -> new_order_message: NewOrderMessage;
+        SequencedMessageType::ExecutionNoticeMessage -> execution_notice_message: ExecutionNoticeMessage;
+        SequencedMessageType::ExecutionNoticeWithTradeInformationMessage -> execution_notice_with_trade_information_message: ExecutionNoticeWithTradeInformationMessage;
+        SequencedMessageType::DeletedOrderMessage -> deleted_order_message: DeletedOrderMessage;
+        SequencedMessageType::EpMessage -> ep_message: EpMessage;
+        SequencedMessageType::SnapshotCompletionMessage -> snapshot_completion_message: SnapshotCompletionMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type SeriesInformationBasicMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    : skip bytes &size=12;   # padding
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16;
+    odd_lot_size: uint32;
+    round_lot_size: uint32;
+    block_lot_size: uint32;
+    nominal_value: uint64;
+    number_of_legs: uint8;
+    underlying_order_book_id: uint32;
+    strike_price: int32;
+    expiration_date: uint32;
+    number_of_decimals_in_strike_price: uint16;
+    put_or_call: uint8 &convert=PutOrCall($$);
+};
+
+type SeriesInformationBasicCombinationMessage = unit {
+    nanoseconds: uint32;
+    combination_order_book_id: uint32;
+    leg_order_book_id: uint32;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_ratio: uint32;
+};
+
+type TickSizeDataMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    tick_size: uint64;
+    price_from: int32;
+    price_to: int32;
+};
+
+type SystemEventDataMessage = unit {
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type TradingStatusDataMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    state_name: bytes &size=20;
+};
+
+type NewOrderMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    order_book_position: uint32;
+    quantity: uint64;
+    price: int32;
+    order_attributes: uint16;
+    lot_type: uint8;
+};
+
+type ExecutionNoticeMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: uint64;
+    combo_group_id: uint32;
+    : skip bytes &size=7;   # padding
+    : skip bytes &size=7;   # padding
+};
+
+type ExecutionNoticeWithTradeInformationMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: uint64;
+    combo_group_id: uint32;
+    : skip bytes &size=7;   # padding
+    : skip bytes &size=7;   # padding
+    trade_price: int32;
+    occurred_at_cross: uint8 &convert=OccurredAtCross($$);
+    printable: bytes &size=1;
+};
+
+type DeletedOrderMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+};
+
+type EpMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    available_bid_quantity_at_equilibrium_price: uint64;
+    available_ask_quantity_at_equilibrium_price: uint64;
+    equilibrium_price: int32;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=8;   # padding
+    : skip bytes &size=8;   # padding
+};
+
+type SnapshotCompletionMessage = unit {
+    sequence: bytes &size=20;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    SecondsMessage = 0x54,
+    SeriesInformationBasicMessage = 0x52,
+    SeriesInformationBasicCombinationMessage = 0x4d,
+    TickSizeDataMessage = 0x4c,
+    SystemEventDataMessage = 0x53,
+    TradingStatusDataMessage = 0x4f,
+    NewOrderMessage = 0x41,
+    ExecutionNoticeMessage = 0x45,
+    ExecutionNoticeWithTradeInformationMessage = 0x43,
+    DeletedOrderMessage = 0x44,
+    EpMessage = 0x5a,
+    SnapshotCompletionMessage = 0x47,
+};
+
+type FinancialProduct = enum {
+    Option = 1,
+    Futures = 3,
+    CombinationSeries = 11,
+};
+
+type PutOrCall = enum {
+    FuturesOrCombinationSeries = 0,
+    Call = 1,
+    Put = 2,
+};
+
+type LegSide = enum {
+    BuyIfOnBuySideSellIfOnSellSide = 0x42,
+    SellIfOnBuySideBuyIfOnSellSide = 0x43,
+};
+
+type EventCode = enum {
+    StartOfMessageTransmission = 0x4f,
+    EndOfMessageTransmission = 0x43,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OccurredAtCross = enum {
+    ExecutionThroughAuction = 0x59,
+    ExecutionThroughZaraba = 0x4e,
+};
+

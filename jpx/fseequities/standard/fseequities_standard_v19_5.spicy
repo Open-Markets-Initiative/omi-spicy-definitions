@@ -1,0 +1,535 @@
+module JpxFseequitiesStandardFlexV195;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type FseequitiesStandardV195 = unit {
+    start_of_message: uint8;
+    service_header: ServiceHeader;
+    separation_between_service_header_and_data_section: uint8;
+    tag_information: TagInformation[] &eod;
+};
+
+type ServiceHeader = unit {
+    message_length: bytes &size=6;
+    message_serial_no: MessageSerialNo;
+    message_type: MessageType;
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    session_distinction: bytes &size=2;
+    issue_classification: IssueClassification;
+    switch ( self.issue_classification.issue_classification_large_classification ) {
+        IssueClassificationLargeClassification::Stockrelated -> stock_issue_code: StockIssueCode;
+        IssueClassificationLargeClassification::Cbrelated -> cb_issue_code: CbIssueCode;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageSerialNo = unit {
+    multicast_group_number: bytes &size=3;
+    sequence_number: bytes &size=8;
+};
+
+type MessageType = unit {
+    message_type_large_classification: uint8 &convert=MessageTypeLargeClassification($$);
+    message_type_medium_classification: bytes &size=10;
+};
+
+type IssueClassification = unit {
+    issue_classification_large_classification: bytes &size=2;
+    issue_classification_medium_classification: bytes &size=2;
+};
+
+type StockIssueCode = unit {
+    stock_space: bytes &size=7;
+    stock_proper_name_code: bytes &size=4;
+    stock_reserved_code: bytes &size=1;
+};
+
+type CbIssueCode = unit {
+    cb_space: bytes &size=3;
+    cb_reserved_code: uint8 &convert=CbReservedCode($$);
+    time_symbol: bytes &size=4;
+    cb_proper_name_code: bytes &size=4;
+};
+
+type TagInformation = unit {
+    tag_id: bytes &size=2;
+    switch ( self.tag_id ) {
+        0 -> update_no_message: UpdateNoMessage;
+        0 -> status_information_message: StatusInformationMessage;
+        0 -> open_high_low_and_current_price_message: OpenHighLowAndCurrentPriceMessage;
+        0 -> quote_1_message: Quote1Message;
+        0 -> quote_2_message: Quote2Message;
+        0 -> quote_3_message: Quote3Message;
+        0 -> quote_4_message: Quote4Message;
+        0 -> quote_5_message: Quote5Message;
+        0 -> quote_6_message: Quote6Message;
+        0 -> quote_7_message: Quote7Message;
+        0 -> quote_8_message: Quote8Message;
+        0 -> quote_9_message: Quote9Message;
+        0 -> quote_10_message: Quote10Message;
+        0 -> market_order_message: MarketOrderMessage;
+        0 -> over_under_message: OverUnderMessage;
+        0 -> trading_volume_message: TradingVolumeMessage;
+        0 -> turnover_message: TurnoverMessage;
+        0 -> vwap_message: VwapMessage;
+        0 -> parity_message: ParityMessage;
+        0 -> yield_message: YieldMessage;
+        0 -> control_message: ControlMessage;
+        * -> unknown: bytes &eod;
+    };
+    separation_of_tag: uint8 &convert=SeparationOfTag($$);
+};
+
+type UpdateNoMessage = unit {
+    update_no: bytes &size=8;
+};
+
+type StatusInformationMessage = unit {
+    reserved_2: bytes &size=2;
+    change_flag: uint8 &convert=ChangeFlag($$);
+    status_information: StatusInformation;
+    time_c_12: bytes &size=12;
+    reserved_4: bytes &size=4;
+};
+
+type StatusInformation = unit {
+    issue_status: bytes &size=2;
+    status_flag: bytes &size=2;
+    short_selling_regulation_flag: uint8 &convert=ShortSellingRegulationFlag($$);
+};
+
+type OpenHighLowAndCurrentPriceMessage = unit {
+    reserved_2: bytes &size=2;
+    open: Open;
+    high: High;
+    low: Low;
+    current: Current;
+};
+
+type Open = unit {
+    price: Price;
+    time_c_6: bytes &size=6;
+    change_flag: uint8 &convert=ChangeFlag($$);
+};
+
+type Price = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    price_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type High = unit {
+    limit_up_flag: uint8 &convert=LimitUpFlag($$);
+    price: Price;
+    time_c_6: bytes &size=6;
+    change_flag: uint8 &convert=ChangeFlag($$);
+};
+
+type Low = unit {
+    limit_down_flag: uint8 &convert=LimitDownFlag($$);
+    price: Price;
+    time_c_6: bytes &size=6;
+    change_flag: uint8 &convert=ChangeFlag($$);
+};
+
+type Current = unit {
+    price: Price;
+    time_c_12: bytes &size=12;
+    current_change_flag: uint8 &convert=CurrentChangeFlag($$);
+    stq_reference_point_flag: uint8 &convert=StqReferencePointFlag($$);
+    reserved_1: bytes &size=1;
+    closing_price_input_flag: uint8 &convert=ClosingPriceInputFlag($$);
+};
+
+type Quote1Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type AskQuote = unit {
+    change_flag: uint8 &convert=ChangeFlag($$);
+    price: Price;
+    time_c_12: bytes &size=12;
+    quote_flag: uint8 &convert=QuoteFlag($$);
+    quote_quantity: QuoteQuantity;
+};
+
+type QuoteQuantity = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    quantity: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type BidQuote = unit {
+    change_flag: uint8 &convert=ChangeFlag($$);
+    price: Price;
+    time_c_12: bytes &size=12;
+    quote_flag: uint8 &convert=QuoteFlag($$);
+    quote_quantity: QuoteQuantity;
+};
+
+type Quote2Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote3Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote4Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote5Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote6Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote7Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote8Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote9Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type Quote10Message = unit {
+    reserved_2: bytes &size=2;
+    ask_quote: AskQuote;
+    bid_quote: BidQuote;
+};
+
+type MarketOrderMessage = unit {
+    reserved_2: bytes &size=2;
+    sell_order: SellOrder;
+    buy_order: BuyOrder;
+};
+
+type SellOrder = unit {
+    change_flag: uint8 &convert=ChangeFlag($$);
+    time_c_12: bytes &size=12;
+    quote_quantity: QuoteQuantity;
+};
+
+type BuyOrder = unit {
+    change_flag: uint8 &convert=ChangeFlag($$);
+    time_c_12: bytes &size=12;
+    quote_quantity: QuoteQuantity;
+};
+
+type OverUnderMessage = unit {
+    reserved_2: bytes &size=2;
+    over_quote: OverQuote;
+    under_quote: UnderQuote;
+};
+
+type OverQuote = unit {
+    change_flag: uint8 &convert=ChangeFlag($$);
+    time_c_12: bytes &size=12;
+    quote_quantity: QuoteQuantity;
+};
+
+type UnderQuote = unit {
+    change_flag: uint8 &convert=ChangeFlag($$);
+    time_c_12: bytes &size=12;
+    quote_quantity: QuoteQuantity;
+};
+
+type TradingVolumeMessage = unit {
+    reserved_2: bytes &size=2;
+    trading_volume: TradingVolume;
+};
+
+type TradingVolume = unit {
+    reserved_1: bytes &size=1;
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    trading_volume_c_14: bytes &size=14;
+    time_c_6: bytes &size=6;
+    second_reserved_1: bytes &size=1;
+};
+
+type TurnoverMessage = unit {
+    reserved_2: bytes &size=2;
+    turnover_in_yen_value: TurnoverInYenValue;
+};
+
+type TurnoverInYenValue = unit {
+    reserved_1: bytes &size=1;
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    turnover_value: bytes &size=14;
+    time_c_6: bytes &size=6;
+    second_reserved_1: bytes &size=1;
+};
+
+type VwapMessage = unit {
+    reserved_2: bytes &size=2;
+    all_day_vwap: AllDayVwap;
+    current_session_vwap: CurrentSessionVwap;
+};
+
+type AllDayVwap = unit {
+    reserved_1: bytes &size=1;
+    lot_size_unit_flag: uint8 &convert=LotSizeUnitFlag($$);
+    all_day_vwap_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6: bytes &size=6;
+    second_reserved_1: bytes &size=1;
+};
+
+type CurrentSessionVwap = unit {
+    reserved_1: bytes &size=1;
+    lot_size_unit_flag: uint8 &convert=LotSizeUnitFlag($$);
+    current_session_vwap_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6: bytes &size=6;
+    second_reserved_1: bytes &size=1;
+};
+
+type ParityMessage = unit {
+    reserved_2: bytes &size=2;
+    parity_estimated_price: ParityEstimatedPrice;
+};
+
+type ParityEstimatedPrice = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    parity_estimated_price_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_6: bytes &size=6;
+    reserved_1: bytes &size=1;
+};
+
+type YieldMessage = unit {
+    reserved_2: bytes &size=2;
+    direct_yield: DirectYield;
+    final_yield: FinalYield;
+    time_c_6: bytes &size=6;
+    reserved_1: bytes &size=1;
+};
+
+type DirectYield = unit {
+    direct_yield_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+};
+
+type FinalYield = unit {
+    final_yield_c_8: bytes &size=8;
+    sign: uint8 &convert=Sign($$);
+};
+
+type ControlMessage = unit {
+    reserved_2: bytes &size=2;
+    test_mode_flag: uint8 &convert=TestModeFlag($$);
+    start_end_flag: uint8 &convert=StartEndFlag($$);
+    time_c_6: bytes &size=6;
+};
+
+type MessageTypeLargeClassification = enum {
+    IssueRealtimeMessage = 0x31,
+    StatisticsMessage = 0x32,
+    IndexMessage = 0x33,
+    IssueBasicMessage = 0x34,
+    ControlMessage = 0x39,
+};
+
+type IssueRealtimeMediumClassification = enum {
+    New = 0,
+    Backup = 1,
+    Allday = 2,
+};
+
+type StatisticsMediumClassification = enum {
+    StatisticsMessage = 0,
+};
+
+type IndexMediumClassification = enum {
+    IndexMessage = 0,
+};
+
+type IssueBasicMediumClassification = enum {
+    Regular = 0,
+    Special = 1,
+};
+
+type ControlMediumClassification = enum {
+    CommunicationControl = 0,
+    IssueInformationControl = 2,
+    AlldayInformationControl = 4,
+    HealthCheckControl = 5,
+    StockBasePriceInformationControl = 6,
+    CbBasePriceInformationControl = 7,
+    MulticastGroupNumberInformationControl = 8,
+    BackupInformationControl = 9,
+    TcpTransmissionControl = 90,
+};
+
+type ExchangeCode = enum {
+    TokyoStockExchange = 0x31,
+    NagoyaStockExchange = 0x33,
+    FukuokaStockExchange = 0x36,
+    SapporoSecuritiesExchange = 0x38,
+    Other = 0x30,
+    ControlMessage = 0x20,
+};
+
+type SessionDistinction = enum {
+    MorningSession = 1,
+    AfternoonSession = 2,
+    OutOfService = 0,
+};
+
+type IssueClassificationLargeClassification = enum {
+    Stockrelated = 1,
+    Cbrelated = 2,
+};
+
+type CbReservedCode = enum {
+    Sw = 0x34,
+    ExchangeableBond = 0x38,
+    Cb = 0x39,
+    OtherBond = 0x20,
+};
+
+type ChangeFlag = enum {
+    Changed = 0x31,
+    NotChanged = 0x20,
+};
+
+type IssueStatus = enum {
+    OutOfSession = 0,
+    AcceptingOrderInput = 10,
+    DuringTradingSession = 20,
+    NotAcceptingOrderInput = 30,
+    Preclosing = 35,
+    CloseOfSession = 40,
+};
+
+type StatusFlag = enum {
+    OtherThanTheAbove = 0,
+};
+
+type ShortSellingRegulationFlag = enum {
+    ShortSellingRegulationDoesNotApply = 0x30,
+    ShortSellingRegulationIsApplied = 0x31,
+};
+
+type UnitFlag = enum {
+    ToTheFourthDecimalPlace = 0x30,
+    ToTheThirdDecimalPlace = 0x31,
+    ToTheSecondDecimalPlace = 0x32,
+    ToTheFirstDecimalPlace = 0x33,
+    NoDecimalPlaces = 0x34,
+    NoNumericalValue = 0x20,
+};
+
+type Sign = enum {
+    Positive = 0x2b,
+    NoSign = 0x20,
+};
+
+type LimitUpFlag = enum {
+    LimitUp = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type LimitDownFlag = enum {
+    LimitDown = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type CurrentChangeFlag = enum {
+    ChangedGoingUp = 0x31,
+    ChangedGoingDown = 0x32,
+    ChangedSame = 0x33,
+    ChangedOtherThanAbove = 0x34,
+    OtherThanTheAbove = 0x20,
+};
+
+type StqReferencePointFlag = enum {
+    ReferenceExecutionSetByThisTrade = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type ClosingPriceInputFlag = enum {
+    TradeNotEstablishedAtClosing = 0x31,
+    TradeEstablishedWithClosing = 0x32,
+    OtherThanTheAbove = 0x20,
+};
+
+type QuoteFlag = enum {
+    QuoteBeforeOpening = 0x30,
+    GeneralQuote = 0x31,
+    GeneralQuoteUnderTransaction = 0x32,
+    SpecialQuote = 0x33,
+    SequentialTradeQuote = 0x34,
+    TemporaryQuoteAtTheBeginningOfPreClosing = 0x35,
+    QuoteAfterSpecialExecution = 0x36,
+    SpecialQuoteBeforeTradingHalt = 0x37,
+    SequentialTradeQuoteBeforeTradingHalt = 0x38,
+    NoQuotesOrAllQuotesAreCancelled = 0x20,
+};
+
+type TradingVolumeTurnoverUnitFlag = enum {
+    One = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NoNumericalValue = 0x20,
+};
+
+type LotSizeUnitFlag = enum {
+    ToTheFourthDecimalPlace = 0x30,
+    ToTheThirdDecimalPlace = 0x31,
+    ToTheSecondDecimalPlace = 0x32,
+    ToTheFirstDecimalPlace = 0x33,
+    NoDecimalPlaces = 0x34,
+    NoNumericalValue = 0x20,
+};
+
+type TestModeFlag = enum {
+    ProductionOperation = 0x31,
+    TestOperation = 0x32,
+};
+
+type StartEndFlag = enum {
+    Start = 0x31,
+    End = 0x32,
+    HealthCheckControl = 0x20,
+};
+
+type SeparationOfTag = enum {
+    SeparationBetweenTag = 19,
+    EndOfMessage = 17,
+};
+

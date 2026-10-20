@@ -63,7 +63,7 @@ type LogonResponseMessage = unit {
     sequence_number: uint32;
     heart_bt_int: uint8;
     protocol_version: bytes &size=6;
-    test_production_ind: bytes &size=1;
+    test_production_ind: uint8 &convert=TestProductionInd($$);
     environment_code: bytes &size=2;
     session_date: int32;
     expected_sequence_number: uint32;
@@ -127,7 +127,12 @@ type StatisticsMessage = unit {
     security_code: uint32;
     transaction_date_and_time: int64;
     data_count: uint8;
-    data_code: bytes &size=1;
+    statistics_repeating_group: StatisticsRepeatingGroup[self.data_count];
+};
+
+type StatisticsRepeatingGroup = unit {
+    data_code: uint8 &convert=DataCode($$);
+    data_value: int64;
 };
 
 type SecurityListMessage = unit {
@@ -324,7 +329,7 @@ type SimpleNewOrderMessage = unit {
     side: uint8 &convert=Side($$);
     price: int64;
     order_qty: uint32;
-    time_in_force: bytes &size=1;
+    time_in_force: uint8 &convert=TimeInForce($$);
 };
 
 type SimpleNewOrderWithClientDataMessage = unit {
@@ -334,7 +339,7 @@ type SimpleNewOrderWithClientDataMessage = unit {
     side: uint8 &convert=Side($$);
     price: int64;
     order_qty: uint32;
-    time_in_force: bytes &size=1;
+    time_in_force: uint8 &convert=TimeInForce($$);
     algorithmic_trade_indicator: uint8 &convert=AlgorithmicTradeIndicator($$);
     client_id: uint32;
     account_bolsa: bytes &size=16;
@@ -502,6 +507,7 @@ type OrderCancelRejectMessage = unit {
     ord_status: uint8 &convert=OrdStatus($$);
     cxl_rej_response_to: uint8 &convert=CxlRejResponseTo($$);
     cxl_rej_reason: uint8 &convert=CxlRejReason($$);
+    request_id: uint32;
 };
 
 type MassOrderquoteCancellationCompletionMessage = unit {
@@ -526,6 +532,7 @@ type BusinessMessageRejectMessage = unit {
     ref_msg_type: uint8;
     business_reject_reason: uint8 &convert=BusinessRejectReason($$);
     text_c_65: bytes &size=65;
+    request_id: uint32;
 };
 
 type ExecutionPrivateInformation2LegsMessage = unit {
@@ -925,6 +932,11 @@ type MessageType = enum {
     ExecutionPrivateInformation1LegSellOrderEntryMessage = 0x14,
 };
 
+type TestProductionInd = enum {
+    Test = 0x54,
+    Production = 0x50,
+};
+
 type LogoutReason = enum {
     TerminationAfterASolicitedLogoutRequest = 0,
     EndOfSessionTerminationInRecoveryServerEndOfRecoverySnapshot = 1,
@@ -976,22 +988,45 @@ type TradSesStatus = enum {
     RequestRejected = 6,
 };
 
+type DataCode = enum {
+    AveragePrice = 0x44,
+    PreviousForwardPrice = 0x64,
+    PublishedCashAmount = 0x45,
+    OrderModalityCashAmount = 0x65,
+    EndOfSessionIndicator = 0x66,
+    First = 0x47,
+    High = 0x48,
+    MaximumBid = 0x68,
+    NotPublishedVolume = 0x4a,
+    Last = 0x4d,
+    NumberOfTrades = 0x4e,
+    PreviousClosingPrice = 0x51,
+    OpeningVolatility = 0x52,
+    PublishedVolume = 0x56,
+    PublishedVolumeOrderModality = 0x76,
+    VolumeOfLastTrade = 0x57,
+    Low = 0x5a,
+    MinimumAsk = 0x7a,
+    ClosingPrice = 0x6a,
+    ClosingYield = 0x6b,
+    Volatility = 0x6c,
+    Delta = 0x6d,
+    ForwardPrice = 0x6e,
+};
+
 type LiquidInstrument = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AdmissionRequestedByIssuer = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingObligation = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SecurityStatus = enum {
@@ -1008,25 +1043,21 @@ type SettlementSystem = enum {
 type Benchmark = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type Strippable = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type CouponType = enum {
     Fixed = 0x46,
     Variable = 0x56,
-    Na = 0x20,
 };
 
 type CouponQuotation = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AccruedInterestCalculationProcedure = enum {
@@ -1081,25 +1112,21 @@ type Side = enum {
     Buy = 0x31,
     Sell = 0x32,
     Undisclosed = 0x37,
-    Notspecified = 0x3f,
 };
 
 type AlgorithmicTradeIndicator = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type DeaFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LiquidityProvisionActivity = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LastCapacity = enum {
@@ -1122,6 +1149,12 @@ type Persistence = enum {
     PersistOnDisconnection = 0x50,
 };
 
+type TimeInForce = enum {
+    Day = 0x30,
+    ImmediateOrCancelIoc = 0x33,
+    FillOrKillFok = 0x34,
+};
+
 type CancellationType = enum {
     Standard = 0x53,
     Panic = 0x50,
@@ -1136,7 +1169,6 @@ type OrderOrQuoteCancel = enum {
 type Status = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type OrdStatus = enum {
@@ -1176,6 +1208,17 @@ type OrdRejReason = enum {
     ByContractStatus = 0x6b,
     BySelfmatchPrevention = 0x6f,
     InvalidOrkFields = 0x78,
+    PriorityChangeDueToChangeInPrice = 0x4c,
+    PriorityChangeDueToVolumeIncrease = 0x4d,
+    PriorityChangeDueToNewClientAccountCapacity = 0x4e,
+    PriorityChangeDueToBothPriceChangeAndVolumeIncrease = 0x50,
+    PriorityChangeDueToBothPriceAndClientAccount = 0x52,
+    PriorityChangeDueToBothVolumeIncreaseAndClientAccount = 0x53,
+    ModificationWithoutPriorityChange = 0x54,
+    StopOrderTriggeredAtTheCloseOrderActivation = 0x55,
+    NotAMemberOfPit = 0x56,
+    NewVolumeShown = 0x59,
+    NotExecutedDueToExcededVolumeCap = 0x71,
 };
 
 type ExecType = enum {
@@ -1232,6 +1275,17 @@ type OrdRejReason2 = enum {
     ByContractStatus = 0x6b,
     BySelfmatchPrevention = 0x6f,
     InvalidOrkFields = 0x78,
+    PriorityChangeDueToChangeInPrice = 0x4c,
+    PriorityChangeDueToVolumeIncrease = 0x4d,
+    PriorityChangeDueToNewClientAccountCapacity = 0x4e,
+    PriorityChangeDueToBothPriceChangeAndVolumeIncrease = 0x50,
+    PriorityChangeDueToBothPriceAndClientAccount = 0x52,
+    PriorityChangeDueToBothVolumeIncreaseAndClientAccount = 0x53,
+    ModificationWithoutPriorityChange = 0x54,
+    StopOrderTriggeredAtTheCloseOrderActivation = 0x55,
+    NotAMemberOfPit = 0x56,
+    NewVolumeShown = 0x59,
+    NotExecutedDueToExcededVolumeCap = 0x71,
 };
 
 type ExecType2 = enum {
@@ -1327,7 +1381,6 @@ type MarketMechanism = enum {
 type AlgoFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TransactionCategory = enum {
@@ -1336,23 +1389,19 @@ type TransactionCategory = enum {
 };
 
 type CcpCode = enum {
-    Na = 0x30,
     BmeClearingOthersToBeDefined = 0x31,
 };
 
 type AggressorIndicator = enum {
-    Na = 0x20,
     Passive = 0x50,
     Aggresive = 0x41,
 };
 
 type CcpCode2 = enum {
-    Na = 0x30,
     BmeClearingOthersToBeDefined = 0x31,
 };
 
 type AggressorIndicator2 = enum {
-    Na = 0x20,
     Passive = 0x50,
     Aggressive = 0x41,
 };
@@ -1360,7 +1409,6 @@ type AggressorIndicator2 = enum {
 type LastChangeFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BencrfptFlag = enum {
@@ -1386,7 +1434,7 @@ type DeferralWaiver = enum {
     NonImmediatePublicationDeferralForLargeSizeIlliquidMarketLif4 = 0x44,
     NonImmediatePublicationDeferralForVeryLargeSizeLiquidMarketVlf5 = 0x45,
     NonImmediatePublicationDeferralForVeryLargeSizeIlliquidMarketVif5 = 0x46,
-    NonImmediatePublicationDeferralForEtCsEtNsSfPsEmissionAllowancesDeff = 0x47,
+    DeferralForEtcsEtnsSfpsEmissionAllowancesDeff = 0x47,
 };
 
 type PostDeferralPublicationType = enum {
@@ -1411,19 +1459,16 @@ type AmendedTradeType = enum {
 type AlgorithmicTradeIndicator2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type DeaFlag2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LiquidityProvisionActivity2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type LastCapacity2 = enum {

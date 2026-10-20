@@ -1,0 +1,231 @@
+module TmxTsxalphaLevel1QrtmdV21;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TsxalphaLevel1V21 = unit {
+    qrtmd_stx: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::SymbolStatusMessage -> symbol_status_message: SymbolStatusMessage;
+        MessageType::StockStateMessage -> stock_state_message: StockStateMessage;
+        MessageType::QuoteMessage -> quote_message: QuoteMessage;
+        MessageType::GeneralMessage -> general_message: GeneralMessage;
+        MessageType::TradeCancellationMessage -> trade_cancellation_message: TradeCancellationMessage;
+        MessageType::MarketStateMessage -> market_state_message: MarketStateMessage;
+        MessageType::TradingTierStatusMessage -> trading_tier_status_message: TradingTierStatusMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        * -> unknown: bytes &eod;
+    };
+    qrtmd_etx: uint8;
+};
+
+type MessageHeader = unit {
+    message_length: bytes &size=4;
+    sequence_number: bytes &size=9;
+    service_identifier: bytes &size=3;
+    retransmission_identifier: uint8 &convert=RetransmissionIdentifier($$);
+    continuation_identifier: uint8 &convert=ContinuationIdentifier($$);
+    message_type: bytes &size=2;
+    exchange_identifier: bytes &size=2;
+};
+
+type TradeMessage = unit {
+    symbol: bytes &size=12;
+    volume: bytes &size=9;
+    trade_price: bytes &size=11;
+    buyer_id: bytes &size=3;
+    seller_id: bytes &size=3;
+    trade_time_stamp: bytes &size=6;
+    last_sale: bytes &size=11;
+    trade_id: bytes &size=9;
+    cross_type: uint8 &convert=CrossType($$);
+    bypass: uint8 &convert=Bypass($$);
+    opening_trade: uint8 &convert=OpeningTrade($$);
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+    is_dark: uint8 &convert=IsDark($$);
+    trading_system_time_stamp: bytes &size=23;
+};
+
+type SymbolStatusMessage = unit {
+    symbol: bytes &size=12;
+    trading_system_time_stamp: bytes &size=23;
+    exchange_id: bytes &size=3;
+    cusip: bytes &size=12;
+    board_lot: bytes &size=9;
+    currency: bytes &size=1;
+    face_value: bytes &size=9;
+    last_sale: bytes &size=11;
+    product_type: uint8 &convert=ProductType($$);
+    symbol_name: bytes &size=40;
+    stock_group: bytes &size=2;
+    stock_state: bytes &size=2;
+    listing_market: uint8 &convert=ListingMarket($$);
+    min_po_qty: bytes &size=9;
+    test_symbol: uint8 &convert=TestSymbol($$);
+};
+
+type StockStateMessage = unit {
+    symbol: bytes &size=12;
+    trading_system_time_stamp: bytes &size=23;
+    comment: bytes &size=40;
+    stock_state: bytes &size=2;
+    opening_time: bytes &size=6;
+};
+
+type QuoteMessage = unit {
+    symbol: bytes &size=12;
+    bid_price: bytes &size=9;
+    bid_size: bytes &size=9;
+    ask_price: bytes &size=9;
+    ask_size: bytes &size=9;
+    trading_system_time_stamp: bytes &size=23;
+};
+
+type GeneralMessage = unit {
+    trading_system_time_stamp: bytes &size=23;
+    bulletin_indicator: uint8 &convert=BulletinIndicator($$);
+    message_text: bytes &size=80;
+};
+
+type TradeCancellationMessage = unit {
+    symbol: bytes &size=12;
+    volume: bytes &size=9;
+    trade_price: bytes &size=11;
+    buyer_id: bytes &size=3;
+    seller_id: bytes &size=3;
+    trade_time_stamp: bytes &size=6;
+    original_trade_id: bytes &size=9;
+    last_sale: bytes &size=11;
+    trading_system_time_stamp: bytes &size=23;
+};
+
+type MarketStateMessage = unit {
+    trading_system_time_stamp: bytes &size=23;
+    stock_group: bytes &size=2;
+    market_state: uint8 &convert=MarketState($$);
+};
+
+type TradingTierStatusMessage = unit {
+    exchange_id: bytes &size=3;
+    total_number_of_symbols: bytes &size=5;
+    total_number_of_stock_groups: bytes &size=3;
+    trading_system_time_stamp: bytes &size=23;
+    trading_tier_id: bytes &size=6;
+};
+
+type TradeCorrectionMessage = unit {
+    symbol: bytes &size=12;
+    volume: bytes &size=9;
+    trade_price: bytes &size=11;
+    buyer_id: bytes &size=3;
+    seller_id: bytes &size=3;
+    trade_time_stamp: bytes &size=6;
+    last_sale: bytes &size=11;
+    trade_id: bytes &size=9;
+    cross_type: uint8 &convert=CrossType($$);
+    bypass: uint8 &convert=Bypass($$);
+    opening_trade: uint8 &convert=OpeningTrade($$);
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+    original_trade_id: bytes &size=9;
+    is_dark: uint8 &convert=IsDark($$);
+    trading_system_time_stamp: bytes &size=23;
+};
+
+type RetransmissionIdentifier = enum {
+    NormalTransmission = 0x30,
+};
+
+type ContinuationIdentifier = enum {
+    StandAloneMessage = 0x30,
+};
+
+type MessageType = enum {
+    TradeMessage = 0x41,
+    SymbolStatusMessage = 0x42,
+    StockStateMessage = 0x44,
+    QuoteMessage = 0x45,
+    GeneralMessage = 0x47,
+    TradeCancellationMessage = 0x48,
+    MarketStateMessage = 0x53,
+    TradingTierStatusMessage = 0x54,
+    TradeCorrectionMessage = 0x58,
+};
+
+type ExchangeIdentifier = enum {
+    TorontoStockExchange = 0x54,
+    TsxVentureExchange = 0x56,
+    TsxAlphaExchange = 0x41,
+};
+
+type CrossType = enum {
+    Internal = 0x49,
+    Basis = 0x42,
+    Contingent = 0x43,
+    DerivativeRelated = 0x44,
+    Regular = 0x52,
+    VolumeWeightedAveragePrice = 0x56,
+    Default = 0x20,
+};
+
+type Bypass = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type OpeningTrade = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type SettlementTerms = enum {
+    Default = 0x20,
+    Cash = 0x43,
+    NonNet = 0x4e,
+    DerivativesRelatedContingentEquityTrade = 0x4d,
+    CashToday = 0x54,
+    SettlementDate = 0x44,
+};
+
+type IsDark = enum {
+    No = 0x4e,
+};
+
+type ProductType = enum {
+    Debenture = 0x42,
+    Equity = 0x45,
+    MutualFund = 0x4d,
+    Etf = 0x46,
+};
+
+type StockState = enum {
+    Authorized = 0x41,
+    Inhibited = 0x49,
+};
+
+type ListingMarket = enum {
+    Tsx = 0x54,
+    Tsxv = 0x56,
+};
+
+type TestSymbol = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type BulletinIndicator = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type MarketState = enum {
+    PreOpen = 0x50,
+    Opening = 0x4f,
+    Open = 0x53,
+    Closed = 0x43,
+    ExtendedHoursClose = 0x46,
+    ExtendedHoursCxls = 0x4e,
+};
+

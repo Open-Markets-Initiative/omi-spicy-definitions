@@ -1,0 +1,366 @@
+module TmxTsxLevel1QrtmdV28;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TsxLevel1V28 = unit {
+    qrtmd_stx: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::SymbolStatusMessage -> symbol_status_message: SymbolStatusMessage;
+        MessageType::MocImbalanceNotificationMessage -> moc_imbalance_notification_message: MocImbalanceNotificationMessage;
+        MessageType::MocPriceMovementDelayMessage -> moc_price_movement_delay_message: MocPriceMovementDelayMessage;
+        MessageType::StockStateMessage -> stock_state_message: StockStateMessage;
+        MessageType::QuoteMessage -> quote_message: QuoteMessage;
+        MessageType::GeneralMessage -> general_message: GeneralMessage;
+        MessageType::TradeCancellationMessage -> trade_cancellation_message: TradeCancellationMessage;
+        MessageType::IndicativePriceMessage -> indicative_price_message: IndicativePriceMessage;
+        MessageType::CalculatedOpeningPriceMessage -> calculated_opening_price_message: CalculatedOpeningPriceMessage;
+        MessageType::TsxTsxvClosingPriceMessage -> tsx_tsxv_closing_price_message: TsxTsxvClosingPriceMessage;
+        MessageType::MarketStateMessage -> market_state_message: MarketStateMessage;
+        MessageType::TradingTierStatusMessage -> trading_tier_status_message: TradingTierStatusMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        * -> unknown: bytes &eod;
+    };
+    qrtmd_etx: uint8;
+};
+
+type MessageHeader = unit {
+    message_length: bytes &size=4;
+    sequence_number: bytes &size=9;
+    service_identifier: bytes &size=3;
+    retransmission_identifier: uint8 &convert=RetransmissionIdentifier($$);
+    continuation_identifier: uint8 &convert=ContinuationIdentifier($$);
+    message_type: bytes &size=2;
+    exchange_identifier: bytes &size=2;
+};
+
+type TradeMessage = unit {
+    symbol: bytes &size=12;
+    volume: bytes &size=9;
+    trade_price: bytes &size=11;
+    buyer_id: bytes &size=3;
+    seller_id: bytes &size=3;
+    trade_time_stamp: bytes &size=6;
+    last_sale: bytes &size=11;
+    trade_id: bytes &size=9;
+    cross_type: uint8 &convert=CrossType($$);
+    moc: uint8 &convert=Moc($$);
+    bypass: uint8 &convert=Bypass($$);
+    opening_trade: uint8 &convert=OpeningTrade($$);
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+    trading_system_time_stamp: bytes &size=23;
+    listing_market: uint8 &convert=ListingMarket($$);
+    product_type: uint8 &convert=ProductType($$);
+    trade_date: bytes &size=8;
+    is_mid_only: uint8 &convert=IsMidOnly($$);
+    is_dark: uint8 &convert=IsDark($$);
+    is_conditional: uint8 &convert=IsConditional($$);
+};
+
+type SymbolStatusMessage = unit {
+    symbol: bytes &size=12;
+    trading_system_time_stamp: bytes &size=23;
+    exchange_id: bytes &size=3;
+    cusip: bytes &size=12;
+    board_lot: bytes &size=9;
+    currency: bytes &size=1;
+    face_value: bytes &size=9;
+    last_sale: bytes &size=11;
+    moc_eligible: uint8 &convert=MocEligible($$);
+    product_type: uint8 &convert=ProductType($$);
+    symbol_name: bytes &size=40;
+    stock_group: bytes &size=2;
+    stock_state: bytes &size=2;
+    listing_market: uint8 &convert=ListingMarket($$);
+    buy_maximum_quantity: bytes &size=9;
+    buy_minimum_quantity: bytes &size=9;
+    sell_maximum_quantity: bytes &size=9;
+    sell_minimum_quantity: bytes &size=9;
+    test_symbol: uint8 &convert=TestSymbol($$);
+};
+
+type MocImbalanceNotificationMessage = unit {
+    symbol: bytes &size=12;
+    imbalance_side: uint8 &convert=ImbalanceSide($$);
+    imbalance_volume: bytes &size=9;
+    imbalance_reference_price: bytes &size=11;
+    paired_volume: bytes &size=9;
+    market_order_imbalance_volume: bytes &size=9;
+    market_order_imbalance_side: uint8 &convert=MarketOrderImbalanceSide($$);
+    near_indicative_closing_price: bytes &size=11;
+    far_indicative_closing_price: bytes &size=11;
+    price_variation: bytes &size=5;
+    trading_system_time_stamp: bytes &size=23;
+};
+
+type MocPriceMovementDelayMessage = unit {
+    symbol: bytes &size=12;
+    trading_system_time_stamp: bytes &size=23;
+    stock_state: bytes &size=2;
+    ccp: bytes &size=11;
+    vwap: bytes &size=11;
+};
+
+type StockStateMessage = unit {
+    symbol: bytes &size=12;
+    trading_system_time_stamp: bytes &size=23;
+    comment: bytes &size=40;
+    stock_state: bytes &size=2;
+    opening_time: bytes &size=6;
+    listing_market: uint8 &convert=ListingMarket($$);
+    product_type: uint8 &convert=ProductType($$);
+};
+
+type QuoteMessage = unit {
+    symbol: bytes &size=12;
+    bid_price: bytes &size=9;
+    bid_size: bytes &size=9;
+    ask_price: bytes &size=9;
+    ask_size: bytes &size=9;
+    trading_system_time_stamp: bytes &size=23;
+};
+
+type GeneralMessage = unit {
+    trading_system_time_stamp: bytes &size=23;
+    bulletin_indicator: uint8 &convert=BulletinIndicator($$);
+    message_text: bytes &size=80;
+};
+
+type TradeCancellationMessage = unit {
+    symbol: bytes &size=12;
+    volume: bytes &size=9;
+    trade_price: bytes &size=11;
+    buyer_id: bytes &size=3;
+    seller_id: bytes &size=3;
+    trade_time_stamp: bytes &size=6;
+    original_trade_id: bytes &size=9;
+    last_sale: bytes &size=11;
+    trading_system_time_stamp: bytes &size=23;
+    listing_market: uint8 &convert=ListingMarket($$);
+    product_type: uint8 &convert=ProductType($$);
+    trade_date: bytes &size=8;
+};
+
+type IndicativePriceMessage = unit {
+    symbol: bytes &size=12;
+    cusip: bytes &size=12;
+    indicative_price: bytes &size=11;
+    price_marker: uint8 &convert=PriceMarker($$);
+    business_date: bytes &size=8;
+};
+
+type CalculatedOpeningPriceMessage = unit {
+    symbol: bytes &size=12;
+    cusip: bytes &size=12;
+    cop: bytes &size=11;
+    price_marker: uint8 &convert=PriceMarker($$);
+    trading_system_time_stamp: bytes &size=23;
+};
+
+type TsxTsxvClosingPriceMessage = unit {
+    symbol: bytes &size=12;
+    cusip: bytes &size=12;
+    tsx_tsxv_closing_price: bytes &size=11;
+    tsx_tsxv_last_bid: bytes &size=9;
+    tsx_tsxv_last_ask: bytes &size=9;
+    business_date: bytes &size=8;
+};
+
+type MarketStateMessage = unit {
+    trading_system_time_stamp: bytes &size=23;
+    stock_group: bytes &size=2;
+    market_state: uint8 &convert=MarketState($$);
+};
+
+type TradingTierStatusMessage = unit {
+    exchange_id: bytes &size=3;
+    total_number_of_symbols: bytes &size=5;
+    total_number_of_stock_groups: bytes &size=3;
+    trading_system_time_stamp: bytes &size=23;
+    trading_tier_id: bytes &size=6;
+};
+
+type TradeCorrectionMessage = unit {
+    symbol: bytes &size=12;
+    volume: bytes &size=9;
+    trade_price: bytes &size=11;
+    buyer_id: bytes &size=3;
+    seller_id: bytes &size=3;
+    trade_time_stamp: bytes &size=6;
+    last_sale: bytes &size=11;
+    trade_id: bytes &size=9;
+    cross_type: uint8 &convert=CrossType($$);
+    moc: uint8 &convert=Moc($$);
+    bypass: uint8 &convert=Bypass($$);
+    opening_trade: uint8 &convert=OpeningTrade($$);
+    settlement_terms: uint8 &convert=SettlementTerms($$);
+    original_trade_id: bytes &size=9;
+    trading_system_time_stamp: bytes &size=23;
+    listing_market: uint8 &convert=ListingMarket($$);
+    product_type: uint8 &convert=ProductType($$);
+    trade_date: bytes &size=8;
+    is_mid_only: uint8 &convert=IsMidOnly($$);
+    is_dark: uint8 &convert=IsDark($$);
+    is_conditional: uint8 &convert=IsConditional($$);
+};
+
+type RetransmissionIdentifier = enum {
+    NormalTransmission = 0x30,
+};
+
+type ContinuationIdentifier = enum {
+    StandAloneMessage = 0x30,
+};
+
+type MessageType = enum {
+    TradeMessage = 0x41,
+    SymbolStatusMessage = 0x42,
+    MocImbalanceNotificationMessage = 0x43,
+    StockStateMessage = 0x44,
+    QuoteMessage = 0x45,
+    GeneralMessage = 0x47,
+    TradeCancellationMessage = 0x48,
+    IndicativePriceMessage = 0x49,
+    CalculatedOpeningPriceMessage = 0x4f,
+    TsxTsxvClosingPriceMessage = 0x52,
+    MarketStateMessage = 0x53,
+    TradingTierStatusMessage = 0x54,
+    TradeCorrectionMessage = 0x58,
+};
+
+type ExchangeIdentifier = enum {
+    TorontoStockExchange = 0x54,
+    TsxVentureExchange = 0x56,
+    TsxAlphaExchange = 0x41,
+};
+
+type CrossType = enum {
+    Internal = 0x49,
+    Basis = 0x42,
+    Contingent = 0x43,
+    DerivativeRelated = 0x44,
+    Regular = 0x52,
+    SpecialTradingSession = 0x53,
+    VolumeWeightedAveragePrice = 0x56,
+    Default = 0x20,
+};
+
+type Moc = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type Bypass = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type OpeningTrade = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type SettlementTerms = enum {
+    Default = 0x20,
+    Cash = 0x43,
+    NonNet = 0x4e,
+    DerivativesRelatedContingentEquityTrade = 0x4d,
+    CashToday = 0x54,
+    SettlementDate = 0x44,
+};
+
+type ListingMarket = enum {
+    Tsx = 0x54,
+    Tsxv = 0x56,
+    Navex = 0x4e,
+    Nasdaq = 0x51,
+    Nyse = 0x53,
+    NyseMkt = 0x4d,
+    NoMarket = 0x58,
+};
+
+type ProductType = enum {
+    Debenture = 0x42,
+    Equity = 0x45,
+    MutualFund = 0x4d,
+    Etf = 0x46,
+    UsEquity = 0x55,
+    Bond = 0x4f,
+};
+
+type IsMidOnly = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type IsDark = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type IsConditional = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type MocEligible = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type StockState = enum {
+    Authorized = 0x41,
+    Inhibited = 0x49,
+};
+
+type TestSymbol = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type ImbalanceSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NotApplicable = 0x20,
+};
+
+type MarketOrderImbalanceSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NotApplicable = 0x20,
+};
+
+type BulletinIndicator = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type PriceMarker = enum {
+    IndicativeClosingPrice = 0x43,
+    CalculatedOpeningPrice = 0x4f,
+};
+
+type MarketState = enum {
+    PreOpen = 0x50,
+    Opening = 0x4f,
+    Open = 0x53,
+    Closed = 0x43,
+    ExtendedHoursOpen = 0x52,
+    ExtendedHoursClose = 0x46,
+    ExtendedHoursCxls = 0x4e,
+    MocImbalance = 0x4d,
+    MocFreeze = 0x54,
+    CcpDetermination = 0x41,
+    PriceMovementExtension = 0x45,
+    Closing = 0x4c,
+    NavexClosed = 0x4a,
+    NavexOrderEntry = 0x47,
+    NavexOrderEntryClose = 0x48,
+    NavexAmExecution = 0x4b,
+    NavexPmExecution = 0x58,
+    NavexClose = 0x59,
+};
+

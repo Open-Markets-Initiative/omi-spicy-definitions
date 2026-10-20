@@ -44,7 +44,7 @@ type LogonResponseMessage = unit {
     sequence_number: uint32;
     heart_bt_int: uint8;
     protocol_version: bytes &size=6;
-    test_production_ind: bytes &size=1;
+    test_production_ind: uint8 &convert=TestProductionInd($$);
     environment_code: bytes &size=2;
     session_date: int32;
     expected_sequence_number: uint32;
@@ -92,7 +92,12 @@ type StatisticsMessage = unit {
     security_code: uint32;
     transaction_date_and_time: int64;
     data_count: uint8;
-    data_code: bytes &size=1;
+    statistics_repeating_group: StatisticsRepeatingGroup[self.data_count];
+};
+
+type StatisticsRepeatingGroup = unit {
+    data_code: uint8 &convert=DataCode($$);
+    data_value: int64;
 };
 
 type SecurityListMessage = unit {
@@ -177,7 +182,7 @@ type SecurityListMessage = unit {
     sub_product: bytes &size=4;
     further_sub_product: bytes &size=4;
     adnt: int64;
-    price_tick_rule: uint8;
+    price_tick_rule: uint8 &convert=PriceTickRule($$);
     underlying_symbol: bytes &size=22;
     underlying_isin: bytes &size=12;
     underlying_currency: bytes &size=3;
@@ -268,7 +273,7 @@ type SecurityListUpdateReportMessage = unit {
     sub_product: bytes &size=4;
     further_sub_product: bytes &size=4;
     adnt: int64;
-    price_tick_rule: uint8;
+    price_tick_rule: uint8 &convert=PriceTickRule($$);
     underlying_symbol: bytes &size=22;
     underlying_isin: bytes &size=12;
     underlying_currency: bytes &size=3;
@@ -471,6 +476,11 @@ type MessageType = enum {
     TopofbookMessage = 0x82,
 };
 
+type TestProductionInd = enum {
+    Test = 0x54,
+    Production = 0x50,
+};
+
 type LogoutReason = enum {
     TerminationAfterASolicitedLogoutRequest = 0,
     EndOfSessionTerminationInRecoveryServerEndOfRecoverySnapshot = 1,
@@ -508,7 +518,7 @@ type TradingSessionSubId = enum {
     ScheduledIntradayAuction = 6,
     UnscheduledIntradayAuction = 9,
     TradingPeriodAtClosingPriceTal = 100,
-    EndOfClosingAuctionAndBeginningOfTalPeriodForInstrumentsWithoutExtension = 101,
+    EndOfClosingAuctionBeginningOfTal = 101,
     PublicationOfPreviousDaySpecialOperations = 201,
     NotStarted = 202,
     Open = 203,
@@ -522,6 +532,32 @@ type TradSesStatus = enum {
     PreOpenNotStarted = 4,
     PreClose = 5,
     RequestRejected = 6,
+};
+
+type DataCode = enum {
+    AveragePrice = 0x44,
+    PreviousForwardPrice = 0x64,
+    PublishedCashAmount = 0x45,
+    OrderModalityCashAmount = 0x65,
+    EndOfSessionIndicator = 0x66,
+    First = 0x47,
+    High = 0x48,
+    MaximumBid = 0x68,
+    NotPublishedVolume = 0x4a,
+    Last = 0x4d,
+    NumberOfTrades = 0x4e,
+    PreviousClosingPrice = 0x51,
+    OpeningVolatility = 0x52,
+    PublishedVolume = 0x56,
+    PublishedVolumeOrderModality = 0x76,
+    VolumeOfLastTrade = 0x57,
+    Low = 0x5a,
+    MinimumAsk = 0x7a,
+    ClosingPrice = 0x6a,
+    ClosingYield = 0x6b,
+    Volatility = 0x6c,
+    Delta = 0x6d,
+    ForwardPrice = 0x6e,
 };
 
 type SecurityType = enum {
@@ -558,19 +594,16 @@ type SecurityType = enum {
 type LiquidInstrument = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AdmissionRequestedByIssuer = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingObligation = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SecuritySubType = enum {
@@ -612,13 +645,11 @@ type PutOrCall = enum {
 type CpRegType = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type AutomaticExpiration = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type TradingScope = enum {
@@ -636,7 +667,6 @@ type TradingScope = enum {
 type NetAssetValueIndicator = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type ReferenceTradingVenue = enum {
@@ -654,7 +684,6 @@ type SettlementSystem = enum {
 type InvestmentFundClass = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type NavCommunicationTerm = enum {
@@ -672,25 +701,31 @@ type CommodityDerivativeIndicator = enum {
 type DoubleVolumeCapReached = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
+};
+
+type PriceTickRule = enum {
+    TickRule1 = 1,
+    TickRule2 = 2,
+    TickRule3 = 3,
+    TickRule4 = 4,
+    TickRule5 = 5,
+    TickRule6 = 6,
+    TickRule7 = 7,
 };
 
 type RetailServiceFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SelfMatchPrevention = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BonusWarrantsWithActiveBonus = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type SecurityTradingStatus = enum {
@@ -736,14 +771,12 @@ type StaticRangeType = enum {
 type RetailFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type Side = enum {
     Buy = 0x31,
     Sell = 0x32,
     Undisclosed = 0x37,
-    Notspecified = 0x3f,
 };
 
 type TradeType = enum {
@@ -757,6 +790,31 @@ type TradeType = enum {
     AuthorisedApplicationExecutionOfContracts = 0x34,
     AuthorisedApplicationOtherCauses = 0x35,
     ValidationCommunicated = 0x36,
+    AuthorisedValidationTrades = 0x37,
+    AuthorisedValidationCorporateInterest = 0x38,
+    AuthorisedValidationExecutionOfContracts = 0x39,
+    AuthorisedValidationOtherCauses = 0x30,
+    TransactionBetweenMembersCommunicated = 0x41,
+    TransactionBetweenMembersTrades = 0x42,
+    TransactionBetweenMembersCorporateInterest = 0x43,
+    TransactionBetweenMembersExecutionOfContracts = 0x46,
+    TransactionBetweenMembersOtherCauses = 0x47,
+    ApplicationToCaterForALinkedPosition = 0x49,
+    TransactionToCaterForALinkedPosition = 0x4a,
+    TransactionOfExerciseOfOptions = 0x45,
+    PublicShareBidOfferTypeTransaction = 0x4e,
+    PublicShareAskOfferTypeTransaction = 0x4f,
+    PublicShareSubscriptionOfferTypeTransaction = 0x50,
+    SpecialTradesDeltaType = 0x4c,
+    NetAssetValueSpecialTradeDPlus1 = 0x61,
+    NetAssetValueSpecialTradeDPlus2 = 0x62,
+    NetAssetValueSpecialTradeDPlus3 = 0x63,
+    ApplicationWithoutCcp = 0x44,
+    TransactionWithoutCcp = 0x4b,
+    InvestmentFundDPlus1 = 0x64,
+    InvestmentFundDPlus2 = 0x65,
+    InvestmentFundDPlus3 = 0x66,
+    Vwap = 0x57,
 };
 
 type Designation = enum {
@@ -781,7 +839,6 @@ type MarketMechanism = enum {
 type AlgoFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BuyerBolsaCode = enum {
@@ -799,7 +856,6 @@ type TransactionCategory = enum {
 type LastChangeFlag = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 
 type BencrfptFlag = enum {
@@ -813,13 +869,13 @@ type BencrfptFlag = enum {
 type TradePriceCondition = enum {
     PlainVanillaTrade = 0x20,
     NonPriceFormingTradeFormerlyDefinedAsATechnicalTradeNpft = 0x35,
-    TradeNotContributingToThePriceDiscoveryProcessFormerlyDefinedAsATechnicalTradeTncpToBeDiscontinuedAsOf1StJanuary2024 = 0x36,
+    TradeNotContributingToPriceDiscoveryTncp = 0x36,
 };
 
 type PreTradeTransparencyWaiver = enum {
     NegotiatedTradeInLiquidFinancialInstrumentsNliq = 0x30,
     NegotiatedTradeInIlliquidFinancialInstrumentsOilq = 0x31,
-    NegotiatedTradeSubjectToConditionsOtherThanTheCurrentMarketPricePric = 0x32,
+    NegotiatedTradeOtherThanCurrentMarketPricePric = 0x32,
 };
 
 type DeferralWaiver = enum {
@@ -829,7 +885,6 @@ type DeferralWaiver = enum {
 type SicavFundCounterpartySide = enum {
     Buyer = 0x31,
     Seller = 0x32,
-    Na = 0x20,
 };
 
 type AmendedTradeType = enum {
@@ -843,11 +898,35 @@ type AmendedTradeType = enum {
     AuthorisedApplicationExecutionOfContracts = 0x34,
     AuthorisedApplicationOtherCauses = 0x35,
     ValidationCommunicated = 0x36,
+    AuthorisedValidationTrades = 0x37,
+    AuthorisedValidationCorporateInterest = 0x38,
+    AuthorisedValidationExecutionOfContracts = 0x39,
+    AuthorisedValidationOtherCauses = 0x30,
+    TransactionBetweenMembersCommunicated = 0x41,
+    TransactionBetweenMembersTrades = 0x42,
+    TransactionBetweenMembersCorporateInterest = 0x43,
+    TransactionBetweenMembersExecutionOfContracts = 0x46,
+    TransactionBetweenMembersOtherCauses = 0x47,
+    ApplicationToCaterForALinkedPosition = 0x49,
+    TransactionToCaterForALinkedPosition = 0x4a,
+    TransactionOfExerciseOfOptions = 0x45,
+    PublicShareBidOfferTypeTransaction = 0x4e,
+    PublicShareAskOfferTypeTransaction = 0x4f,
+    PublicShareSubscriptionOfferTypeTransaction = 0x50,
+    SpecialTradesDeltaType = 0x4c,
+    NetAssetValueSpecialTradeDPlus1 = 0x61,
+    NetAssetValueSpecialTradeDPlus2 = 0x62,
+    NetAssetValueSpecialTradeDPlus3 = 0x63,
+    ApplicationWithoutCcp = 0x44,
+    TransactionWithoutCcp = 0x4b,
+    InvestmentFundDPlus1 = 0x64,
+    InvestmentFundDPlus2 = 0x65,
+    InvestmentFundDPlus3 = 0x66,
+    Vwap = 0x57,
 };
 
 type RetailFlag2 = enum {
     False_0 = 0,
     True_1 = 1,
-    Undefined = 255,
 };
 

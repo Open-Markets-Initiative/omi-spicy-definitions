@@ -1,0 +1,79 @@
+module JpxNseequitiesMarketbyorderFlexV13Tcp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NseequitiesMarketbyorderV13 = unit {
+    tcp_packet_header: TcpPacketHeader;
+    switch ( self.tcp_packet_header.packet_type ) {
+        PacketType::LoginRequestRetransmissionMessage -> login_request_retransmission_message: LoginRequestRetransmissionMessage;
+        PacketType::LoginRequestSnapshotMessage -> login_request_snapshot_message: LoginRequestSnapshotMessage;
+        PacketType::LoginResultAcceptedMessage -> login_result_accepted_message: LoginResultAcceptedMessage;
+        PacketType::LoginResultRejectedMessage -> login_result_rejected_message: LoginResultRejectedMessage;
+        PacketType::MessageResponseMessage -> message_response_message: MessageResponseMessage;
+        PacketType::EndOfMessageMessage -> end_of_message_message: EndOfMessageMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TcpPacketHeader = unit {
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+};
+
+type LoginRequestRetransmissionMessage = unit {
+    user_id: bytes &size=6;
+    multicast_group_number: uint8;
+    number_of_system_reboots: uint8;
+    sequence_number: uint32;
+    requested_message_count: bytes &size=3;
+};
+
+type LoginRequestSnapshotMessage = unit {
+    user_id: bytes &size=6;
+    multicast_group_number: uint8;
+    number_of_system_reboots: uint8;
+    sequence_number: uint32;
+    requested_message_count: bytes &size=3;
+};
+
+type LoginResultAcceptedMessage = unit {
+    multicast_group_number: uint8;
+    result_code: uint8 &convert=ResultCode($$);
+};
+
+type LoginResultRejectedMessage = unit {
+    multicast_group_number: uint8;
+    result_code: uint8 &convert=ResultCode($$);
+};
+
+type MessageResponseMessage = unit {
+    data: bytes &eod;
+};
+
+type EndOfMessageMessage = unit {
+    multicast_group_number: uint8;
+    number_of_system_reboots: uint8;
+    next_sequence_number: uint32;
+};
+
+type PacketType = enum {
+    LoginRequestRetransmissionMessage = 0x52,
+    LoginRequestSnapshotMessage = 0x4c,
+    LoginResultAcceptedMessage = 0x41,
+    LoginResultRejectedMessage = 0x4a,
+    MessageResponseMessage = 0x53,
+    EndOfMessageMessage = 0x47,
+};
+
+type ResultCode = enum {
+    Accepted = 0x41,
+    OutOfService = 0x4f,
+    IncorrectUserId = 0x55,
+    IncorrectSequenceNumber = 0x53,
+    IncorrectPacketType = 0x54,
+    IncorrectMcgNumber = 0x4d,
+    OtherError = 0x5a,
+};
+
