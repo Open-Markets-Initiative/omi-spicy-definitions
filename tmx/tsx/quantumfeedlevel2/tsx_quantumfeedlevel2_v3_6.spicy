@@ -6,7 +6,10 @@ import spicy;
 
 public type TsxQuantumfeedlevel2V36 = unit {
     frame_header: FrameHeader;
-    body: Body[self.frame_header.num_body];
+    switch ( self.packet_body.heartbeat_body.body_header.msg_type ) {
+        MsgType::Heartbeat -> heartbeat_body: HeartbeatBody(self.frame_header.num_body);
+        * -> business_bodies: BusinessBodies(self.frame_header.num_body);
+    };
 };
 
 type FrameHeader = unit {
@@ -19,14 +22,32 @@ type FrameHeader = unit {
     num_body: uint8;
 };
 
-type Body = unit {
+type HeartbeatBody = unit(num_body: uint8) {
     body_header: BodyHeader;
-    body_message: BodyMessage(self.body_header.msg_type);
+    admin_id: uint8;
+    hb_interval: uint16;
+    admin_body: AdminBody[num_body];
 };
 
 type BodyHeader = unit {
     msg_length: uint16;
     msg_type: uint8 &convert=MsgType($$);
+};
+
+type AdminBody = unit {
+    source_id: uint8 &convert=SourceId($$);
+    stream_id: uint16;
+    sequence_0: uint8;
+    sequence_1: uint32;
+};
+
+type BusinessBodies = unit(num_body: uint8) {
+    body: Body[num_body];
+};
+
+type Body = unit {
+    body_header: BodyHeader;
+    body_message: BodyMessage(self.body_header.msg_type);
 };
 
 type BodyMessage = unit(msg_type: MsgType) {
@@ -59,7 +80,7 @@ type BodyMessage = unit(msg_type: MsgType) {
 
 type BusinessHeader = unit {
     msg_version: uint8;
-    source_id: bytes &size=1;
+    source_id: uint8 &convert=SourceId($$);
     stream_id: uint16;
     sequence_0: uint8;
     sequence_1: uint32;
@@ -89,11 +110,8 @@ type OrderBookMessage = unit {
     broker_number: uint16;
     order_side: uint8 &convert=OrderSide($$);
     order_id: uint64;
-    price: uint64;
+    order_price: uint64;
     volume: uint32;
-    non_resident: uint8 &convert=NonResident($$);
-    settlement_terms: uint8 &convert=SettlementTerms($$);
-    settlement_date: uint32;
     priority_time_stamp: uint64;
 };
 
@@ -160,6 +178,7 @@ type MocImbalanceMessage = unit {
     market_order_imbalance_side: uint8 &convert=MarketOrderImbalanceSide($$);
     near_indicative_closing_price: uint64;
     far_indicative_closing_price: uint64;
+    price_variation: uint32;
 };
 
 type OrderBookedMessage = unit {
@@ -167,7 +186,7 @@ type OrderBookedMessage = unit {
     broker_number: uint16;
     order_side: uint8 &convert=OrderSide($$);
     order_id: uint64;
-    price: uint64;
+    order_price: uint64;
     volume: uint32;
     priority_time_stamp: uint64;
     trading_system_time_stamp: uint64;
@@ -331,9 +350,12 @@ type TradeCorrectionTermsMessage = unit {
 
 type AckRequiredPossDup = enum {
     Unused = 0x30,
+    AckRequired = 0x41,
+    PossDup = 0x44,
 };
 
 type MsgType = enum {
+    Heartbeat = 0x30,
     SymbolStatusMessage = 0x4a,
     OrderBookMessage = 0x47,
     OrderBookTermsMessage = 0x6a,
@@ -357,6 +379,13 @@ type MsgType = enum {
     TradeCorrectionTermsMessage = 0x72,
 };
 
+type SourceId = enum {
+    NonSourceRelated = 0x30,
+    Tsx = 0x51,
+    TsxVenture = 0x56,
+    Alpha = 0x41,
+};
+
 type Currency = enum {
     Usd = 0x55,
     Cad = 0x43,
@@ -369,7 +398,7 @@ type ListingMarket = enum {
     Nasdaq = 0x51,
     Nyse = 0x53,
     NyseMkt = 0x4d,
-    NNoMarket = 0x58,
+    NoMarket = 0x58,
 };
 
 type ProductType = enum {
@@ -426,6 +455,7 @@ type MarketState = enum {
     Closing = 0x4c,
     ExtendedHoursCxls = 0x4e,
     ExtendedHoursOpen = 0x52,
+    ExtendedHoursClose = 0x46,
     Closed = 0x43,
     NavExClosed = 0x4a,
     NavExOrderEntry = 0x47,

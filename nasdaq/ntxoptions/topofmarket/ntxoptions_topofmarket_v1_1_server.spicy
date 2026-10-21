@@ -48,6 +48,8 @@ type SequencedDataPacket = unit {
         SequencedMessageType::BestBidOrAskUpdateShortFormMessage -> best_bid_or_ask_update_short_form_message: BestBidOrAskUpdateShortFormMessage;
         SequencedMessageType::BestBidOrAskUpdateLongFormMessage -> best_bid_or_ask_update_long_form_message: BestBidOrAskUpdateLongFormMessage;
         SequencedMessageType::SnapshotMessage -> snapshot_message: SnapshotMessage;
+        SequencedMessageType::BestAskUpdateShortFormMessage -> best_bid_or_ask_update_short_form_message: BestBidOrAskUpdateShortFormMessage;
+        SequencedMessageType::BestAskUpdateLongFormMessage -> best_bid_or_ask_update_long_form_message: BestBidOrAskUpdateLongFormMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -66,7 +68,7 @@ type DerivativeDirectoryMessage = unit {
     expiration_year: uint8;
     expiration_month: uint8;
     expiration_date: uint8;
-    explicit_strike_price: uint32;
+    explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     underlying_symbol: bytes &size=13;
     closing_type: uint8 &convert=ClosingType($$);
@@ -113,12 +115,12 @@ type BestBidAndAskUpdateLongFormMessage = unit {
     instrument_id: uint32;
     quote_condition: uint8 &convert=QuoteCondition($$);
     bid_market_order_size_long: uint32;
-    bid_price_long: uint32;
+    bid_price_long: int32;
     bid_size_long: uint32;
     bid_cust_size_long: uint32;
     bid_procust_size_long: uint32;
     ask_market_order_size_long: uint32;
-    ask_price_long: uint32;
+    ask_price_long: int32;
     ask_size_long: uint32;
     ask_cust_size_long: uint32;
     ask_procust_size_long: uint32;
@@ -142,7 +144,7 @@ type BestBidOrAskUpdateLongFormMessage = unit {
     instrument_id: uint32;
     quote_condition: uint8 &convert=QuoteCondition($$);
     market_order_size_long: uint32;
-    price_long: uint32;
+    price_long: int32;
     size_long: uint32;
     cust_size_long: uint32;
     procust_size_long: uint32;
@@ -175,6 +177,8 @@ type SequencedMessageType = enum {
     BestBidOrAskUpdateShortFormMessage = 0x62,
     BestBidOrAskUpdateLongFormMessage = 0x42,
     SnapshotMessage = 0x4d,
+    BestAskUpdateShortFormMessage = 0x61,
+    BestAskUpdateLongFormMessage = 0x41,
 };
 
 type EventCode = enum {

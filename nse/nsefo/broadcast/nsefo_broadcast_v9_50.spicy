@@ -21,7 +21,7 @@ type PackedPacket = unit {
 
 type BroadcastData = unit {
     bcast_market_type: bytes &size=1;
-    bcast_reserved: bytes &size=7;
+    : skip bytes &size=7;   # padding
     bcast_header: BcastHeader;
     switch ( self.bcast_header.transaction_code ) {
         TransactionCode::BroadcastJournalVctMessage -> broadcast_journal_vct_message: BroadcastJournalVctMessage;
@@ -52,17 +52,17 @@ type BroadcastData = unit {
 };
 
 type BcastHeader = unit {
-    reserved_0: bytes &size=2;
-    reserved_2: bytes &size=2;
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
     log_time: int32;
     alpha_char: bytes &size=2;
     transaction_code: int16 &convert=TransactionCode($$);
     error_code: int16;
     bc_seq_no: int32;
-    reserved_18: bytes &size=1;
-    reserved_19: bytes &size=3;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=3;   # padding
     time_stamp_2: bytes &size=8;
-    filler_2: bytes &size=8;
+    : skip bytes &size=8;   # padding
     message_length: int16;
 };
 

@@ -147,8 +147,6 @@ type FullRefreshHeader = unit {
 };
 
 type RequestResponseMessage = unit {
-    msg_size: uint16;
-    msg_type: uint16;
     request_seq_num: uint32;
     source_id: bytes &size=10;
     product_id: uint8;
@@ -161,8 +159,6 @@ type HeartbeatResponseMessage = unit {
 };
 
 type OrderbookSnapshotMessage = unit {
-    msg_size: uint16;
-    msg_type: uint16;
     source_time: uint32;
     source_time_ns: uint32;
     symbol_index: uint32;
@@ -173,7 +169,7 @@ type OrderbookSnapshotMessage = unit {
     remaining_count: uint16;
     mpv: uint16;
     update_count: uint8;
-    snapshot_price_point: SnapshotPricePoint;
+    snapshot_price_point: SnapshotPricePoint[self.update_count];
 };
 
 type SnapshotPricePoint = unit {
@@ -184,8 +180,6 @@ type SnapshotPricePoint = unit {
 };
 
 type OrderbookDeltaUpdateMessage = unit {
-    msg_size: uint16;
-    msg_type: uint16;
     source_time: uint32;
     source_time_ns: uint32;
     symbol_index: uint32;
@@ -193,7 +187,7 @@ type OrderbookDeltaUpdateMessage = unit {
     trading_status: uint8 &convert=TradingStatus($$);
     remaining_count: uint16;
     update_count: uint8;
-    delta_price_point: DeltaPricePoint;
+    delta_price_point: DeltaPricePoint[self.update_count];
 };
 
 type DeltaPricePoint = unit {

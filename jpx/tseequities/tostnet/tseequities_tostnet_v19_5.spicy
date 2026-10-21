@@ -1,0 +1,271 @@
+module JpxTseequitiesTostnetFlexV195;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TseequitiesTostnetV195 = unit {
+    start_of_message: uint8;
+    service_header: ServiceHeader;
+    separation_between_service_header_and_data_section: uint8;
+    tag_information: TagInformation[] &eod;
+};
+
+type ServiceHeader = unit {
+    message_length: bytes &size=6;
+    message_serial_no: MessageSerialNo;
+    message_type: MessageType;
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    session_distinction: bytes &size=2;
+    issue_classification: IssueClassification;
+    switch ( self.issue_classification.issue_classification_large_classification ) {
+        IssueClassificationLargeClassification::Stockrelated -> stock_issue_code: StockIssueCode;
+        IssueClassificationLargeClassification::Cbrelated -> cb_issue_code: CbIssueCode;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageSerialNo = unit {
+    multicast_group_number: bytes &size=3;
+    sequence_number: bytes &size=8;
+};
+
+type MessageType = unit {
+    message_type_large_classification: uint8 &convert=MessageTypeLargeClassification($$);
+    message_type_medium_classification: bytes &size=10;
+};
+
+type IssueClassification = unit {
+    issue_classification_large_classification: bytes &size=2;
+    issue_classification_medium_classification: bytes &size=2;
+};
+
+type StockIssueCode = unit {
+    stock_space: bytes &size=7;
+    stock_proper_name_code: bytes &size=4;
+    stock_reserved_code: bytes &size=1;
+};
+
+type CbIssueCode = unit {
+    cb_space: bytes &size=3;
+    cb_reserved_code: uint8 &convert=CbReservedCode($$);
+    time_symbol: bytes &size=4;
+    cb_proper_name_code: bytes &size=4;
+};
+
+type TagInformation = unit {
+    tag_id: bytes &size=2;
+    switch ( self.tag_id ) {
+        0 -> tostnet_byissue_information_message: TostnetByissueInformationMessage;
+        0 -> tostnet_market_information_message: TostnetMarketInformationMessage;
+        0 -> control_message: ControlMessage;
+        * -> unknown: bytes &eod;
+    };
+    separation_of_tag: uint8 &convert=SeparationOfTag($$);
+};
+
+type TostnetByissueInformationMessage = unit {
+    reserved_2: bytes &size=2;
+    market_identification_flag: uint8 &convert=MarketIdentificationFlag($$);
+    trading_halt: TradingHalt;
+    transaction_identification_flag: uint8 &convert=TransactionIdentificationFlag($$);
+    price: Price;
+    trading_volume: TradingVolume;
+    turnover: Turnover;
+};
+
+type TradingHalt = unit {
+    state_flag: bytes &size=2;
+    time_c_6: bytes &size=6;
+};
+
+type Price = unit {
+    price_code: bytes &size=2;
+    lot_size_unit_flag: uint8 &convert=LotSizeUnitFlag($$);
+    price_c_14: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+    time_c_12: bytes &size=12;
+};
+
+type TradingVolume = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    trading_volume_c_14: bytes &size=14;
+};
+
+type Turnover = unit {
+    trading_volume_turnover_unit_flag: uint8 &convert=TradingVolumeTurnoverUnitFlag($$);
+    turnover_c_14: bytes &size=14;
+};
+
+type TostnetMarketInformationMessage = unit {
+    reserved_2: bytes &size=2;
+    market_identification_flag: uint8 &convert=MarketIdentificationFlag($$);
+    state: State;
+};
+
+type State = unit {
+    market_state_flag: bytes &size=2;
+    time_c_6: bytes &size=6;
+};
+
+type ControlMessage = unit {
+    reserved_2: bytes &size=2;
+    test_mode_flag: uint8 &convert=TestModeFlag($$);
+    start_end_flag: uint8 &convert=StartEndFlag($$);
+    time_c_6: bytes &size=6;
+};
+
+type MessageTypeLargeClassification = enum {
+    IssueRealtimeMessage = 0x31,
+    StatisticsMessage = 0x32,
+    IndexMessage = 0x33,
+    IssueBasicMessage = 0x34,
+    ControlMessage = 0x39,
+};
+
+type IssueRealtimeMediumClassification = enum {
+    New = 0,
+    Backup = 1,
+    Allday = 2,
+};
+
+type StatisticsMediumClassification = enum {
+    StatisticsMessage = 0,
+};
+
+type IndexMediumClassification = enum {
+    IndexMessage = 0,
+};
+
+type IssueBasicMediumClassification = enum {
+    Regular = 0,
+    Special = 1,
+};
+
+type ControlMediumClassification = enum {
+    CommunicationControl = 0,
+    IssueInformationControl = 2,
+    AlldayInformationControl = 4,
+    HealthCheckControl = 5,
+    StockBasePriceInformationControl = 6,
+    CbBasePriceInformationControl = 7,
+    MulticastGroupNumberInformationControl = 8,
+    BackupInformationControl = 9,
+    TcpTransmissionControl = 90,
+};
+
+type ExchangeCode = enum {
+    TokyoStockExchange = 0x31,
+    NagoyaStockExchange = 0x33,
+    FukuokaStockExchange = 0x36,
+    SapporoSecuritiesExchange = 0x38,
+    Other = 0x30,
+    ControlMessage = 0x20,
+};
+
+type SessionDistinction = enum {
+    MorningSession = 1,
+    AfternoonSession = 2,
+    OutOfService = 0,
+};
+
+type IssueClassificationLargeClassification = enum {
+    Stockrelated = 1,
+    Cbrelated = 2,
+};
+
+type CbReservedCode = enum {
+    Sw = 0x34,
+    ExchangeableBond = 0x38,
+    Cb = 0x39,
+    OtherBond = 0x20,
+};
+
+type MarketIdentificationFlag = enum {
+    SingleissueTransaction = 0x31,
+    BasketTransaction = 0x32,
+    ClosingPriceTransaction = 0x33,
+};
+
+type StateFlag = enum {
+    OtherThanTheAbove = 0,
+};
+
+type TransactionIdentificationFlag = enum {
+    DayTransaction = 0x31,
+    OrdinaryTransactionT2VwapTransaction = 0x32,
+    DayTransactionVwapTransaction = 0x33,
+    OrdinaryTransactionT2 = 0x20,
+    OrdinaryTransactionT1 = 0x41,
+    OrdinaryTransactionT1VwapTransaction = 0x42,
+    OrdinaryTransactionT3 = 0x43,
+    OrdinaryTransactionT3VwapTransaction = 0x44,
+    OrdinaryTransactionT4 = 0x45,
+    OrdinaryTransactionT4VwapTransaction = 0x46,
+    OrdinaryTransactionT5 = 0x47,
+    OrdinaryTransactionT5VwapTransaction = 0x48,
+    OrdinaryTransactionT6 = 0x49,
+    OrdinaryTransactionT6VwapTransaction = 0x4a,
+    OrdinaryTransactionT7 = 0x4b,
+    OrdinaryTransactionT7VwapTransaction = 0x4c,
+    OrdinaryTransactionT8 = 0x4d,
+    OrdinaryTransactionT8VwapTransaction = 0x4e,
+    OrdinaryTransactionT9 = 0x4f,
+    OrdinaryTransactionT9VwapTransaction = 0x50,
+};
+
+type PriceCode = enum {
+    PreviousdayClosingPrice = 1,
+    PreviousdayVwap = 5,
+    MorningsessionClosingPrice = 11,
+    MorningsessionVwap = 15,
+    TodaysClosingPrice = 31,
+    AfternoonsessionVwap = 25,
+    AlldayVwap = 35,
+    NoPriceCode = 0,
+};
+
+type LotSizeUnitFlag = enum {
+    ToTheFourthDecimalPlace = 0x30,
+    ToTheThirdDecimalPlace = 0x31,
+    ToTheSecondDecimalPlace = 0x32,
+    ToTheFirstDecimalPlace = 0x33,
+    NoDecimalPlaces = 0x34,
+    NoNumericalValue = 0x20,
+};
+
+type Sign = enum {
+    Positive = 0x2b,
+    NoSign = 0x20,
+};
+
+type TradingVolumeTurnoverUnitFlag = enum {
+    One = 0x30,
+    Ten = 0x31,
+    Hundred = 0x32,
+    Thousand = 0x33,
+    TenThousand = 0x34,
+    HundredThousand = 0x35,
+    Million = 0x36,
+    TenMillion = 0x37,
+    HundredMillion = 0x38,
+    Billion = 0x39,
+    NoNumericalValue = 0x20,
+};
+
+type TestModeFlag = enum {
+    RealOperation = 0x31,
+    TestOperation = 0x32,
+};
+
+type StartEndFlag = enum {
+    Start = 0x31,
+    End = 0x32,
+    NotApplicable = 0x20,
+};
+
+type SeparationOfTag = enum {
+    SeparationBetweenTag = 19,
+    EndOfMessage = 17,
+};
+

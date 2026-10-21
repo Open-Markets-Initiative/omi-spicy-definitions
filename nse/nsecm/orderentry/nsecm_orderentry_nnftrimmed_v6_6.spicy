@@ -1,0 +1,275 @@
+module NseNsecmOrderentryNnftrimmedV66;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsecmOrderentryV66 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    switch ( self.transaction_code ) {
+        TransactionCode::OrderEntryRequestTrimmedMessage -> order_entry_request_trimmed_message: OrderEntryRequestTrimmedMessage;
+        TransactionCode::OrderEntryRequestTrimmedMessage_20400 -> order_entry_request_trimmed_message: OrderEntryRequestTrimmedMessage;
+        TransactionCode::OrderModifyCancelRequestTrimmedMessage -> order_modify_cancel_request_trimmed_message: OrderModifyCancelRequestTrimmedMessage;
+        TransactionCode::OrderModifyCancelRequestTrimmedMessage_20070 -> order_modify_cancel_request_trimmed_message: OrderModifyCancelRequestTrimmedMessage;
+        TransactionCode::OrderModifyCancelRequestTrimmedMessage_20402 -> order_modify_cancel_request_trimmed_message: OrderModifyCancelRequestTrimmedMessage;
+        TransactionCode::OrderModifyCancelRequestTrimmedMessage_20404 -> order_modify_cancel_request_trimmed_message: OrderModifyCancelRequestTrimmedMessage;
+        TransactionCode::OrderModifyCancelResponseTrimmedMessage -> order_modify_cancel_response_trimmed_message: OrderModifyCancelResponseTrimmedMessage;
+        TransactionCode::OrderModifyCancelResponseTrimmedMessage_20042 -> order_modify_cancel_response_trimmed_message: OrderModifyCancelResponseTrimmedMessage;
+        TransactionCode::OrderModifyCancelResponseTrimmedMessage_20072 -> order_modify_cancel_response_trimmed_message: OrderModifyCancelResponseTrimmedMessage;
+        TransactionCode::OrderModifyCancelResponseTrimmedMessage_20073 -> order_modify_cancel_response_trimmed_message: OrderModifyCancelResponseTrimmedMessage;
+        TransactionCode::OrderModifyCancelResponseTrimmedMessage_20074 -> order_modify_cancel_response_trimmed_message: OrderModifyCancelResponseTrimmedMessage;
+        TransactionCode::OrderModifyCancelResponseTrimmedMessage_20075 -> order_modify_cancel_response_trimmed_message: OrderModifyCancelResponseTrimmedMessage;
+        TransactionCode::OrderModifyCancelResponseTrimmedMessage_20231 -> order_modify_cancel_response_trimmed_message: OrderModifyCancelResponseTrimmedMessage;
+        TransactionCode::TradeConfirmationTrimmedMessage -> trade_confirmation_trimmed_message: TradeConfirmationTrimmedMessage;
+        TransactionCode::QuickAcknowledgementMessage -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20403 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20405 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type OrderEntryRequestTrimmedMessage = unit {
+    transcode: int16;
+    trader_id: int32;
+    sec_info: SecInfo;
+    account_number: bytes &size=10;
+    book_type: int16;
+    buy_sell: int16;
+    disclosed_vol: int32;
+    volume: int32;
+    price: int32;
+    good_till_date: int32;
+    st_order_flags: bitfield(16) {
+        reserved_1: 0;
+        stpc: 1;
+        reserved_3: 2;
+        preopen: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        ioc: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    user_id: int32;
+    broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client: int16;
+    nnf_field: bytes &size=8;
+    transaction_id: int32;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=32;   # padding
+};
+
+type SecInfo = unit {
+    symbol: bytes &size=10;
+    series: bytes &size=2;
+};
+
+type OrderModifyCancelRequestTrimmedMessage = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32;
+    user_id: int32;
+    error_code: int16;
+    time_stamp_1_long_long_8: int64;
+    time_stamp_2: bytes &size=1;
+    modified_cancelled_by: bytes &size=1;
+    reason_code: int16;
+    sec_info: SecInfo;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type: int16;
+    buy_sell: int16;
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    entry_date_time: int32;
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_1: 0;
+        stpc: 1;
+        reserved_3: 2;
+        preopen: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        ioc: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    second_user_id: int32;
+    broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client: int16;
+    settlement_type: int16;
+    nnf_field: bytes &size=8;
+    transaction_id: int32;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=24;   # padding
+};
+
+type OrderModifyCancelResponseTrimmedMessage = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32;
+    user_id: int32;
+    error_code: int16;
+    time_stamp_1_long_long_8: int64;
+    time_stamp_2: bytes &size=1;
+    modified_cancelled_by: bytes &size=1;
+    reason_code: int16;
+    sec_info: SecInfo;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type: int16;
+    buy_sell: int16;
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    entry_date_time: int32;
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_1: 0;
+        stpc: 1;
+        reserved_3: 2;
+        preopen: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        ioc: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    second_user_id: int32;
+    broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client: int16;
+    settlement_type: int16;
+    nnf_field: bytes &size=8;
+    transaction_id: int32;
+    timestamp: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type TradeConfirmationTrimmedMessage = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32;
+    user_id: int32;
+    timestamp: int64;
+    time_stamp_1_char_8: bytes &size=8;
+    response_order_number: bytes &size=8;
+    time_stamp_2: bytes &size=1;
+    broker_id: bytes &size=5;
+    trader_num: int32;
+    buy_sell: int16;
+    account_num: bytes &size=10;
+    original_vol: int32;
+    disclosed_vol: int32;
+    remaining_vol: int32;
+    disclosed_vol_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        reserved_1: 0;
+        stpc: 1;
+        reserved_3: 2;
+        preopen: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        ioc: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    vol_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32;
+    sec_info: SecInfo;
+    book_type: int16;
+    pro_client: int16;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type QuickAcknowledgementMessage = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    trader_id: int32;
+    timestamp: int64;
+    reference: int32;
+    error_code: int16;
+    message_length: int16;
+};
+
+type TransactionCode = enum {
+    OrderEntryRequestTrimmedMessage = 20000,
+    OrderEntryRequestTrimmedMessage_20400 = 20400,
+    OrderModifyCancelRequestTrimmedMessage = 20040,
+    OrderModifyCancelRequestTrimmedMessage_20070 = 20070,
+    OrderModifyCancelRequestTrimmedMessage_20402 = 20402,
+    OrderModifyCancelRequestTrimmedMessage_20404 = 20404,
+    OrderModifyCancelResponseTrimmedMessage = 20012,
+    OrderModifyCancelResponseTrimmedMessage_20042 = 20042,
+    OrderModifyCancelResponseTrimmedMessage_20072 = 20072,
+    OrderModifyCancelResponseTrimmedMessage_20073 = 20073,
+    OrderModifyCancelResponseTrimmedMessage_20074 = 20074,
+    OrderModifyCancelResponseTrimmedMessage_20075 = 20075,
+    OrderModifyCancelResponseTrimmedMessage_20231 = 20231,
+    TradeConfirmationTrimmedMessage = 20222,
+    QuickAcknowledgementMessage = 20401,
+    QuickAcknowledgementMessage_20403 = 20403,
+    QuickAcknowledgementMessage_20405 = 20405,
+};
+

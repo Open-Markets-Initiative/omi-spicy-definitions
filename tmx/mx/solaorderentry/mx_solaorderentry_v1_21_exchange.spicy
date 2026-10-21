@@ -41,7 +41,7 @@ public type MxSolaorderentryV121 = unit {
         * -> unknown: bytes &eod;
     };
     end_of_text: uint8;
-    : skip bytes &size=1;   # padding
+    : skip bytes &size=((4 - self.offset() % 4) % 4);   # padding to a 4 byte boundary
 };
 
 type ConnectionAcknowledgement = unit {
@@ -92,8 +92,8 @@ type OrderReply = unit {
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     order_id: bytes &size=8;
-    status: bytes &size=1;
-    verb_side: bytes &size=1;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
     quantity_remaining: bytes &size=8;
     assigned_price: bytes &size=10;
     clearing_data: ClearingData;
@@ -109,9 +109,9 @@ type OutgoingMessagesHeader = unit {
 
 type ClearingData = unit {
     clearing_instruction: bytes &size=12;
-    account_type: bytes &size=1;
-    open_close: bytes &size=1;
-    hedge_spec: bytes &size=1;
+    account_type: uint8 &convert=AccountType($$);
+    open_close: uint8 &convert=OpenClose($$);
+    hedge_spec: uint8 &convert=HedgeSpec($$);
     : skip bytes &size=5;   # padding
 };
 
@@ -138,8 +138,8 @@ type OrderAcknowledgement = unit {
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     order_id: bytes &size=8;
-    status: bytes &size=1;
-    verb_side: bytes &size=1;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
     assigned_price: bytes &size=10;
     clearing_data: ClearingData;
@@ -152,16 +152,17 @@ type GlobalCancellationConfirmation = unit {
     outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     trader_id: bytes &size=8;
-    type_of_cancellation_only_q_quotes_only_can_be_returned: bytes &size=1;
+    type_of_cancellation_only_q_quotes_only_can_be_returned: uint8 &convert=TypeOfCancellationOnlyQQuotesOnlyCanBeReturned($$);
 };
 
 type OrderModificationAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     order_id: bytes &size=8;
-    status: bytes &size=1;
-    verb_side: bytes &size=1;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
     assigned_price: bytes &size=10;
     clearing_data: ClearingData;
@@ -174,7 +175,7 @@ type NewStrategyInstrumentAcknowledgement = unit {
     outgoing_messages_header: OutgoingMessagesHeader;
     strategy_group: bytes &size=2;
     strategy_instrument: bytes &size=4;
-    creation_status: bytes &size=1;
+    creation_status: uint8 &convert=CreationStatus($$);
     number_of_legs: bytes &size=2;
     new_strategy_instrument_acknowledgement_leg_definition_repeating_block: NewStrategyInstrumentAcknowledgementLegDefinitionRepeatingBlock[self.number_of_legs];
 };
@@ -182,7 +183,7 @@ type NewStrategyInstrumentAcknowledgement = unit {
 type NewStrategyInstrumentAcknowledgementLegDefinitionRepeatingBlock = unit {
     leg_group: bytes &size=2;
     leg_instrument: bytes &size=4;
-    leg_verb: bytes &size=1;
+    leg_verb: uint8 &convert=LegVerb($$);
     : skip bytes &size=1;   # padding
     leg_quantity_ratio: bytes &size=8;
 };
@@ -194,12 +195,13 @@ type StandardAcknowledgement = unit {
 };
 
 type OrderCancellationAcknowledgement = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     order_id: bytes &size=8;
-    status: bytes &size=1;
-    verb_side: bytes &size=1;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
     assigned_price: bytes &size=10;
     clearing_data: ClearingData;
@@ -241,8 +243,8 @@ type RiskLimitsUsage = unit {
 type RiskLimitsUsageOccurrence = unit {
     trader: bytes &size=4;
     group: bytes &size=2;
-    usage_status: bytes &size=1;
-    limit_type: bytes &size=1;
+    usage_status: uint8 &convert=UsageStatus($$);
+    limit_type: uint8 &convert=LimitType($$);
     current_usage: bytes &size=10;
     limit_value: bytes &size=10;
 };
@@ -264,14 +266,14 @@ type ExcludedInstrumentNoticeOccurrence = unit {
 type GroupStateChange = unit {
     outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
-    group_state: bytes &size=1;
+    group_state: uint8 &convert=GroupState($$);
 };
 
 type InstrumentStateChange = unit {
     outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     instrument: bytes &size=4;
-    instrument_state: bytes &size=1;
+    instrument_state: uint8 &convert=InstrumentState($$);
 };
 
 type LegExecutionNotice = unit {
@@ -280,15 +282,15 @@ type LegExecutionNotice = unit {
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     reference_id_order_id_or_quote_id: bytes &size=8;
-    verb_side: bytes &size=1;
+    verb_side: uint8 &convert=VerbSide($$);
     quantity_traded: bytes &size=8;
     trade_price: bytes &size=10;
     trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
     clearing_data: ClearingData;
     owner_data: OwnerData;
-    special_trade_indicator: bytes &size=1;
-    price_type: bytes &size=1;
-    trade_type: bytes &size=1;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
     : skip bytes &size=6;   # padding
     trade_number: bytes &size=8;
     trade_memo: bytes &size=50;
@@ -305,8 +307,8 @@ type OversteppedOrderOrQuoteNotice = unit {
     outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     instrument: bytes &size=4;
-    verb: bytes &size=1;
-    order_type: bytes &size=1;
+    verb: uint8 &convert=Verb($$);
+    order_type: uint8 &convert=OrderType($$);
     trader_id: bytes &size=8;
     order_id: bytes &size=8;
     counterpart_trader_id: bytes &size=8;
@@ -323,7 +325,7 @@ type CancellationOfAllQuotesNotice = unit {
     group: bytes &size=2;
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
-    cancel_reason: bytes &size=1;
+    cancel_reason: uint8 &convert=CancelReason($$);
 };
 
 type ExecutionNotice = unit {
@@ -332,15 +334,15 @@ type ExecutionNotice = unit {
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     reference_id_order_id_or_quote_id: bytes &size=8;
-    verb_side: bytes &size=1;
+    verb_side: uint8 &convert=VerbSide($$);
     quantity_traded: bytes &size=8;
     trade_price: bytes &size=10;
     trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
     clearing_data: ClearingData;
     owner_data: OwnerData;
-    special_trade_indicator: bytes &size=1;
-    price_type: bytes &size=1;
-    trade_type: bytes &size=1;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
     : skip bytes &size=6;   # padding
     trade_number: bytes &size=8;
     trade_memo: bytes &size=50;
@@ -349,19 +351,20 @@ type ExecutionNotice = unit {
 };
 
 type ExecutionCancellationNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     reference_id_order_id_or_quote_id: bytes &size=8;
-    verb_side: bytes &size=1;
+    verb_side: uint8 &convert=VerbSide($$);
     quantity_traded: bytes &size=8;
     trade_price: bytes &size=10;
     trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
     clearing_data: ClearingData;
     owner_data: OwnerData;
-    special_trade_indicator: bytes &size=1;
-    price_type: bytes &size=1;
-    trade_type: bytes &size=1;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
     : skip bytes &size=6;   # padding
     trade_number: bytes &size=8;
     trade_memo: bytes &size=50;
@@ -370,19 +373,20 @@ type ExecutionCancellationNotice = unit {
 };
 
 type LegExecutionCancellationNotice = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     reference_id_order_id_or_quote_id: bytes &size=8;
-    verb_side: bytes &size=1;
+    verb_side: uint8 &convert=VerbSide($$);
     quantity_traded: bytes &size=8;
     trade_price: bytes &size=10;
     trading_engine_timestamp_of_the_trade_local_hhmmss: bytes &size=6;
     clearing_data: ClearingData;
     owner_data: OwnerData;
-    special_trade_indicator: bytes &size=1;
-    price_type: bytes &size=1;
-    trade_type: bytes &size=1;
+    special_trade_indicator: uint8 &convert=SpecialTradeIndicator($$);
+    price_type: uint8 &convert=PriceType($$);
+    trade_type: uint8 &convert=TradeType($$);
     : skip bytes &size=6;   # padding
     trade_number: bytes &size=8;
     trade_memo: bytes &size=50;
@@ -396,12 +400,13 @@ type LegExecutionCancellationNotice = unit {
 };
 
 type OrderCancellationNoticeByModOrSystem = unit {
+    outgoing_messages_header: OutgoingMessagesHeader;
     group: bytes &size=2;
     instrument: bytes &size=4;
     trader_id: bytes &size=8;
     order_id: bytes &size=8;
-    status: bytes &size=1;
-    verb_side: bytes &size=1;
+    status: uint8 &convert=Status($$);
+    verb_side: uint8 &convert=VerbSide($$);
     quantity: bytes &size=8;
     assigned_price: bytes &size=10;
     clearing_data: ClearingData;
@@ -415,6 +420,292 @@ type RequestForQuoteWithSideAcknowledgement = unit {
     group: bytes &size=2;
     instrument: bytes &size=4;
     quantity: bytes &size=8;
-    market_side: bytes &size=1;
+    market_side: uint8 &convert=MarketSide($$);
+};
+
+type ErrorCode = enum {
+    UserIdentificationIsIncorrect = 1,
+    ProtocolVersionIsNotSupported = 2,
+    MessageTypeIsNotSupported = 3,
+    SessionIdIsNotActive = 4,
+    MessageTypeRequestedIsNotSupported = 6,
+    MessageIsTooShort = 8,
+    MessageIsTooLong = 9,
+    MessageContainsBinaryData = 10,
+    NoHeartbeatActivityDisconnection = 11,
+    MessageTypeIsOutOfContext = 12,
+    UserIdHasBeenDeactivatedDisconnection = 13,
+    SyntaxErrorDetailedText = 14,
+    FirmIsForbiddenToTradeOnThisGroup = 100,
+    DurationTypeIsForbiddenForCurrentGroupState = 101,
+    VerbFieldSideCannotBeModified = 102,
+    OrderIsNotActive = 103,
+    PriceTypeIsForbiddenForThisInstrument = 104,
+    PriceTermIsForbiddenForCurrentInstrumentState = 105,
+    DurationTypeIsForbiddenForCurrentInstrumentState = 108,
+    OrderCannotBeProcessedNoOppositeLimit = 109,
+    PriceDoesNotRepresentAValidTickIncrementForThisInstrument = 110,
+    DurationTypeIsInvalidForThisPriceType = 111,
+    CrossOrderPriceMustBeWithinTheInstrumentTradingLimits = 112,
+    OrderPriceOutsidePriceSpread = 113,
+    OppositeFirmMustBeFilledForCommittedOrder = 114,
+    QuantityIsOutOfRange = 119,
+    FunctionalityIsNotSupported = 120,
+    GtdDateMustBeEqualToOrGreaterThanCurrentDay = 201,
+    GtdDateMustBeEqualToOrLessThanInstrumentExpirationDate = 202,
+    GtdDateMustBeFilledOnlyIfDurationTypeIsEqualToGtd = 203,
+    QuantityTermIsForbiddenForCurrentInstrumentState = 300,
+    QuantityMustBeLessThanOrEqualToMaximumImprovementQuantity = 302,
+    QuantityTermIsNotAuthorizedForThisOrderType = 303,
+    AdditionalQuantityMustBeLessThanOrderQuantity = 304,
+    AdditionalQuantityIsTooSmall = 305,
+    MinimumQuantityCannotBeModified = 306,
+    QuantityTermIsForbiddenForDurationType = 307,
+    OrderQuantityIsOutsideTheInstrumentQuantityThreshold = 308,
+    QuantitiesMustBeMultiplesOfLotSize = 309,
+    TraderIdFieldCannotBeModified = 402,
+    BulkQuoteParticipantNotAuthorizedForGroup = 403,
+    OrderPriceIsOutsideTheInstrumentPriceThreshold = 500,
+    PriceFieldIsMandatoryForLimitOrders = 501,
+    PriceFieldMustNotBeFilledForThisPriceType = 502,
+    OrderCannotBeModifiedOrCancelled = 503,
+    AdditionalPriceIsForbiddenForPriceTerm = 504,
+    OrderPriceMustBeGreaterThanAdditionalPrice = 505,
+    OrderPriceMustBeLowerThanAdditionalPrice = 506,
+    AdditionalPriceMustBeLowerThanLastPriceOrLastDayPrice = 507,
+    AdditionalPriceMustBeGreaterThanLastPriceOrLastDayPrice = 508,
+    OrderRejectedCannotTradeOutsideInstrumentPriceThresholds = 509,
+    OrderCannotBeModified = 510,
+    InstrumentAllowsOnlyClosingOrders = 513,
+    InstrumentLegAllowsOnlyClosingOrders = 514,
+    OrderQuantityLimitExceeded = 515,
+    PrivilegesAreLimitedToClosingOrdersOnly = 516,
+    AntiWashProtectionsIsForbiddenForThisPriceType = 517,
+    AntiWashProtectionIsForbiddenForThisQuantityTerm = 518,
+    OnlyOneQuotePerInstrumentAndPerSideIsAccepted = 700,
+    QuoteIsNotPresentInTheInstrumentBook = 701,
+    BulkQuoteParticipantProtectionInProgressQuoteNotProcessed = 702,
+    AdvancedBulkQuoteParticipantProtectionNotEnabledForThisGroup = 703,
+    BuyAndSellMustNotCrossForTheSameInstrument = 704,
+    NumberOfQuotesIsNotInSyncWithTheMessageLength = 705,
+    BulkQuoteParticipantProtectionStateMustBeReactivated = 707,
+    TraderIdHasNoQuoteForThisGroup = 708,
+    AllTheInstrumentsMustBelongToTheSameGroup = 709,
+    ClearingDataHasNotBeenInitialized = 710,
+    CrossOrdersForbiddenInPreopeningPhase = 1000,
+    InstrumentDoesNotExist = 1001,
+    GroupIdDoesNotExist = 1002,
+    TraderIdIsInvalid = 1003,
+    MessageTypeIsForbiddenForCurrentInstrumentState = 1004,
+    TechnicalErrorFunctionNotPerformedContactTechnicalHelpDesk = 2000,
+    GatewayStateForbidsThisCommandContactTechnicalHelpDesk = 2001,
+    FunctionOnlyPartiallyPerformedContactTechnicalHelpDesk = 2002,
+    TraderLongPositionLimitExceeded = 3101,
+    TraderShortPositionLimitExceeded = 3102,
+    TraderNetPositionLimitExceeded = 3103,
+    TraderLongExposureLimitExceeded = 3104,
+    TraderShortExposureLimitExceeded = 3105,
+    TraderNetExposureLimitExceeded = 3106,
+    FirmLongPositionLimitExceeded = 3107,
+    FirmShortPositionLimitExceeded = 3108,
+    FirmNetPositionLimitExceeded = 3109,
+    FirmLongExposureLimitExceeded = 3110,
+    FirmShortExposureLimitExceeded = 3111,
+    FirmNetExposureLimitExceeded = 3112,
+    TraderGlobalNetExposureLimitExceeded = 3113,
+    FirmGlobalNetExposureLimitExceeded = 3114,
+    NotAllowedOnAStrategyGroup = 3115,
+    RiskLimitsForThisGroupMustBeSetOnTheAssociatedGroup = 3116,
+};
+
+type Status = enum {
+    PutInTheOrderBookHavingPossiblyBeenPartiallyExecuted = 0x20,
+    CancelledByTheTrader = 0x41,
+    EliminatedByTheCircuitBreaker = 0x43,
+    OrderEliminatedByTheSystem = 0x45,
+    EliminatedDueToWashTradePrevention = 0x46,
+    CancelledByTheFirmSupervisorUserGlobalCancel = 0x47,
+    EliminatedOnParticipantDisconnection = 0x49,
+    EliminatedByMod = 0x4d,
+    EliminatedDueToWashTradePreventionInNontradingState = 0x4e,
+    EliminatedDueToWashTradePreventionAgainstQuote = 0x51,
+    PutInTheOrderBookAsStopOrder = 0x53,
+    EliminatedDueToTradeLimitExceeded = 0x54,
+    EliminatedDueToUnpricedLeg = 0x55,
+    CancelPending = 0x57,
+    OrderExecutedInFullOrPartiallyAndTheRemainingPartCouldNotBePutInTheOrderBookFak = 0x58,
+};
+
+type VerbSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type AccountType = enum {
+    Customer = 0x31,
+    House = 0x32,
+    Pro = 0x34,
+    NonClient = 0x35,
+    NonClientShareholder = 0x44,
+    CustomerShareholder = 0x48,
+    CustomerInsider = 0x49,
+    ProShareholder = 0x4c,
+    HouseInsider = 0x4e,
+    HouseShareholder = 0x4f,
+    NonClientInsider = 0x52,
+    ProInsider = 0x53,
+};
+
+type OpenClose = enum {
+    AllLegsAreOpenOrSingleSecurity = 0x4f,
+    AllLegsAreClosedOrSingleSecurity = 0x43,
+    Leg1OpenLeg2Close = 0x31,
+    Leg1CloseLeg2Open = 0x32,
+    Leg1OpenLeg2OpenLeg3Close = 0x33,
+    Leg1OpenLeg2CloseLeg3Open = 0x34,
+    Leg1OpenLeg2CloseLeg3Close = 0x35,
+    Leg1CloseLeg2OpenLeg3Open = 0x36,
+    Leg1CloseLeg2OpenLeg3Close = 0x37,
+    Leg1CloseLeg2CloseLeg3Open = 0x38,
+    Leg1OpenLeg2OpenLeg3OpenLeg4Close = 0x41,
+    Leg1OpenLeg2OpenLeg3CloseLeg4Open = 0x42,
+    Leg1OpenLeg2OpenLeg3CloseLeg4Close = 0x44,
+    Leg1OpenLeg2CloseLeg3OpenLeg4Open = 0x45,
+    Leg1OpenLeg2CloseLeg3OpenLeg4Close = 0x46,
+    Leg1OpenLeg2CloseLeg3CloseLeg4Open = 0x47,
+    Leg1OpenLeg2CloseLeg3CloseLeg4Close = 0x48,
+    Leg1CloseLeg2OpenLeg3OpenLeg4Open = 0x49,
+    Leg1CloseLeg2OpenLeg3OpenLeg4Close = 0x4a,
+    Leg1CloseLeg2OpenLeg3CloseLeg4Open = 0x4b,
+    Leg1CloseLeg2OpenLeg3CloseLeg4Close = 0x4c,
+    Leg1CloseLeg2CloseLeg3OpenLeg4Open = 0x4d,
+    Leg1CloseLeg2CloseLeg3OpenLeg4Close = 0x4e,
+    Leg1CloseLeg2CloseLeg3CloseLeg4Open = 0x50,
+};
+
+type HedgeSpec = enum {
+    Hedger = 0x48,
+    Speculator = 0x53,
+};
+
+type TypeOfCancellationOnlyQQuotesOnlyCanBeReturned = enum {
+    All = 0x41,
+    QuotesOnly = 0x51,
+    OrdersOnly = 0x4f,
+    StopOrdersOnly = 0x53,
+    MarketOrdersOnly = 0x4d,
+};
+
+type CreationStatus = enum {
+    CreatedAsSpecified = 0x43,
+    CreatedWithModifications = 0x4d,
+};
+
+type LegVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type UsageStatus = enum {
+    Info = 0x49,
+    Limit = 0x4c,
+    Rejection = 0x52,
+    Warning = 0x57,
+};
+
+type LimitType = enum {
+    NetExposure = 0x31,
+    LongExposure = 0x32,
+    ShortExposure = 0x33,
+    NetPosition = 0x34,
+    LongPosition = 0x35,
+    ShortPosition = 0x36,
+};
+
+type GroupState = enum {
+    ConsultationStart = 0x43,
+    NoCancelPeriod = 0x45,
+    Preopening = 0x50,
+    Opening = 0x4f,
+    ContinuousTradingSession = 0x53,
+    ConsultationEnd = 0x46,
+    ModIntervention = 0x4e,
+    MiniBatch = 0x4d,
+    PostSession = 0x42,
+    Prohibited = 0x49,
+    Interrupted = 0x5a,
+};
+
+type InstrumentState = enum {
+    Normal = 0x4e,
+    Forbidden = 0x46,
+    OrdersAndQuotesAreProcessedInPreopeningIfTheGroupIsInTradingStatus = 0x52,
+};
+
+type SpecialTradeIndicator = enum {
+    NormalTrade = 0x20,
+    AsOfTrade = 0x41,
+    BlockTrade = 0x42,
+    ContingentTrade = 0x43,
+    Cross = 0x44,
+    ExchangeForPhysical = 0x45,
+    HiddenTrade = 0x48,
+    Implied = 0x49,
+    DeltaTrade = 0x4a,
+    CommittedBlock = 0x4b,
+    LateTrade = 0x4c,
+    ForFutureUse = 0x4d,
+    ForFutureUse_x4e = 0x4e,
+    ForFutureUse_x4f = 0x4f,
+    ForFutureUse_x50 = 0x50,
+    ForFutureUse_x51 = 0x51,
+    Committed = 0x54,
+    BasisOnClose = 0x55,
+    TradeCorrection = 0x56,
+    PriceVolumeAdjustmentTrade = 0x5a,
+};
+
+type PriceType = enum {
+    Committed = 0x43,
+    LimitPriceSetInMessage = 0x4c,
+    AtOpeningPrice = 0x4f,
+    AtBestOppositePriceTopOrder = 0x4d,
+};
+
+type TradeType = enum {
+    TradedDuringContinuousTradingFollowingFifoAlgorithm = 0x46,
+    TradeEnteredByMod = 0x4d,
+    TradedDuringOpening = 0x4f,
+};
+
+type Verb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OrderType = enum {
+    Order = 0x4f,
+    Quote = 0x51,
+};
+
+type CancelReason = enum {
+    CancelledByTrader = 0x41,
+    CancelledByCircuitBreaker = 0x43,
+    CancelledBySupervisor = 0x47,
+    EliminatedByDisconnection = 0x49,
+    CancelledByMod = 0x4d,
+    BqmMaximumDeltaVolumeHasBeenReached = 0x4e,
+    BqmMaximumNumberOfTradesHasBeenReached = 0x50,
+    BqmMaximumValueHasBeenReached = 0x52,
+    CancelledBySystem = 0x53,
+    BqmMaximumVolumeHasBeenReached = 0x54,
+    BqmMaximumDeltaValueHasBeenReached = 0x56,
+    CancelPending = 0x57,
+};
+
+type MarketSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    Both = 0x32,
 };
 

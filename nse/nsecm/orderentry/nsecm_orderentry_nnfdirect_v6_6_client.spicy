@@ -1,0 +1,376 @@
+module NseNsecmOrderentryNnfdirectV66Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsecmOrderentryV66 = unit {
+    client_direct_packet: ClientDirectPacket[] &eod;
+};
+
+type ClientDirectPacket = unit {
+    packet_header: PacketHeader;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::BranchOrderValueLimitUpdateInMessage -> branch_order_value_limit_update_in_message: BranchOrderValueLimitUpdateInMessage;
+        TransactionCode::CancelOnLogoutStatusRequestMessage -> cancel_on_logout_status_request_message: CancelOnLogoutStatusRequestMessage;
+        TransactionCode::MessageDownloadRequestMessage -> message_download_request_message: MessageDownloadRequestMessage;
+        TransactionCode::AuctionInquiryRequestMessage -> auction_inquiry_request_message: AuctionInquiryRequestMessage;
+        TransactionCode::BoxSignOffMessage -> box_sign_off_message: BoxSignOffMessage;
+        TransactionCode::BoxSignOnRequestMessage -> box_sign_on_request_message: BoxSignOnRequestMessage;
+        TransactionCode::GatewayRouterRequestMessage -> gateway_router_request_message: GatewayRouterRequestMessage;
+        TransactionCode::OrderEntryInMessage -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderEntryInMessage_2040 -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderEntryInMessage_2062 -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderEntryInMessage_2070 -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderLimitUpdateInMessage -> order_limit_update_in_message: OrderLimitUpdateInMessage;
+        TransactionCode::PasswordResetInMessage -> password_reset_in_message: PasswordResetInMessage;
+        TransactionCode::SignOnRequestInMessage -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::SignOnRequestInMessage_5723 -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::TradeInquiryInMessage -> trade_inquiry_in_message: TradeInquiryInMessage;
+        TransactionCode::TradeInquiryInMessage_5445 -> trade_inquiry_in_message: TradeInquiryInMessage;
+        TransactionCode::UpdateLocalDatabaseRequestMessage -> update_local_database_request_message: UpdateLocalDatabaseRequestMessage;
+        TransactionCode::TradeModificationCancellationStatusRequestMessage -> trade_modification_cancellation_status_request_message: TradeModificationCancellationStatusRequestMessage;
+        TransactionCode::UserUnlockRequestMessage -> user_unlock_request_message: UserUnlockRequestMessage;
+        TransactionCode::UserOrderValueLimitUpdateInMessage -> user_order_value_limit_update_in_message: UserOrderValueLimitUpdateInMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+    checksum: bytes &size=16;
+};
+
+type MessageHeader = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32;
+    alpha_char: bytes &size=2;
+    trader_id: int32;
+    error_code: int16;
+    header_timestamp: int64;
+    time_stamp_1: bytes &size=8;
+    time_stamp_2: bytes &size=8;
+    message_length: int16;
+};
+
+type BranchOrderValueLimitUpdateInMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=25;   # padding
+    branch: int16;
+    branch_limit: BranchLimit;
+};
+
+type BranchLimit = unit {
+    branch_buy_value_limit: bytes &size=8;
+    : skip bytes &size=8;   # padding
+    branch_sell_value_limit: bytes &size=8;
+    : skip bytes &size=8;   # padding
+};
+
+type CancelOnLogoutStatusRequestMessage = unit {
+    user_id: int32;
+    colo_user_bit: bytes &size=1;
+    : skip bytes &size=7;   # padding
+};
+
+type MessageDownloadRequestMessage = unit {
+    sequence_number: bytes &size=8;
+};
+
+type AuctionInquiryRequestMessage = unit {
+    sec_info: SecInfo;
+    auction_no: int16;
+    page_indicator: bytes &size=1;
+    filler: bytes &size=1;
+};
+
+type SecInfo = unit {
+    symbol: bytes &size=10;
+    series: bytes &size=2;
+};
+
+type BoxSignOffMessage = unit {
+    box_id: int16;
+};
+
+type BoxSignOnRequestMessage = unit {
+    box_id: int16;
+    broker_id: bytes &size=5;
+    : skip bytes &size=5;   # padding
+    session_key: bytes &size=8;
+};
+
+type GatewayRouterRequestMessage = unit {
+    box_id: int16;
+    broker_id: bytes &size=5;
+    filler: bytes &size=1;
+};
+
+type OrderEntryInMessage = unit {
+    participant_type: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: bytes &size=1;
+    filler_9: bytes &size=1;
+    reason_code: int16;
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16;
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    good_till_date: int32;
+    entry_date_time: int32;
+    min_fill_aon: int32;
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        preopen: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        ioc: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=25;
+    settlor: bytes &size=12;
+    pro_client: int16;
+    settlement_type: int16;
+    nnf_field: bytes &size=8;
+    exec_time_stamp: bytes &size=8;
+    : skip bytes &size=4;   # padding
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type OrderLimitUpdateInMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    user_id: int32;
+    order_qty_limit: bytes &size=8;
+    order_val_limit: bytes &size=8;
+    : skip bytes &size=2;   # padding
+};
+
+type PasswordResetInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=14;   # padding
+};
+
+type SignOnRequestInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=8;   # padding
+    password: bytes &size=8;
+    : skip bytes &size=8;   # padding
+    new_password: bytes &size=8;
+    trader_name: bytes &size=26;
+    last_password_change_date_time: int32;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch_id: int16;
+    version_number: int32;
+    : skip bytes &size=56;   # padding
+    user_type: int16;
+    sequence_number: bytes &size=8;
+    workstation_number: bytes &size=14;
+    broker_status: bytes &size=1;
+    show_index: bytes &size=1;
+    broker_eligibility_per_market: bitfield(16) {
+        preopen: 0;
+        broker_eligibility_reserved_upper: 1..7;
+        broker_eligibility_reserved_lower: 8..9;
+        call_auction_21: 10;
+        call_auction_11: 11;
+        auction_market: 12;
+        spot_market: 13;
+        oddlot_market: 14;
+        normal_market: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broker_name: bytes &size=26;
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+};
+
+type TradeInquiryInMessage = unit {
+    sec_info: SecInfo;
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    market_type: int16 &convert=MarketType($$);
+    new_volume: int32;
+    : skip bytes &size=24;   # padding
+    buy_broker_id: bytes &size=5;
+    sell_broker_id: bytes &size=5;
+    trader_id: int32;
+    requested_by: int16;
+    buy_account_number: bytes &size=10;
+    sell_account_number: bytes &size=10;
+    buy_pan: bytes &size=10;
+    sell_pan: bytes &size=10;
+    : skip bytes &size=60;   # padding
+};
+
+type UpdateLocalDatabaseRequestMessage = unit {
+    last_update_security_time: int32;
+    last_update_participant_time: int32;
+    request_for_open_orders: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    normal_market_status: int16;
+    odd_lot_market_status: int16;
+    spot_market_status: int16;
+    auction_market_status: int16;
+    call_auction_1_market_status: int16;
+    call_auction_2_market_status: int16;
+};
+
+type TradeModificationCancellationStatusRequestMessage = unit {
+    user_id: int32;
+    trd_mod_cxl_bit: bytes &size=1;
+    : skip bytes &size=7;   # padding
+};
+
+type UserUnlockRequestMessage = unit {
+    user_id: int32;
+    : skip bytes &size=24;   # padding
+};
+
+type UserOrderValueLimitUpdateInMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch: int16;
+    : skip bytes &size=26;   # padding
+    user_id: int32;
+    user_limits: UserLimits;
+};
+
+type UserLimits = unit {
+    : skip bytes &size=16;   # padding
+    user_order_buy_value_limit: bytes &size=8;
+    : skip bytes &size=24;   # padding
+    user_order_sell_value_limit: bytes &size=8;
+    : skip bytes &size=8;   # padding
+};
+
+type TransactionCode = enum {
+    AuctionInquiryResponseMessage = 18017,
+    BranchOrderValueLimitUpdateOutMessage = 5717,
+    BranchOrderValueLimitUpdateInMessage = 5716,
+    CancelOnLogoutStatusRequestMessage = 5790,
+    CancelOnLogoutStatusResponseMessage = 5791,
+    ErrorResponseMessage = 2302,
+    MessageDownloadRequestMessage = 7000,
+    SecureBoxRegistrationRequestMessage = 23008,
+    AuctionInquiryRequestMessage = 18016,
+    BoxSignOffMessage = 20322,
+    BoxSignOnRequestMessage = 23000,
+    BoxSignOnResponseMessage = 23001,
+    GatewayRouterRequestMessage = 2400,
+    GatewayRouterResponseMessage = 2401,
+    ControlMessageToTraderMessage = 5295,
+    TradeConfirmationMessage = 2212,
+    TradeConfirmationMessage_2222 = 2222,
+    TradeConfirmationMessage_2282 = 2282,
+    TradeConfirmationMessage_2286 = 2286,
+    TradeConfirmationMessage_2287 = 2287,
+    OrderEntryOutMessage = 2012,
+    OrderEntryOutMessage_2042 = 2042,
+    OrderEntryOutMessage_2061 = 2061,
+    OrderEntryOutMessage_2072 = 2072,
+    OrderEntryOutMessage_2073 = 2073,
+    OrderEntryOutMessage_2074 = 2074,
+    OrderEntryOutMessage_2075 = 2075,
+    OrderEntryOutMessage_2170 = 2170,
+    OrderEntryOutMessage_2231 = 2231,
+    OrderEntryOutMessage_9002 = 9002,
+    OrderEntryShortMessage = 2001,
+    OrderEntryShortMessage_2071 = 2071,
+    OrderEntryInMessage = 2000,
+    OrderEntryInMessage_2040 = 2040,
+    OrderEntryInMessage_2062 = 2062,
+    OrderEntryInMessage_2070 = 2070,
+    OrderLimitUpdateOutMessage = 5722,
+    OrderLimitUpdateInMessage = 5721,
+    PasswordResetOutMessage = 5739,
+    PasswordResetInMessage = 5738,
+    SecurityStatusChangeMessage = 18130,
+    SecurityStatusChangeMessage_18707 = 18707,
+    SecurityMasterChangeMessage = 18720,
+    SignOnRequestOutMessage = 5724,
+    SignOnRequestInMessage = 2300,
+    SignOnRequestInMessage_5723 = 5723,
+    SignOnResponseMessage = 2301,
+    SystemInformationMessage = 1601,
+    SystemInformationMessage_7321 = 7321,
+    TradeInquiryOutMessage = 2223,
+    TradeInquiryOutMessage_5441 = 5441,
+    TradeInquiryInMessage = 5440,
+    TradeInquiryInMessage_5445 = 5445,
+    UpdateLocalDatabaseHeaderMessage = 7307,
+    UpdateLocalDatabaseTrailerMessage = 7308,
+    UpdateLocalDatabaseRequestMessage = 7300,
+    TradeModificationCancellationStatusRequestMessage = 5792,
+    UserUnlockApprovalRejectionMessage = 5575,
+    UserUnlockApprovalRejectionMessage_5579 = 5579,
+    UserUnlockRequestMessage = 5424,
+    UserUnlockRequestedResponseMessage = 5425,
+    UserOrderValueLimitUpdateOutMessage = 5720,
+    UserOrderValueLimitUpdateInMessage = 5719,
+    TradeModificationCancellationStatusResponseMessage = 5793,
+    SignOffConfirmationMessage = 2321,
+    HeaderRecordMessage = 7011,
+    MessageRecordMessage = 7021,
+    TrailerRecordMessage = 7031,
+    SystemInformationRequestMessage = 1600,
+    SecureBoxRegistrationResponseMessage = 23009,
+    UpdateLocalDatabaseDataMessage = 7304,
+};
+
+type BookType = enum {
+    RegularLotOrder = 1,
+    SpecialTermsOrder = 2,
+    StopLossOrder = 3,
+    OddLotOrder = 5,
+    SpotOrder = 6,
+    AuctionOrder = 7,
+    CallAuction1 = 11,
+    CallAuction2 = 12,
+};
+
+type MarketType = enum {
+    NormalMarket = 1,
+    OddLotMarket = 2,
+    SpotMarket = 3,
+    AuctionMarket = 4,
+    CallAuction1Market = 5,
+    CallAuction2Market = 6,
+};
+

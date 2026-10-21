@@ -1,10 +1,10 @@
-module NasdaqNsmequitiesOrdersOuchV42Client;
+module NasdaqNsmequitiesOrdersOuchV422025Client;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type NsmequitiesOrdersV42 = unit {
+public type NsmequitiesOrdersV422025 = unit {
     client_soup_bin_tcp_packet: ClientSoupBinTcpPacket[] &eod;
 };
 
@@ -41,7 +41,6 @@ type UnsequencedDataPacket = unit {
         UnsequencedMessageType::ReplaceOrderMessage -> replace_order_message: ReplaceOrderMessage;
         UnsequencedMessageType::CancelOrderMessage -> cancel_order_message: CancelOrderMessage;
         UnsequencedMessageType::ModifyOrderMessage -> modify_order_message: ModifyOrderMessage;
-        UnsequencedMessageType::TradeNowMessage -> trade_now_message: TradeNowMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -52,7 +51,7 @@ type EnterOrderMessage = unit {
     shares: uint32;
     stock: bytes &size=8;
     price: uint32;
-    time_in_force: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
     firm: bytes &size=4;
     display: uint8 &convert=Display($$);
     capacity: uint8 &convert=Capacity($$);
@@ -64,10 +63,10 @@ type EnterOrderMessage = unit {
 
 type ReplaceOrderMessage = unit {
     existing_order_token: bytes &size=14;
-    replacement_order_token_token_14: bytes &size=14;
+    replacement_order_token: bytes &size=14;
     shares: uint32;
     price: uint32;
-    time_in_force: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
     display: uint8 &convert=Display($$);
     intermarket_sweep_eligibility: uint8 &convert=IntermarketSweepEligibility($$);
     minimum_quantity: uint32;
@@ -84,10 +83,6 @@ type ModifyOrderMessage = unit {
     shares: uint32;
 };
 
-type TradeNowMessage = unit {
-    order_token: bytes &size=14;
-};
-
 type ClientPacketType = enum {
     DebugPacket = 0x2b,
     LoginRequestPacket = 0x4c,
@@ -101,7 +96,6 @@ type UnsequencedMessageType = enum {
     ReplaceOrderMessage = 0x55,
     CancelOrderMessage = 0x58,
     ModifyOrderMessage = 0x4d,
-    TradeNowMessage = 0x4e,
 };
 
 type BuySellIndicator = enum {
@@ -111,20 +105,28 @@ type BuySellIndicator = enum {
     SellShortExempt = 0x45,
 };
 
+type TimeInForce = enum {
+    ImmediateOrCancel = 0,
+    MarketHours = 99998,
+    SystemHours = 99999,
+    ExtendedTradingClose = 99996,
+};
+
 type Display = enum {
     AttributablePrice = 0x41,
     AnonymousPrice = 0x59,
     NonDisplay = 0x4e,
     PostOnly = 0x50,
     ImbalanceOnly = 0x49,
-    MidPoint = 0x4d,
-    MidPoint_x57 = 0x57,
+    MidPointPeg = 0x4d,
+    MidPointPegPostOnly = 0x57,
     PostOnlyAndAttributable = 0x4c,
-    RetailOrder = 0x4f,
-    RetailOrder_x54 = 0x54,
+    RetailOrderType1 = 0x4f,
+    RetailOrderType2 = 0x54,
     RetailPrice = 0x51,
-    MidPoint_x6d = 0x6d,
+    MidPointPegAndMidPointTradeNow = 0x6d,
     NonDisplayAndMidPoint = 0x6e,
+    MeloAndContinuousBookMidpoint = 0x42,
 };
 
 type Capacity = enum {
@@ -146,8 +148,8 @@ type CrossType = enum {
     Closing = 0x43,
     HaltIpoCross = 0x48,
     Supplemental = 0x53,
-    Retail = 0x52,
     Extended = 0x45,
+    ExtendedTradingClose = 0x41,
 };
 
 type CustomerType = enum {

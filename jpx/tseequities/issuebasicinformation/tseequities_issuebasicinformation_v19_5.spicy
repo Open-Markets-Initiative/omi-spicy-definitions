@@ -1,0 +1,491 @@
+module JpxTseequitiesIssuebasicinformationFlexV195;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type TseequitiesIssuebasicinformationV195 = unit {
+    start_of_message: uint8;
+    service_header: ServiceHeader;
+    separation_between_service_header_and_data_section: uint8;
+    tag_information: TagInformation[] &eod;
+};
+
+type ServiceHeader = unit {
+    message_length: bytes &size=6;
+    message_serial_no: MessageSerialNo;
+    message_type: MessageType;
+    exchange_code: uint8 &convert=ExchangeCode($$);
+    session_distinction: bytes &size=2;
+    issue_classification: IssueClassification;
+    switch ( self.issue_classification.issue_classification_large_classification ) {
+        IssueClassificationLargeClassification::Stockrelated -> stock_issue_code: StockIssueCode;
+        IssueClassificationLargeClassification::Cbrelated -> cb_issue_code: CbIssueCode;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageSerialNo = unit {
+    multicast_group_number: bytes &size=3;
+    sequence_number: bytes &size=8;
+};
+
+type MessageType = unit {
+    message_type_large_classification: uint8 &convert=MessageTypeLargeClassification($$);
+    message_type_medium_classification: bytes &size=10;
+};
+
+type IssueClassification = unit {
+    issue_classification_large_classification: bytes &size=2;
+    issue_classification_medium_classification: bytes &size=2;
+};
+
+type StockIssueCode = unit {
+    stock_space: bytes &size=7;
+    stock_proper_name_code: bytes &size=4;
+    stock_reserved_code: bytes &size=1;
+};
+
+type CbIssueCode = unit {
+    cb_space: bytes &size=3;
+    cb_reserved_code: uint8 &convert=CbReservedCode($$);
+    time_symbol: bytes &size=4;
+    cb_proper_name_code: bytes &size=4;
+};
+
+type TagInformation = unit {
+    tag_id: bytes &size=2;
+    switch ( self.tag_id ) {
+        0 -> issue_information_message: IssueInformationMessage;
+        0 -> base_price_information_message: BasePriceInformationMessage;
+        0 -> multicast_group_number_information_message: MulticastGroupNumberInformationMessage;
+        0 -> control_message: ControlMessage;
+        * -> unknown: bytes &eod;
+    };
+    separation_of_tag: uint8 &convert=SeparationOfTag($$);
+};
+
+type IssueInformationMessage = unit {
+    reserved_2: bytes &size=2;
+    serial_no: bytes &size=6;
+    applicable_business_day: bytes &size=8;
+    reserved_1: bytes &size=1;
+    issue_name: bytes &size=20;
+    security_type_etc_identification_code: bytes &size=2;
+    isin_flag: uint8 &convert=IsinFlag($$);
+    new_security_code: bytes &size=12;
+    industry_code: bytes &size=4;
+    new_listing_flag: uint8 &convert=NewListingFlag($$);
+    whenissued_transaction_flag: uint8 &convert=WhenissuedTransactionFlag($$);
+    short_selling_price_restriction_applied_flag_at_the_regular_distribution: uint8 &convert=ShortSellingPriceRestrictionAppliedFlagAtTheRegularDistribution($$);
+    loan_margin_flag: uint8 &convert=LoanMarginFlag($$);
+    exdividend_exright_flag: bytes &size=2;
+    securities_to_be_delisted_under_supervision_classification: uint8 &convert=SecuritiesToBeDelistedUnderSupervisionClassification($$);
+    reserved_5: bytes &size=5;
+    unit_of_trading: bytes &size=14;
+    index_constituent_issue: IndexConstituentIssue;
+    order_prohibition_status_at_the_regular_distribution: OrderProhibitionStatusAtTheRegularDistribution;
+    reserved_11: bytes &size=11;
+};
+
+type IndexConstituentIssue = unit {
+    arbitrary_1: uint8 &convert=Arbitrary1($$);
+    arbitrary_2: uint8 &convert=Arbitrary2($$);
+    arbitrary_3: uint8 &convert=Arbitrary3($$);
+    arbitrary_4: uint8 &convert=Arbitrary4($$);
+    arbitrary_5: uint8 &convert=Arbitrary5($$);
+    arbitrary_6: uint8 &convert=Arbitrary6($$);
+    arbitrary_7: uint8 &convert=Arbitrary7($$);
+    arbitrary_8_to_10: bytes &size=3;
+    arbitrary_11: uint8 &convert=Arbitrary11($$);
+    arbitrary_12_to_15: bytes &size=4;
+    arbitrary_16: uint8 &convert=Arbitrary16($$);
+    arbitrary_17_to_19: bytes &size=3;
+    arbitrary_20: bytes &size=1;
+};
+
+type OrderProhibitionStatusAtTheRegularDistribution = unit {
+    new_orders_prohibition: NewOrdersProhibition;
+    margin_transactions_prohibition: MarginTransactionsProhibition;
+    short_selling_prohibition: ShortSellingProhibition;
+    all_orders_prohibition: uint8 &convert=AllOrdersProhibition($$);
+};
+
+type NewOrdersProhibition = unit {
+    market_limit_orders: uint8 &convert=MarketLimitOrders($$);
+    side: uint8 &convert=Side($$);
+    proprietary_brokerage: uint8 &convert=ProprietaryBrokerage($$);
+    reserved_1: bytes &size=1;
+};
+
+type MarginTransactionsProhibition = unit {
+    side: uint8 &convert=Side($$);
+    proprietary_brokerage: uint8 &convert=ProprietaryBrokerage($$);
+    reserved_1: bytes &size=1;
+};
+
+type ShortSellingProhibition = unit {
+    proprietary_brokerage: uint8 &convert=ProprietaryBrokerage($$);
+    reserved_1: bytes &size=1;
+};
+
+type BasePriceInformationMessage = unit {
+    reserved_2: bytes &size=2;
+    based_business_day: bytes &size=8;
+    base_price: BasePrice;
+    limit_price_maximum: LimitPriceMaximum;
+    limit_price_minimum: LimitPriceMinimum;
+    base_price_price_of_the_middle_of_the_book: uint8 &convert=BasePricePriceOfTheMiddleOfTheBook($$);
+    number_of_tick_size_table: bytes &size=2;
+    reserved_1: bytes &size=1;
+    reserved_4: bytes &size=4;
+};
+
+type BasePrice = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    price: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type LimitPriceMaximum = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    price: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type LimitPriceMinimum = unit {
+    unit_flag: uint8 &convert=UnitFlag($$);
+    price: bytes &size=14;
+    sign: uint8 &convert=Sign($$);
+};
+
+type MulticastGroupNumberInformationMessage = unit {
+    reserved_2: bytes &size=2;
+    applicable_business_day: bytes &size=8;
+    issue_multicast_group_number: bytes &size=3;
+    reserved_1: bytes &size=1;
+};
+
+type ControlMessage = unit {
+    reserved_2: bytes &size=2;
+    test_mode_flag: uint8 &convert=TestModeFlag($$);
+    start_end_flag: uint8 &convert=StartEndFlag($$);
+    time_field: bytes &size=6;
+};
+
+type MessageTypeLargeClassification = enum {
+    IssueRealtimeMessage = 0x31,
+    StatisticsMessage = 0x32,
+    IndexMessage = 0x33,
+    IssueBasicMessage = 0x34,
+    ControlMessage = 0x39,
+};
+
+type IssueRealtimeMediumClassification = enum {
+    New = 0,
+    Backup = 1,
+    Allday = 2,
+};
+
+type StatisticsMediumClassification = enum {
+    StatisticsMessage = 0,
+};
+
+type IndexMediumClassification = enum {
+    IndexMessage = 0,
+};
+
+type IssueBasicMediumClassification = enum {
+    Regular = 0,
+    Special = 1,
+};
+
+type ControlMediumClassification = enum {
+    CommunicationControl = 0,
+    IssueInformationControl = 2,
+    AlldayInformationControl = 4,
+    HealthCheckControl = 5,
+    StockBasePriceInformationControl = 6,
+    CbBasePriceInformationControl = 7,
+    MulticastGroupNumberInformationControl = 8,
+    BackupInformationControl = 9,
+    TcpTransmissionControl = 90,
+};
+
+type ExchangeCode = enum {
+    TokyoStockExchange = 0x31,
+    NagoyaStockExchange = 0x33,
+    FukuokaStockExchange = 0x36,
+    SapporoSecuritiesExchange = 0x38,
+    Other = 0x30,
+    ControlMessage = 0x20,
+};
+
+type SessionDistinction = enum {
+    MorningSession = 1,
+    AfternoonSession = 2,
+    OutOfService = 0,
+};
+
+type IssueClassificationLargeClassification = enum {
+    Stockrelated = 1,
+    Cbrelated = 2,
+};
+
+type CbReservedCode = enum {
+    Sw = 0x34,
+    ExchangeableBond = 0x38,
+    Cb = 0x39,
+    OtherBond = 0x20,
+};
+
+type SecurityTypeEtcIdentificationCode = enum {
+    DomesticStockCommonStock = 1,
+    DomesticStockNewCommonStock = 2,
+    DomesticStockPreferredStock = 3,
+    DomesticStockNewPreferredStock = 4,
+    DomesticStockDeferredStock = 5,
+    DomesticStockNewDeferredStock = 6,
+    DomesticStockWarrant = 7,
+    DomesticStockTrackingStock = 8,
+    DomesticStockClassifiedStock = 9,
+    ForeignStockCommonStockDepositaryReceipt = 11,
+    ForeignStockNewCommonStock = 12,
+    ForeignStockPrefferedStock = 13,
+    ForeignStockwarrant = 17,
+    DomesticGovernmentBondInterestbearingTreasuryNotes = 21,
+    DomesticGovernmentBondDiscountTreasuryNotes = 22,
+    DomesticGovernmentBondShorttermDiscountTreasuryNotes = 23,
+    DomesticGovernmentBondFloatingRateTreasuryNotes = 24,
+    DomesticGovernmentBondShorttermGovernmentSecurities = 25,
+    DomesticGovernmentBondStrippedPrincipalForInterestBearingGovtBd = 26,
+    DomesticGovernmentBondStrippedCouponForInterestBearingGovtBd = 27,
+    DomesticPublicAndCorporateBondIssuedDomesticallyLocalGovernmentBond = 31,
+    DomesticPublicAndCorporateBondIssuedDomesticallyGovernmentGuaranteeBond = 32,
+    DomesticPublicAndCorporateBondIssuedDomesticallySpecialBondBroadcastingBondEtc = 33,
+    DomesticPublicAndCorporateBondIssuedDomesticallyInterestbearingBankDebenture = 34,
+    DomesticPublicAndCorporateBondIssuedDomesticallyDiscountBankDebenture = 35,
+    DomesticPublicAndCorporateBondIssuedDomesticallyCorporateBond = 36,
+    DomesticPublicAndCorporateBondIssuedDomesticallyPrivatePlacementLocalGovernmentBond = 39,
+    DomesticCbIssuedDomesticallyJapaneseYenCb = 51,
+    DomesticCbIssuedDomesticallyForeigncurrencyCb = 52,
+    DomesticCbIssuedOverseasJapaneseYenCb = 53,
+    DomesticCbIssuedOverseasForeigncurrencyCb = 54,
+    ForeignCbIssuedDomesticallyJapaneseYenCb = 55,
+    ForeignCbIssuedDomesticallyForeigncurrencyCb = 56,
+    DomesticBondWithWarrantIssuedDomesticallyForeigncurrencyBondWithWarrantDetachable = 62,
+    DomesticBondWithWarrantIssuedDomesticallyJapaneseYenBondWithWarrantNondetachable = 63,
+    DomesticBondWithWarrantIssuedOverseasJapaneseYenBondWithWarrantNondetachable = 64,
+    DomesticBondWithWarrantIssuedOverseasForeigncurrencyBondWithWarrantNondetachable = 65,
+    ForeignBondWithWarrantIssuedDomesticallyJapaneseYenBondWithWarrantNondetachable = 66,
+    ForeignBondWithWarrantIssuedDomesticallyForeigncurrencyBondWithWarrantNondetachable = 67,
+    DomesticSubscriptionWarrantSecurityIssuedDomestically = 71,
+    DomesticSubscriptionWarrantSecurityIssuedOverseas = 72,
+    ForeignSubscriptionWarrantSecurityIssuedDomestically = 73,
+    ForeignBondIssuedDomesticallyJapaneseYenForeignBond = 81,
+    ForeignBondIssuedDomesticallyJapaneseYenForeignBondSpecial = 82,
+    ForeignBondIssuedDomesticallyForeigncurrencyForeignBond = 83,
+    ForeignBondIssuedDomesticallyDualcurrencyForeignBond = 84,
+    ForeignBondIssuedDomesticallynotPublicOfferingBond = 85,
+    DomesticExchangeableBondIssuedDomesticallyJapaneseYenExchangeableBond = 91,
+    DomesticExchangeableBondIssuedDomesticallyForeigncurrencyYenExchangeableBond = 92,
+    DomesticExchangeableBondIssuedOverseasJapaneseYenExchangeableBond = 93,
+    DomesticExchangeableBondIssuedOverseasForeigncurrencyYenExchangeableBond = 94,
+    ForeignExchangeableBondIssuedDomesticallyJapaneseYenExchangeableBond = 95,
+    ForeignExchangeableBondIssuedDomesticallyForeigncurrencyYenExchangeableBond = 96,
+};
+
+type IsinFlag = enum {
+    IdentifiableByTheInternationalStandardCode = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type IndustryCode = enum {
+    FisheryAgricultureForestry = 50,
+    Mining = 1050,
+    Construction = 2050,
+    Foods = 3050,
+    TextilesApparels = 3100,
+    PulpPaper = 3150,
+    Chemicals = 3200,
+    Pharmaceuticals = 3250,
+    OilCoalProducts = 3300,
+    RubberProducts = 3350,
+    GlassCeramicsProducts = 3400,
+    IronSteel = 3450,
+    NonferrousMetals = 3500,
+    MetalProducts = 3550,
+    Machinery = 3600,
+    ElectricAppliances = 3650,
+    TransportationEquipment = 3700,
+    PrecisionInstruments = 3750,
+    OtherProducts = 3800,
+    ElectricPowerGas = 4050,
+    LandTransportation = 5050,
+    MarineTransportation = 5100,
+    AirTransportation = 5150,
+    WarehouseHarborTransportationServices = 5200,
+    InformationCommunication = 5250,
+    WholesaleTrade = 6050,
+    RetailTrade = 6100,
+    Banks = 7050,
+    SecuritiesCommodityFutures = 7100,
+    Insurance = 7150,
+    OtherFinancingBusiness = 7200,
+    RealEstate = 8050,
+    Services = 9050,
+    Others = 9999,
+};
+
+type NewListingFlag = enum {
+    NewlyListedIssue = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type WhenissuedTransactionFlag = enum {
+    WhenissuedTransactionIssue = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type ShortSellingPriceRestrictionAppliedFlagAtTheRegularDistribution = enum {
+    TheIssueThatShortSellingRegulationIsApplied = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type LoanMarginFlag = enum {
+    LoanIssue = 0x31,
+    MarginTransactionIssue = 0x32,
+    OtherThanTheAbove = 0x30,
+};
+
+type ExdividendExrightFlag = enum {
+    NoneSpecified = 0,
+    Exdividend = 1,
+    Exnew = 2,
+    OtherExrights = 3,
+    ExdividendotherExrights = 4,
+    ExnewotherExrights = 5,
+    Exdividendexnew = 6,
+    ExdividendexnewotherExrights = 7,
+    Cumduebill = 8,
+    Exduebill = 9,
+    CumduebillPlusOneOfExdividendExnewOrOtherExrightsOrTwoOrMoreOfThese = 10,
+};
+
+type SecuritiesToBeDelistedUnderSupervisionClassification = enum {
+    UnderSupervisionPresentlyUnderExamination = 0x31,
+    UnderSupervisionPresentlyUnderConfirmation = 0x32,
+    UnderSupervisionPresentlyUnderExaminationAndConfirmation = 0x33,
+    UnderSupervisionPresentlyUnderExaminationAndOnSpecialAlert = 0x34,
+    UnderSupervisionPresentlyUnderConfirmationAndOnSpecialAlert = 0x35,
+    UnderSupervisionPresentlyUnderExaminationAndConfirmationAndOnSpecialAlert = 0x36,
+    ToBeDelisted = 0x37,
+    ToBeDelistedAndOnSpecialAlert = 0x38,
+    OnSpecialAlert = 0x39,
+    NoneSpecified = 0x30,
+};
+
+type Arbitrary1 = enum {
+    ConstituentIssueOfTopixCore30 = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary2 = enum {
+    ConstituentIssueOfTopixLarge70 = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary3 = enum {
+    ConstituentIssueOfTopix100 = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary4 = enum {
+    ConstituentIssueOfMid400 = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary5 = enum {
+    ConstituentIssueOfTopix500 = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary6 = enum {
+    ConstituentIssueOfTopixSmall = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary7 = enum {
+    ConstituentIssueOfTopix1000 = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary11 = enum {
+    ConstituentIssueOfTseGrowthMarket250Index = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type Arbitrary16 = enum {
+    ConstituentIssueOfReitGeneral = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type MarketLimitOrders = enum {
+    OnlyMarketOrderIsProhibited = 0x31,
+    BothMarketAndLimitOrdersAreProhibited = 0x32,
+    OtherThanTheAbove = 0x20,
+};
+
+type Side = enum {
+    BothSellAndBuyOrdersAreProhibited = 0x31,
+    OnlySellOrderIsProhibited = 0x32,
+    OnlyBuyOrderIsProhibited = 0x33,
+    OtherThanTheAbove = 0x20,
+};
+
+type ProprietaryBrokerage = enum {
+    OnlyProprietaryOrderIsProhibited = 0x31,
+    BothProprietaryAndBrokerageOrdersAreProhibited = 0x32,
+    OtherThanTheAbove = 0x20,
+};
+
+type AllOrdersProhibition = enum {
+    ProhibitedForAllOrders = 0x31,
+    OtherThanTheAbove = 0x20,
+};
+
+type UnitFlag = enum {
+    ToTheFourthDecimalPlace = 0x30,
+    ToTheThirdDecimalPlace = 0x31,
+    ToTheSecondDecimalPlace = 0x32,
+    ToTheFirstDecimalPlace = 0x33,
+    NoDecimalPlaces = 0x34,
+    NoNumericalValue = 0x20,
+};
+
+type Sign = enum {
+    Positive = 0x2b,
+    NoSign = 0x20,
+};
+
+type BasePricePriceOfTheMiddleOfTheBook = enum {
+    BasePrice = 0x31,
+    PriceOfTheMiddleOfTheBook = 0x32,
+};
+
+type TestModeFlag = enum {
+    RealOperation = 0x31,
+    TestOperation = 0x32,
+};
+
+type StartEndFlag = enum {
+    Start = 0x31,
+    End = 0x32,
+    NotApplicable = 0x20,
+};
+
+type SeparationOfTag = enum {
+    SeparationBetweenTag = 19,
+    EndOfMessage = 17,
+};
+

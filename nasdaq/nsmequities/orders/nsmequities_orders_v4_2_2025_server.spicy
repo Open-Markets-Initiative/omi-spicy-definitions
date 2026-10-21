@@ -1,10 +1,10 @@
-module NasdaqNsmequitiesOrdersOuchV42Server;
+module NasdaqNsmequitiesOrdersOuchV422025Server;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Big;
 
-public type NsmequitiesOrdersV42 = unit {
+public type NsmequitiesOrdersV422025 = unit {
     server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
 };
 
@@ -48,13 +48,11 @@ type SequencedDataPacket = unit {
         SequencedMessageType::ExecutedMessage -> executed_message: ExecutedMessage;
         SequencedMessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
         SequencedMessageType::ExecutedWithReferencePriceMessage -> executed_with_reference_price_message: ExecutedWithReferencePriceMessage;
-        SequencedMessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
         SequencedMessageType::RejectedOrderMessage -> rejected_order_message: RejectedOrderMessage;
         SequencedMessageType::CancelPendingMessage -> cancel_pending_message: CancelPendingMessage;
         SequencedMessageType::CancelRejectMessage -> cancel_reject_message: CancelRejectMessage;
         SequencedMessageType::OrderPriorityUpdateMessage -> order_priority_update_message: OrderPriorityUpdateMessage;
         SequencedMessageType::OrderModifiedMessage -> order_modified_message: OrderModifiedMessage;
-        SequencedMessageType::SequencedTradeNowMessage -> sequenced_trade_now_message: SequencedTradeNowMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -71,7 +69,7 @@ type AcceptedMessage = unit {
     shares: uint32;
     stock: bytes &size=8;
     price: uint32;
-    time_in_force: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
     firm: bytes &size=4;
     display: uint8 &convert=Display($$);
     order_reference_number: uint64;
@@ -85,12 +83,12 @@ type AcceptedMessage = unit {
 
 type ReplacedMessage = unit {
     timestamp: uint64;
-    replacement_order_token_alphanumeric_14: bytes &size=14;
+    replacement_order_token: bytes &size=14;
     buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
     shares: uint32;
     stock: bytes &size=8;
     price: uint32;
-    time_in_force: uint32;
+    time_in_force: uint32 &convert=TimeInForce($$);
     firm: bytes &size=4;
     display: uint8 &convert=Display($$);
     order_reference_number: uint64;
@@ -118,6 +116,7 @@ type AiqCancelledMessage = unit {
     quantity_prevented_from_trading: uint32;
     execution_price: uint32;
     liquidity_flag: uint8 &convert=LiquidityFlag($$);
+    aiq_strategy: bytes &size=1;
 };
 
 type ExecutedMessage = unit {
@@ -133,7 +132,7 @@ type BrokenTradeMessage = unit {
     timestamp: uint64;
     order_token: bytes &size=14;
     match_number: uint64;
-    broken_trade_reason: bytes &size=1;
+    broken_trade_reason: uint8 &convert=BrokenTradeReason($$);
 };
 
 type ExecutedWithReferencePriceMessage = unit {
@@ -144,23 +143,13 @@ type ExecutedWithReferencePriceMessage = unit {
     liquidity_flag: uint8 &convert=LiquidityFlag($$);
     match_number: uint64;
     reference_price: uint32;
-    reference_price_type: bytes &size=1;
-};
-
-type TradeCorrectionMessage = unit {
-    timestamp: uint64;
-    order_token: bytes &size=14;
-    executed_shares: uint32;
-    execution_price: uint32;
-    liquidity_flag: uint8 &convert=LiquidityFlag($$);
-    match_number: uint64;
-    reason: bytes &size=1;
+    reference_price_type: uint8 &convert=ReferencePriceType($$);
 };
 
 type RejectedOrderMessage = unit {
     timestamp: uint64;
     order_token: bytes &size=14;
-    rejected_order_reason: bytes &size=1;
+    rejected_order_reason: uint8 &convert=RejectedOrderReason($$);
 };
 
 type CancelPendingMessage = unit {
@@ -188,11 +177,6 @@ type OrderModifiedMessage = unit {
     shares: uint32;
 };
 
-type SequencedTradeNowMessage = unit {
-    timestamp: uint64;
-    order_token: bytes &size=14;
-};
-
 type ServerPacketType = enum {
     DebugPacket = 0x2b,
     LoginAcceptedPacket = 0x41,
@@ -216,13 +200,11 @@ type SequencedMessageType = enum {
     ExecutedMessage = 0x45,
     BrokenTradeMessage = 0x42,
     ExecutedWithReferencePriceMessage = 0x47,
-    TradeCorrectionMessage = 0x46,
     RejectedOrderMessage = 0x4a,
     CancelPendingMessage = 0x50,
     CancelRejectMessage = 0x49,
     OrderPriorityUpdateMessage = 0x54,
     OrderModifiedMessage = 0x4d,
-    SequencedTradeNowMessage = 0x4e,
 };
 
 type EventCode = enum {
@@ -237,19 +219,26 @@ type BuySellIndicator = enum {
     SellShortExempt = 0x45,
 };
 
+type TimeInForce = enum {
+    ImmediateOrCancel = 0,
+    MarketHours = 99998,
+    SystemHours = 99999,
+    ExtendedTradingClose = 99996,
+};
+
 type Display = enum {
     AttributablePrice = 0x41,
-    AnonymousPrice = 0x59,
-    NonDisplay = 0x4e,
-    PostOnly = 0x50,
     ImbalanceOnly = 0x49,
-    MidPoint = 0x4d,
-    MidPoint_x57 = 0x57,
+    NonDisplay = 0x4e,
+    AnonymousPrice = 0x59,
+    EnteredAsDisplayedButChangedToNonDisplayed = 0x5a,
+    MidPointPeg = 0x4d,
+    MidPointPegPostOnly = 0x57,
     PostOnlyAndAttributable = 0x4c,
-    RetailOrder = 0x4f,
-    RetailOrder_x54 = 0x54,
+    RetailOrderType1 = 0x4f,
+    RetailOrderType2 = 0x54,
     RetailPrice = 0x51,
-    MidPoint_x6d = 0x6d,
+    MidPointPegAndMidPointTradeNow = 0x6d,
     NonDisplayAndMidPoint = 0x6e,
 };
 
@@ -272,13 +261,13 @@ type CrossType = enum {
     Closing = 0x43,
     HaltIpoCross = 0x48,
     Supplemental = 0x53,
-    Retail = 0x52,
     Extended = 0x45,
+    ExtendedTradingClose = 0x41,
 };
 
 type OrderState = enum {
-    Order = 0x4c,
-    Order_x44 = 0x44,
+    OrderLive = 0x4c,
+    OrderDead = 0x44,
 };
 
 type BboWeightIndicator = enum {
@@ -286,6 +275,7 @@ type BboWeightIndicator = enum {
     LessThanOnePercent = 0x31,
     LessThanTwoPercent = 0x32,
     GreaterThanTwoPercent = 0x33,
+    Unspecified = 0x20,
     SetsTheQbbo = 0x53,
     ImprovesTheNbboUponEntry = 0x4e,
 };
@@ -303,8 +293,8 @@ type CancelOrderReason = enum {
     Halted = 0x48,
     OpenProtection = 0x58,
     Closed = 0x45,
-    PostOnlyCancel = 0x46,
-    PostOnlyCancel_x47 = 0x47,
+    PostOnlyCancelForNms = 0x46,
+    PostOnlyCancelDueToContraSideDisplayedOrder = 0x47,
 };
 
 type LiquidityFlag = enum {
@@ -317,22 +307,71 @@ type LiquidityFlag = enum {
     HaltIpo = 0x48,
     Halt = 0x4b,
     Nondisplayed = 0x4a,
-    Added_x57 = 0x57,
-    Removed_x6d = 0x6d,
-    Added_x6b = 0x6b,
+    PassiveMidpointExecution = 0x4e,
+    AddedPostOnly = 0x57,
+    RemovedAtMidpoint = 0x6d,
+    AddedViaMidpoint = 0x6b,
     Supplemental = 0x30,
-    Displayed = 0x37,
-    Displayed_x38 = 0x38,
-    RetailDesignated = 0x64,
-    RetailDesignated_x65 = 0x65,
-    RetailDesignated_x66 = 0x66,
+    ImprovesNbbo = 0x37,
+    SetsQbboWhileJoiningNbbo = 0x38,
+    RetailDesignatedRemovedLiquidity = 0x64,
+    RetailDesignatedAddedDisplayedLiquidity = 0x65,
+    RetailDesignatedAddedNonDisplayedLiquidity = 0x66,
     RpiRetailPriceImproving = 0x6a,
-    RetailOrder = 0x72,
-    RetailOrder_x74 = 0x74,
-    Added_x34 = 0x34,
-    Added_x35 = 0x35,
-    Removed_x36 = 0x36,
-    Added_x67 = 0x67,
+    RetailOrderRemovesRpiLiquidity = 0x72,
+    RetailOrderRemovesOtherPriceImprovingLiquidity = 0x74,
+    AddedDisplayedInGroupA = 0x34,
+    RemovedInGroupA = 0x36,
+    AddedNonDisplayedMidPointInGroupA = 0x67,
     Midpoint = 0x6e,
+    ExtendedTradingCloseExecution = 0x69,
+    AddedNonDisplayedLiquidityViaAReserveOrder = 0x75,
+    AddedInThePreMarket = 0x32,
+    RemovedInThePreMarket = 0x33,
+    DisplayedLiquidityAddingOrderImprovesTheNbboInThePreMarket = 0x35,
+    NonDisplayedAddingLiquidityInThePreMarket = 0x39,
+};
+
+type BrokenTradeReason = enum {
+    Erroneous = 0x45,
+    Consent = 0x43,
+    Supervisory = 0x53,
+    External = 0x58,
+};
+
+type ReferencePriceType = enum {
+    IntradayIndicativeValue = 0x49,
+};
+
+type RejectedOrderReason = enum {
+    RiskRestrictedStock = 0x61,
+    RiskShortSellRestricted = 0x62,
+    RiskOrderTypeRestricted = 0x63,
+    NasdaqIsClosed = 0x43,
+    RiskExceedsAdvLimit = 0x64,
+    InvalidDisplayType = 0x44,
+    RiskFatFinger = 0x65,
+    Halted = 0x48,
+    RequestedFirmNotAuthorizedForRequestedClearingTypeOnThisAccount = 0x4c,
+    RiskMaxSharesExceeded = 0x6d,
+    OutsideOfPermittedTimes = 0x4d,
+    RiskMaxNotionalExceeded = 0x6e,
+    InvalidMinimum = 0x4e,
+    ThereIsNoReferencePrice = 0x6f,
+    Other = 0x4f,
+    MidpointPegOrdersAreNotAccepted = 0x71,
+    RiskMarketImpact = 0x72,
+    ThisOrderIsNotAllowedInThisTypeOfCross = 0x52,
+    InvalidStock = 0x53,
+    TestMode = 0x54,
+    OrderPricedMoreAggressively = 0x75,
+    RiskAggregateExposureExceeded = 0x76,
+    RetailNotAllowed = 0x56,
+    RiskSymbolMessageRateRestriction = 0x77,
+    InvalidMidpoint = 0x57,
+    RiskPortMessageRateRestriction = 0x78,
+    InvalidPrice = 0x58,
+    RiskDuplicateMessageRateRestriction = 0x79,
+    SharesExceedsConfiguredSafetyThreshold = 0x5a,
 };
 

@@ -49,6 +49,7 @@ type Message = unit {
         TemplateId::WholesaleOrderAckMessage -> wholesale_order_ack_message: WholesaleOrderAckMessage;
         TemplateId::RequestForImpliedExecutionMessage -> request_for_implied_execution_message: RequestForImpliedExecutionMessage;
         TemplateId::CrossOrderMessage -> cross_order_message: CrossOrderMessage;
+        TemplateId::RfqAuditMessage -> rfq_audit_message: RfqAuditMessage;
         TemplateId::LogonMessage -> logon_message: LogonMessage;
         TemplateId::LogonAckMessage -> logon_ack_message: LogonAckMessage;
         TemplateId::LogonRejectMessage -> logon_reject_message: LogonRejectMessage;
@@ -174,7 +175,8 @@ type OrderOptionalFieldsGroup = unit {
         session_1: 1;
         session_2: 2;
         session_3: 3;
-        reserved_4: 4..7;
+        session_4: 4;
+        reserved_3: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
     undisclosed_iceberg_type: uint8 &convert=UndisclosedIcebergType($$);
     stop_triggered_time_in_force: uint8 &convert=StopTriggeredTimeInForce($$);
@@ -346,6 +348,8 @@ type FillDerivativesFieldGroups = unit {
 type FillDerivativesFieldGroup = unit {
     evaluated_price: int64;
     message_price_notation: uint8 &convert=MessagePriceNotation($$);
+    final_symbol_index: uint32;
+    final_execution_id: uint32;
 };
 
 type KillMessage = unit {
@@ -448,7 +452,8 @@ type CancelReplaceOptionalFieldGroup = unit {
         session_1: 1;
         session_2: 2;
         session_3: 3;
-        reserved_4: 4..7;
+        session_4: 4;
+        reserved_3: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
     stop_triggered_time_in_force: uint8 &convert=StopTriggeredTimeInForce($$);
     undisclosed_iceberg_type: uint8 &convert=UndisclosedIcebergType($$);
@@ -661,6 +666,7 @@ type QuoteRequestMessage = unit {
         reserved_3: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
     min_order_qty: uint64;
+    account_type_optional: uint8 &convert=AccountTypeOptional($$);
 };
 
 type CancelRequestMessage = unit {
@@ -877,6 +883,7 @@ type RfqNotificationMessage = unit {
         reserved_3: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
     min_order_qty: uint64;
+    account_type_optional: uint8 &convert=AccountTypeOptional($$);
 };
 
 type RfqMatchingStatusMessage = unit {
@@ -1357,6 +1364,39 @@ type CrossStrategyFieldsGroup = unit {
     leg_instrument_id: uint32;
 };
 
+type RfqAuditMessage = unit {
+    msg_seq_num: uint32;
+    firm_id: bytes &size=8;
+    book_in: uint64;
+    book_out_time: uint64;
+    oeg_in_from_me: uint64;
+    oeg_out_to_member: uint64;
+    quote_req_id: uint64;
+    symbol_index: uint32;
+    emm: uint8 &convert=Emm($$);
+    rfq_counterparts_groups: RfqCounterpartsGroups;
+};
+
+type RfqCounterpartsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    rfq_counterparts_group: RfqCounterpartsGroup[self.group_size_encoding.num_in_group];
+};
+
+type RfqCounterpartsGroup = unit {
+    order_origin: uint8 &convert=OrderOrigin($$);
+    order_price: int64;
+    last_traded_quantity: uint64;
+    dark_execution_instruction_optional: bitfield(8) {
+        dark_indicator: 0;
+        deferred_trade_indicator: 1;
+        displayed_order_interaction: 2;
+        sweep_order_indicator: 3;
+        minimum_quantity_type: 4;
+        reserved_3: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    minimum_order_quantity: uint64;
+};
+
 type LogonMessage = unit {
     logical_access_id: uint32;
     oe_partition_id: uint16;
@@ -1596,6 +1636,7 @@ type TemplateId = enum {
     WholesaleOrderAckMessage = 65,
     RequestForImpliedExecutionMessage = 66,
     CrossOrderMessage = 67,
+    RfqAuditMessage = 72,
     LogonMessage = 100,
     LogonAckMessage = 101,
     LogonRejectMessage = 102,
@@ -1747,6 +1788,7 @@ type AckType = enum {
     VfuvfcTriggeredAck = 16,
     OpenOrderRequestAck = 17,
     RfieAck = 21,
+    CrossOrderAck = 22,
 };
 
 type AckPhase = enum {
@@ -1796,10 +1838,15 @@ type TradeType = enum {
     EtfmtfnavDarkTradepriceinbp = 38,
     GuaranteedCrossNegotiateddealNliq = 39,
     GuaranteedCrossNegotiateddealOilq = 40,
+    LargeinScaleTrade = 41,
     LargeinScaleTradeinbasispoints = 42,
     LargeinScalePackageTradeinbasispoints = 43,
     StrategyLegLargeinScaleTradeinbasispoints = 44,
-    LargeinScaleTrade = 41,
+    NonStandardSettlement = 46,
+    RepurchaseAgreementRepo = 47,
+    ExchangeGrantedTrade = 48,
+    Other = 49,
+    OddLot = 50,
     ConventionalTradeProvisionalprice = 100,
     LargeinScaleLiSTradeProvisionalprice = 101,
     LargeinScaleLiSPackageTradeProvisionalprice = 102,
@@ -1851,6 +1898,8 @@ type KillReason = enum {
     OrdercancelledduetoTradePriceValidation = 26,
     ConditionalOrdercancelledduetoPotentialMatching = 30,
     OrderCancelledduetoapotentialtradeoutsideFsPlimits = 36,
+    RemainingRfcQuantityCancelled = 37,
+    OrderCancelledduetoanincorrectReactorResponse = 38,
 };
 
 type AccountTypeOptional = enum {
@@ -2145,6 +2194,11 @@ type OrderActorType = enum {
     Reactor = 2,
 };
 
+type OrderOrigin = enum {
+    Cob = 1,
+    LpAnswer = 2,
+};
+
 type LogonRejectCode = enum {
     UnknownConnectionIdentifier = 1,
     Systemunavailable = 2,
@@ -2222,6 +2276,9 @@ type GuaranteeFlagOptional = enum {
 
 type Ccpid = enum {
     LchSa = 1,
+    BilateralSettlement = 2,
+    LchLimited = 3,
+    SixxClear = 5,
     EuroCcp = 6,
 };
 

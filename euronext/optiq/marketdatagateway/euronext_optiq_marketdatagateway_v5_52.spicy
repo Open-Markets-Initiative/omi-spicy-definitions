@@ -229,6 +229,12 @@ type FullTradeInformationMessage = unit {
     settlement_date: uint16;
     repo_settlement_date: uint16;
     trade_unique_identifier: bytes &size=16;
+    missing_price: bytes &size=4;
+    mmt_pre_trade_transparency_waiver_relatedto_sizeand_scale: bytes &size=4;
+    mmt_portfolio_transaction_indicator: bytes &size=4;
+    mmt_contingent_transaction_indicator: bytes &size=4;
+    mmt_publication_mode_illiquid: bytes &size=4;
+    mmt_publication_mode_size_specific: bytes &size=4;
     not_used_groups: NotUsedGroups;
 };
 
@@ -600,7 +606,9 @@ type ContractEmmPropertiesGroup = unit {
         call_spread_versus_sell_a_put: 45;
         put_spread_versus_sell_a_call: 46;
         put_straddle_versus_sell_a_call_or_a_put: 47;
-        reserved_16: 48..63;
+        ics_one_sided_combination_same_expiry: 48;
+        ics_two_sided_combination_same_expiry: 49;
+        reserved_14: 50..63;
     } &byte-order=spicy::ByteOrder::Little;
     dynamic_collar_logic: uint8 &convert=DynamicCollarLogic($$);
     collar_max_unhalt_nb: uint8;
@@ -1161,6 +1169,8 @@ type MmtMarketMechanism = enum {
     OffBookincludingVoiceorMessagingTrading = 4,
     PeriodicAuctionequalUncrossing = 5,
     RequestforQuotes = 6,
+    HybridSystem = 8,
+    AnyOtherExcludingHybrid = 9,
 };
 
 type MmtTradingMode = enum {
@@ -1175,6 +1185,7 @@ type MmtTradingMode = enum {
     ScheduledClosingAuctionequalUncrossing = 0x4b,
     ScheduledOpeningAuctionequalUncrossing = 0x4f,
     UnscheduledAuctionequalUncrossing = 0x55,
+    OnDemandAuctionequalFrequentBatchedAuction = 0x50,
 };
 
 type MmtOffBookAutomatedIndicator = enum {
@@ -1412,6 +1423,7 @@ type InstUnitExp = enum {
     BasisPoints = 3,
     PercentageMixed = 4,
     PercentageofNominalIncludingAccruedInterestDirty = 5,
+    PercentageofParValue = 6,
     Yield = 7,
     Kilograms = 8,
     Ounces = 9,
@@ -1527,6 +1539,7 @@ type ExchangeCode = enum {
     MilanCashUnderlying = 0x55,
     MilanIndexDerivatives = 0x49,
     MilanEquityDerivatives = 0x45,
+    MilanInterestRateDerivatives = 0x54,
 };
 
 type StrategyCode = enum {
@@ -1578,6 +1591,8 @@ type StrategyCode = enum {
     CallSpreadversusSellaPut = 0x78,
     PutSpreadversusSellaCall = 0x79,
     PutStraddleversusSellaCalloraPut = 0x7a,
+    IcSonesidedcombinationsameexpiry = 0x54,
+    IcStwosidedcombinationsameexpiry = 0x55,
 };
 
 type LegBuySell = enum {
@@ -1627,6 +1642,7 @@ type UnderlyingType = enum {
 };
 
 type ContractTradingType = enum {
+    NotApplicable = 0,
     Tradedasanoutright = 1,
     NottradedbutlistedincontractdataTradersmaysubscribeto = 2,
     Tradedasasimpleintercommodityspread = 3,
@@ -1660,6 +1676,7 @@ type UnderlyingSubtype = enum {
     Other = 23,
     Paper = 24,
     Polypropylene = 25,
+    BondsBasket = 26,
 };
 
 type TradingPolicy = enum {
@@ -1707,6 +1724,7 @@ type PricingAlgorithm = enum {
     Standard = 0,
     TotalReturnFuture = 1,
     MarketOnClose = 2,
+    StandardwithNegativePrices = 3,
 };
 
 type DynamicCollarLogic = enum {
@@ -1776,6 +1794,7 @@ type EfficientMmtTradingMode = enum {
     ScheduledClosingAuctionequalUncrossing = 0x4b,
     ScheduledOpeningAuctionequalUncrossing = 0x4f,
     UnscheduledAuctionequalUncrossing = 0x55,
+    OnDemandAuctionequalFrequentBatchedAuction = 0x50,
 };
 
 type EfficientMmtTransactionCategory = enum {

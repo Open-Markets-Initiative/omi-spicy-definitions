@@ -50,6 +50,8 @@ type SequencedDataPacket = unit {
         SequencedMessageType::TradeReportMessage -> trade_report_message: TradeReportMessage;
         SequencedMessageType::BrokenTradeReportMessage -> broken_trade_report_message: BrokenTradeReportMessage;
         SequencedMessageType::EndOfReplaySequenceMessage -> end_of_replay_sequence_message: EndOfReplaySequenceMessage;
+        SequencedMessageType::BestAskUpdateShortFormMessage -> best_bid_or_ask_update_short_form_message: BestBidOrAskUpdateShortFormMessage;
+        SequencedMessageType::BestAskUpdateLongFormMessage -> best_bid_or_ask_update_long_form_message: BestBidOrAskUpdateLongFormMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -68,7 +70,7 @@ type DerivativeDirectoryMessage = unit {
     expiration_year: uint8;
     expiration_month: uint8;
     expiration_date: uint8;
-    explicit_strike_price: uint32;
+    explicit_strike_price: int32;
     option_type: uint8 &convert=OptionType($$);
     underlying_symbol: bytes &size=13;
     closing_type: uint8 &convert=ClosingType($$);
@@ -115,12 +117,12 @@ type BestBidAndAskUpdateLongFormMessage = unit {
     instrument_id: uint32;
     quote_condition: uint8 &convert=QuoteCondition($$);
     bid_market_order_size_long: uint32;
-    bid_price_long: uint32;
+    bid_price_long: int32;
     bid_size_long: uint32;
     bid_cust_size_long: uint32;
     bid_procust_size_long: uint32;
     ask_market_order_size_long: uint32;
-    ask_price_long: uint32;
+    ask_price_long: int32;
     ask_size_long: uint32;
     ask_cust_size_long: uint32;
     ask_procust_size_long: uint32;
@@ -144,7 +146,7 @@ type BestBidOrAskUpdateLongFormMessage = unit {
     instrument_id: uint32;
     quote_condition: uint8 &convert=QuoteCondition($$);
     market_order_size_long: uint32;
-    price_long: uint32;
+    price_long: int32;
     size_long: uint32;
     cust_size_long: uint32;
     procust_size_long: uint32;
@@ -156,7 +158,7 @@ type TradeReportMessage = unit {
     instrument_id: uint32;
     cross_id: uint32;
     trade_condition: bytes &size=1;
-    price_long: uint32;
+    price_long: int32;
     volume: uint32;
 };
 
@@ -165,7 +167,7 @@ type BrokenTradeReportMessage = unit {
     timestamp: uint64;
     instrument_id: uint32;
     original_cross_id: uint32;
-    original_price: uint32;
+    original_price: int32;
     original_volume: uint32;
 };
 
@@ -198,6 +200,8 @@ type SequencedMessageType = enum {
     TradeReportMessage = 0x54,
     BrokenTradeReportMessage = 0x58,
     EndOfReplaySequenceMessage = 0x4d,
+    BestAskUpdateShortFormMessage = 0x61,
+    BestAskUpdateLongFormMessage = 0x41,
 };
 
 type EventCode = enum {
