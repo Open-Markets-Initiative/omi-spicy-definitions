@@ -1,0 +1,435 @@
+module CnsxCseRetransmissionMmdV28;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type CseRetransmissionV28 = unit {
+    block: Block[] &eod;
+};
+
+type Block = unit {
+    block_header: BlockHeader;
+    message: Message[self.block_header.block_number_of_messages];
+};
+
+type BlockHeader = unit {
+    block_length: uint16;
+    block_number_of_messages: uint8;
+    block_start_sequence: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TimeMessage -> time_message: TimeMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::SymbolDirectoryMessage -> symbol_directory_message: SymbolDirectoryMessage;
+        MessageType::SymbolDynamicsMessage -> symbol_dynamics_message: SymbolDynamicsMessage;
+        MessageType::TradingActionMessage -> trading_action_message: TradingActionMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        MessageType::IndicativePriceQuantityMessage -> indicative_price_quantity_message: IndicativePriceQuantityMessage;
+        MessageType::BestBidOfferMessage -> best_bid_offer_message: BestBidOfferMessage;
+        MessageType::ClosingPriceMessage -> closing_price_message: ClosingPriceMessage;
+        MessageType::GeneralMessage -> general_message: GeneralMessage;
+        MessageType::MocImbalanceNotificationMessage -> moc_imbalance_notification_message: MocImbalanceNotificationMessage;
+        MessageType::EopMocImbalanceMessage -> eop_moc_imbalance_message: EopMocImbalanceMessage;
+        MessageType::LoginRequestMessage -> login_request_message: LoginRequestMessage;
+        MessageType::LoginResponseMessage -> login_response_message: LoginResponseMessage;
+        MessageType::RetransmissionRequestMessage -> retransmission_request_message: RetransmissionRequestMessage;
+        MessageType::RetransmissionResponseMessage -> retransmission_response_message: RetransmissionResponseMessage;
+        MessageType::SpinRequestMessage -> spin_request_message: SpinRequestMessage;
+        MessageType::SpinResponseMessage -> spin_response_message: SpinResponseMessage;
+        MessageType::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    sub_length: uint8;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type TimeMessage = unit {
+    second: uint32;
+    millisecond: uint16;
+};
+
+type SystemEventMessage = unit {
+    time_offset: uint32;
+    group: uint64;
+    event_code: uint8 &convert=EventCode($$);
+    exchange_timestamp: uint64;
+};
+
+type SymbolDirectoryMessage = unit {
+    time_offset: uint32;
+    symbol: bytes &size=12;
+    cusip: bytes &size=12;
+    sec_name: bytes &size=15;
+    currency: bytes &size=3;
+    stock_group: uint64 &convert=StockGroup($$);
+    listing: uint64;
+    expiry: uint64;
+    lot_size: uint32;
+    settlement_term: bytes &size=8;
+    listing_market: uint8 &convert=ListingMarket($$);
+    previous_closing_price: uint32;
+    listing_tier: uint8 &convert=ListingTier($$);
+    market_maker_name: bytes &size=20;
+    market_maker_phone_number: bytes &size=12;
+    full_sec_name: bytes &size=75;
+};
+
+type SymbolDynamicsMessage = unit {
+    time_offset: uint32;
+    symbol: bytes &size=12;
+    settlement_term: bytes &size=8;
+    gmf_setting: uint8 &convert=GmfSetting($$);
+    gmf_volume: uint64;
+    anonymous_setting: uint8 &convert=AnonymousSetting($$);
+    moc_eligible: uint8 &convert=MocEligible($$);
+};
+
+type TradingActionMessage = unit {
+    time_offset: uint32;
+    symbol: bytes &size=12;
+    trading_state: uint8 &convert=TradingState($$);
+    exchange_timestamp: uint64;
+};
+
+type AddOrderMessage = unit {
+    time_offset: uint32;
+    order_number: bytes &size=18;
+    order_verb: uint8 &convert=OrderVerb($$);
+    quantity: uint32;
+    symbol: bytes &size=12;
+    price: uint32;
+    firm_id: bytes &size=3;
+    settlement_term: bytes &size=8;
+    odd_lot_flag: uint8 &convert=OddLotFlag($$);
+    exchange_timestamp: uint64;
+    priority_timestamp: uint64;
+};
+
+type OrderExecutedMessage = unit {
+    time_offset: uint32;
+    order_number: bytes &size=18;
+    executed_quantity: uint32;
+    match_number: bytes &size=18;
+    exchange_timestamp: uint64;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    time_offset: uint32;
+    order_number: bytes &size=18;
+    executed_quantity: uint32;
+    match_number: bytes &size=18;
+    execution_price: uint32;
+    exchange_timestamp: uint64;
+};
+
+type TradeMessage = unit {
+    time_offset: uint32;
+    executed_quantity: uint32;
+    symbol: bytes &size=12;
+    execution_price: uint32;
+    match_number: bytes &size=18;
+    firm_id: bytes &size=3;
+    contra_firm_id: bytes &size=3;
+    settlement_term: bytes &size=8;
+    trade_attribute: uint8 &convert=TradeAttribute($$);
+    cross_type: uint8 &convert=CrossType($$);
+    odd_lot_flag: uint8 &convert=OddLotFlag($$);
+    sets_the_last_price: uint8 &convert=SetsTheLastPrice($$);
+    exchange_timestamp: uint64;
+    opening_trade: uint8 &convert=OpeningTrade($$);
+    ccp_session_trade: uint8 &convert=CcpSessionTrade($$);
+    moc_trade_marker: uint8 &convert=MocTradeMarker($$);
+};
+
+type BrokenTradeMessage = unit {
+    time_offset: uint32;
+    match_number: bytes &size=18;
+    reason: uint8 &convert=Reason($$);
+    exchange_timestamp: uint64;
+};
+
+type OrderDeleteMessage = unit {
+    time_offset: uint32;
+    order_number: bytes &size=18;
+    exchange_timestamp: uint64;
+};
+
+type OrderReplaceMessage = unit {
+    time_offset: uint32;
+    order_number: bytes &size=18;
+    quantity: uint32;
+    price: uint32;
+    exchange_timestamp: uint64;
+};
+
+type IndicativePriceQuantityMessage = unit {
+    time_offset: uint32;
+    theoretical_opening_quantity: uint64;
+    symbol: bytes &size=12;
+    theoretical_opening_price: uint32;
+    exchange_timestamp: uint64;
+};
+
+type BestBidOfferMessage = unit {
+    time_offset: uint32;
+    symbol: bytes &size=12;
+    best_bid: uint32;
+    best_bid_size: uint32;
+    best_offer: uint32;
+    best_offer_size: uint32;
+    exchange_timestamp: uint64;
+};
+
+type ClosingPriceMessage = unit {
+    time_offset: uint32;
+    symbol: bytes &size=12;
+    price: uint32;
+};
+
+type GeneralMessage = unit {
+    time_offset: uint32;
+    message_text: bytes &size=128;
+};
+
+type MocImbalanceNotificationMessage = unit {
+    time_offset: uint32;
+    symbol: bytes &size=12;
+    moc_and_loc_only_imbalance_side: uint8 &convert=MocAndLocOnlyImbalanceSide($$);
+    moc_imbalance_reference_price: uint32;
+    moc_and_loc_only_imbalance_volume: uint64;
+    moc_and_loc_only_paired_volume: uint64;
+    market_order_imbalance_side: uint8 &convert=MarketOrderImbalanceSide($$);
+    market_order_imbalance_volume: uint64;
+    moc_indicative_closing_price: uint32;
+    moc_and_loc_only_closing_price: uint32;
+    price_variation: bytes &size=5;
+    exchange_timestamp: uint64;
+};
+
+type EopMocImbalanceMessage = unit {
+    time_offset: uint32;
+    system_event: uint8 &convert=SystemEvent($$);
+    symbol: bytes &size=12;
+    moc_imbalance_reference_price: uint32;
+    moc_and_loc_only_imbalance_side: uint8 &convert=MocAndLocOnlyImbalanceSide($$);
+    moc_and_loc_only_imbalance_volume: uint64;
+    exchange_timestamp: uint64;
+};
+
+type LoginRequestMessage = unit {
+    user_id: bytes &size=16;
+    password: bytes &size=16;
+};
+
+type LoginResponseMessage = unit {
+    user_id: bytes &size=16;
+    login_status: uint8 &convert=LoginStatus($$);
+};
+
+type RetransmissionRequestMessage = unit {
+    start_sequence: uint32;
+    number_of_messages: uint32;
+};
+
+type RetransmissionResponseMessage = unit {
+    start_sequence: uint32;
+    number_of_messages: uint32;
+    retransmission_status: uint8 &convert=RetransmissionStatus($$);
+};
+
+type SpinRequestMessage = unit {
+    client_identifier: uint32;
+};
+
+type SpinResponseMessage = unit {
+    client_identifier: uint32;
+    spin_status: uint8 &convert=SpinStatus($$);
+};
+
+type HeartbeatMessage = unit {
+    client_identifier: uint32;
+};
+
+type MessageType = enum {
+    TimeMessage = 0x54,
+    SystemEventMessage = 0x53,
+    SymbolDirectoryMessage = 0x52,
+    SymbolDynamicsMessage = 0x4f,
+    TradingActionMessage = 0x48,
+    AddOrderMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    TradeMessage = 0x50,
+    BrokenTradeMessage = 0x42,
+    OrderDeleteMessage = 0x44,
+    OrderReplaceMessage = 0x55,
+    IndicativePriceQuantityMessage = 0x49,
+    BestBidOfferMessage = 0x51,
+    ClosingPriceMessage = 0x46,
+    GeneralMessage = 0x47,
+    MocImbalanceNotificationMessage = 0x4d,
+    EopMocImbalanceMessage = 0x4c,
+    LoginRequestMessage = 0x6c,
+    LoginResponseMessage = 0x61,
+    RetransmissionRequestMessage = 0x72,
+    RetransmissionResponseMessage = 0x62,
+    SpinRequestMessage = 0x73,
+    SpinResponseMessage = 0x63,
+    HeartbeatMessage = 0x68,
+};
+
+type EventCode = enum {
+    StartOfMessagesTheFirstMessageIsSent = 0x4f,
+    StartOfSystemHours = 0x53,
+    PreopenAuctionPeriodBeginsTheExchangeIsOpenAndReadyToStartAcceptingOrders = 0x56,
+    StartOfMarketHoursThePreopenAuctionIsConcludedAndContinuousTradingBegins = 0x51,
+    EndOfMarketHoursIndicatesTheEndOfContinuousTrading = 0x4d,
+    EndOfSystemHoursIndicatesTheExchangeIsClosed = 0x45,
+    EndOfMessagesTheLastMessageSent = 0x43,
+    CcpExtendedSessionIsOpen = 0x58,
+    CcpExtendedSessionIsClosed = 0x4e,
+    FailoverEvent = 0x5a,
+    MocImbalance = 0x49,
+    MocFreeze = 0x46,
+    MocClosingPriceDetermination = 0x41,
+    EopStarts = 0x50,
+    EopClosingPriceDetermination = 0x42,
+};
+
+type StockGroup = enum {
+    CseListedSecurities = 1,
+    OtherCanadianListedSecurities = 2,
+};
+
+type ListingMarket = enum {
+    Cse = 0x43,
+    Tse = 0x54,
+    Tsxv = 0x56,
+    Alpha = 0x41,
+    CboeCanada = 0x4e,
+};
+
+type ListingTier = enum {
+    NoTier = 0,
+    SeniorTier = 1,
+    VentureTier = 2,
+};
+
+type GmfSetting = enum {
+    GmfEnabled = 0x59,
+    GmfDisabled = 0x4e,
+};
+
+type AnonymousSetting = enum {
+    AnonymousEnabled = 0x59,
+    AnonymousDisabled = 0x4e,
+};
+
+type MocEligible = enum {
+    MocEligible_x59 = 0x59,
+    NotMocEligible = 0x4e,
+};
+
+type TradingState = enum {
+    NormalTrading = 0x4e,
+    SuspendTrading = 0x56,
+    Halt = 0x48,
+    DelayedOpen = 0x44,
+    ClosingDelayed = 0x45,
+};
+
+type OrderVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type OddLotFlag = enum {
+    OddLotOrder = 0x59,
+    NotAnOddLot = 0x4e,
+};
+
+type TradeAttribute = enum {
+    ByPassOrder = 0x42,
+    Default = 0x20,
+};
+
+type CrossType = enum {
+    Regular = 0x52,
+    Internal = 0x49,
+    Contingent = 0x43,
+    Basis = 0x42,
+    Vwap = 0x56,
+    Derivativerelated = 0x44,
+    OtherwiseEmptyStringNotSpecified = 0x20,
+    CcpClosingPrice = 0x53,
+    NetAssetValueNav = 0x4e,
+};
+
+type SetsTheLastPrice = enum {
+    LastSale = 0x59,
+    NotLastSale = 0x4e,
+};
+
+type OpeningTrade = enum {
+    OpeningTrade_x59 = 0x59,
+    NotOpeningTrade = 0x4e,
+};
+
+type CcpSessionTrade = enum {
+    CcpSessionTrade_x59 = 0x59,
+    NotCcpSessionTrade = 0x4e,
+};
+
+type MocTradeMarker = enum {
+    MocOrLocTrade = 0x59,
+    NotMocOrLocTrade = 0x4e,
+};
+
+type Reason = enum {
+    SupervisoryTheTradeWasManuallyBrokenByTheExchange = 0x53,
+    Amended = 0x41,
+};
+
+type MocAndLocOnlyImbalanceSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NotApplicable = 0x20,
+};
+
+type MarketOrderImbalanceSide = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    NotApplicable = 0x20,
+};
+
+type SystemEvent = enum {
+    ClosingDelayed = 0x45,
+};
+
+type LoginStatus = enum {
+    LoginAccepted = 0x59,
+};
+
+type RetransmissionStatus = enum {
+    RetransmissionWillFollow = 0x59,
+    RequestIgnored = 0x4e,
+};
+
+type SpinStatus = enum {
+    SpinAcknowledged = 0x53,
+    EndOfSpin = 0x45,
+};
+
