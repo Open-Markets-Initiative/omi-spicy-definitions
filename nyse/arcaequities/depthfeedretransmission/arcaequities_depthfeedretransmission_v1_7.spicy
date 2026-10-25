@@ -55,7 +55,7 @@ type SymbolIndexMappingMessage = unit {
     market_id: uint16 &convert=MarketId($$);
     system_id: uint8;
     exchange_code: uint8 &convert=ExchangeCode($$);
-    price_scale_code: uint8;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
     security_type: uint8 &convert=SecurityType($$);
     lot_size: uint16;
     prev_close_price: uint32;
@@ -175,16 +175,19 @@ type MessageType = enum {
 };
 
 type MarketId = enum {
-    Nyse = 1,
-    NyseArca = 3,
-    NyseAmerican = 9,
-    NyseNational = 10,
-    NyseTexas = 11,
+    NyseEquities = 1,
+    NyseArcaEquities = 3,
+    NyseArcaOptions = 4,
+    NyseBonds = 5,
+    NyseAmericanOptions = 8,
+    NyseAmericanEquities = 9,
+    NyseNationalEquities = 10,
+    NyseTexasEquities = 11,
 };
 
 type ExchangeCode = enum {
-    Txse = 0x46,
     NyseAmerican = 0x41,
+    Txse = 0x46,
     Ltse = 0x4c,
     NyseTexas = 0x4d,
     Nyse = 0x4e,
@@ -192,6 +195,12 @@ type ExchangeCode = enum {
     Nasdaq = 0x51,
     Iex = 0x56,
     Cboe = 0x5a,
+};
+
+type PriceScaleCode = enum {
+    LowPricedSecurities = 6,
+    MediumPricedSecurities = 4,
+    HighPricedSecurities = 3,
 };
 
 type SecurityType = enum {
@@ -263,11 +272,12 @@ type HaltCondition = enum {
 
 type SsrTriggeringExchangeId = enum {
     NyseAmerican = 0x41,
-    NasdaqOmsTx = 0x42,
+    NasdaqOmxTx = 0x42,
     NyseNational = 0x43,
     Finra = 0x44,
-    N24X = 0x47,
-    MiamiPearl = 0x48,
+    Txse = 0x46,
+    N24x = 0x47,
+    MiaxPearl = 0x48,
     NasdaqIse = 0x49,
     CboeEdga = 0x4a,
     CboeEdgx = 0x4b,

@@ -73,7 +73,7 @@ type SymbolIndexMappingMessage = unit {
     lot_size: uint16;
     prev_close_price: uint32;
     prev_close_volume: uint32;
-    price_resolution: uint8;
+    price_resolution: uint8 &convert=PriceResolution($$);
     round_lot: uint8 &convert=RoundLot($$);
     mpv: uint16;
     unit_of_trade: uint16;
@@ -118,7 +118,7 @@ type SymbolIndexMappingRequestMessage = unit {
     source_id: bytes &size=10;
     product_id: uint8;
     channel_id: uint8;
-    retransmit_method: uint8;
+    retransmit_method: uint8 &convert=RetransmitMethod($$);
 };
 
 type RefreshRequestMessage = unit {
@@ -236,7 +236,7 @@ type MarketId = enum {
     NyseAmericanOptions = 8,
     NyseAmericanEquities = 9,
     NyseNationalEquities = 10,
-    NyseTexasEquities = 11,
+    NyseChicago = 11,
 };
 
 type ExchangeCode = enum {
@@ -266,6 +266,12 @@ type SecurityType = enum {
     Test = 0x54,
     ClosedEndFund = 0x55,
     Warrant = 0x57,
+};
+
+type PriceResolution = enum {
+    AllPenny = 0,
+    PennyNickel = 1,
+    NickelDime = 5,
 };
 
 type RoundLot = enum {
@@ -320,7 +326,7 @@ type SsrTriggeringExchangeId = enum {
     CboeEdga = 0x4a,
     CboeEdgx = 0x4b,
     Ltse = 0x4c,
-    NyseTexas = 0x4d,
+    NyseChicago = 0x4d,
     Nyse = 0x4e,
     NyseArca = 0x50,
     Nasdaq = 0x51,
@@ -345,6 +351,10 @@ type MarketState = enum {
     CoreSession = 0x4f,
     LateSessionNonNyseOnly = 0x4c,
     Closed = 0x58,
+};
+
+type RetransmitMethod = enum {
+    DeliverViaUdp = 0,
 };
 
 type Status = enum {

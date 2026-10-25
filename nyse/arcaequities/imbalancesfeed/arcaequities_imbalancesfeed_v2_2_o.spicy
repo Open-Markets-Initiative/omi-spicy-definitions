@@ -67,17 +67,17 @@ type SymbolIndexMappingMessage = unit {
     market_id: uint16 &convert=MarketId($$);
     system_id: uint8;
     exchange_code: uint8 &convert=ExchangeCode($$);
-    price_scale_code: uint8;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
     security_type: uint8 &convert=SecurityType($$);
     lot_size: uint16;
     prev_close_price: uint32;
     prev_close_volume: uint32;
-    price_resolution: uint8;
+    price_resolution: uint8 &convert=PriceResolution($$);
     round_lot: uint8 &convert=RoundLot($$);
     mpv: uint16;
     unit_of_trade: uint16;
-    late_close_eligible: uint8;
-    eth_eligible: uint8;
+    late_close_eligible: uint8 &convert=LateCloseEligible($$);
+    eth_eligible: uint8 &convert=EthEligible($$);
 };
 
 type SymbolClearMessage = unit {
@@ -118,7 +118,7 @@ type SymbolIndexMappingRequestMessage = unit {
     source_id: bytes &size=10;
     product_id: uint8;
     channel_id: uint8;
-    retransmit_method: uint8;
+    retransmit_method: uint8 &convert=RetransmitMethod($$);
 };
 
 type RefreshRequestMessage = unit {
@@ -236,6 +236,12 @@ type ExchangeCode = enum {
     Cboe = 0x5a,
 };
 
+type PriceScaleCode = enum {
+    LowPricedSecurities = 6,
+    MediumPricedSecurities = 4,
+    HighPricedSecurities = 3,
+};
+
 type SecurityType = enum {
     AmericanDepositaryReceipts = 0x41,
     CommonStock = 0x43,
@@ -255,9 +261,25 @@ type SecurityType = enum {
     Warrants = 0x57,
 };
 
+type PriceResolution = enum {
+    AllPenny = 0,
+    PennyNickel = 1,
+    NickelDime = 5,
+};
+
 type RoundLot = enum {
     Yes = 0x59,
     No = 0x4e,
+};
+
+type LateCloseEligible = enum {
+    NotEligible = 0,
+    Eligible = 1,
+};
+
+type EthEligible = enum {
+    NotEligible = 0,
+    Eligible = 1,
 };
 
 type SecurityStatus = enum {
@@ -303,7 +325,8 @@ type SsrTriggeringExchangeId = enum {
     NasdaqOmxTx = 0x42,
     NyseNational = 0x43,
     Finra = 0x44,
-    N24X = 0x47,
+    Txse = 0x46,
+    N24x = 0x47,
     MiaxPearl = 0x48,
     NasdaqIse = 0x49,
     CboeEdga = 0x4a,
@@ -335,6 +358,10 @@ type MarketState = enum {
     CoreSession = 0x4f,
     LateSessionNonNyseOnly = 0x4c,
     Closed = 0x58,
+};
+
+type RetransmitMethod = enum {
+    DeliverViaUdp = 0,
 };
 
 type Status = enum {

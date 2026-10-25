@@ -71,12 +71,12 @@ type SymbolIndexMappingMessage = unit {
     market_id: uint16 &convert=MarketId($$);
     system_id: uint8;
     exchange_code: uint8 &convert=ExchangeCode($$);
-    price_scale_code: uint8;
+    price_scale_code: uint8 &convert=PriceScaleCode($$);
     security_type: uint8 &convert=SecurityType($$);
     lot_size: uint16;
     prev_close_price: uint32;
     prev_close_volume: uint32;
-    price_resolution: uint8;
+    price_resolution: uint8 &convert=PriceResolution($$);
     round_lot: uint8 &convert=RoundLot($$);
     mpv: uint16;
     unit_of_trade: uint16;
@@ -297,8 +297,8 @@ type MarketId = enum {
 };
 
 type ExchangeCode = enum {
-    Txse = 0x46,
     NyseAmerican = 0x41,
+    Txse = 0x46,
     Ltse = 0x4c,
     NyseTexas = 0x4d,
     Nyse = 0x4e,
@@ -308,23 +308,35 @@ type ExchangeCode = enum {
     Cboe = 0x5a,
 };
 
+type PriceScaleCode = enum {
+    LowPricedSecurities = 6,
+    MediumPricedSecurities = 4,
+    HighPricedSecurities = 3,
+};
+
 type SecurityType = enum {
-    Adr = 0x41,
+    AmericanDepositaryReceipts = 0x41,
     CommonStock = 0x43,
     Debentures = 0x44,
-    Etf = 0x45,
+    ExchangeTradedFunds = 0x45,
     Foreign = 0x46,
-    UsDepositaryShares = 0x48,
+    AmericanDepositaryShares = 0x48,
     Units = 0x49,
     IndexLinkedNotes = 0x4c,
-    MiscliquidTrust = 0x4d,
+    OtherBlank = 0x4d,
     OrdinaryShares = 0x4f,
     PreferredStock = 0x50,
     Rights = 0x52,
-    SharesOfBeneficiaryInterest = 0x53,
+    SharesOfBeneficialInterest = 0x53,
     Test = 0x54,
     ClosedEndFund = 0x55,
-    Warrant = 0x57,
+    Warrants = 0x57,
+};
+
+type PriceResolution = enum {
+    AllPenny = 0,
+    PennyNickel = 1,
+    NickelDime = 5,
 };
 
 type RoundLot = enum {
@@ -370,7 +382,7 @@ type HaltCondition = enum {
     SipOutageMaterialSipLatencyOrExtraordinaryMarketActivity = 0x41,
     RegulatoryConcern = 0x43,
     MergerEffective = 0x45,
-    EtfIivEtfComponentPricesNotAvailable = 0x46,
+    EtfIivEtfComponentsPricesNotAvailable = 0x46,
     CorporateAction = 0x4e,
     NewSecurityOffering = 0x4f,
     PrimaryListingExchangeDiscretionaryHalt = 0x56,
@@ -382,11 +394,12 @@ type HaltCondition = enum {
 
 type SsrTriggeringExchangeId = enum {
     NyseAmerican = 0x41,
-    NasdaqOmsTx = 0x42,
+    NasdaqOmxTx = 0x42,
     NyseNational = 0x43,
     Finra = 0x44,
-    N24X = 0x47,
-    MiamiPeral = 0x48,
+    Txse = 0x46,
+    N24x = 0x47,
+    MiaxPearl = 0x48,
     NasdaqIse = 0x49,
     CboeEdga = 0x4a,
     CboeEdgx = 0x4b,
