@@ -1,0 +1,831 @@
+module NseNsecmBroadcastNnfbcastV66;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsecmBroadcastV66 = unit {
+    bcast_pack_data: BcastPackData;
+};
+
+type BcastPackData = unit {
+    net_id: bytes &size=2;
+    number_of_packets: int16;
+    packed_packet: PackedPacket[self.number_of_packets];
+};
+
+type PackedPacket = unit {
+    compression_length: int16;
+    broadcast_data: BroadcastData;
+};
+
+type BroadcastData = unit {
+    bcast_market_type: bytes &size=1;
+    : skip bytes &size=7;   # padding
+    bcast_header: BcastHeader;
+    switch ( self.bcast_header.transaction_code ) {
+        TransactionCode::BroadcastJournalVctMessage -> broadcast_journal_vct_message: BroadcastJournalVctMessage;
+        TransactionCode::SecurityMasterChangeMessage -> security_master_change_message: SecurityMasterChangeMessage;
+        TransactionCode::ParticipantMasterChangeMessage -> participant_master_change_message: ParticipantMasterChangeMessage;
+        TransactionCode::SecurityStatusChangeMessage -> security_status_change_message: SecurityStatusChangeMessage;
+        TransactionCode::SecurityStatusChangePreopenMessage -> security_status_change_preopen_message: SecurityStatusChangePreopenMessage;
+        TransactionCode::TurnoverExceededMessage -> turnover_exceeded_message: TurnoverExceededMessage;
+        TransactionCode::BrokerReactivatedMessage -> broker_reactivated_message: BrokerReactivatedMessage;
+        TransactionCode::AuctionInquiryMessage -> auction_inquiry_message: AuctionInquiryMessage;
+        TransactionCode::AuctionStatusChangeMessage -> auction_status_change_message: AuctionStatusChangeMessage;
+        TransactionCode::PreopenShutdownMessage -> preopen_shutdown_message: PreopenShutdownMessage;
+        TransactionCode::PreopenMarketOrderRestrictedMessage -> preopen_market_order_restricted_message: PreopenMarketOrderRestrictedMessage;
+        TransactionCode::NormalMarketPreopenEndedMessage -> normal_market_preopen_ended_message: NormalMarketPreopenEndedMessage;
+        TransactionCode::MarketOpenMessage -> market_open_message: MarketOpenMessage;
+        TransactionCode::CtsCloseForCasMessage -> cts_close_for_cas_message: CtsCloseForCasMessage;
+        TransactionCode::RevisedPriceBandCompletedMessage -> revised_price_band_completed_message: RevisedPriceBandCompletedMessage;
+        TransactionCode::CasStartMessage -> cas_start_message: CasStartMessage;
+        TransactionCode::MarketOrderRestrictedMessage -> market_order_restricted_message: MarketOrderRestrictedMessage;
+        TransactionCode::CasEndMessage -> cas_end_message: CasEndMessage;
+        TransactionCode::MarketCloseMessage -> market_close_message: MarketCloseMessage;
+        TransactionCode::ClosingStartMessage -> closing_start_message: ClosingStartMessage;
+        TransactionCode::ClosingEndMessage -> closing_end_message: ClosingEndMessage;
+        TransactionCode::SymbolStatusChangeActionMessage -> symbol_status_change_action_message: SymbolStatusChangeActionMessage;
+        TransactionCode::TickerAndMarketIndexMessage -> ticker_and_market_index_message: TickerAndMarketIndexMessage;
+        TransactionCode::MarketByOrderAndMarketByPriceMessage -> market_by_order_and_market_by_price_message: MarketByOrderAndMarketByPriceMessage;
+        TransactionCode::OnlyMarketByPriceMessage -> only_market_by_price_message: OnlyMarketByPriceMessage;
+        TransactionCode::MarketWatchRoundRobinMessage -> market_watch_round_robin_message: MarketWatchRoundRobinMessage;
+        TransactionCode::CallAuctionMarketByPriceMessage -> call_auction_market_by_price_message: CallAuctionMarketByPriceMessage;
+        TransactionCode::CallAuctionMarketWatchMessage -> call_auction_market_watch_message: CallAuctionMarketWatchMessage;
+        TransactionCode::SecurityOpenPriceMessage -> security_open_price_message: SecurityOpenPriceMessage;
+        TransactionCode::IndicesMessage -> indices_message: IndicesMessage;
+        TransactionCode::IndicativeIndicesMessage -> indicative_indices_message: IndicativeIndicesMessage;
+        TransactionCode::IndicesVixMessage -> indices_vix_message: IndicesVixMessage;
+        TransactionCode::IndustryIndicesMessage -> industry_indices_message: IndustryIndicesMessage;
+        TransactionCode::BuyBackMessage -> buy_back_message: BuyBackMessage;
+        TransactionCode::CallAuctionOrderCancelUpdateMessage -> call_auction_order_cancel_update_message: CallAuctionOrderCancelUpdateMessage;
+        TransactionCode::CasReferencePriceMessage -> cas_reference_price_message: CasReferencePriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type BcastHeader = unit {
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
+    log_time: int32;
+    alpha_char: bytes &size=2;
+    transaction_code: int16 &convert=TransactionCode($$);
+    error_code: int16;
+    bc_seq_no: int32;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=3;   # padding
+    time_stamp_2: bytes &size=8;
+    : skip bytes &size=8;   # padding
+    message_length: int16;
+};
+
+type BroadcastJournalVctMessage = unit {
+    branch_number: int16;
+    broker_number: bytes &size=5;
+    action_code_char_3: bytes &size=3;
+    : skip bytes &size=4;   # padding
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type SecurityMasterChangeMessage = unit {
+    token_long_4: int32;
+    sec_info: SecInfo;
+    instrument_type: int16 &convert=InstrumentType($$);
+    permitted_to_trade: int16 &convert=PermittedToTrade($$);
+    issued_capital: bytes &size=8;
+    settlement_type: int16 &convert=SettlementType($$);
+    freeze_percent: int16;
+    credit_rating: bytes &size=19;
+    : skip bytes &size=1;   # padding
+    security_eligibility_per_market: SecurityEligibilityPerMarket[6];
+    surv_ind: int16;
+    issue_start_date: int32;
+    interest_payment_date: int32;
+    issue_maturity_date: int32;
+    board_lot_quantity: int32;
+    tick_size: int32;
+    name: bytes &size=25;
+    : skip bytes &size=1;   # padding
+    listing_date: int32;
+    expulsion_date: int32;
+    re_admission_date: int32;
+    record_date: int32;
+    expiry_date: int32;
+    no_delivery_start_date: int32;
+    no_delivery_end_date: int32;
+    eligiblity_indicators: bitfield(16) {
+        reserved_113: 0..12;
+        minimum_fill: 13;
+        aon: 14;
+        participate_in_market_index: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    book_closure_start_date: int32;
+    book_closure_end_date: int32;
+    purpose: bitfield(16) {
+        reserved_110: 0..9;
+        egm: 10;
+        agm: 11;
+        interest: 12;
+        bonus: 13;
+        rights: 14;
+        dividend: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    local_update_date_time: int32;
+    delete_flag: bytes &size=1;
+    remark: bytes &size=25;
+    face_value: int32;
+    isin_number: bytes &size=12;
+    mkt_maker_spread: int32;
+    mkt_maker_min_qty: int32;
+    call_auction_1_flag: int16;
+};
+
+type SecInfo = unit {
+    symbol: bytes &size=10;
+    series: bytes &size=2;
+};
+
+type SecurityEligibilityPerMarket = unit {
+    security_eligibility_flags: bitfield(8) {
+        reserved_17: 0..6;
+        eligibility: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    status: int16 &convert=Status($$);
+};
+
+type ParticipantMasterChangeMessage = unit {
+    participant_id: bytes &size=12;
+    participant_name: bytes &size=25;
+    participant_status: uint8 &convert=ParticipantStatus($$);
+    participant_update_date_time: int32;
+    delete_flag: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type SecurityStatusChangeMessage = unit {
+    number_of_records: int16;
+    token_and_eligibility: TokenAndEligibility[25];
+};
+
+type TokenAndEligibility = unit {
+    token_long_4: int32;
+    security_status_per_market: SecurityStatusPerMarket[6];
+};
+
+type SecurityStatusPerMarket = unit {
+    status: int16 &convert=Status($$);
+};
+
+type SecurityStatusChangePreopenMessage = unit {
+    number_of_records: int16;
+    token_and_eligibility: TokenAndEligibility[25];
+};
+
+type TurnoverExceededMessage = unit {
+    broker_code: bytes &size=5;
+    counter_broker_code: bytes &size=5;
+    warning_type: int16 &convert=WarningType($$);
+    sec_info: SecInfo;
+    trade_number: int32;
+    trade_price: int32;
+    trade_volume: int32;
+    final: bytes &size=1;
+};
+
+type BrokerReactivatedMessage = unit {
+    broker_code: bytes &size=5;
+    counter_broker_code: bytes &size=5;
+    warning_type: int16 &convert=WarningType($$);
+    sec_info: SecInfo;
+    trade_number: int32;
+    trade_price: int32;
+    trade_volume: int32;
+    final: bytes &size=1;
+};
+
+type AuctionInquiryMessage = unit {
+    st_auction_inq_info: StAuctionInqInfo;
+};
+
+type StAuctionInqInfo = unit {
+    token_long_4: int32;
+    auction_number: int16;
+    auction_status_short_2: int16;
+    initiator_type: int16;
+    total_buy_qty: int32;
+    best_buy_price: int32;
+    total_sell_qty: int32;
+    best_sell_price: int32;
+    auction_price: int32;
+    auction_qty: int32;
+    settlement_period: int16;
+};
+
+type AuctionStatusChangeMessage = unit {
+    sec_info: SecInfo;
+    auction_number: int16;
+    auction_status_char_1: bytes &size=1;
+    action_code_char_3: bytes &size=3;
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type PreopenShutdownMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type PreopenMarketOrderRestrictedMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type NormalMarketPreopenEndedMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type MarketOpenMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type CtsCloseForCasMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type RevisedPriceBandCompletedMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type CasStartMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type MarketOrderRestrictedMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type CasEndMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type MarketCloseMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type ClosingStartMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type ClosingEndMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    broadcast_destination: bitfield(16) {
+        reserved_115: 0..14;
+        trader_ws: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broadcast_message_length: int16;
+    broadcast_message: bytes &size=240;
+};
+
+type SymbolStatusChangeActionMessage = unit {
+    sec_info: SecInfo;
+    market_type: int16 &convert=MarketType($$);
+    : skip bytes &size=2;   # padding
+    action_code_short_2: int16 &convert=ActionCodeShort2($$);
+};
+
+type TickerAndMarketIndexMessage = unit {
+    number_of_records: int16;
+    ticker_index_information: TickerIndexInformation[28];
+};
+
+type TickerIndexInformation = unit {
+    token_long_4: int32;
+    market_type: int16 &convert=MarketType($$);
+    fill_price: int32;
+    fill_volume: int32;
+    market_index_value: int32;
+};
+
+type MarketByOrderAndMarketByPriceMessage = unit {
+    interactive_mbo_data: InteractiveMboData;
+    mbp_information: MbpInformation[10];
+    bb_total_buy_flag: int16 &convert=BbTotalBuyFlag($$);
+    bb_total_sell_flag: int16 &convert=BbTotalSellFlag($$);
+    total_buy_quantity: int64;
+    total_sell_quantity: int64;
+    mbo_mbp_indicator: bitfield(16) {
+        reserved_112: 0..11;
+        sell: 12;
+        buy: 13;
+        last_trade_less: 14;
+        last_trade_more: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    closing_price: int32;
+    open_price: int32;
+    high_price: int32;
+    low_price: int32;
+    : skip bytes &size=4;   # padding
+};
+
+type InteractiveMboData = unit {
+    token_long_4: int32;
+    book_type: int16;
+    trading_status: int16 &convert=TradingStatus($$);
+    volume_traded_today: int64;
+    last_traded_price: int32;
+    net_change_indicator: uint8 &convert=NetChangeIndicator($$);
+    filler_1: bytes &size=1;
+    net_price_change_from_closing_price: int32;
+    last_trade_quantity: int32;
+    last_trade_time: int32;
+    average_trade_price: int32;
+    auction_number: int16;
+    auction_status_short_2: int16;
+    initiator_type: int16;
+    initiator_price: int32;
+    initiator_quantity: int32;
+    auction_price: int32;
+    auction_quantity: int32;
+    mbo_information: MboInformation[10];
+};
+
+type MboInformation = unit {
+    trader_id: int32;
+    qty: int32;
+    price: int32;
+    st_mbo_mbp_terms: bitfield(16) {
+        reserved_114: 0..13;
+        aon: 14;
+        mf: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    min_fill_qty: int32;
+};
+
+type MbpInformation = unit {
+    quantity: int64;
+    price: int32;
+    number_of_orders: int16;
+    bb_buy_sell_flag: int16 &convert=BbBuySellFlag($$);
+};
+
+type OnlyMarketByPriceMessage = unit {
+    no_of_records: int16;
+    interactive_only_mbp_data: InteractiveOnlyMbpData[2];
+};
+
+type InteractiveOnlyMbpData = unit {
+    token_long_4: int32;
+    book_type: int16;
+    trading_status: int16 &convert=TradingStatus($$);
+    volume_traded_today: int64;
+    last_traded_price: int32;
+    net_change_indicator: uint8 &convert=NetChangeIndicator($$);
+    filler_1: bytes &size=1;
+    net_price_change_from_closing_price: int32;
+    last_trade_quantity: int32;
+    last_trade_time: int32;
+    average_trade_price: int32;
+    : skip bytes &size=14;   # padding
+    indicative_imbalance_qty: int64;
+    mbp_information: MbpInformation[10];
+    bb_total_buy_flag: int16 &convert=BbTotalBuyFlag($$);
+    bb_total_sell_flag: int16 &convert=BbTotalSellFlag($$);
+    total_buy_quantity: int64;
+    total_sell_quantity: int64;
+    mbp_indicator: bitfield(16) {
+        reserved_112: 0..11;
+        sell: 12;
+        buy: 13;
+        last_trade_less: 14;
+        last_trade_more: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    closing_price: int32;
+    open_price: int32;
+    high_price: int32;
+    low_price: int32;
+    indicative_close_price: int32;
+};
+
+type MarketWatchRoundRobinMessage = unit {
+    number_of_records: int16;
+    marketwatchbroadcast: Marketwatchbroadcast[4];
+};
+
+type Marketwatchbroadcast = unit {
+    token_long_4: int32;
+    market_wise_information: MarketWiseInformation[3];
+};
+
+type MarketWiseInformation = unit {
+    mbo_mbp_indicator: bitfield(16) {
+        reserved_112: 0..11;
+        sell: 12;
+        buy: 13;
+        last_trade_less: 14;
+        last_trade_more: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    buy_volume: int64;
+    buy_price: int32;
+    sell_volume: int64;
+    sell_price: int32;
+    last_trade_price: int32;
+    last_trade_time: int32;
+};
+
+type CallAuctionMarketByPriceMessage = unit {
+    no_of_records: int16;
+    interactive_call_auction_mbp_data: InteractiveCallAuctionMbpData[2];
+};
+
+type InteractiveCallAuctionMbpData = unit {
+    token_long_4: int32;
+    book_type: int16;
+    trading_status: int16 &convert=TradingStatus($$);
+    volume_traded_today: int64;
+    indicative_traded_qty: int64;
+    last_traded_price: int32;
+    net_change_indicator: uint8 &convert=NetChangeIndicator($$);
+    filler_1: bytes &size=1;
+    net_price_change_from_closing_price: int32;
+    last_trade_quantity: int32;
+    last_trade_time: int32;
+    average_trade_price: int32;
+    first_open_price: int32;
+    mbp_information: MbpInformation[10];
+    bb_total_buy_flag: int16 &convert=BbTotalBuyFlag($$);
+    bb_total_sell_flag: int16 &convert=BbTotalSellFlag($$);
+    total_buy_quantity: int64;
+    total_sell_quantity: int64;
+    mbp_indicator: bitfield(16) {
+        reserved_112: 0..11;
+        sell: 12;
+        buy: 13;
+        last_trade_less: 14;
+        last_trade_more: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    closing_price: int32;
+    open_price: int32;
+    high_price: int32;
+    low_price: int32;
+};
+
+type CallAuctionMarketWatchMessage = unit {
+    no_of_records: int16;
+    ca_marketwatchbroadcast: CaMarketwatchbroadcast[11];
+};
+
+type CaMarketwatchbroadcast = unit {
+    token_long_4: int32;
+    mkt_type: int16 &convert=MktType($$);
+    mbo_mbp_indicator: bitfield(16) {
+        reserved_112: 0..11;
+        sell: 12;
+        buy: 13;
+        last_trade_less: 14;
+        last_trade_more: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    buy_volume: int64;
+    buy_price: int32;
+    sell_volume: int64;
+    sell_price: int32;
+    last_trade_price: int32;
+    last_trade_time: int32;
+};
+
+type SecurityOpenPriceMessage = unit {
+    sec_info: SecInfo;
+    token_short_2: int16;
+    opening_price: int32;
+};
+
+type IndicesMessage = unit {
+    number_of_records: int16;
+    indices: Indices[6];
+};
+
+type Indices = unit {
+    index_name: bytes &size=21;
+    index_value: int32;
+    high_index_value: int32;
+    low_index_value: int32;
+    opening_index: int32;
+    closing_index: int32;
+    percent_change: int32;
+    yearly_high: int32;
+    yearly_low: int32;
+    no_of_upmoves: int32;
+    no_of_downmoves: int32;
+    market_capitalisation: bytes &size=8;
+    net_change_indicator: uint8 &convert=NetChangeIndicator($$);
+    filler_1: bytes &size=1;
+};
+
+type IndicativeIndicesMessage = unit {
+    number_of_records: int16;
+    indicative_indices: IndicativeIndices[6];
+};
+
+type IndicativeIndices = unit {
+    index_name: bytes &size=21;
+    indicative_close_value: int32;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    closing_index: int32;
+    percent_change: int32;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=4;   # padding
+    change: int32;
+    : skip bytes &size=4;   # padding
+    market_capitalization: bytes &size=8;
+    net_change_indicator: uint8 &convert=NetChangeIndicator($$);
+    filler_1: bytes &size=1;
+};
+
+type IndicesVixMessage = unit {
+    number_of_records: int16;
+    indices: Indices[6];
+};
+
+type IndustryIndicesMessage = unit {
+    number_of_records: int16;
+    industry_indices: IndustryIndices[17];
+};
+
+type IndustryIndices = unit {
+    industry_name: bytes &size=21;
+    index_value: int32;
+};
+
+type BuyBackMessage = unit {
+    number_of_records: int16;
+    buybackdata: Buybackdata[6];
+};
+
+type Buybackdata = unit {
+    token_long_4: int32;
+    symbol: bytes &size=10;
+    series: bytes &size=2;
+    pday_cum_vol: bytes &size=8;
+    pday_high_price: int32;
+    pday_low_price: int32;
+    pday_wt_avg: int32;
+    cday_cum_vol: bytes &size=8;
+    cday_high_price: int32;
+    cday_low_price: int32;
+    cday_wt_avg: int32;
+    start_date: int32;
+    end_date: int32;
+};
+
+type CallAuctionOrderCancelUpdateMessage = unit {
+    no_of_records: int16;
+    interactive_ord_cxl_details: InteractiveOrdCxlDetails[8];
+};
+
+type InteractiveOrdCxlDetails = unit {
+    token_long_4: int32;
+    filler_4: bytes &size=4;
+    buy_ord_cxl_count: int64;
+    buy_ord_cxl_vol: int64;
+    sell_ord_cxl_count: int64;
+    sell_ord_cxl_vol: int64;
+    : skip bytes &size=16;   # padding
+};
+
+type CasReferencePriceMessage = unit {
+    number_of_records: int16;
+    token_and_refprice: TokenAndRefprice[20];
+};
+
+type TokenAndRefprice = unit {
+    sec_info: SecInfo;
+    token_long_4: int32;
+    reference_price: int32;
+};
+
+type TransactionCode = enum {
+    BroadcastJournalVctMessage = 6501,
+    SecurityMasterChangeMessage = 18720,
+    ParticipantMasterChangeMessage = 7306,
+    SecurityStatusChangeMessage = 18130,
+    SecurityStatusChangePreopenMessage = 18707,
+    TurnoverExceededMessage = 9010,
+    BrokerReactivatedMessage = 9011,
+    AuctionInquiryMessage = 18700,
+    AuctionStatusChangeMessage = 6581,
+    PreopenShutdownMessage = 6531,
+    PreopenMarketOrderRestrictedMessage = 6664,
+    NormalMarketPreopenEndedMessage = 6571,
+    MarketOpenMessage = 6511,
+    CtsCloseForCasMessage = 6651,
+    RevisedPriceBandCompletedMessage = 6652,
+    CasStartMessage = 6653,
+    MarketOrderRestrictedMessage = 6654,
+    CasEndMessage = 6655,
+    MarketCloseMessage = 6521,
+    ClosingStartMessage = 6583,
+    ClosingEndMessage = 6584,
+    SymbolStatusChangeActionMessage = 7764,
+    TickerAndMarketIndexMessage = 18703,
+    MarketByOrderAndMarketByPriceMessage = 7200,
+    OnlyMarketByPriceMessage = 7208,
+    MarketWatchRoundRobinMessage = 7201,
+    CallAuctionMarketByPriceMessage = 7214,
+    CallAuctionMarketWatchMessage = 7215,
+    SecurityOpenPriceMessage = 6013,
+    CircuitCheckMessage = 6541,
+    IndicesMessage = 7207,
+    IndicativeIndicesMessage = 8207,
+    IndicesVixMessage = 7216,
+    IndustryIndicesMessage = 7203,
+    BuyBackMessage = 18708,
+    CallAuctionOrderCancelUpdateMessage = 7210,
+    CasReferencePriceMessage = 7338,
+};
+
+type InstrumentType = enum {
+    Equities = 0,
+    PreferenceShares = 1,
+    Debentures = 2,
+    Warrants = 3,
+    Miscellaneous = 4,
+};
+
+type PermittedToTrade = enum {
+    ListedButNotPermittedToTrade = 0,
+    PermittedToTrade_1 = 1,
+    BseListed = 2,
+};
+
+type SettlementType = enum {
+    TPlusZeroSettlement = 0,
+    TPlusOneSettlement = 1,
+};
+
+type Status = enum {
+    Preopen = 1,
+    Open = 2,
+    Suspended = 3,
+    PreopenExtended = 4,
+    PriceDiscovery = 6,
+};
+
+type ParticipantStatus = enum {
+    Suspended = 0x53,
+    Active = 0x41,
+};
+
+type WarningType = enum {
+    TurnoverLimitAboutToBeExceeded = 1,
+    TurnoverLimitExceededAndTheBrokerDeactivated = 2,
+};
+
+type MarketType = enum {
+    Normal = 1,
+    OddLot = 2,
+    Spot = 3,
+    Auction = 4,
+    CallAuctionOne = 5,
+    CallAuctionTwo = 6,
+};
+
+type ActionCodeShort2 = enum {
+    SecurityPreopened = 6531,
+    SecurityPreopenPeriodEnded = 6571,
+    SecurityOpened = 6511,
+    SecurityClosed = 6521,
+    SecurityClosingSessionOpened = 6583,
+    SecurityClosingSessionClosed = 6584,
+    NormalMarketClosedForSecuritiesParticipatingInTheClosingAuctionSession = 6651,
+    PriceBandOfSecuritiesRevisedForTheClosingAuctionSession = 6652,
+    ClosingAuctionSessionStarted = 6653,
+    MarketOrdersRestrictedForTheClosingAuctionSession = 6654,
+    ClosingAuctionSessionEnded = 6655,
+};
+
+type TradingStatus = enum {
+    Preopen = 1,
+    Open = 2,
+    Suspended = 3,
+    PreopenExtended = 4,
+    PriceDiscovery = 6,
+};
+
+type NetChangeIndicator = enum {
+    Increase = 0x2b,
+    Decrease = 0x2d,
+};
+
+type BbBuySellFlag = enum {
+    NoBuybackOrderAndNoMarketMakerOrder = 0,
+    BuybackOrder = 1,
+    MarketMakerOrder = 2,
+    BuybackOrderAndMarketMakerOrder = 3,
+};
+
+type BbTotalBuyFlag = enum {
+    NoBuybackOrderAndNoMarketMakerOrder = 0,
+    BuybackOrder = 1,
+    MarketMakerOrder = 2,
+    BuybackOrderAndMarketMakerOrder = 3,
+};
+
+type BbTotalSellFlag = enum {
+    NoBuybackOrderAndNoMarketMakerOrder = 0,
+    BuybackOrder = 1,
+    MarketMakerOrder = 2,
+    BuybackOrderAndMarketMakerOrder = 3,
+};
+
+type MktType = enum {
+    CallAuctionOne = 5,
+    CallAuctionTwo = 6,
+};
+

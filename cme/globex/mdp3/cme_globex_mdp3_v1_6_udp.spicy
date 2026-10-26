@@ -15,16 +15,20 @@ type BinaryPacketHeader = unit {
 };
 
 type Message = unit {
-    message_size: uint16;
     message_header: MessageHeader;
-    switch ( self.message_header.schema_id ) {
-        SchemaId::Mktdata -> mktdata_message: MktdataMessage(self.message_header.template_id);
-        SchemaId::Mdpsessionmgmt -> mdpsessionmgmt_message: MdpsessionmgmtMessage(self.message_header.template_id);
+    switch ( self.message_header.simple_binary_header.schema_id ) {
+        SchemaId::Mktdata -> mktdata_message: MktdataMessage(self.message_header.simple_binary_header.template_id);
+        SchemaId::Mdpsessionmgmt -> mdpsessionmgmt_message: MdpsessionmgmtMessage(self.message_header.simple_binary_header.template_id);
         * -> unknown: bytes &eod;
     };
 };
 
 type MessageHeader = unit {
+    message_size: uint16;
+    simple_binary_header: SimpleBinaryHeader;
+};
+
+type SimpleBinaryHeader = unit {
     block_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
     schema_id: uint16 &convert=SchemaId($$);

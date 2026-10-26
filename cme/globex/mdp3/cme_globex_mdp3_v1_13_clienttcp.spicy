@@ -17,12 +17,11 @@ type ClientTechnicalHeader = unit {
     encoding_type: uint16;
     message_sequence_number: uint32;
     tcp_sending_time: uint64;
-    tcp_message_size: uint16;
 };
 
 type ClientTcpMessage = unit {
     message_header: MessageHeader;
-    switch ( self.message_header.template_id ) {
+    switch ( self.message_header.simple_binary_header.template_id ) {
         TemplateId::Negotiate -> negotiate: Negotiate;
         TemplateId::Terminate -> terminate: Terminate;
         TemplateId::MarketDataRequest -> market_data_request: MarketDataRequest;
@@ -33,6 +32,11 @@ type ClientTcpMessage = unit {
 };
 
 type MessageHeader = unit {
+    message_size: uint16;
+    simple_binary_header: SimpleBinaryHeader;
+};
+
+type SimpleBinaryHeader = unit {
     block_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
     schema_id: uint16 &convert=SchemaId($$);

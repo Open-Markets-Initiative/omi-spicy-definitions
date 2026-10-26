@@ -9,11 +9,15 @@ public type OnyxfuturesHeaderonlyV10 = unit {
 };
 
 type MachMessage = unit {
+    mach_packet_header: MachPacketHeader;
+    payload: ApplicationMessage(self.mach_packet_header.packet_length);
+};
+
+type MachPacketHeader = unit {
     sequence_number: uint64;
     packet_length: uint16;
     packet_type: uint8 &convert=PacketType($$);
     session_number: uint8;
-    payload: ApplicationMessage(self.packet_length);
 };
 
 type ApplicationMessage = unit(packet_length: uint16) {

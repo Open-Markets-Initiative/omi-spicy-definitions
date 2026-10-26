@@ -17,12 +17,11 @@ type ServerTechnicalHeader = unit {
     encoding_type: uint16;
     message_sequence_number: uint32;
     tcp_sending_time: uint64;
-    tcp_message_size: uint16;
 };
 
 type ServerTcpMessage = unit {
     message_header: MessageHeader;
-    switch ( self.message_header.template_id ) {
+    switch ( self.message_header.simple_binary_header.template_id ) {
         TemplateId::ChannelReset -> channel_reset: ChannelReset;
         TemplateId::AdminLogin -> admin_login: AdminLogin;
         TemplateId::AdminLogout -> admin_logout: AdminLogout;
@@ -55,6 +54,11 @@ type ServerTcpMessage = unit {
 };
 
 type MessageHeader = unit {
+    message_size: uint16;
+    simple_binary_header: SimpleBinaryHeader;
+};
+
+type SimpleBinaryHeader = unit {
     block_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
     schema_id: uint16 &convert=SchemaId($$);

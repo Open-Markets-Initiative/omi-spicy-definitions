@@ -1,0 +1,228 @@
+module MoexSpectraFutinfoincrementalSimbaV9120;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SpectraFutinfoincrementalV9120 = unit {
+    market_data_packet_header: MarketDataPacketHeader;
+    incremental_packet_header: IncrementalPacketHeader;
+    message: Message[] &eod;
+};
+
+type MarketDataPacketHeader = unit {
+    msg_seq_num: uint32;
+    msg_size: uint16;
+    msg_flags: bitfield(16) {
+        last_fragment: 0;
+        start_of_snapshot: 1;
+        end_of_snapshot: 2;
+        incremental_packet: 3;
+        poss_dup_flag: 4;
+        reserved_bits: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    sending_time: uint64;
+};
+
+type IncrementalPacketHeader = unit {
+    transact_time: uint64;
+    exchange_trading_session_id: uint32;
+};
+
+type Message = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        TemplateId::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
+        TemplateId::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        TemplateId::DiscreteAuctionMessage -> discrete_auction_message: DiscreteAuctionMessage;
+        TemplateId::SecurityMassStatusMessage -> security_mass_status_message: SecurityMassStatusMessage;
+        TemplateId::SecurityGroupStatusMessage -> security_group_status_message: SecurityGroupStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type SecurityStatusMessage = unit {
+    security_id: int32;
+    symbol: bytes &size=25;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    high_limit_px: int64;
+    low_limit_px: int64;
+    initial_margin_on_buy: int64;
+    initial_margin_on_sell: int64;
+    initial_margin_syntetic: int64;
+    high_limit_px_weekend: int64;
+    low_limit_px_weekend: int64;
+};
+
+type TradingSessionStatusMessage = unit {
+    trad_ses_open_time: uint64;
+    trad_ses_close_time: uint64;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    exchange_trading_session_id_int_32_null_optional: int32;
+    trad_ses_status: uint8 &convert=TradSesStatus($$);
+    market_segment_id: uint8 &convert=MarketSegmentId($$);
+    trad_ses_event: uint8 &convert=TradSesEvent($$);
+    trade_period_id: int64;
+    settl_sess_begin: uint64;
+    clr_sess_begin: uint64;
+};
+
+type DiscreteAuctionMessage = unit {
+    trad_ses_open_time: uint64;
+    trad_ses_close_time_from: uint64;
+    trad_ses_close_time_till: uint64;
+    auction_id: int64;
+    exchange_trading_session_id_int_32: int32;
+    event_id_open: int32;
+    event_id_close: int32;
+    trade_period_id: int64;
+    discrete_auction_message_no_underlyings_groups: DiscreteAuctionMessageNoUnderlyingsGroups;
+};
+
+type DiscreteAuctionMessageNoUnderlyingsGroups = unit {
+    group_size: GroupSize;
+    discrete_auction_message_no_underlyings_group: DiscreteAuctionMessageNoUnderlyingsGroup[self.group_size.num_in_group_uint_8];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group_uint_8: uint8;
+};
+
+type DiscreteAuctionMessageNoUnderlyingsGroup = unit {
+    underlying_symbol_text: UnderlyingSymbolText;
+};
+
+type UnderlyingSymbolText = unit {
+    underlying_symbol_text_length: uint16;
+    underlying_symbol_text_data: bytes &size=self.underlying_symbol_text_length;
+};
+
+type SecurityMassStatusMessage = unit {
+    security_mass_status_message_no_related_sym_groups: SecurityMassStatusMessageNoRelatedSymGroups;
+};
+
+type SecurityMassStatusMessageNoRelatedSymGroups = unit {
+    group_size_2: GroupSize2;
+    security_mass_status_message_no_related_sym_group: SecurityMassStatusMessageNoRelatedSymGroup[self.group_size_2.num_in_group_uint_16];
+};
+
+type GroupSize2 = unit {
+    block_length: uint16;
+    num_in_group_uint_16: uint16;
+};
+
+type SecurityMassStatusMessageNoRelatedSymGroup = unit {
+    security_id: int32;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+};
+
+type SecurityGroupStatusMessage = unit {
+    security_group_id: int64;
+    halt_type: uint8 &convert=HaltType($$);
+    trade_mode_mask: int32;
+    group_mask_int_64_null_optional: int64;
+    section_id_int_32_null_optional: int32;
+    base_contract_id_int_32_null_optional: int32;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    status_change_time: uint64;
+};
+
+type LastFragment = enum {
+    Fragment = 0,
+    LastFragment_1 = 1,
+};
+
+type IncrementalPacket = enum {
+    SnapshotPacket = 0,
+    IncrementalPacket_1 = 1,
+};
+
+type PossDupFlag = enum {
+    OnlineUpdates = 0,
+    FullOrderBooks = 1,
+};
+
+type TemplateId = enum {
+    HeartbeatMessage = 1,
+    SequenceResetMessage = 2,
+    BestPricesMessage = 14,
+    EmptyBookMessage = 4,
+    OrderUpdateMessage = 15,
+    OrderExecutionMessage = 16,
+    OrderBookSnapshotMessage = 17,
+    SecurityDefinitionMessage = 29,
+    SecurityStatusMessage = 28,
+    SecurityDefinitionUpdateReportMessage = 10,
+    TradingSessionStatusMessage = 26,
+    DiscreteAuctionMessage = 24,
+    SecurityMassStatusMessage = 19,
+    SecurityGroupStatusMessage = 22,
+    LogonMessage = 1000,
+    LogoutMessage = 1001,
+    MarketDataRequestMessage = 1002,
+    MarketDataDummyMessage = 1003,
+};
+
+type SecurityTradingStatus = enum {
+    TradingHalt = 2,
+    ReadyToTrade = 17,
+    NotAvailableForTrading = 18,
+    NotTradedOnThisMarket = 19,
+    UnknownOrInvalid = 20,
+    PreOpen = 21,
+    DiscreteAuctionOpen = 119,
+    DiscreteAuctionClose = 121,
+    InstrumentHalt = 122,
+    ClosePosition = 123,
+    DiscreteAuctionClosePosition = 124,
+};
+
+type TradingSessionId = enum {
+    Day = 1,
+    Morning = 3,
+    Evening = 5,
+    Weekend = 100,
+};
+
+type TradSesStatus = enum {
+    Halted = 1,
+    Open = 2,
+    Closed = 3,
+    PreOpen = 4,
+};
+
+type MarketSegmentId = enum {
+    Derivatives = 0x44,
+};
+
+type TradSesEvent = enum {
+    TradingResumes = 0,
+    ChangeOfTradingSession = 1,
+    ChangeOfTradingStatus = 3,
+};
+
+type HaltType = enum {
+    EmptyHalts = 0,
+    Session = 1,
+    Section = 2,
+    SectionAndTradeMode = 3,
+    FutBaseContract = 4,
+    InstrumentsFromTradeMode = 5,
+    InstrumentsFromTradeModeAndFutBaseContract = 6,
+    GroupInstruments = 7,
+    GroupInstrumentsAndFutBaseContract = 8,
+};
+

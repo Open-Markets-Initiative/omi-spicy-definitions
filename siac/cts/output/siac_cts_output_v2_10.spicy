@@ -252,20 +252,20 @@ type CrossingSessionSummaryMessage = unit {
     message_id: uint8;
     transaction_id: uint32;
     participant_reference_number: int64;
-    crossing_session_1_total_trades_volume: uint64;
-    crossing_session_2_dollar_value: uint64;
-    crossing_session_2_total_trades_volume: uint64;
+    crossing_session_i_total_trades_volume: uint64;
+    crossing_session_ii_dollar_value: uint64;
+    crossing_session_ii_total_trades_volume: uint64;
 };
 
 type PriorDayMessage = unit {
-    prior_day_message_type: uint8;
+    prior_day_message_type: uint8 &convert=PriorDayMessageType($$);
     switch ( self.prior_day_message_type ) {
-        0x43 -> prior_day_trade_correction_message: PriorDayTradeCorrectionMessage;
-        0x4f -> fractional_prior_day_trade_correction_message: FractionalPriorDayTradeCorrectionMessage;
-        0x54 -> prior_day_trade_message: PriorDayTradeMessage;
-        0x52 -> fractional_prior_day_trade_message: FractionalPriorDayTradeMessage;
-        0x58 -> prior_day_trade_cancel_error_message: PriorDayTradeCancelErrorMessage;
-        0x45 -> fractional_prior_day_trade_cancel_error_message: FractionalPriorDayTradeCancelErrorMessage;
+        PriorDayMessageType::PriorDayTradeCorrectionMessage -> prior_day_trade_correction_message: PriorDayTradeCorrectionMessage;
+        PriorDayMessageType::FractionalPriorDayTradeCorrectionMessage -> fractional_prior_day_trade_correction_message: FractionalPriorDayTradeCorrectionMessage;
+        PriorDayMessageType::PriorDayTradeMessage -> prior_day_trade_message: PriorDayTradeMessage;
+        PriorDayMessageType::FractionalPriorDayTradeMessage -> fractional_prior_day_trade_message: FractionalPriorDayTradeMessage;
+        PriorDayMessageType::PriorDayTradeCancelErrorMessage -> prior_day_trade_cancel_error_message: PriorDayTradeCancelErrorMessage;
+        PriorDayMessageType::FractionalPriorDayTradeCancelErrorMessage -> fractional_prior_day_trade_cancel_error_message: FractionalPriorDayTradeCancelErrorMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -917,7 +917,7 @@ type IndicesMessageType = enum {
 };
 
 type MarketStatusMessageType = enum {
-    MarketWideCircuitBreakerDeclineLevelStatusMessage = 0x4d,
+    MarketWideCircuitBreakerDeclineLevelStatusMessage = 0x4b,
     MarketWideCircuitBreakerStatusMessage = 0x4c,
     ApproximateAdjustedVolumeMarketCenterMessage = 0x4e,
     FractionalApproximateAdjustedVolumeMarketCenterMessage = 0x56,
@@ -935,10 +935,10 @@ type MarketWideCircuitBreakerLevelIndicator = enum {
 type PriorDayMessageType = enum {
     PriorDayTradeCorrectionMessage = 0x43,
     FractionalPriorDayTradeCorrectionMessage = 0x4f,
-    PriorDayTradeMessage = 0x4c,
+    PriorDayTradeMessage = 0x54,
     FractionalPriorDayTradeMessage = 0x52,
-    PriorDayTradeMessage_x58 = 0x58,
-    FractionalPriorDayTradeMessage_x45 = 0x45,
+    PriorDayTradeCancelErrorMessage = 0x58,
+    FractionalPriorDayTradeCancelErrorMessage = 0x45,
 };
 
 type InstrumentType = enum {

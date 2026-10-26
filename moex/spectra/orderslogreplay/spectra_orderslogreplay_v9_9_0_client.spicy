@@ -1,0 +1,90 @@
+module MoexSpectraOrderslogreplaySimbaV990Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SpectraOrderslogreplayV990 = unit {
+    client_frame: ClientFrame[] &eod;
+};
+
+type ClientFrame = unit {
+    market_data_packet_header: MarketDataPacketHeader;
+    client_message: ClientMessage;
+};
+
+type MarketDataPacketHeader = unit {
+    msg_seq_num: uint32;
+    msg_size: uint16;
+    msg_flags: bitfield(16) {
+        last_fragment: 0;
+        start_of_snapshot: 1;
+        end_of_snapshot: 2;
+        incremental_packet: 3;
+        poss_dup_flag: 4;
+        reserved_bits: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    sending_time: uint64;
+};
+
+type ClientMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::LogoutMessage -> logout_message: LogoutMessage;
+        TemplateId::MarketDataRequestMessage -> market_data_request_message: MarketDataRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type LogoutMessage = unit {
+    text: bytes &size=256;
+};
+
+type MarketDataRequestMessage = unit {
+    appl_beg_seq_num: uint32;
+    appl_end_seq_num: uint32;
+};
+
+type LastFragment = enum {
+    Fragment = 0,
+    LastFragment_1 = 1,
+};
+
+type IncrementalPacket = enum {
+    SnapshotPacket = 0,
+    IncrementalPacket_1 = 1,
+};
+
+type PossDupFlag = enum {
+    OnlineUpdates = 0,
+    FullOrderBooks = 1,
+};
+
+type TemplateId = enum {
+    HeartbeatMessage = 1,
+    SequenceResetMessage = 2,
+    BestPricesMessage = 14,
+    EmptyBookMessage = 4,
+    OrderUpdateMessage = 15,
+    OrderExecutionMessage = 16,
+    OrderBookSnapshotMessage = 17,
+    SecurityDefinitionMessage = 27,
+    SecurityStatusMessage = 28,
+    SecurityDefinitionUpdateReportMessage = 10,
+    TradingSessionStatusMessage = 26,
+    DiscreteAuctionMessage = 24,
+    SecurityMassStatusMessage = 19,
+    SecurityGroupStatusMessage = 22,
+    LogonMessage = 1000,
+    LogoutMessage = 1001,
+    MarketDataRequestMessage = 1002,
+    MarketDataDummyMessage = 1003,
+};
+

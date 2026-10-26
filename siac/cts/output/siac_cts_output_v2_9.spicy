@@ -236,17 +236,17 @@ type CrossingSessionSummaryMessage = unit {
     message_id: uint8;
     transaction_id: uint32;
     participant_reference_number: int64;
-    crossing_session_1_total_trades_volume: uint64;
-    crossing_session_2_dollar_value: uint64;
-    crossing_session_2_total_trades_volume: uint64;
+    crossing_session_i_total_trades_volume: uint64;
+    crossing_session_ii_dollar_value: uint64;
+    crossing_session_ii_total_trades_volume: uint64;
 };
 
 type PriorDayMessage = unit {
-    prior_day_message_type: uint8;
+    prior_day_message_type: uint8 &convert=PriorDayMessageType($$);
     switch ( self.prior_day_message_type ) {
-        0x43 -> prior_day_trade_correction_message: PriorDayTradeCorrectionMessage;
-        0x54 -> prior_day_trade_message: PriorDayTradeMessage;
-        0x58 -> prior_day_trade_cancel_error_message: PriorDayTradeCancelErrorMessage;
+        PriorDayMessageType::PriorDayTradeCorrectionMessage -> prior_day_trade_correction_message: PriorDayTradeCorrectionMessage;
+        PriorDayMessageType::PriorDayTradeMessage -> prior_day_trade_message: PriorDayTradeMessage;
+        PriorDayMessageType::PriorDayTradeCancelErrorMessage -> prior_day_trade_cancel_error_message: PriorDayTradeCancelErrorMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -636,7 +636,7 @@ type IndicesMessageType = enum {
 };
 
 type MarketStatusMessageType = enum {
-    MarketWideCircuitBreakerDeclineLevelStatusMessage = 0x4d,
+    MarketWideCircuitBreakerDeclineLevelStatusMessage = 0x4b,
     MarketWideCircuitBreakerStatusMessage = 0x4c,
     ApproximateAdjustedVolumeMarketCenterMessage = 0x4e,
     ApproximateTradesAndTotalDollarValueMessage = 0x4f,
@@ -652,8 +652,8 @@ type MarketWideCircuitBreakerLevelIndicator = enum {
 
 type PriorDayMessageType = enum {
     PriorDayTradeCorrectionMessage = 0x43,
-    PriorDayTradeMessage = 0x4c,
-    PriorDayTradeMessage_x58 = 0x58,
+    PriorDayTradeMessage = 0x54,
+    PriorDayTradeCancelErrorMessage = 0x58,
 };
 
 type InstrumentType = enum {

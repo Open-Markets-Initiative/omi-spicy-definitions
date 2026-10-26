@@ -1,0 +1,307 @@
+module MoexSpectraOrderslogreplaySimbaV9120Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SpectraOrderslogreplayV9120 = unit {
+    server_frame: ServerFrame[] &eod;
+};
+
+type ServerFrame = unit {
+    market_data_packet_header: MarketDataPacketHeader;
+    switch ( self.market_data_packet_header.msg_flags.incremental_packet ) {
+        IncrementalPacket::SnapshotPacket -> server_session: ServerSession;
+        IncrementalPacket::IncrementalPacket_1 -> server_replay: ServerReplay;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MarketDataPacketHeader = unit {
+    msg_seq_num: uint32;
+    msg_size: uint16;
+    msg_flags: bitfield(16) {
+        last_fragment: 0;
+        start_of_snapshot: 1;
+        end_of_snapshot: 2;
+        incremental_packet: 3;
+        poss_dup_flag: 4;
+        reserved_bits: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    sending_time: uint64;
+};
+
+type ServerSession = unit {
+    sbe_header: SbeHeader;
+    server_session_payload: LogoutMessage;
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type LogoutMessage = unit {
+    text: bytes &size=256;
+};
+
+type ServerReplay = unit {
+    incremental_packet_header: IncrementalPacketHeader;
+    server_replay_message: ServerReplayMessage[] &eod;
+};
+
+type IncrementalPacketHeader = unit {
+    transact_time: uint64;
+    exchange_trading_session_id: uint32;
+};
+
+type ServerReplayMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::BestPricesMessage -> best_prices_message: BestPricesMessage;
+        TemplateId::EmptyBookMessage -> empty_book_message: EmptyBookMessage;
+        TemplateId::OrderUpdateMessage -> order_update_message: OrderUpdateMessage;
+        TemplateId::OrderExecutionMessage -> order_execution_message: OrderExecutionMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type BestPricesMessage = unit {
+    best_prices_message_no_m_d_entries_groups: BestPricesMessageNoMDEntriesGroups;
+};
+
+type BestPricesMessageNoMDEntriesGroups = unit {
+    group_size: GroupSize;
+    best_prices_message_no_m_d_entries_group: BestPricesMessageNoMDEntriesGroup[self.group_size.num_in_group_uint_8];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group_uint_8: uint8;
+};
+
+type BestPricesMessageNoMDEntriesGroup = unit {
+    mkt_bid_px: int64;
+    mkt_offer_px: int64;
+    mkt_bid_size: int64;
+    mkt_offer_size: int64;
+    security_id: int32;
+};
+
+type EmptyBookMessage = unit {
+    last_msg_seq_num_processed_u_int_32_null_optional: uint32;
+};
+
+type OrderUpdateMessage = unit {
+    md_entry_id_int_64: int64;
+    md_entry_px_decimal_5: int64;
+    md_entry_size_int_64: int64;
+    md_flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        non_quote: 2;
+        unused_md_flags_set_3: 3;
+        unused_md_flags_set_4: 4;
+        unused_md_flags_set_5: 5;
+        unused_md_flags_set_6: 6;
+        unused_md_flags_set_7: 7;
+        unused_md_flags_set_8: 8;
+        unused_md_flags_set_9: 9;
+        unused_md_flags_set_10: 10;
+        unused_md_flags_set_11: 11;
+        end_of_transaction: 12;
+        due_to_cross_cancel: 13;
+        second_leg: 14;
+        unused_md_flags_set_15: 15;
+        unused_md_flags_set_16: 16;
+        unused_md_flags_set_17: 17;
+        unused_md_flags_set_18: 18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_md_flags_set_23: 23;
+        unused_md_flags_set_24: 24;
+        unused_md_flags_set_25: 25;
+        negotiated: 26;
+        multi_leg: 27;
+        unused_md_flags_set_28: 28;
+        cross_trade: 29;
+        unused_md_flags_set_30: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_md_flags_set_33: 33;
+        unused_md_flags_set_34: 34;
+        unused_md_flags_set_35: 35;
+        unused_md_flags_set_36: 36;
+        unused_md_flags_set_37: 37;
+        unused_md_flags_set_38: 38;
+        unused_md_flags_set_39: 39;
+        unused_md_flags_set_40: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_md_flags_set_43: 43;
+        unused_md_flags_set_44: 44;
+        synthetic: 45;
+        rfs: 46;
+        unused_md_flags_set_47: 47;
+        unused_md_flags_set_48: 48;
+        unused_md_flags_set_49: 49;
+        unused_md_flags_set_50: 50;
+        unused_md_flags_set_51: 51;
+        unused_md_flags_set_52: 52;
+        unused_md_flags_set_53: 53;
+        unused_md_flags_set_54: 54;
+        unused_md_flags_set_55: 55;
+        unused_md_flags_set_56: 56;
+        synthetic_passive: 57;
+        unused_md_flags_set_58: 58;
+        unused_md_flags_set_59: 59;
+        boc: 60;
+        unused_md_flags_set_61: 61;
+        during_discrete_auction: 62;
+        unused_md_flags_set_63: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    md_flags_2: bitfield(64) {
+        zero: 0;
+        reserved_63: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    security_id: int32;
+    rpt_seq: uint32;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type: uint8 &convert=MdEntryType($$);
+};
+
+type OrderExecutionMessage = unit {
+    md_entry_id_int_64: int64;
+    md_entry_px_decimal_5_null_optional: int64;
+    md_entry_size_int_64_null_optional: int64;
+    last_px: int64;
+    last_qty: int64;
+    trade_id_int_64: int64;
+    md_flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        non_quote: 2;
+        unused_md_flags_set_3: 3;
+        unused_md_flags_set_4: 4;
+        unused_md_flags_set_5: 5;
+        unused_md_flags_set_6: 6;
+        unused_md_flags_set_7: 7;
+        unused_md_flags_set_8: 8;
+        unused_md_flags_set_9: 9;
+        unused_md_flags_set_10: 10;
+        unused_md_flags_set_11: 11;
+        end_of_transaction: 12;
+        due_to_cross_cancel: 13;
+        second_leg: 14;
+        unused_md_flags_set_15: 15;
+        unused_md_flags_set_16: 16;
+        unused_md_flags_set_17: 17;
+        unused_md_flags_set_18: 18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_md_flags_set_23: 23;
+        unused_md_flags_set_24: 24;
+        unused_md_flags_set_25: 25;
+        negotiated: 26;
+        multi_leg: 27;
+        unused_md_flags_set_28: 28;
+        cross_trade: 29;
+        unused_md_flags_set_30: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_md_flags_set_33: 33;
+        unused_md_flags_set_34: 34;
+        unused_md_flags_set_35: 35;
+        unused_md_flags_set_36: 36;
+        unused_md_flags_set_37: 37;
+        unused_md_flags_set_38: 38;
+        unused_md_flags_set_39: 39;
+        unused_md_flags_set_40: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_md_flags_set_43: 43;
+        unused_md_flags_set_44: 44;
+        synthetic: 45;
+        rfs: 46;
+        unused_md_flags_set_47: 47;
+        unused_md_flags_set_48: 48;
+        unused_md_flags_set_49: 49;
+        unused_md_flags_set_50: 50;
+        unused_md_flags_set_51: 51;
+        unused_md_flags_set_52: 52;
+        unused_md_flags_set_53: 53;
+        unused_md_flags_set_54: 54;
+        unused_md_flags_set_55: 55;
+        unused_md_flags_set_56: 56;
+        synthetic_passive: 57;
+        unused_md_flags_set_58: 58;
+        unused_md_flags_set_59: 59;
+        boc: 60;
+        unused_md_flags_set_61: 61;
+        during_discrete_auction: 62;
+        unused_md_flags_set_63: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    md_flags_2: bitfield(64) {
+        zero: 0;
+        reserved_63: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    security_id: int32;
+    rpt_seq: uint32;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type: uint8 &convert=MdEntryType($$);
+};
+
+type LastFragment = enum {
+    Fragment = 0,
+    LastFragment_1 = 1,
+};
+
+type IncrementalPacket = enum {
+    SnapshotPacket = 0,
+    IncrementalPacket_1 = 1,
+};
+
+type PossDupFlag = enum {
+    OnlineUpdates = 0,
+    FullOrderBooks = 1,
+};
+
+type TemplateId = enum {
+    HeartbeatMessage = 1,
+    SequenceResetMessage = 2,
+    BestPricesMessage = 14,
+    EmptyBookMessage = 4,
+    OrderUpdateMessage = 15,
+    OrderExecutionMessage = 16,
+    OrderBookSnapshotMessage = 17,
+    SecurityDefinitionMessage = 29,
+    SecurityStatusMessage = 28,
+    SecurityDefinitionUpdateReportMessage = 10,
+    TradingSessionStatusMessage = 26,
+    DiscreteAuctionMessage = 24,
+    SecurityMassStatusMessage = 19,
+    SecurityGroupStatusMessage = 22,
+    LogonMessage = 1000,
+    LogoutMessage = 1001,
+    MarketDataRequestMessage = 1002,
+    MarketDataDummyMessage = 1003,
+};
+
+type MdUpdateAction = enum {
+    New = 0,
+    Change = 1,
+    Delete = 2,
+};
+
+type MdEntryType = enum {
+    Bid = 0x30,
+    Offer = 0x31,
+    EmptyBook = 0x4a,
+};
+

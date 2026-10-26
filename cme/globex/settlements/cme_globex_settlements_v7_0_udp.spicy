@@ -15,9 +15,8 @@ type BinaryPacketHeader = unit {
 };
 
 type Message = unit {
-    message_size: uint16;
     message_header: MessageHeader;
-    switch ( self.message_header.template_id ) {
+    switch ( self.message_header.simple_binary_header.template_id ) {
         TemplateId::MdIncrementalRefreshSettle -> md_incremental_refresh_settle: MdIncrementalRefreshSettle;
         TemplateId::MdIncrementalRefreshVoi -> md_incremental_refresh_voi: MdIncrementalRefreshVoi;
         TemplateId::MdIncrementalRefreshHighLow -> md_incremental_refresh_high_low: MdIncrementalRefreshHighLow;
@@ -26,6 +25,11 @@ type Message = unit {
 };
 
 type MessageHeader = unit {
+    message_size: uint16;
+    simple_binary_header: SimpleBinaryHeader;
+};
+
+type SimpleBinaryHeader = unit {
     block_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
     schema_id: uint16;

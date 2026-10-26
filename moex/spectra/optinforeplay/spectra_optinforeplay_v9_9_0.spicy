@@ -1,0 +1,325 @@
+module MoexSpectraOptinforeplaySimbaV990;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SpectraOptinforeplayV990 = unit {
+    market_data_packet_header: MarketDataPacketHeader;
+    message: Message[] &eod;
+};
+
+type MarketDataPacketHeader = unit {
+    msg_seq_num: uint32;
+    msg_size: uint16;
+    msg_flags: bitfield(16) {
+        last_fragment: 0;
+        start_of_snapshot: 1;
+        end_of_snapshot: 2;
+        incremental_packet: 3;
+        poss_dup_flag: 4;
+        reserved_bits: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    sending_time: uint64;
+};
+
+type Message = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        TemplateId::SecurityDefinitionMessage -> security_definition_message: SecurityDefinitionMessage;
+        TemplateId::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        TemplateId::SecurityGroupStatusMessage -> security_group_status_message: SecurityGroupStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type SecurityDefinitionMessage = unit {
+    tot_num_reports: uint32;
+    symbol: bytes &size=25;
+    security_id: int32;
+    security_alt_id: bytes &size=25;
+    security_alt_id_source: uint8 &convert=SecurityAltIdSource($$);
+    security_type: bytes &size=4;
+    cfi_code: bytes &size=6;
+    strike_price: int64;
+    contract_multiplier: int32;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    currency: bytes &size=3;
+    market_segment_id: uint8 &convert=MarketSegmentId($$);
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    exchange_trading_session_id_int_32_null_optional: int32;
+    volatility: int64;
+    high_limit_px: int64;
+    low_limit_px: int64;
+    min_price_increment: int64;
+    min_price_increment_amount: int64;
+    initial_margin_on_buy: int64;
+    initial_margin_on_sell: int64;
+    initial_margin_syntetic: int64;
+    theor_price: int64;
+    theor_price_limit: int64;
+    underlying_qty: int64;
+    underlying_currency: bytes &size=3;
+    flags: bitfield(64) {
+        unused_flags_set_0: 0;
+        unused_flags_set_1: 1;
+        unused_flags_set_2: 2;
+        unused_flags_set_3: 3;
+        anonymous_trading: 4;
+        private_trading: 5;
+        unused_flags_set_6: 6;
+        unused_flags_set_7: 7;
+        multi_leg: 8;
+        unused_flags_set_9: 9;
+        unused_flags_set_10: 10;
+        unused_flags_set_11: 11;
+        unused_flags_set_12: 12;
+        unused_flags_set_13: 13;
+        unused_flags_set_14: 14;
+        unused_flags_set_15: 15;
+        unused_flags_set_16: 16;
+        unused_flags_set_17: 17;
+        collateral: 18;
+        intraday_exercise: 19;
+        reserved_44: 20..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    min_price_increment_amount_curr: int64;
+    settl_price_open: int64;
+    valuation_method: bytes &size=4;
+    risk_free_rate: bytes &size=8;
+    fixed_spot_discount: bytes &size=8;
+    projected_spot_discount: bytes &size=8;
+    settl_currency: bytes &size=3;
+    negative_prices: uint8 &convert=NegativePrices($$);
+    derivative_contract_multiplier: int32;
+    interest_rate_risk_up: bytes &size=8;
+    interest_rate_risk_down: bytes &size=8;
+    risk_free_rate_2: bytes &size=8;
+    interest_rate_2_risk_up: bytes &size=8;
+    interest_rate_2_risk_down: bytes &size=8;
+    settl_price: int64;
+    trade_mode_id: int32;
+    group_mask_int_64: int64;
+    section_id_int_32: int32;
+    base_contract_id_int_32: int32;
+    trade_period_access: bitfield(64) {
+        day_session: 0;
+        evening_session: 1;
+        weekend_session: 2;
+        morning_session: 3;
+        reserved_60: 4..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    high_limit_px_weekend: int64;
+    low_limit_px_weekend: int64;
+    clearing_settl_price: int64;
+    security_definition_message_no_m_d_feed_types_groups: SecurityDefinitionMessageNoMDFeedTypesGroups;
+    security_definition_message_no_underlyings_groups: SecurityDefinitionMessageNoUnderlyingsGroups;
+    security_definition_message_no_legs_groups: SecurityDefinitionMessageNoLegsGroups;
+    security_definition_message_no_instr_attrib_groups: SecurityDefinitionMessageNoInstrAttribGroups;
+    security_definition_message_no_events_groups: SecurityDefinitionMessageNoEventsGroups;
+    security_desc: SecurityDesc;
+    quotation_list: QuotationList;
+};
+
+type SecurityDefinitionMessageNoMDFeedTypesGroups = unit {
+    group_size: GroupSize;
+    security_definition_message_no_m_d_feed_types_group: SecurityDefinitionMessageNoMDFeedTypesGroup[self.group_size.num_in_group_uint_8];
+};
+
+type GroupSize = unit {
+    block_length: uint16;
+    num_in_group_uint_8: uint8;
+};
+
+type SecurityDefinitionMessageNoMDFeedTypesGroup = unit {
+    md_feed_type: bytes &size=25;
+    market_depth: uint32;
+    md_book_type: uint32;
+};
+
+type SecurityDefinitionMessageNoUnderlyingsGroups = unit {
+    group_size: GroupSize;
+    security_definition_message_no_underlyings_group: SecurityDefinitionMessageNoUnderlyingsGroup[self.group_size.num_in_group_uint_8];
+};
+
+type SecurityDefinitionMessageNoUnderlyingsGroup = unit {
+    underlying_symbol: bytes &size=25;
+    underlying_board: bytes &size=4;
+    underlying_security_id: int32;
+    underlying_future_id: int32;
+};
+
+type SecurityDefinitionMessageNoLegsGroups = unit {
+    group_size: GroupSize;
+    security_definition_message_no_legs_group: SecurityDefinitionMessageNoLegsGroup[self.group_size.num_in_group_uint_8];
+};
+
+type SecurityDefinitionMessageNoLegsGroup = unit {
+    leg_symbol: bytes &size=25;
+    leg_security_id: int32;
+    leg_ratio_qty: int32;
+};
+
+type SecurityDefinitionMessageNoInstrAttribGroups = unit {
+    group_size: GroupSize;
+    security_definition_message_no_instr_attrib_group: SecurityDefinitionMessageNoInstrAttribGroup[self.group_size.num_in_group_uint_8];
+};
+
+type SecurityDefinitionMessageNoInstrAttribGroup = unit {
+    instr_attrib_type: int32;
+    instr_attrib_value: bytes &size=31;
+};
+
+type SecurityDefinitionMessageNoEventsGroups = unit {
+    group_size: GroupSize;
+    security_definition_message_no_events_group: SecurityDefinitionMessageNoEventsGroup[self.group_size.num_in_group_uint_8];
+};
+
+type SecurityDefinitionMessageNoEventsGroup = unit {
+    event_type: int32;
+    event_date: uint32;
+    event_time: uint64;
+};
+
+type SecurityDesc = unit {
+    security_desc_length: uint16;
+    security_desc_data: bytes &size=self.security_desc_length;
+};
+
+type QuotationList = unit {
+    quotation_list_length: uint16;
+    quotation_list_data: bytes &size=self.quotation_list_length;
+};
+
+type TradingSessionStatusMessage = unit {
+    trad_ses_open_time: uint64;
+    trad_ses_close_time: uint64;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    exchange_trading_session_id_int_32_null_optional: int32;
+    trad_ses_status: uint8 &convert=TradSesStatus($$);
+    market_segment_id: uint8 &convert=MarketSegmentId($$);
+    trad_ses_event: uint8 &convert=TradSesEvent($$);
+    trade_period_id: int64;
+    settl_sess_begin: uint64;
+    clr_sess_begin: uint64;
+};
+
+type SecurityGroupStatusMessage = unit {
+    security_group_id: int64;
+    halt_type: uint8 &convert=HaltType($$);
+    trade_mode_mask: int32;
+    group_mask_int_64_null_optional: int64;
+    section_id_int_32_null_optional: int32;
+    base_contract_id_int_32_null_optional: int32;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    status_change_time: uint64;
+};
+
+type LastFragment = enum {
+    Fragment = 0,
+    LastFragment_1 = 1,
+};
+
+type IncrementalPacket = enum {
+    SnapshotPacket = 0,
+    IncrementalPacket_1 = 1,
+};
+
+type PossDupFlag = enum {
+    OnlineUpdates = 0,
+    FullOrderBooks = 1,
+};
+
+type TemplateId = enum {
+    HeartbeatMessage = 1,
+    SequenceResetMessage = 2,
+    BestPricesMessage = 14,
+    EmptyBookMessage = 4,
+    OrderUpdateMessage = 15,
+    OrderExecutionMessage = 16,
+    OrderBookSnapshotMessage = 17,
+    SecurityDefinitionMessage = 27,
+    SecurityStatusMessage = 28,
+    SecurityDefinitionUpdateReportMessage = 10,
+    TradingSessionStatusMessage = 26,
+    DiscreteAuctionMessage = 24,
+    SecurityMassStatusMessage = 19,
+    SecurityGroupStatusMessage = 22,
+    LogonMessage = 1000,
+    LogoutMessage = 1001,
+    MarketDataRequestMessage = 1002,
+    MarketDataDummyMessage = 1003,
+};
+
+type SecurityAltIdSource = enum {
+    Isin = 0x34,
+    ExchangeSymbol = 0x38,
+};
+
+type SecurityTradingStatus = enum {
+    TradingHalt = 2,
+    ReadyToTrade = 17,
+    NotAvailableForTrading = 18,
+    NotTradedOnThisMarket = 19,
+    UnknownOrInvalid = 20,
+    PreOpen = 21,
+    DiscreteAuctionOpen = 119,
+    DiscreteAuctionClose = 121,
+    InstrumentHalt = 122,
+    ClosePosition = 123,
+    DiscreteAuctionClosePosition = 124,
+};
+
+type MarketSegmentId = enum {
+    Derivatives = 0x44,
+};
+
+type TradingSessionId = enum {
+    Day = 1,
+    Morning = 3,
+    Evening = 5,
+    Weekend = 100,
+};
+
+type NegativePrices = enum {
+    NotEligible = 0,
+    Eligible = 1,
+};
+
+type TradSesStatus = enum {
+    Halted = 1,
+    Open = 2,
+    Closed = 3,
+    PreOpen = 4,
+};
+
+type TradSesEvent = enum {
+    TradingResumes = 0,
+    ChangeOfTradingSession = 1,
+    ChangeOfTradingStatus = 3,
+};
+
+type HaltType = enum {
+    EmptyHalts = 0,
+    Session = 1,
+    Section = 2,
+    SectionAndTradeMode = 3,
+    FutBaseContract = 4,
+    InstrumentsFromTradeMode = 5,
+    InstrumentsFromTradeModeAndFutBaseContract = 6,
+    GroupInstruments = 7,
+    GroupInstrumentsAndFutBaseContract = 8,
+};
+

@@ -64,11 +64,47 @@ type OptionTradeMessage = unit {
     exchange_id: bytes &size=1;
     instrument_description: InstrumentDescription;
     volume: bytes &size=8;
-    trade_price: bytes &size=6;
-    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    switch ( self.trade_price_fraction_pair.trade_price_negative_whole_pair.trade_price_fraction_indicator ) {
+        TradePriceFractionIndicator::NegativeWhole -> trade_price_negative_whole_pair: TradePriceNegativeWholePair;
+        TradePriceFractionIndicator::NegativeTen -> trade_price_negative_ten_pair: TradePriceNegativeTenPair;
+        TradePriceFractionIndicator::NegativeHundred -> trade_price_negative_hundred_pair: TradePriceNegativeHundredPair;
+        TradePriceFractionIndicator::NegativeThousand -> trade_price_negative_thousand_pair: TradePriceNegativeThousandPair;
+        TradePriceFractionIndicator::NegativeTenThousand -> trade_price_negative_ten_thousand_pair: TradePriceNegativeTenThousandPair;
+        TradePriceFractionIndicator::NegativeHundredThousand -> trade_price_negative_hundred_thousand_pair: TradePriceNegativeHundredThousandPair;
+        TradePriceFractionIndicator::NegativeMillion -> trade_price_negative_million_pair: TradePriceNegativeMillionPair;
+        TradePriceFractionIndicator::Whole -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Ten -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Hundred -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Thousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Million -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Billion -> trade_price_numeric_pair: TradePriceNumericPair;
+        * -> trade_price_unknown_fraction_pair: TradePriceUnknownFractionPair;
+    };
     net_change_sign: uint8 &convert=NetChangeSign($$);
-    net_change: bytes &size=6;
-    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    switch ( self.net_change_fraction_pair.net_change_negative_whole_pair.net_change_fraction_indicator ) {
+        NetChangeFractionIndicator::NegativeWhole -> net_change_negative_whole_pair: NetChangeNegativeWholePair;
+        NetChangeFractionIndicator::NegativeTen -> net_change_negative_ten_pair: NetChangeNegativeTenPair;
+        NetChangeFractionIndicator::NegativeHundred -> net_change_negative_hundred_pair: NetChangeNegativeHundredPair;
+        NetChangeFractionIndicator::NegativeThousand -> net_change_negative_thousand_pair: NetChangeNegativeThousandPair;
+        NetChangeFractionIndicator::NegativeTenThousand -> net_change_negative_ten_thousand_pair: NetChangeNegativeTenThousandPair;
+        NetChangeFractionIndicator::NegativeHundredThousand -> net_change_negative_hundred_thousand_pair: NetChangeNegativeHundredThousandPair;
+        NetChangeFractionIndicator::NegativeMillion -> net_change_negative_million_pair: NetChangeNegativeMillionPair;
+        NetChangeFractionIndicator::Whole -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Ten -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Hundred -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Thousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Million -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Billion -> net_change_numeric_pair: NetChangeNumericPair;
+        * -> net_change_unknown_fraction_pair: NetChangeUnknownFractionPair;
+    };
     : skip bytes &size=6;   # padding
     timestamp: bytes &size=6;
     open_interest: bytes &size=7;
@@ -80,10 +116,163 @@ type InstrumentDescription = unit {
     root_symbol: bytes &size=6;
     expiry_month_code: uint8 &convert=ExpiryMonthCode($$);
     : skip bytes &size=1;   # padding
-    strike_price: bytes &size=7;
-    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+    switch ( self.strike_price_fraction_pair.strike_price_negative_whole_pair.strike_price_fraction_indicator ) {
+        StrikePriceFractionIndicator::NegativeWhole -> strike_price_negative_whole_pair: StrikePriceNegativeWholePair;
+        StrikePriceFractionIndicator::NegativeTen -> strike_price_negative_ten_pair: StrikePriceNegativeTenPair;
+        StrikePriceFractionIndicator::NegativeHundred -> strike_price_negative_hundred_pair: StrikePriceNegativeHundredPair;
+        StrikePriceFractionIndicator::NegativeThousand -> strike_price_negative_thousand_pair: StrikePriceNegativeThousandPair;
+        StrikePriceFractionIndicator::NegativeTenThousand -> strike_price_negative_ten_thousand_pair: StrikePriceNegativeTenThousandPair;
+        StrikePriceFractionIndicator::NegativeHundredThousand -> strike_price_negative_hundred_thousand_pair: StrikePriceNegativeHundredThousandPair;
+        StrikePriceFractionIndicator::NegativeMillion -> strike_price_negative_million_pair: StrikePriceNegativeMillionPair;
+        StrikePriceFractionIndicator::Whole -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::Ten -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::Hundred -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::Thousand -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::TenThousand -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::HundredThousand -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::Million -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::TenMillion -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::HundredMillion -> strike_price_numeric_pair: StrikePriceNumericPair;
+        StrikePriceFractionIndicator::Billion -> strike_price_numeric_pair: StrikePriceNumericPair;
+        * -> strike_price_unknown_fraction_pair: StrikePriceUnknownFractionPair;
+    };
     expiry_year: bytes &size=2;
     expiry_day: bytes &size=2;
+};
+
+type StrikePriceNegativeWholePair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceNegativeTenPair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceNegativeHundredPair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceNegativeThousandPair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceNegativeTenThousandPair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceNegativeHundredThousandPair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceNegativeMillionPair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceNumericPair = unit {
+    strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type StrikePriceUnknownFractionPair = unit {
+    raw_strike_price: bytes &size=7;
+    strike_price_fraction_indicator: uint8 &convert=StrikePriceFractionIndicator($$);
+};
+
+type TradePriceNegativeWholePair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceNegativeTenPair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceNegativeHundredPair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceNegativeThousandPair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceNegativeTenThousandPair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceNegativeHundredThousandPair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceNegativeMillionPair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceNumericPair = unit {
+    trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type TradePriceUnknownFractionPair = unit {
+    raw_trade_price: bytes &size=6;
+    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+};
+
+type NetChangeNegativeWholePair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeNegativeTenPair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeNegativeHundredPair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeNegativeThousandPair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeNegativeTenThousandPair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeNegativeHundredThousandPair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeNegativeMillionPair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeNumericPair = unit {
+    net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+};
+
+type NetChangeUnknownFractionPair = unit {
+    raw_net_change: bytes &size=6;
+    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
 };
 
 type ComplexOrderInstrumentTradeMessage = unit {
@@ -91,11 +280,47 @@ type ComplexOrderInstrumentTradeMessage = unit {
     complex_order_instrument_symbol: bytes &size=30;
     volume: bytes &size=8;
     trade_price_sign: bytes &size=1;
-    trade_price: bytes &size=6;
-    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    switch ( self.trade_price_fraction_pair.trade_price_negative_whole_pair.trade_price_fraction_indicator ) {
+        TradePriceFractionIndicator::NegativeWhole -> trade_price_negative_whole_pair: TradePriceNegativeWholePair;
+        TradePriceFractionIndicator::NegativeTen -> trade_price_negative_ten_pair: TradePriceNegativeTenPair;
+        TradePriceFractionIndicator::NegativeHundred -> trade_price_negative_hundred_pair: TradePriceNegativeHundredPair;
+        TradePriceFractionIndicator::NegativeThousand -> trade_price_negative_thousand_pair: TradePriceNegativeThousandPair;
+        TradePriceFractionIndicator::NegativeTenThousand -> trade_price_negative_ten_thousand_pair: TradePriceNegativeTenThousandPair;
+        TradePriceFractionIndicator::NegativeHundredThousand -> trade_price_negative_hundred_thousand_pair: TradePriceNegativeHundredThousandPair;
+        TradePriceFractionIndicator::NegativeMillion -> trade_price_negative_million_pair: TradePriceNegativeMillionPair;
+        TradePriceFractionIndicator::Whole -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Ten -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Hundred -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Thousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Million -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Billion -> trade_price_numeric_pair: TradePriceNumericPair;
+        * -> trade_price_unknown_fraction_pair: TradePriceUnknownFractionPair;
+    };
     net_change_sign: uint8 &convert=NetChangeSign($$);
-    net_change: bytes &size=6;
-    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    switch ( self.net_change_fraction_pair.net_change_negative_whole_pair.net_change_fraction_indicator ) {
+        NetChangeFractionIndicator::NegativeWhole -> net_change_negative_whole_pair: NetChangeNegativeWholePair;
+        NetChangeFractionIndicator::NegativeTen -> net_change_negative_ten_pair: NetChangeNegativeTenPair;
+        NetChangeFractionIndicator::NegativeHundred -> net_change_negative_hundred_pair: NetChangeNegativeHundredPair;
+        NetChangeFractionIndicator::NegativeThousand -> net_change_negative_thousand_pair: NetChangeNegativeThousandPair;
+        NetChangeFractionIndicator::NegativeTenThousand -> net_change_negative_ten_thousand_pair: NetChangeNegativeTenThousandPair;
+        NetChangeFractionIndicator::NegativeHundredThousand -> net_change_negative_hundred_thousand_pair: NetChangeNegativeHundredThousandPair;
+        NetChangeFractionIndicator::NegativeMillion -> net_change_negative_million_pair: NetChangeNegativeMillionPair;
+        NetChangeFractionIndicator::Whole -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Ten -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Hundred -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Thousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Million -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Billion -> net_change_numeric_pair: NetChangeNumericPair;
+        * -> net_change_unknown_fraction_pair: NetChangeUnknownFractionPair;
+    };
     : skip bytes &size=6;   # padding
     timestamp: bytes &size=6;
     price_indicator_marker: uint8 &convert=PriceIndicatorMarker($$);
@@ -110,11 +335,49 @@ type OptionRequestForQuoteMessage = unit {
 type OptionQuoteMessage = unit {
     exchange_id: bytes &size=1;
     instrument_description: InstrumentDescription;
-    bid_price: bytes &size=6;
-    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    switch ( self.bid_price_quote_fraction_pair.bid_price_quote_opening_pair.bid_price_quote_opening ) {
+        0 -> bid_price_quote_opening_pair: BidPriceQuoteOpeningPair;
+        0x41 -> bid_price_quote_negative_whole_pair: BidPriceQuoteNegativeWholePair;
+        0x42 -> bid_price_quote_negative_ten_pair: BidPriceQuoteNegativeTenPair;
+        0x43 -> bid_price_quote_negative_hundred_pair: BidPriceQuoteNegativeHundredPair;
+        0x44 -> bid_price_quote_negative_thousand_pair: BidPriceQuoteNegativeThousandPair;
+        0x45 -> bid_price_quote_negative_ten_thousand_pair: BidPriceQuoteNegativeTenThousandPair;
+        0x46 -> bid_price_quote_negative_hundred_thousand_pair: BidPriceQuoteNegativeHundredThousandPair;
+        0x47 -> bid_price_quote_negative_million_pair: BidPriceQuoteNegativeMillionPair;
+        0x30 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x31 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x32 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x33 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x34 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x35 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x36 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x37 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x38 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x39 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        * -> bid_price_quote_unknown_fraction_pair: BidPriceQuoteUnknownFractionPair;
+    };
     bid_size: bytes &size=5;
-    ask_price: bytes &size=6;
-    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    switch ( self.ask_price_quote_fraction_pair.ask_price_quote_opening_pair.ask_price_quote_opening ) {
+        0 -> ask_price_quote_opening_pair: AskPriceQuoteOpeningPair;
+        0x41 -> ask_price_quote_negative_whole_pair: AskPriceQuoteNegativeWholePair;
+        0x42 -> ask_price_quote_negative_ten_pair: AskPriceQuoteNegativeTenPair;
+        0x43 -> ask_price_quote_negative_hundred_pair: AskPriceQuoteNegativeHundredPair;
+        0x44 -> ask_price_quote_negative_thousand_pair: AskPriceQuoteNegativeThousandPair;
+        0x45 -> ask_price_quote_negative_ten_thousand_pair: AskPriceQuoteNegativeTenThousandPair;
+        0x46 -> ask_price_quote_negative_hundred_thousand_pair: AskPriceQuoteNegativeHundredThousandPair;
+        0x47 -> ask_price_quote_negative_million_pair: AskPriceQuoteNegativeMillionPair;
+        0x30 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x31 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x32 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x33 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x34 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x35 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x36 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x37 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x38 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x39 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        * -> ask_price_quote_unknown_fraction_pair: AskPriceQuoteUnknownFractionPair;
+    };
     ask_size: bytes &size=5;
     : skip bytes &size=1;   # padding
     instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
@@ -122,16 +385,154 @@ type OptionQuoteMessage = unit {
     public_customer_ask_size: bytes &size=5;
 };
 
+type BidPriceQuoteOpeningPair = unit {
+    bid_price_quote_opening: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNegativeWholePair = unit {
+    raw_bid_price_quote: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNegativeTenPair = unit {
+    raw_bid_price_quote: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNegativeHundredPair = unit {
+    raw_bid_price_quote: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNegativeThousandPair = unit {
+    raw_bid_price_quote: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNegativeTenThousandPair = unit {
+    raw_bid_price_quote: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNegativeHundredThousandPair = unit {
+    raw_bid_price_quote: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNegativeMillionPair = unit {
+    raw_bid_price_quote: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteNumericPair = unit {
+    bid_price_quote_numeric: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceQuoteUnknownFractionPair = unit {
+    raw_bid_price_quote_text: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteOpeningPair = unit {
+    ask_price_quote_opening: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNegativeWholePair = unit {
+    raw_ask_price_quote: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNegativeTenPair = unit {
+    raw_ask_price_quote: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNegativeHundredPair = unit {
+    raw_ask_price_quote: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNegativeThousandPair = unit {
+    raw_ask_price_quote: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNegativeTenThousandPair = unit {
+    raw_ask_price_quote: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNegativeHundredThousandPair = unit {
+    raw_ask_price_quote: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNegativeMillionPair = unit {
+    raw_ask_price_quote: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteNumericPair = unit {
+    ask_price_quote_numeric: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceQuoteUnknownFractionPair = unit {
+    raw_ask_price_quote_text: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
 type ComplexOrderQuoteMessage = unit {
     exchange_id: bytes &size=1;
     complex_order_instrument_symbol: bytes &size=30;
     bid_price_sign: bytes &size=1;
-    bid_price: bytes &size=6;
-    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    switch ( self.bid_price_quote_fraction_pair.bid_price_quote_opening_pair.bid_price_quote_opening ) {
+        0 -> bid_price_quote_opening_pair: BidPriceQuoteOpeningPair;
+        0x41 -> bid_price_quote_negative_whole_pair: BidPriceQuoteNegativeWholePair;
+        0x42 -> bid_price_quote_negative_ten_pair: BidPriceQuoteNegativeTenPair;
+        0x43 -> bid_price_quote_negative_hundred_pair: BidPriceQuoteNegativeHundredPair;
+        0x44 -> bid_price_quote_negative_thousand_pair: BidPriceQuoteNegativeThousandPair;
+        0x45 -> bid_price_quote_negative_ten_thousand_pair: BidPriceQuoteNegativeTenThousandPair;
+        0x46 -> bid_price_quote_negative_hundred_thousand_pair: BidPriceQuoteNegativeHundredThousandPair;
+        0x47 -> bid_price_quote_negative_million_pair: BidPriceQuoteNegativeMillionPair;
+        0x30 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x31 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x32 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x33 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x34 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x35 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x36 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x37 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x38 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x39 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        * -> bid_price_quote_unknown_fraction_pair: BidPriceQuoteUnknownFractionPair;
+    };
     bid_size: bytes &size=5;
     ask_price_sign: uint8 &convert=AskPriceSign($$);
-    ask_price: bytes &size=6;
-    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    switch ( self.ask_price_quote_fraction_pair.ask_price_quote_opening_pair.ask_price_quote_opening ) {
+        0 -> ask_price_quote_opening_pair: AskPriceQuoteOpeningPair;
+        0x41 -> ask_price_quote_negative_whole_pair: AskPriceQuoteNegativeWholePair;
+        0x42 -> ask_price_quote_negative_ten_pair: AskPriceQuoteNegativeTenPair;
+        0x43 -> ask_price_quote_negative_hundred_pair: AskPriceQuoteNegativeHundredPair;
+        0x44 -> ask_price_quote_negative_thousand_pair: AskPriceQuoteNegativeThousandPair;
+        0x45 -> ask_price_quote_negative_ten_thousand_pair: AskPriceQuoteNegativeTenThousandPair;
+        0x46 -> ask_price_quote_negative_hundred_thousand_pair: AskPriceQuoteNegativeHundredThousandPair;
+        0x47 -> ask_price_quote_negative_million_pair: AskPriceQuoteNegativeMillionPair;
+        0x30 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x31 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x32 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x33 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x34 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x35 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x36 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x37 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x38 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x39 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        * -> ask_price_quote_unknown_fraction_pair: AskPriceQuoteUnknownFractionPair;
+    };
     ask_size: bytes &size=5;
     instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
     public_customer_bid_size: bytes &size=5;
@@ -167,12 +568,50 @@ type OptionMarketDepthMessage = unit {
 
 type MarketDepthLevel = unit {
     level_of_market_depth: uint8 &convert=LevelOfMarketDepth($$);
-    bid_price: bytes &size=6;
-    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    switch ( self.bid_price_quote_fraction_pair.bid_price_quote_opening_pair.bid_price_quote_opening ) {
+        0 -> bid_price_quote_opening_pair: BidPriceQuoteOpeningPair;
+        0x41 -> bid_price_quote_negative_whole_pair: BidPriceQuoteNegativeWholePair;
+        0x42 -> bid_price_quote_negative_ten_pair: BidPriceQuoteNegativeTenPair;
+        0x43 -> bid_price_quote_negative_hundred_pair: BidPriceQuoteNegativeHundredPair;
+        0x44 -> bid_price_quote_negative_thousand_pair: BidPriceQuoteNegativeThousandPair;
+        0x45 -> bid_price_quote_negative_ten_thousand_pair: BidPriceQuoteNegativeTenThousandPair;
+        0x46 -> bid_price_quote_negative_hundred_thousand_pair: BidPriceQuoteNegativeHundredThousandPair;
+        0x47 -> bid_price_quote_negative_million_pair: BidPriceQuoteNegativeMillionPair;
+        0x30 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x31 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x32 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x33 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x34 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x35 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x36 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x37 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x38 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x39 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        * -> bid_price_quote_unknown_fraction_pair: BidPriceQuoteUnknownFractionPair;
+    };
     bid_size: bytes &size=5;
     number_of_bid_orders: bytes &size=2;
-    ask_price: bytes &size=6;
-    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    switch ( self.ask_price_quote_fraction_pair.ask_price_quote_opening_pair.ask_price_quote_opening ) {
+        0 -> ask_price_quote_opening_pair: AskPriceQuoteOpeningPair;
+        0x41 -> ask_price_quote_negative_whole_pair: AskPriceQuoteNegativeWholePair;
+        0x42 -> ask_price_quote_negative_ten_pair: AskPriceQuoteNegativeTenPair;
+        0x43 -> ask_price_quote_negative_hundred_pair: AskPriceQuoteNegativeHundredPair;
+        0x44 -> ask_price_quote_negative_thousand_pair: AskPriceQuoteNegativeThousandPair;
+        0x45 -> ask_price_quote_negative_ten_thousand_pair: AskPriceQuoteNegativeTenThousandPair;
+        0x46 -> ask_price_quote_negative_hundred_thousand_pair: AskPriceQuoteNegativeHundredThousandPair;
+        0x47 -> ask_price_quote_negative_million_pair: AskPriceQuoteNegativeMillionPair;
+        0x30 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x31 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x32 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x33 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x34 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x35 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x36 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x37 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x38 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x39 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        * -> ask_price_quote_unknown_fraction_pair: AskPriceQuoteUnknownFractionPair;
+    };
     ask_size: bytes &size=5;
     number_of_ask_orders: bytes &size=2;
 };
@@ -188,13 +627,51 @@ type ComplexOrderMarketDepthMessage = unit {
 type ComplexMarketDepthLevel = unit {
     level_of_market_depth: uint8 &convert=LevelOfMarketDepth($$);
     bid_price_sign: bytes &size=1;
-    bid_price: bytes &size=6;
-    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    switch ( self.bid_price_quote_fraction_pair.bid_price_quote_opening_pair.bid_price_quote_opening ) {
+        0 -> bid_price_quote_opening_pair: BidPriceQuoteOpeningPair;
+        0x41 -> bid_price_quote_negative_whole_pair: BidPriceQuoteNegativeWholePair;
+        0x42 -> bid_price_quote_negative_ten_pair: BidPriceQuoteNegativeTenPair;
+        0x43 -> bid_price_quote_negative_hundred_pair: BidPriceQuoteNegativeHundredPair;
+        0x44 -> bid_price_quote_negative_thousand_pair: BidPriceQuoteNegativeThousandPair;
+        0x45 -> bid_price_quote_negative_ten_thousand_pair: BidPriceQuoteNegativeTenThousandPair;
+        0x46 -> bid_price_quote_negative_hundred_thousand_pair: BidPriceQuoteNegativeHundredThousandPair;
+        0x47 -> bid_price_quote_negative_million_pair: BidPriceQuoteNegativeMillionPair;
+        0x30 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x31 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x32 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x33 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x34 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x35 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x36 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x37 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x38 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        0x39 -> bid_price_quote_numeric_pair: BidPriceQuoteNumericPair;
+        * -> bid_price_quote_unknown_fraction_pair: BidPriceQuoteUnknownFractionPair;
+    };
     bid_size: bytes &size=5;
     number_of_bid_orders: bytes &size=2;
     ask_price_sign: uint8 &convert=AskPriceSign($$);
-    ask_price: bytes &size=6;
-    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    switch ( self.ask_price_quote_fraction_pair.ask_price_quote_opening_pair.ask_price_quote_opening ) {
+        0 -> ask_price_quote_opening_pair: AskPriceQuoteOpeningPair;
+        0x41 -> ask_price_quote_negative_whole_pair: AskPriceQuoteNegativeWholePair;
+        0x42 -> ask_price_quote_negative_ten_pair: AskPriceQuoteNegativeTenPair;
+        0x43 -> ask_price_quote_negative_hundred_pair: AskPriceQuoteNegativeHundredPair;
+        0x44 -> ask_price_quote_negative_thousand_pair: AskPriceQuoteNegativeThousandPair;
+        0x45 -> ask_price_quote_negative_ten_thousand_pair: AskPriceQuoteNegativeTenThousandPair;
+        0x46 -> ask_price_quote_negative_hundred_thousand_pair: AskPriceQuoteNegativeHundredThousandPair;
+        0x47 -> ask_price_quote_negative_million_pair: AskPriceQuoteNegativeMillionPair;
+        0x30 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x31 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x32 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x33 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x34 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x35 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x36 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x37 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x38 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        0x39 -> ask_price_quote_numeric_pair: AskPriceQuoteNumericPair;
+        * -> ask_price_quote_unknown_fraction_pair: AskPriceQuoteUnknownFractionPair;
+    };
     ask_size: bytes &size=5;
     number_of_ask_orders: bytes &size=2;
 };
@@ -203,8 +680,26 @@ type OptionTradeCancellationMessage = unit {
     exchange_id: bytes &size=1;
     instrument_description: InstrumentDescription;
     volume: bytes &size=8;
-    trade_price: bytes &size=6;
-    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    switch ( self.trade_price_fraction_pair.trade_price_negative_whole_pair.trade_price_fraction_indicator ) {
+        TradePriceFractionIndicator::NegativeWhole -> trade_price_negative_whole_pair: TradePriceNegativeWholePair;
+        TradePriceFractionIndicator::NegativeTen -> trade_price_negative_ten_pair: TradePriceNegativeTenPair;
+        TradePriceFractionIndicator::NegativeHundred -> trade_price_negative_hundred_pair: TradePriceNegativeHundredPair;
+        TradePriceFractionIndicator::NegativeThousand -> trade_price_negative_thousand_pair: TradePriceNegativeThousandPair;
+        TradePriceFractionIndicator::NegativeTenThousand -> trade_price_negative_ten_thousand_pair: TradePriceNegativeTenThousandPair;
+        TradePriceFractionIndicator::NegativeHundredThousand -> trade_price_negative_hundred_thousand_pair: TradePriceNegativeHundredThousandPair;
+        TradePriceFractionIndicator::NegativeMillion -> trade_price_negative_million_pair: TradePriceNegativeMillionPair;
+        TradePriceFractionIndicator::Whole -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Ten -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Hundred -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Thousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Million -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Billion -> trade_price_numeric_pair: TradePriceNumericPair;
+        * -> trade_price_unknown_fraction_pair: TradePriceUnknownFractionPair;
+    };
     : skip bytes &size=6;   # padding
     timestamp: bytes &size=6;
     open_interest: bytes &size=7;
@@ -217,8 +712,26 @@ type ComplexOrderTradeCancellationMessage = unit {
     complex_order_instrument_symbol: bytes &size=30;
     volume: bytes &size=8;
     trade_price_sign: bytes &size=1;
-    trade_price: bytes &size=6;
-    trade_price_fraction_indicator: uint8 &convert=TradePriceFractionIndicator($$);
+    switch ( self.trade_price_fraction_pair.trade_price_negative_whole_pair.trade_price_fraction_indicator ) {
+        TradePriceFractionIndicator::NegativeWhole -> trade_price_negative_whole_pair: TradePriceNegativeWholePair;
+        TradePriceFractionIndicator::NegativeTen -> trade_price_negative_ten_pair: TradePriceNegativeTenPair;
+        TradePriceFractionIndicator::NegativeHundred -> trade_price_negative_hundred_pair: TradePriceNegativeHundredPair;
+        TradePriceFractionIndicator::NegativeThousand -> trade_price_negative_thousand_pair: TradePriceNegativeThousandPair;
+        TradePriceFractionIndicator::NegativeTenThousand -> trade_price_negative_ten_thousand_pair: TradePriceNegativeTenThousandPair;
+        TradePriceFractionIndicator::NegativeHundredThousand -> trade_price_negative_hundred_thousand_pair: TradePriceNegativeHundredThousandPair;
+        TradePriceFractionIndicator::NegativeMillion -> trade_price_negative_million_pair: TradePriceNegativeMillionPair;
+        TradePriceFractionIndicator::Whole -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Ten -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Hundred -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Thousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredThousand -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Million -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::TenMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::HundredMillion -> trade_price_numeric_pair: TradePriceNumericPair;
+        TradePriceFractionIndicator::Billion -> trade_price_numeric_pair: TradePriceNumericPair;
+        * -> trade_price_unknown_fraction_pair: TradePriceUnknownFractionPair;
+    };
     : skip bytes &size=6;   # padding
     timestamp: bytes &size=6;
     price_indicator_marker: uint8 &convert=PriceIndicatorMarker($$);
@@ -230,12 +743,67 @@ type OptionInstrumentKeysMessage = unit {
     strike_price_currency: bytes &size=3;
     maximum_number_of_contracts_per_order: bytes &size=6;
     minimum_number_of_contracts_per_order: bytes &size=6;
-    maximum_threshold_price: bytes &size=6;
-    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
-    minimum_threshold_price: bytes &size=6;
-    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
-    tick_increment: bytes &size=6;
-    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+    switch ( self.maximum_threshold_price_fraction_pair.maximum_threshold_price_negative_whole_pair.maximum_threshold_price_fraction_indicator ) {
+        MaximumThresholdPriceFractionIndicator::NegativeWhole -> maximum_threshold_price_negative_whole_pair: MaximumThresholdPriceNegativeWholePair;
+        MaximumThresholdPriceFractionIndicator::NegativeTen -> maximum_threshold_price_negative_ten_pair: MaximumThresholdPriceNegativeTenPair;
+        MaximumThresholdPriceFractionIndicator::NegativeHundred -> maximum_threshold_price_negative_hundred_pair: MaximumThresholdPriceNegativeHundredPair;
+        MaximumThresholdPriceFractionIndicator::NegativeThousand -> maximum_threshold_price_negative_thousand_pair: MaximumThresholdPriceNegativeThousandPair;
+        MaximumThresholdPriceFractionIndicator::NegativeTenThousand -> maximum_threshold_price_negative_ten_thousand_pair: MaximumThresholdPriceNegativeTenThousandPair;
+        MaximumThresholdPriceFractionIndicator::NegativeHundredThousand -> maximum_threshold_price_negative_hundred_thousand_pair: MaximumThresholdPriceNegativeHundredThousandPair;
+        MaximumThresholdPriceFractionIndicator::NegativeMillion -> maximum_threshold_price_negative_million_pair: MaximumThresholdPriceNegativeMillionPair;
+        MaximumThresholdPriceFractionIndicator::Whole -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::Ten -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::Hundred -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::Thousand -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::TenThousand -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::HundredThousand -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::Million -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::TenMillion -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::HundredMillion -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        MaximumThresholdPriceFractionIndicator::Billion -> maximum_threshold_price_numeric_pair: MaximumThresholdPriceNumericPair;
+        * -> maximum_threshold_price_unknown_fraction_pair: MaximumThresholdPriceUnknownFractionPair;
+    };
+    switch ( self.minimum_threshold_price_fraction_pair.minimum_threshold_price_negative_whole_pair.minimum_threshold_price_fraction_indicator ) {
+        MinimumThresholdPriceFractionIndicator::NegativeWhole -> minimum_threshold_price_negative_whole_pair: MinimumThresholdPriceNegativeWholePair;
+        MinimumThresholdPriceFractionIndicator::NegativeTen -> minimum_threshold_price_negative_ten_pair: MinimumThresholdPriceNegativeTenPair;
+        MinimumThresholdPriceFractionIndicator::NegativeHundred -> minimum_threshold_price_negative_hundred_pair: MinimumThresholdPriceNegativeHundredPair;
+        MinimumThresholdPriceFractionIndicator::NegativeThousand -> minimum_threshold_price_negative_thousand_pair: MinimumThresholdPriceNegativeThousandPair;
+        MinimumThresholdPriceFractionIndicator::NegativeTenThousand -> minimum_threshold_price_negative_ten_thousand_pair: MinimumThresholdPriceNegativeTenThousandPair;
+        MinimumThresholdPriceFractionIndicator::NegativeHundredThousand -> minimum_threshold_price_negative_hundred_thousand_pair: MinimumThresholdPriceNegativeHundredThousandPair;
+        MinimumThresholdPriceFractionIndicator::NegativeMillion -> minimum_threshold_price_negative_million_pair: MinimumThresholdPriceNegativeMillionPair;
+        MinimumThresholdPriceFractionIndicator::Whole -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::Ten -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::Hundred -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::Thousand -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::TenThousand -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::HundredThousand -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::Million -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::TenMillion -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::HundredMillion -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        MinimumThresholdPriceFractionIndicator::Billion -> minimum_threshold_price_numeric_pair: MinimumThresholdPriceNumericPair;
+        * -> minimum_threshold_price_unknown_fraction_pair: MinimumThresholdPriceUnknownFractionPair;
+    };
+    switch ( self.tick_increment_fraction_pair.tick_increment_tick_table_pair.raw_tick_increment ) {
+        0 -> tick_increment_tick_table_pair: TickIncrementTickTablePair;
+        0x41 -> tick_increment_negative_whole_pair: TickIncrementNegativeWholePair;
+        0x42 -> tick_increment_negative_ten_pair: TickIncrementNegativeTenPair;
+        0x43 -> tick_increment_negative_hundred_pair: TickIncrementNegativeHundredPair;
+        0x44 -> tick_increment_negative_thousand_pair: TickIncrementNegativeThousandPair;
+        0x45 -> tick_increment_negative_ten_thousand_pair: TickIncrementNegativeTenThousandPair;
+        0x46 -> tick_increment_negative_hundred_thousand_pair: TickIncrementNegativeHundredThousandPair;
+        0x47 -> tick_increment_negative_million_pair: TickIncrementNegativeMillionPair;
+        0x30 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x31 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x32 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x33 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x34 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x35 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x36 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x37 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x38 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x39 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        * -> tick_increment_unknown_fraction_pair: TickIncrementUnknownFractionPair;
+    };
     option_type: uint8 &convert=OptionType($$);
     market_flow_indicator: MarketFlowIndicator;
     group_instrument: bytes &size=2;
@@ -243,6 +811,146 @@ type OptionInstrumentKeysMessage = unit {
     instrument_external_code: bytes &size=30;
     option_marker: OptionMarker;
     underlying_symbol_root: bytes &size=10;
+};
+
+type MaximumThresholdPriceNegativeWholePair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceNegativeTenPair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceNegativeHundredPair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceNegativeThousandPair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceNegativeTenThousandPair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceNegativeHundredThousandPair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceNegativeMillionPair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceNumericPair = unit {
+    maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MaximumThresholdPriceUnknownFractionPair = unit {
+    raw_maximum_threshold_price: bytes &size=6;
+    maximum_threshold_price_fraction_indicator: uint8 &convert=MaximumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNegativeWholePair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNegativeTenPair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNegativeHundredPair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNegativeThousandPair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNegativeTenThousandPair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNegativeHundredThousandPair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNegativeMillionPair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceNumericPair = unit {
+    minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type MinimumThresholdPriceUnknownFractionPair = unit {
+    raw_minimum_threshold_price: bytes &size=6;
+    minimum_threshold_price_fraction_indicator: uint8 &convert=MinimumThresholdPriceFractionIndicator($$);
+};
+
+type TickIncrementTickTablePair = unit {
+    raw_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNegativeWholePair = unit {
+    numeric_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNegativeTenPair = unit {
+    numeric_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNegativeHundredPair = unit {
+    numeric_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNegativeThousandPair = unit {
+    numeric_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNegativeTenThousandPair = unit {
+    numeric_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNegativeHundredThousandPair = unit {
+    numeric_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNegativeMillionPair = unit {
+    numeric_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementNumericPair = unit {
+    tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+};
+
+type TickIncrementUnknownFractionPair = unit {
+    raw_tick_increment: bytes &size=6;
+    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
 };
 
 type MarketFlowIndicator = unit {
@@ -264,13 +972,68 @@ type ComplexOrderInstrumentKeysMessage = unit {
     max_number_of_contracts_per_order: bytes &size=6;
     min_number_of_contracts_per_order: bytes &size=6;
     max_threshold_price_sign: uint8 &convert=MaxThresholdPriceSign($$);
-    max_threshold_price: bytes &size=6;
-    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+    switch ( self.max_threshold_price_fraction_pair.max_threshold_price_negative_whole_pair.max_threshold_price_fraction_indicator ) {
+        MaxThresholdPriceFractionIndicator::NegativeWhole -> max_threshold_price_negative_whole_pair: MaxThresholdPriceNegativeWholePair;
+        MaxThresholdPriceFractionIndicator::NegativeTen -> max_threshold_price_negative_ten_pair: MaxThresholdPriceNegativeTenPair;
+        MaxThresholdPriceFractionIndicator::NegativeHundred -> max_threshold_price_negative_hundred_pair: MaxThresholdPriceNegativeHundredPair;
+        MaxThresholdPriceFractionIndicator::NegativeThousand -> max_threshold_price_negative_thousand_pair: MaxThresholdPriceNegativeThousandPair;
+        MaxThresholdPriceFractionIndicator::NegativeTenThousand -> max_threshold_price_negative_ten_thousand_pair: MaxThresholdPriceNegativeTenThousandPair;
+        MaxThresholdPriceFractionIndicator::NegativeHundredThousand -> max_threshold_price_negative_hundred_thousand_pair: MaxThresholdPriceNegativeHundredThousandPair;
+        MaxThresholdPriceFractionIndicator::NegativeMillion -> max_threshold_price_negative_million_pair: MaxThresholdPriceNegativeMillionPair;
+        MaxThresholdPriceFractionIndicator::Whole -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::Ten -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::Hundred -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::Thousand -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::TenThousand -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::HundredThousand -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::Million -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::TenMillion -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::HundredMillion -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        MaxThresholdPriceFractionIndicator::Billion -> max_threshold_price_numeric_pair: MaxThresholdPriceNumericPair;
+        * -> max_threshold_price_unknown_fraction_pair: MaxThresholdPriceUnknownFractionPair;
+    };
     min_threshold_price_sign: uint8 &convert=MinThresholdPriceSign($$);
-    min_threshold_price: bytes &size=6;
-    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
-    tick_increment: bytes &size=6;
-    tick_increment_fraction_indicator: uint8 &convert=TickIncrementFractionIndicator($$);
+    switch ( self.min_threshold_price_fraction_pair.min_threshold_price_negative_whole_pair.min_threshold_price_fraction_indicator ) {
+        MinThresholdPriceFractionIndicator::NegativeWhole -> min_threshold_price_negative_whole_pair: MinThresholdPriceNegativeWholePair;
+        MinThresholdPriceFractionIndicator::NegativeTen -> min_threshold_price_negative_ten_pair: MinThresholdPriceNegativeTenPair;
+        MinThresholdPriceFractionIndicator::NegativeHundred -> min_threshold_price_negative_hundred_pair: MinThresholdPriceNegativeHundredPair;
+        MinThresholdPriceFractionIndicator::NegativeThousand -> min_threshold_price_negative_thousand_pair: MinThresholdPriceNegativeThousandPair;
+        MinThresholdPriceFractionIndicator::NegativeTenThousand -> min_threshold_price_negative_ten_thousand_pair: MinThresholdPriceNegativeTenThousandPair;
+        MinThresholdPriceFractionIndicator::NegativeHundredThousand -> min_threshold_price_negative_hundred_thousand_pair: MinThresholdPriceNegativeHundredThousandPair;
+        MinThresholdPriceFractionIndicator::NegativeMillion -> min_threshold_price_negative_million_pair: MinThresholdPriceNegativeMillionPair;
+        MinThresholdPriceFractionIndicator::Whole -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::Ten -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::Hundred -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::Thousand -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::TenThousand -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::HundredThousand -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::Million -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::TenMillion -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::HundredMillion -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        MinThresholdPriceFractionIndicator::Billion -> min_threshold_price_numeric_pair: MinThresholdPriceNumericPair;
+        * -> min_threshold_price_unknown_fraction_pair: MinThresholdPriceUnknownFractionPair;
+    };
+    switch ( self.tick_increment_fraction_pair.tick_increment_tick_table_pair.raw_tick_increment ) {
+        0 -> tick_increment_tick_table_pair: TickIncrementTickTablePair;
+        0x41 -> tick_increment_negative_whole_pair: TickIncrementNegativeWholePair;
+        0x42 -> tick_increment_negative_ten_pair: TickIncrementNegativeTenPair;
+        0x43 -> tick_increment_negative_hundred_pair: TickIncrementNegativeHundredPair;
+        0x44 -> tick_increment_negative_thousand_pair: TickIncrementNegativeThousandPair;
+        0x45 -> tick_increment_negative_ten_thousand_pair: TickIncrementNegativeTenThousandPair;
+        0x46 -> tick_increment_negative_hundred_thousand_pair: TickIncrementNegativeHundredThousandPair;
+        0x47 -> tick_increment_negative_million_pair: TickIncrementNegativeMillionPair;
+        0x30 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x31 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x32 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x33 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x34 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x35 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x36 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x37 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x38 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        0x39 -> tick_increment_numeric_pair: TickIncrementNumericPair;
+        * -> tick_increment_unknown_fraction_pair: TickIncrementUnknownFractionPair;
+    };
     : skip bytes &size=2;   # padding
     group: bytes &size=2;
     instrument: bytes &size=4;
@@ -278,6 +1041,96 @@ type ComplexOrderInstrumentKeysMessage = unit {
     complex_order_instrument_allow_implied: uint8 &convert=ComplexOrderInstrumentAllowImplied($$);
     number_of_legs: bytes &size=2;
     instrument_leg: InstrumentLeg[self.number_of_legs];
+};
+
+type MaxThresholdPriceNegativeWholePair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceNegativeTenPair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceNegativeHundredPair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceNegativeThousandPair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceNegativeTenThousandPair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceNegativeHundredThousandPair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceNegativeMillionPair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceNumericPair = unit {
+    max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MaxThresholdPriceUnknownFractionPair = unit {
+    raw_max_threshold_price: bytes &size=6;
+    max_threshold_price_fraction_indicator: uint8 &convert=MaxThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNegativeWholePair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNegativeTenPair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNegativeHundredPair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNegativeThousandPair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNegativeTenThousandPair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNegativeHundredThousandPair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNegativeMillionPair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceNumericPair = unit {
+    min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
+};
+
+type MinThresholdPriceUnknownFractionPair = unit {
+    raw_min_threshold_price: bytes &size=6;
+    min_threshold_price_fraction_indicator: uint8 &convert=MinThresholdPriceFractionIndicator($$);
 };
 
 type InstrumentLeg = unit {
@@ -296,29 +1149,488 @@ type BulletinsMessage = unit {
 type OptionSummaryMessage = unit {
     exchange_id: bytes &size=1;
     instrument_description: InstrumentDescription;
-    bid_price: bytes &size=6;
-    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    switch ( self.bid_price_fraction_pair.bid_price_negative_whole_pair.bid_price_fraction_indicator ) {
+        BidPriceFractionIndicator::NegativeWhole -> bid_price_negative_whole_pair: BidPriceNegativeWholePair;
+        BidPriceFractionIndicator::NegativeTen -> bid_price_negative_ten_pair: BidPriceNegativeTenPair;
+        BidPriceFractionIndicator::NegativeHundred -> bid_price_negative_hundred_pair: BidPriceNegativeHundredPair;
+        BidPriceFractionIndicator::NegativeThousand -> bid_price_negative_thousand_pair: BidPriceNegativeThousandPair;
+        BidPriceFractionIndicator::NegativeTenThousand -> bid_price_negative_ten_thousand_pair: BidPriceNegativeTenThousandPair;
+        BidPriceFractionIndicator::NegativeHundredThousand -> bid_price_negative_hundred_thousand_pair: BidPriceNegativeHundredThousandPair;
+        BidPriceFractionIndicator::NegativeMillion -> bid_price_negative_million_pair: BidPriceNegativeMillionPair;
+        BidPriceFractionIndicator::Whole -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Ten -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Hundred -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Thousand -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::TenThousand -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::HundredThousand -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Million -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::TenMillion -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::HundredMillion -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Billion -> bid_price_numeric_pair: BidPriceNumericPair;
+        * -> bid_price_unknown_fraction_pair: BidPriceUnknownFractionPair;
+    };
     bid_size: bytes &size=5;
-    ask_price: bytes &size=6;
-    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    switch ( self.ask_price_fraction_pair.ask_price_negative_whole_pair.ask_price_fraction_indicator ) {
+        AskPriceFractionIndicator::NegativeWhole -> ask_price_negative_whole_pair: AskPriceNegativeWholePair;
+        AskPriceFractionIndicator::NegativeTen -> ask_price_negative_ten_pair: AskPriceNegativeTenPair;
+        AskPriceFractionIndicator::NegativeHundred -> ask_price_negative_hundred_pair: AskPriceNegativeHundredPair;
+        AskPriceFractionIndicator::NegativeThousand -> ask_price_negative_thousand_pair: AskPriceNegativeThousandPair;
+        AskPriceFractionIndicator::NegativeTenThousand -> ask_price_negative_ten_thousand_pair: AskPriceNegativeTenThousandPair;
+        AskPriceFractionIndicator::NegativeHundredThousand -> ask_price_negative_hundred_thousand_pair: AskPriceNegativeHundredThousandPair;
+        AskPriceFractionIndicator::NegativeMillion -> ask_price_negative_million_pair: AskPriceNegativeMillionPair;
+        AskPriceFractionIndicator::Whole -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Ten -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Hundred -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Thousand -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::TenThousand -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::HundredThousand -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Million -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::TenMillion -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::HundredMillion -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Billion -> ask_price_numeric_pair: AskPriceNumericPair;
+        * -> ask_price_unknown_fraction_pair: AskPriceUnknownFractionPair;
+    };
     ask_size: bytes &size=5;
-    last_price: bytes &size=6;
-    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+    switch ( self.last_price_fraction_pair.last_price_negative_whole_pair.last_price_fraction_indicator ) {
+        LastPriceFractionIndicator::NegativeWhole -> last_price_negative_whole_pair: LastPriceNegativeWholePair;
+        LastPriceFractionIndicator::NegativeTen -> last_price_negative_ten_pair: LastPriceNegativeTenPair;
+        LastPriceFractionIndicator::NegativeHundred -> last_price_negative_hundred_pair: LastPriceNegativeHundredPair;
+        LastPriceFractionIndicator::NegativeThousand -> last_price_negative_thousand_pair: LastPriceNegativeThousandPair;
+        LastPriceFractionIndicator::NegativeTenThousand -> last_price_negative_ten_thousand_pair: LastPriceNegativeTenThousandPair;
+        LastPriceFractionIndicator::NegativeHundredThousand -> last_price_negative_hundred_thousand_pair: LastPriceNegativeHundredThousandPair;
+        LastPriceFractionIndicator::NegativeMillion -> last_price_negative_million_pair: LastPriceNegativeMillionPair;
+        LastPriceFractionIndicator::Whole -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Ten -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Hundred -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Thousand -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::TenThousand -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::HundredThousand -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Million -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::TenMillion -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::HundredMillion -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Billion -> last_price_numeric_pair: LastPriceNumericPair;
+        * -> last_price_unknown_fraction_pair: LastPriceUnknownFractionPair;
+    };
     open_interest: bytes &size=7;
     tick: uint8 &convert=Tick($$);
     volume: bytes &size=8;
     net_change_sign: uint8 &convert=NetChangeSign($$);
-    net_change: bytes &size=6;
-    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
-    open_price: bytes &size=6;
-    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
-    high_price: bytes &size=6;
-    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
-    low_price: bytes &size=6;
-    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+    switch ( self.net_change_fraction_pair.net_change_negative_whole_pair.net_change_fraction_indicator ) {
+        NetChangeFractionIndicator::NegativeWhole -> net_change_negative_whole_pair: NetChangeNegativeWholePair;
+        NetChangeFractionIndicator::NegativeTen -> net_change_negative_ten_pair: NetChangeNegativeTenPair;
+        NetChangeFractionIndicator::NegativeHundred -> net_change_negative_hundred_pair: NetChangeNegativeHundredPair;
+        NetChangeFractionIndicator::NegativeThousand -> net_change_negative_thousand_pair: NetChangeNegativeThousandPair;
+        NetChangeFractionIndicator::NegativeTenThousand -> net_change_negative_ten_thousand_pair: NetChangeNegativeTenThousandPair;
+        NetChangeFractionIndicator::NegativeHundredThousand -> net_change_negative_hundred_thousand_pair: NetChangeNegativeHundredThousandPair;
+        NetChangeFractionIndicator::NegativeMillion -> net_change_negative_million_pair: NetChangeNegativeMillionPair;
+        NetChangeFractionIndicator::Whole -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Ten -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Hundred -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Thousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Million -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Billion -> net_change_numeric_pair: NetChangeNumericPair;
+        * -> net_change_unknown_fraction_pair: NetChangeUnknownFractionPair;
+    };
+    switch ( self.open_price_fraction_pair.open_price_negative_whole_pair.open_price_fraction_indicator ) {
+        OpenPriceFractionIndicator::NegativeWhole -> open_price_negative_whole_pair: OpenPriceNegativeWholePair;
+        OpenPriceFractionIndicator::NegativeTen -> open_price_negative_ten_pair: OpenPriceNegativeTenPair;
+        OpenPriceFractionIndicator::NegativeHundred -> open_price_negative_hundred_pair: OpenPriceNegativeHundredPair;
+        OpenPriceFractionIndicator::NegativeThousand -> open_price_negative_thousand_pair: OpenPriceNegativeThousandPair;
+        OpenPriceFractionIndicator::NegativeTenThousand -> open_price_negative_ten_thousand_pair: OpenPriceNegativeTenThousandPair;
+        OpenPriceFractionIndicator::NegativeHundredThousand -> open_price_negative_hundred_thousand_pair: OpenPriceNegativeHundredThousandPair;
+        OpenPriceFractionIndicator::NegativeMillion -> open_price_negative_million_pair: OpenPriceNegativeMillionPair;
+        OpenPriceFractionIndicator::Whole -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Ten -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Hundred -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Thousand -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::TenThousand -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::HundredThousand -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Million -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::TenMillion -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::HundredMillion -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Billion -> open_price_numeric_pair: OpenPriceNumericPair;
+        * -> open_price_unknown_fraction_pair: OpenPriceUnknownFractionPair;
+    };
+    switch ( self.high_price_fraction_pair.high_price_negative_whole_pair.high_price_fraction_indicator ) {
+        HighPriceFractionIndicator::NegativeWhole -> high_price_negative_whole_pair: HighPriceNegativeWholePair;
+        HighPriceFractionIndicator::NegativeTen -> high_price_negative_ten_pair: HighPriceNegativeTenPair;
+        HighPriceFractionIndicator::NegativeHundred -> high_price_negative_hundred_pair: HighPriceNegativeHundredPair;
+        HighPriceFractionIndicator::NegativeThousand -> high_price_negative_thousand_pair: HighPriceNegativeThousandPair;
+        HighPriceFractionIndicator::NegativeTenThousand -> high_price_negative_ten_thousand_pair: HighPriceNegativeTenThousandPair;
+        HighPriceFractionIndicator::NegativeHundredThousand -> high_price_negative_hundred_thousand_pair: HighPriceNegativeHundredThousandPair;
+        HighPriceFractionIndicator::NegativeMillion -> high_price_negative_million_pair: HighPriceNegativeMillionPair;
+        HighPriceFractionIndicator::Whole -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Ten -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Hundred -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Thousand -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::TenThousand -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::HundredThousand -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Million -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::TenMillion -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::HundredMillion -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Billion -> high_price_numeric_pair: HighPriceNumericPair;
+        * -> high_price_unknown_fraction_pair: HighPriceUnknownFractionPair;
+    };
+    switch ( self.low_price_fraction_pair.low_price_negative_whole_pair.low_price_fraction_indicator ) {
+        LowPriceFractionIndicator::NegativeWhole -> low_price_negative_whole_pair: LowPriceNegativeWholePair;
+        LowPriceFractionIndicator::NegativeTen -> low_price_negative_ten_pair: LowPriceNegativeTenPair;
+        LowPriceFractionIndicator::NegativeHundred -> low_price_negative_hundred_pair: LowPriceNegativeHundredPair;
+        LowPriceFractionIndicator::NegativeThousand -> low_price_negative_thousand_pair: LowPriceNegativeThousandPair;
+        LowPriceFractionIndicator::NegativeTenThousand -> low_price_negative_ten_thousand_pair: LowPriceNegativeTenThousandPair;
+        LowPriceFractionIndicator::NegativeHundredThousand -> low_price_negative_hundred_thousand_pair: LowPriceNegativeHundredThousandPair;
+        LowPriceFractionIndicator::NegativeMillion -> low_price_negative_million_pair: LowPriceNegativeMillionPair;
+        LowPriceFractionIndicator::Whole -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Ten -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Hundred -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Thousand -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::TenThousand -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::HundredThousand -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Million -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::TenMillion -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::HundredMillion -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Billion -> low_price_numeric_pair: LowPriceNumericPair;
+        * -> low_price_unknown_fraction_pair: LowPriceUnknownFractionPair;
+    };
     option_marker: OptionMarker;
     underlying_symbol: bytes &size=10;
+    switch ( self.reference_price_fraction_pair.reference_price_negative_whole_pair.reference_price_fraction_indicator ) {
+        ReferencePriceFractionIndicator::NegativeWhole -> reference_price_negative_whole_pair: ReferencePriceNegativeWholePair;
+        ReferencePriceFractionIndicator::NegativeTen -> reference_price_negative_ten_pair: ReferencePriceNegativeTenPair;
+        ReferencePriceFractionIndicator::NegativeHundred -> reference_price_negative_hundred_pair: ReferencePriceNegativeHundredPair;
+        ReferencePriceFractionIndicator::NegativeThousand -> reference_price_negative_thousand_pair: ReferencePriceNegativeThousandPair;
+        ReferencePriceFractionIndicator::NegativeTenThousand -> reference_price_negative_ten_thousand_pair: ReferencePriceNegativeTenThousandPair;
+        ReferencePriceFractionIndicator::NegativeHundredThousand -> reference_price_negative_hundred_thousand_pair: ReferencePriceNegativeHundredThousandPair;
+        ReferencePriceFractionIndicator::NegativeMillion -> reference_price_negative_million_pair: ReferencePriceNegativeMillionPair;
+        ReferencePriceFractionIndicator::Whole -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::Ten -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::Hundred -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::Thousand -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::TenThousand -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::HundredThousand -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::Million -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::TenMillion -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::HundredMillion -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        ReferencePriceFractionIndicator::Billion -> reference_price_numeric_pair: ReferencePriceNumericPair;
+        * -> reference_price_unknown_fraction_pair: ReferencePriceUnknownFractionPair;
+    };
+};
+
+type BidPriceNegativeWholePair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceNegativeTenPair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceNegativeHundredPair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceNegativeThousandPair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceNegativeTenThousandPair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceNegativeHundredThousandPair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceNegativeMillionPair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceNumericPair = unit {
+    bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type BidPriceUnknownFractionPair = unit {
+    raw_bid_price: bytes &size=6;
+    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+};
+
+type AskPriceNegativeWholePair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceNegativeTenPair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceNegativeHundredPair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceNegativeThousandPair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceNegativeTenThousandPair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceNegativeHundredThousandPair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceNegativeMillionPair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceNumericPair = unit {
+    ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type AskPriceUnknownFractionPair = unit {
+    raw_ask_price: bytes &size=6;
+    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+};
+
+type LastPriceNegativeWholePair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceNegativeTenPair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceNegativeHundredPair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceNegativeThousandPair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceNegativeTenThousandPair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceNegativeHundredThousandPair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceNegativeMillionPair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceNumericPair = unit {
+    last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type LastPriceUnknownFractionPair = unit {
+    raw_last_price: bytes &size=6;
+    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+};
+
+type OpenPriceNegativeWholePair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceNegativeTenPair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceNegativeHundredPair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceNegativeThousandPair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceNegativeTenThousandPair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceNegativeHundredThousandPair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceNegativeMillionPair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceNumericPair = unit {
+    open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type OpenPriceUnknownFractionPair = unit {
+    raw_open_price: bytes &size=6;
+    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+};
+
+type HighPriceNegativeWholePair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceNegativeTenPair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceNegativeHundredPair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceNegativeThousandPair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceNegativeTenThousandPair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceNegativeHundredThousandPair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceNegativeMillionPair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceNumericPair = unit {
+    high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type HighPriceUnknownFractionPair = unit {
+    raw_high_price: bytes &size=6;
+    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+};
+
+type LowPriceNegativeWholePair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceNegativeTenPair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceNegativeHundredPair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceNegativeThousandPair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceNegativeTenThousandPair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceNegativeHundredThousandPair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceNegativeMillionPair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceNumericPair = unit {
+    low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type LowPriceUnknownFractionPair = unit {
+    raw_low_price: bytes &size=6;
+    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+};
+
+type ReferencePriceNegativeWholePair = unit {
+    raw_reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceNegativeTenPair = unit {
+    raw_reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceNegativeHundredPair = unit {
+    raw_reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceNegativeThousandPair = unit {
+    raw_reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceNegativeTenThousandPair = unit {
+    raw_reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceNegativeHundredThousandPair = unit {
+    raw_reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceNegativeMillionPair = unit {
+    raw_reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceNumericPair = unit {
     reference_price: bytes &size=6;
+    reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
+};
+
+type ReferencePriceUnknownFractionPair = unit {
+    raw_reference_price: bytes &size=6;
     reference_price_fraction_indicator: uint8 &convert=ReferencePriceFractionIndicator($$);
 };
 
@@ -326,28 +1638,154 @@ type ComplexOrderSummaryMessage = unit {
     exchange_id: bytes &size=1;
     complex_order_instrument_symbol: bytes &size=30;
     bid_price_sign: bytes &size=1;
-    bid_price: bytes &size=6;
-    bid_price_fraction_indicator: uint8 &convert=BidPriceFractionIndicator($$);
+    switch ( self.bid_price_fraction_pair.bid_price_negative_whole_pair.bid_price_fraction_indicator ) {
+        BidPriceFractionIndicator::NegativeWhole -> bid_price_negative_whole_pair: BidPriceNegativeWholePair;
+        BidPriceFractionIndicator::NegativeTen -> bid_price_negative_ten_pair: BidPriceNegativeTenPair;
+        BidPriceFractionIndicator::NegativeHundred -> bid_price_negative_hundred_pair: BidPriceNegativeHundredPair;
+        BidPriceFractionIndicator::NegativeThousand -> bid_price_negative_thousand_pair: BidPriceNegativeThousandPair;
+        BidPriceFractionIndicator::NegativeTenThousand -> bid_price_negative_ten_thousand_pair: BidPriceNegativeTenThousandPair;
+        BidPriceFractionIndicator::NegativeHundredThousand -> bid_price_negative_hundred_thousand_pair: BidPriceNegativeHundredThousandPair;
+        BidPriceFractionIndicator::NegativeMillion -> bid_price_negative_million_pair: BidPriceNegativeMillionPair;
+        BidPriceFractionIndicator::Whole -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Ten -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Hundred -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Thousand -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::TenThousand -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::HundredThousand -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Million -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::TenMillion -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::HundredMillion -> bid_price_numeric_pair: BidPriceNumericPair;
+        BidPriceFractionIndicator::Billion -> bid_price_numeric_pair: BidPriceNumericPair;
+        * -> bid_price_unknown_fraction_pair: BidPriceUnknownFractionPair;
+    };
     bid_size: bytes &size=5;
     ask_price_sign: uint8 &convert=AskPriceSign($$);
-    ask_price: bytes &size=6;
-    ask_price_fraction_indicator: uint8 &convert=AskPriceFractionIndicator($$);
+    switch ( self.ask_price_fraction_pair.ask_price_negative_whole_pair.ask_price_fraction_indicator ) {
+        AskPriceFractionIndicator::NegativeWhole -> ask_price_negative_whole_pair: AskPriceNegativeWholePair;
+        AskPriceFractionIndicator::NegativeTen -> ask_price_negative_ten_pair: AskPriceNegativeTenPair;
+        AskPriceFractionIndicator::NegativeHundred -> ask_price_negative_hundred_pair: AskPriceNegativeHundredPair;
+        AskPriceFractionIndicator::NegativeThousand -> ask_price_negative_thousand_pair: AskPriceNegativeThousandPair;
+        AskPriceFractionIndicator::NegativeTenThousand -> ask_price_negative_ten_thousand_pair: AskPriceNegativeTenThousandPair;
+        AskPriceFractionIndicator::NegativeHundredThousand -> ask_price_negative_hundred_thousand_pair: AskPriceNegativeHundredThousandPair;
+        AskPriceFractionIndicator::NegativeMillion -> ask_price_negative_million_pair: AskPriceNegativeMillionPair;
+        AskPriceFractionIndicator::Whole -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Ten -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Hundred -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Thousand -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::TenThousand -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::HundredThousand -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Million -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::TenMillion -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::HundredMillion -> ask_price_numeric_pair: AskPriceNumericPair;
+        AskPriceFractionIndicator::Billion -> ask_price_numeric_pair: AskPriceNumericPair;
+        * -> ask_price_unknown_fraction_pair: AskPriceUnknownFractionPair;
+    };
     ask_size: bytes &size=5;
     last_price_sign: bytes &size=1;
-    last_price: bytes &size=6;
-    last_price_fraction_indicator: uint8 &convert=LastPriceFractionIndicator($$);
+    switch ( self.last_price_fraction_pair.last_price_negative_whole_pair.last_price_fraction_indicator ) {
+        LastPriceFractionIndicator::NegativeWhole -> last_price_negative_whole_pair: LastPriceNegativeWholePair;
+        LastPriceFractionIndicator::NegativeTen -> last_price_negative_ten_pair: LastPriceNegativeTenPair;
+        LastPriceFractionIndicator::NegativeHundred -> last_price_negative_hundred_pair: LastPriceNegativeHundredPair;
+        LastPriceFractionIndicator::NegativeThousand -> last_price_negative_thousand_pair: LastPriceNegativeThousandPair;
+        LastPriceFractionIndicator::NegativeTenThousand -> last_price_negative_ten_thousand_pair: LastPriceNegativeTenThousandPair;
+        LastPriceFractionIndicator::NegativeHundredThousand -> last_price_negative_hundred_thousand_pair: LastPriceNegativeHundredThousandPair;
+        LastPriceFractionIndicator::NegativeMillion -> last_price_negative_million_pair: LastPriceNegativeMillionPair;
+        LastPriceFractionIndicator::Whole -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Ten -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Hundred -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Thousand -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::TenThousand -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::HundredThousand -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Million -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::TenMillion -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::HundredMillion -> last_price_numeric_pair: LastPriceNumericPair;
+        LastPriceFractionIndicator::Billion -> last_price_numeric_pair: LastPriceNumericPair;
+        * -> last_price_unknown_fraction_pair: LastPriceUnknownFractionPair;
+    };
     open_price_sign: uint8 &convert=OpenPriceSign($$);
-    open_price: bytes &size=6;
-    open_price_fraction_indicator: uint8 &convert=OpenPriceFractionIndicator($$);
+    switch ( self.open_price_fraction_pair.open_price_negative_whole_pair.open_price_fraction_indicator ) {
+        OpenPriceFractionIndicator::NegativeWhole -> open_price_negative_whole_pair: OpenPriceNegativeWholePair;
+        OpenPriceFractionIndicator::NegativeTen -> open_price_negative_ten_pair: OpenPriceNegativeTenPair;
+        OpenPriceFractionIndicator::NegativeHundred -> open_price_negative_hundred_pair: OpenPriceNegativeHundredPair;
+        OpenPriceFractionIndicator::NegativeThousand -> open_price_negative_thousand_pair: OpenPriceNegativeThousandPair;
+        OpenPriceFractionIndicator::NegativeTenThousand -> open_price_negative_ten_thousand_pair: OpenPriceNegativeTenThousandPair;
+        OpenPriceFractionIndicator::NegativeHundredThousand -> open_price_negative_hundred_thousand_pair: OpenPriceNegativeHundredThousandPair;
+        OpenPriceFractionIndicator::NegativeMillion -> open_price_negative_million_pair: OpenPriceNegativeMillionPair;
+        OpenPriceFractionIndicator::Whole -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Ten -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Hundred -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Thousand -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::TenThousand -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::HundredThousand -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Million -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::TenMillion -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::HundredMillion -> open_price_numeric_pair: OpenPriceNumericPair;
+        OpenPriceFractionIndicator::Billion -> open_price_numeric_pair: OpenPriceNumericPair;
+        * -> open_price_unknown_fraction_pair: OpenPriceUnknownFractionPair;
+    };
     high_price_sign: uint8 &convert=HighPriceSign($$);
-    high_price: bytes &size=6;
-    high_price_fraction_indicator: uint8 &convert=HighPriceFractionIndicator($$);
+    switch ( self.high_price_fraction_pair.high_price_negative_whole_pair.high_price_fraction_indicator ) {
+        HighPriceFractionIndicator::NegativeWhole -> high_price_negative_whole_pair: HighPriceNegativeWholePair;
+        HighPriceFractionIndicator::NegativeTen -> high_price_negative_ten_pair: HighPriceNegativeTenPair;
+        HighPriceFractionIndicator::NegativeHundred -> high_price_negative_hundred_pair: HighPriceNegativeHundredPair;
+        HighPriceFractionIndicator::NegativeThousand -> high_price_negative_thousand_pair: HighPriceNegativeThousandPair;
+        HighPriceFractionIndicator::NegativeTenThousand -> high_price_negative_ten_thousand_pair: HighPriceNegativeTenThousandPair;
+        HighPriceFractionIndicator::NegativeHundredThousand -> high_price_negative_hundred_thousand_pair: HighPriceNegativeHundredThousandPair;
+        HighPriceFractionIndicator::NegativeMillion -> high_price_negative_million_pair: HighPriceNegativeMillionPair;
+        HighPriceFractionIndicator::Whole -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Ten -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Hundred -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Thousand -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::TenThousand -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::HundredThousand -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Million -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::TenMillion -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::HundredMillion -> high_price_numeric_pair: HighPriceNumericPair;
+        HighPriceFractionIndicator::Billion -> high_price_numeric_pair: HighPriceNumericPair;
+        * -> high_price_unknown_fraction_pair: HighPriceUnknownFractionPair;
+    };
     low_price_sign: uint8 &convert=LowPriceSign($$);
-    low_price: bytes &size=6;
-    low_price_fraction_indicator: uint8 &convert=LowPriceFractionIndicator($$);
+    switch ( self.low_price_fraction_pair.low_price_negative_whole_pair.low_price_fraction_indicator ) {
+        LowPriceFractionIndicator::NegativeWhole -> low_price_negative_whole_pair: LowPriceNegativeWholePair;
+        LowPriceFractionIndicator::NegativeTen -> low_price_negative_ten_pair: LowPriceNegativeTenPair;
+        LowPriceFractionIndicator::NegativeHundred -> low_price_negative_hundred_pair: LowPriceNegativeHundredPair;
+        LowPriceFractionIndicator::NegativeThousand -> low_price_negative_thousand_pair: LowPriceNegativeThousandPair;
+        LowPriceFractionIndicator::NegativeTenThousand -> low_price_negative_ten_thousand_pair: LowPriceNegativeTenThousandPair;
+        LowPriceFractionIndicator::NegativeHundredThousand -> low_price_negative_hundred_thousand_pair: LowPriceNegativeHundredThousandPair;
+        LowPriceFractionIndicator::NegativeMillion -> low_price_negative_million_pair: LowPriceNegativeMillionPair;
+        LowPriceFractionIndicator::Whole -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Ten -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Hundred -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Thousand -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::TenThousand -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::HundredThousand -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Million -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::TenMillion -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::HundredMillion -> low_price_numeric_pair: LowPriceNumericPair;
+        LowPriceFractionIndicator::Billion -> low_price_numeric_pair: LowPriceNumericPair;
+        * -> low_price_unknown_fraction_pair: LowPriceUnknownFractionPair;
+    };
     net_change_sign: uint8 &convert=NetChangeSign($$);
-    net_change: bytes &size=6;
-    net_change_fraction_indicator: uint8 &convert=NetChangeFractionIndicator($$);
+    switch ( self.net_change_fraction_pair.net_change_negative_whole_pair.net_change_fraction_indicator ) {
+        NetChangeFractionIndicator::NegativeWhole -> net_change_negative_whole_pair: NetChangeNegativeWholePair;
+        NetChangeFractionIndicator::NegativeTen -> net_change_negative_ten_pair: NetChangeNegativeTenPair;
+        NetChangeFractionIndicator::NegativeHundred -> net_change_negative_hundred_pair: NetChangeNegativeHundredPair;
+        NetChangeFractionIndicator::NegativeThousand -> net_change_negative_thousand_pair: NetChangeNegativeThousandPair;
+        NetChangeFractionIndicator::NegativeTenThousand -> net_change_negative_ten_thousand_pair: NetChangeNegativeTenThousandPair;
+        NetChangeFractionIndicator::NegativeHundredThousand -> net_change_negative_hundred_thousand_pair: NetChangeNegativeHundredThousandPair;
+        NetChangeFractionIndicator::NegativeMillion -> net_change_negative_million_pair: NetChangeNegativeMillionPair;
+        NetChangeFractionIndicator::Whole -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Ten -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Hundred -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Thousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredThousand -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Million -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::TenMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::HundredMillion -> net_change_numeric_pair: NetChangeNumericPair;
+        NetChangeFractionIndicator::Billion -> net_change_numeric_pair: NetChangeNumericPair;
+        * -> net_change_unknown_fraction_pair: NetChangeUnknownFractionPair;
+    };
     volume: bytes &size=8;
 };
 
@@ -368,8 +1806,26 @@ type OptionImprovementProcessBeginningMessage = unit {
     exchange_id: bytes &size=1;
     instrument_description: InstrumentDescription;
     improvement_phase_sequential_number: bytes &size=6;
-    initial_order_price: bytes &size=6;
-    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+    switch ( self.initial_order_price_fraction_pair.initial_order_price_negative_whole_pair.initial_order_price_fraction_indicator ) {
+        InitialOrderPriceFractionIndicator::NegativeWhole -> initial_order_price_negative_whole_pair: InitialOrderPriceNegativeWholePair;
+        InitialOrderPriceFractionIndicator::NegativeTen -> initial_order_price_negative_ten_pair: InitialOrderPriceNegativeTenPair;
+        InitialOrderPriceFractionIndicator::NegativeHundred -> initial_order_price_negative_hundred_pair: InitialOrderPriceNegativeHundredPair;
+        InitialOrderPriceFractionIndicator::NegativeThousand -> initial_order_price_negative_thousand_pair: InitialOrderPriceNegativeThousandPair;
+        InitialOrderPriceFractionIndicator::NegativeTenThousand -> initial_order_price_negative_ten_thousand_pair: InitialOrderPriceNegativeTenThousandPair;
+        InitialOrderPriceFractionIndicator::NegativeHundredThousand -> initial_order_price_negative_hundred_thousand_pair: InitialOrderPriceNegativeHundredThousandPair;
+        InitialOrderPriceFractionIndicator::NegativeMillion -> initial_order_price_negative_million_pair: InitialOrderPriceNegativeMillionPair;
+        InitialOrderPriceFractionIndicator::Whole -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Ten -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Hundred -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Thousand -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::TenThousand -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::HundredThousand -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Million -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::TenMillion -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::HundredMillion -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Billion -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        * -> initial_order_price_unknown_fraction_pair: InitialOrderPriceUnknownFractionPair;
+    };
     initial_order_quantity: bytes &size=8;
     initial_order_side: uint8 &convert=InitialOrderSide($$);
     improvement_phase_expiry_time: bytes &size=8;
@@ -380,13 +1836,76 @@ type OptionImprovementProcessBeginningMessage = unit {
     : skip bytes &size=1;   # padding
 };
 
+type InitialOrderPriceNegativeWholePair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceNegativeTenPair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceNegativeHundredPair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceNegativeThousandPair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceNegativeTenThousandPair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceNegativeHundredThousandPair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceNegativeMillionPair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceNumericPair = unit {
+    initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
+type InitialOrderPriceUnknownFractionPair = unit {
+    raw_initial_order_price: bytes &size=6;
+    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+};
+
 type ComplexOrderImprovementProcessBeginningMessageMessage = unit {
     exchange_id: bytes &size=1;
     complex_order_instrument_symbol: bytes &size=30;
     improvement_phase_sequential_number: bytes &size=6;
     initial_order_price_sign: uint8 &convert=InitialOrderPriceSign($$);
-    initial_order_price: bytes &size=6;
-    initial_order_price_fraction_indicator: uint8 &convert=InitialOrderPriceFractionIndicator($$);
+    switch ( self.initial_order_price_fraction_pair.initial_order_price_negative_whole_pair.initial_order_price_fraction_indicator ) {
+        InitialOrderPriceFractionIndicator::NegativeWhole -> initial_order_price_negative_whole_pair: InitialOrderPriceNegativeWholePair;
+        InitialOrderPriceFractionIndicator::NegativeTen -> initial_order_price_negative_ten_pair: InitialOrderPriceNegativeTenPair;
+        InitialOrderPriceFractionIndicator::NegativeHundred -> initial_order_price_negative_hundred_pair: InitialOrderPriceNegativeHundredPair;
+        InitialOrderPriceFractionIndicator::NegativeThousand -> initial_order_price_negative_thousand_pair: InitialOrderPriceNegativeThousandPair;
+        InitialOrderPriceFractionIndicator::NegativeTenThousand -> initial_order_price_negative_ten_thousand_pair: InitialOrderPriceNegativeTenThousandPair;
+        InitialOrderPriceFractionIndicator::NegativeHundredThousand -> initial_order_price_negative_hundred_thousand_pair: InitialOrderPriceNegativeHundredThousandPair;
+        InitialOrderPriceFractionIndicator::NegativeMillion -> initial_order_price_negative_million_pair: InitialOrderPriceNegativeMillionPair;
+        InitialOrderPriceFractionIndicator::Whole -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Ten -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Hundred -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Thousand -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::TenThousand -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::HundredThousand -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Million -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::TenMillion -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::HundredMillion -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        InitialOrderPriceFractionIndicator::Billion -> initial_order_price_numeric_pair: InitialOrderPriceNumericPair;
+        * -> initial_order_price_unknown_fraction_pair: InitialOrderPriceUnknownFractionPair;
+    };
     initial_order_quantity: bytes &size=8;
     initial_order_side: uint8 &convert=InitialOrderSide($$);
     improvement_phase_expiry_time: bytes &size=8;
@@ -401,8 +1920,26 @@ type MarketSheetInitialAndImprovementOrderMessage = unit {
     instrument_description: InstrumentDescription;
     order_side: uint8 &convert=OrderSide($$);
     type_of_order: uint8 &convert=TypeOfOrder($$);
-    limit_entered_for_an_order: bytes &size=6;
-    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+    switch ( self.limit_entered_for_an_order_fraction_pair.limit_entered_for_an_order_negative_whole_pair.limit_fraction_indicator ) {
+        LimitFractionIndicator::NegativeWhole -> limit_entered_for_an_order_negative_whole_pair: LimitEnteredForAnOrderNegativeWholePair;
+        LimitFractionIndicator::NegativeTen -> limit_entered_for_an_order_negative_ten_pair: LimitEnteredForAnOrderNegativeTenPair;
+        LimitFractionIndicator::NegativeHundred -> limit_entered_for_an_order_negative_hundred_pair: LimitEnteredForAnOrderNegativeHundredPair;
+        LimitFractionIndicator::NegativeThousand -> limit_entered_for_an_order_negative_thousand_pair: LimitEnteredForAnOrderNegativeThousandPair;
+        LimitFractionIndicator::NegativeTenThousand -> limit_entered_for_an_order_negative_ten_thousand_pair: LimitEnteredForAnOrderNegativeTenThousandPair;
+        LimitFractionIndicator::NegativeHundredThousand -> limit_entered_for_an_order_negative_hundred_thousand_pair: LimitEnteredForAnOrderNegativeHundredThousandPair;
+        LimitFractionIndicator::NegativeMillion -> limit_entered_for_an_order_negative_million_pair: LimitEnteredForAnOrderNegativeMillionPair;
+        LimitFractionIndicator::Whole -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Ten -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Hundred -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Thousand -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::TenThousand -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::HundredThousand -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Million -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::TenMillion -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::HundredMillion -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Billion -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        * -> limit_entered_for_an_order_unknown_fraction_pair: LimitEnteredForAnOrderUnknownFractionPair;
+    };
     order_quantity: bytes &size=8;
     order_sequence_number: bytes &size=6;
     improvement_phase_sequential_number: bytes &size=6;
@@ -414,14 +1951,77 @@ type MarketSheetInitialAndImprovementOrderMessage = unit {
     cmta: bytes &size=4;
 };
 
+type LimitEnteredForAnOrderNegativeWholePair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderNegativeTenPair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderNegativeHundredPair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderNegativeThousandPair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderNegativeTenThousandPair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderNegativeHundredThousandPair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderNegativeMillionPair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderNumericPair = unit {
+    limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
+type LimitEnteredForAnOrderUnknownFractionPair = unit {
+    raw_limit_entered_for_an_order: bytes &size=6;
+    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+};
+
 type ComplexOrderMarketSheetInitialAndImprovementOrderMessage = unit {
     exchange_id: bytes &size=1;
     complex_order_instrument_symbol: bytes &size=30;
     order_side: uint8 &convert=OrderSide($$);
     type_of_order: uint8 &convert=TypeOfOrder($$);
     limit_entered_for_an_order_sign: uint8 &convert=LimitEnteredForAnOrderSign($$);
-    limit_entered_for_an_order: bytes &size=6;
-    limit_fraction_indicator: uint8 &convert=LimitFractionIndicator($$);
+    switch ( self.limit_entered_for_an_order_fraction_pair.limit_entered_for_an_order_negative_whole_pair.limit_fraction_indicator ) {
+        LimitFractionIndicator::NegativeWhole -> limit_entered_for_an_order_negative_whole_pair: LimitEnteredForAnOrderNegativeWholePair;
+        LimitFractionIndicator::NegativeTen -> limit_entered_for_an_order_negative_ten_pair: LimitEnteredForAnOrderNegativeTenPair;
+        LimitFractionIndicator::NegativeHundred -> limit_entered_for_an_order_negative_hundred_pair: LimitEnteredForAnOrderNegativeHundredPair;
+        LimitFractionIndicator::NegativeThousand -> limit_entered_for_an_order_negative_thousand_pair: LimitEnteredForAnOrderNegativeThousandPair;
+        LimitFractionIndicator::NegativeTenThousand -> limit_entered_for_an_order_negative_ten_thousand_pair: LimitEnteredForAnOrderNegativeTenThousandPair;
+        LimitFractionIndicator::NegativeHundredThousand -> limit_entered_for_an_order_negative_hundred_thousand_pair: LimitEnteredForAnOrderNegativeHundredThousandPair;
+        LimitFractionIndicator::NegativeMillion -> limit_entered_for_an_order_negative_million_pair: LimitEnteredForAnOrderNegativeMillionPair;
+        LimitFractionIndicator::Whole -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Ten -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Hundred -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Thousand -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::TenThousand -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::HundredThousand -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Million -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::TenMillion -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::HundredMillion -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        LimitFractionIndicator::Billion -> limit_entered_for_an_order_numeric_pair: LimitEnteredForAnOrderNumericPair;
+        * -> limit_entered_for_an_order_unknown_fraction_pair: LimitEnteredForAnOrderUnknownFractionPair;
+    };
     order_quantity: bytes &size=8;
     order_sequence_number: bytes &size=6;
     improvement_phase_sequential_number: bytes &size=6;

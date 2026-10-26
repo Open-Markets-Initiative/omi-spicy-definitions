@@ -1,10 +1,10 @@
-module TmxTsxQuantumfeedlevel2XmtV21;
+module TmxTsxQuantumfeedlevel2XmtV210;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Little;
 
-public type TsxQuantumfeedlevel2V21 = unit {
+public type TsxQuantumfeedlevel2V210 = unit {
     frame_header: FrameHeader;
     switch ( self.packet_body.heartbeat_body.body_header.msg_type ) {
         MsgType::Heartbeat -> heartbeat_body: HeartbeatBody(self.frame_header.num_body);
@@ -94,15 +94,6 @@ type SymbolStatusMessage = unit {
     currency: uint8 &convert=Currency($$);
     face_value: uint64;
     last_sale: uint64;
-    listing_market: uint8 &convert=ListingMarket($$);
-    product_type: uint8 &convert=ProductType($$);
-    buy_maximum_quantity: uint32;
-    buy_minimum_quantity: uint32;
-    sell_maximum_quantity: uint32;
-    sell_minimum_quantity: uint32;
-    stock_state: bytes &size=2;
-    test_symbol: uint8 &convert=TestSymbol($$);
-    moc_eligible: uint8 &convert=MocEligible($$);
 };
 
 type OrderBookMessage = unit {
@@ -173,11 +164,6 @@ type MocImbalanceMessage = unit {
     imbalance_volume: uint32;
     trading_system_time_stamp: uint64;
     imbalance_reference_price: uint64;
-    paired_volume: uint32;
-    market_order_imbalance_volume: uint32;
-    market_order_imbalance_side: uint8 &convert=MarketOrderImbalanceSide($$);
-    near_indicative_closing_price: uint64;
-    far_indicative_closing_price: uint64;
 };
 
 type OrderBookedMessage = unit {
@@ -248,8 +234,6 @@ type StockStatusMessage = unit {
     comment: bytes &size=40;
     stock_state: bytes &size=2;
     trading_system_time_stamp: uint64;
-    listing_market: uint8 &convert=ListingMarket($$);
-    product_type: uint8 &convert=ProductType($$);
 };
 
 type TradeReportMessage = unit {
@@ -267,10 +251,6 @@ type TradeReportMessage = unit {
     trade_time_stamp: uint32;
     cross_type: uint8 &convert=CrossType($$);
     trading_system_time_stamp: uint64;
-    listing_market: uint8 &convert=ListingMarket($$);
-    product_type: uint8 &convert=ProductType($$);
-    trade_date: uint32;
-    is_mid_only: uint8 &convert=IsMidOnly($$);
 };
 
 type TradeReportTermsMessage = unit {
@@ -296,9 +276,6 @@ type TradeCancelledMessage = unit {
     symbol: bytes &size=9;
     trade_number: uint32;
     trading_system_time_stamp: uint64;
-    listing_market: uint8 &convert=ListingMarket($$);
-    product_type: uint8 &convert=ProductType($$);
-    trade_date: uint32;
 };
 
 type TradeCancelledTermsMessage = unit {
@@ -320,12 +297,6 @@ type TradeCorrectionMessage = unit {
     trade_time_stamp: uint32;
     cross_type: uint8 &convert=CrossType($$);
     trading_system_time_stamp: uint64;
-    listing_market: uint8 &convert=ListingMarket($$);
-    product_type: uint8 &convert=ProductType($$);
-    trade_date: uint32;
-    is_mid_only: uint8 &convert=IsMidOnly($$);
-    is_dark: uint8 &convert=IsDark($$);
-    is_conditional: uint8 &convert=IsConditional($$);
 };
 
 type TradeCorrectionTermsMessage = unit {
@@ -388,40 +359,6 @@ type Currency = enum {
     Cad = 0x43,
 };
 
-type ListingMarket = enum {
-    Tsx = 0x54,
-    TsxVenture = 0x56,
-    TsxNaVex = 0x4e,
-    Nasdaq = 0x51,
-    Nyse = 0x53,
-    NyseMkt = 0x4d,
-    NNoMarket = 0x58,
-};
-
-type ProductType = enum {
-    Debenture = 0x42,
-    Equity = 0x45,
-    MutualFund = 0x4d,
-    Etf = 0x46,
-    UsEquity = 0x55,
-    Bond = 0x4f,
-};
-
-type StockState = enum {
-    Authorized = 0x41,
-    Inhibited = 0x49,
-};
-
-type TestSymbol = enum {
-    Yes = 0x59,
-    No = 0x4e,
-};
-
-type MocEligible = enum {
-    Yes = 0x59,
-    No = 0x4e,
-};
-
 type OrderSide = enum {
     Buy = 0x42,
     Sell = 0x53,
@@ -438,7 +375,6 @@ type SettlementTerms = enum {
     Ms = 0x4d,
     Ct = 0x54,
     ValidSettlementDate = 0x44,
-    NoSettlementTerms = 0x20,
 };
 
 type MarketState = enum {
@@ -446,19 +382,13 @@ type MarketState = enum {
     Opening = 0x4f,
     Open = 0x53,
     MocImbalance = 0x4d,
-    MocFreeze = 0x54,
     CcpDetermination = 0x41,
     PriceMovementExtension = 0x45,
     Closing = 0x4c,
     ExtendedHoursCxls = 0x4e,
     ExtendedHoursOpen = 0x52,
+    ExtendedHoursClose = 0x46,
     Closed = 0x43,
-    NavExClosed = 0x4a,
-    NavExOrderEntry = 0x47,
-    NavExOrderEntryClose = 0x48,
-    NavExAmExecution = 0x4b,
-    NavExPmExecution = 0x58,
-    NavExClose = 0x59,
 };
 
 type ImbalanceSide = enum {
@@ -467,10 +397,9 @@ type ImbalanceSide = enum {
     NoImbalanceExists = 0x20,
 };
 
-type MarketOrderImbalanceSide = enum {
-    Buy = 0x42,
-    Sell = 0x53,
-    NoImbalanceExists = 0x20,
+type StockState = enum {
+    Authorized = 0x41,
+    Inhibited = 0x49,
 };
 
 type Bypass = enum {
@@ -482,31 +411,13 @@ type CrossType = enum {
     Internal = 0x49,
     Basis = 0x42,
     Contingent = 0x43,
-    DerivativeRelated = 0x44,
-    Regular = 0x52,
     SpecialTradingSession = 0x53,
     VolumeWeightedAveragePrice = 0x56,
-    DefaultTradeWasNotACross = 0x20,
-};
-
-type IsMidOnly = enum {
-    Yes = 0x59,
-    No = 0x4e,
 };
 
 type InitiatedBy = enum {
     Buy = 0x42,
     Sell = 0x53,
     Both = 0x43,
-};
-
-type IsDark = enum {
-    Yes = 0x59,
-    No = 0x4e,
-};
-
-type IsConditional = enum {
-    Yes = 0x59,
-    No = 0x4e,
 };
 

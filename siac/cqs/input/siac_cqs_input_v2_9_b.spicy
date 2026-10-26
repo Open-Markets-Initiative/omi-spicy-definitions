@@ -21,11 +21,24 @@ type BlockHeader = unit {
 
 type Message = unit {
     message_header: MessageHeader;
-    switch ( self.message_header.message_category ) {
-        MessageCategory::Administrative -> administrative_message: AdministrativeMessage;
-        MessageCategory::Control -> control_message: ControlMessage;
-        MessageCategory::Quote -> quote_message: QuoteMessage;
-        MessageCategory::Trade -> trade_message: TradeMessage;
+    switch ( self.message_header ) {
+        0x4152 -> rejection_message: RejectionMessage;
+        0x4150 -> partial_rejection_message: PartialRejectionMessage;
+        0x4157 -> warning_message: WarningMessage;
+        0x434e -> sequence_information_and_message_count_response_message: SequenceInformationAndMessageCountResponseMessage;
+        0x4352 -> odd_lot_refresh_request_message: OddLotRefreshRequestMessage;
+        0x4335 -> test_message: TestMessage;
+        0x5141 -> auction_status_message: AuctionStatusMessage;
+        0x5151 -> short_quote_message: ShortQuoteMessage;
+        0x514c -> long_quote_message: LongQuoteMessage;
+        0x5153 -> special_long_quote_message: SpecialLongQuoteMessage;
+        0x5150 -> round_lot_short_quote_message: RoundLotShortQuoteMessage;
+        0x514b -> round_lot_long_quote_message: RoundLotLongQuoteMessage;
+        0x5155 -> round_lot_finra_adf_quote_message: RoundLotFinraAdfQuoteMessage;
+        0x5152 -> odd_lot_short_quote_message: OddLotShortQuoteMessage;
+        0x514d -> odd_lot_long_quote_message: OddLotLongQuoteMessage;
+        0x5154 -> odd_lot_finra_adf_quote_message: OddLotFinraAdfQuoteMessage;
+        0x5453 -> trading_status_message: TradingStatusMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -44,16 +57,6 @@ type MessageHeader = unit {
 type Timestamp1 = unit {
     seconds: uint32;
     nanoseconds: uint32;
-};
-
-type AdministrativeMessage = unit {
-    administrative_message_type: uint8;
-    switch ( self.administrative_message_type ) {
-        0x52 -> rejection_message: RejectionMessage;
-        0x50 -> partial_rejection_message: PartialRejectionMessage;
-        0x57 -> warning_message: WarningMessage;
-        * -> unknown: bytes &eod;
-    };
 };
 
 type RejectionMessage = unit {
@@ -116,16 +119,6 @@ type WarningMessage = unit {
     previous_participant_reference_number: int64;
 };
 
-type ControlMessage = unit {
-    control_message_type: uint8;
-    switch ( self.control_message_type ) {
-        0x4e -> sequence_information_and_message_count_response_message: SequenceInformationAndMessageCountResponseMessage;
-        0x52 -> odd_lot_refresh_request_message: OddLotRefreshRequestMessage;
-        0x35 -> test_message: TestMessage;
-        * -> unknown: bytes &eod;
-    };
-};
-
 type SequenceInformationAndMessageCountResponseMessage = unit {
     current_block_sequence_number: uint32;
     last_participant_reference_number: int64;
@@ -140,23 +133,6 @@ type OddLotRefreshRequestMessage = unit {
 
 type TestMessage = unit {
     data: bytes &size=256;
-};
-
-type QuoteMessage = unit {
-    quote_message_type: uint8;
-    switch ( self.quote_message_type ) {
-        0x41 -> auction_status_message: AuctionStatusMessage;
-        0x51 -> short_quote_message: ShortQuoteMessage;
-        0x4c -> long_quote_message: LongQuoteMessage;
-        0x53 -> special_long_quote_message: SpecialLongQuoteMessage;
-        0x50 -> round_lot_short_quote_message: RoundLotShortQuoteMessage;
-        0x4b -> round_lot_long_quote_message: RoundLotLongQuoteMessage;
-        0x55 -> round_lot_finra_adf_quote_message: RoundLotFinraAdfQuoteMessage;
-        0x52 -> odd_lot_short_quote_message: OddLotShortQuoteMessage;
-        0x4d -> odd_lot_long_quote_message: OddLotLongQuoteMessage;
-        0x54 -> odd_lot_finra_adf_quote_message: OddLotFinraAdfQuoteMessage;
-        * -> unknown: bytes &eod;
-    };
 };
 
 type AuctionStatusMessage = unit {
@@ -343,11 +319,6 @@ type OddLotFinraAdfQuoteMessage = unit {
     count_of_odd_lot_offer_appendages: uint8;
     odd_lot_bid_extended_quote_appendage: OddLotBidExtendedQuoteAppendage[self.count_of_odd_lot_bid_appendages];
     odd_lot_offer_extended_quote_appendage: OddLotOfferExtendedQuoteAppendage[self.count_of_odd_lot_offer_appendages];
-};
-
-type TradeMessage = unit {
-    trade_message_type: uint8;
-    trade_message_payload: TradingStatusMessage;
 };
 
 type TradingStatusMessage = unit {
