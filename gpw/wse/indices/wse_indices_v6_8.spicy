@@ -6,7 +6,7 @@ import spicy;
 
 public type WseIndicesV68 = unit {
     packet_header: PacketHeader;
-    message: Message[self.packet_header.number_msg_entries];
+    message_buffer: MessageBuffer(self.packet_header.number_msg_entries);
 };
 
 type PacketHeader = unit {
@@ -17,6 +17,10 @@ type PacketHeader = unit {
     service_id: uint16;
     delivery_flag: uint8 &convert=DeliveryFlag($$);
     number_msg_entries: uint8;
+};
+
+type MessageBuffer = unit(number_msg_entries: uint8) {
+    message: Message[number_msg_entries];
 };
 
 type Message = unit {

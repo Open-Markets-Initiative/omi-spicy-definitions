@@ -74,7 +74,7 @@ type OrderAcceptedMessage = unit {
     order_reference_number: uint64;
     order_state: uint8 &convert=OrderState($$);
     appendage_length: uint16;
-    order_accepted_appendage: OrderAcceptedAppendage[] &eod;
+    order_accepted_appendage: OrderAcceptedAppendage[self.appendage_length];
 };
 
 type OrderAcceptedAppendage = unit {
@@ -94,7 +94,7 @@ type OrderReplacedMessage = unit {
     order_reference_number: uint64;
     order_state: uint8 &convert=OrderState($$);
     appendage_length: uint16;
-    order_replaced_appendage: OrderReplacedAppendage[] &eod;
+    order_replaced_appendage: OrderReplacedAppendage[self.appendage_length];
 };
 
 type OrderReplacedAppendage = unit {
@@ -109,7 +109,7 @@ type OrderCanceledMessage = unit {
     order_qty: uint32;
     cancel_reason: bytes &size=4;
     appendage_length: uint16;
-    order_canceled_appendage: OrderCanceledAppendage[] &eod;
+    order_canceled_appendage: OrderCanceledAppendage[self.appendage_length];
 };
 
 type OrderCanceledAppendage = unit {
@@ -127,7 +127,7 @@ type StpCanceledMessage = unit {
     price: uint64;
     liquidity_flag: uint8 &convert=LiquidityFlag($$);
     appendage_length: uint16;
-    stp_canceled_appendage: StpCanceledAppendage[] &eod;
+    stp_canceled_appendage: StpCanceledAppendage[self.appendage_length];
 };
 
 type StpCanceledAppendage = unit {
@@ -146,7 +146,7 @@ type OrderExecutedMessage = unit {
     exec_broker: uint8 &convert=ExecBroker($$);
     contra_broker: uint32;
     appendage_length: uint16;
-    order_executed_appendage: OrderExecutedAppendage[] &eod;
+    order_executed_appendage: OrderExecutedAppendage[self.appendage_length];
 };
 
 type OrderExecutedAppendage = unit {
@@ -162,7 +162,7 @@ type CorrectedTradeMessage = unit {
     quantity: uint32;
     price: uint64;
     appendage_length: uint16;
-    corrected_trade_appendage: CorrectedTradeAppendage[] &eod;
+    corrected_trade_appendage: CorrectedTradeAppendage[self.appendage_length];
 };
 
 type CorrectedTradeAppendage = unit {
@@ -176,7 +176,7 @@ type RejectedOrderMessage = unit {
     user_ref_num: uint32;
     reject_reason: bytes &size=4;
     appendage_length: uint16;
-    rejected_order_appendage: RejectedOrderAppendage[] &eod;
+    rejected_order_appendage: RejectedOrderAppendage[self.appendage_length];
 };
 
 type RejectedOrderAppendage = unit {
@@ -190,7 +190,7 @@ type CancelRejectMessage = unit {
     user_ref_num: uint32;
     reject_reason: bytes &size=4;
     appendage_length: uint16;
-    cancel_reject_appendage: CancelRejectAppendage[] &eod;
+    cancel_reject_appendage: CancelRejectAppendage[self.appendage_length];
 };
 
 type CancelRejectAppendage = unit {
@@ -204,7 +204,7 @@ type OrderRestatedMessage = unit {
     user_ref_num: uint32;
     restate_reason: uint8 &convert=RestateReason($$);
     appendage_length: uint16;
-    order_restated_appendage: OrderRestatedAppendage[] &eod;
+    order_restated_appendage: OrderRestatedAppendage[self.appendage_length];
 };
 
 type OrderRestatedAppendage = unit {
@@ -217,7 +217,7 @@ type AccountQueryResponseMessage = unit {
     timestamp: uint64;
     next_user_ref_num: uint32;
     appendage_length: uint16;
-    account_query_response_appendage: AccountQueryResponseAppendage[] &eod;
+    account_query_response_appendage: AccountQueryResponseAppendage[self.appendage_length];
 };
 
 type AccountQueryResponseAppendage = unit {
@@ -332,7 +332,7 @@ type PegType = enum {
     PrimaryPeg = 0x52,
     MinimumPriceImprovement = 0x78,
     SeekPriceImprovement = 0x53,
-    Melo = 0x4c,
+    MElo = 0x4c,
     OddLotLiquidityProviding = 0x6f,
 };
 
@@ -353,7 +353,7 @@ type TargetStrategy = enum {
 type OrderOrigination = enum {
     DirectAccessCustomer = 0x35,
     ForeignDealerEquivalent = 0x36,
-    ExecutiononlyService = 0x37,
+    ExecutionOnlyService = 0x37,
 };
 
 type RoutingArrangementIndicator = enum {
@@ -404,7 +404,7 @@ type ShortMarkingExempt = enum {
 
 type ConditionalOrder = enum {
     ConditionalOrder_x43 = 0x43,
-    ExtendedFirmupTimeConditionalOrder = 0x58,
+    ExtendedFirmUpTimeConditionalOrder = 0x58,
 };
 
 type AllowConditional = enum {
@@ -480,16 +480,16 @@ type LiquidityFlag = enum {
     OrderRemovedLiquidity = 0x52,
     OrderAddedHiddenLiquidity = 0x61,
     OrderRemovedHiddenLiquidity = 0x72,
-    OrderAddedHiddenLiquidityAtthetouch = 0x64,
-    OrderRemovedHiddenLiquidityAtthetouch = 0x44,
+    OrderAddedHiddenLiquidityAtTheTouch = 0x64,
+    OrderRemovedHiddenLiquidityAtTheTouch = 0x44,
     OrderAddedGefLiquidity = 0x67,
     OrderRemovedGefLiquidity = 0x47,
     MarketOnClose = 0x43,
-    DisplayedLiquidityaddingOrderImprovesTheNbbo = 0x53,
+    DisplayedLiquidityAddingOrderImprovesTheNbbo = 0x53,
     OpeningClosingAuction = 0x4f,
     LastSaleTradingSession = 0x45,
-    Melo = 0x4c,
-    CxdPureStreamRatebasedExecution = 0x50,
+    MElo = 0x4c,
+    CxdPureStreamRateBasedExecution = 0x50,
     CxdPureStreamLsMidpointBlockRemovedLiquidity = 0x4d,
     Xft = 0x46,
 };
@@ -562,7 +562,7 @@ type CancelRejectOptionalField = enum {
 type RestateReason = enum {
     StreamOn = 0x4f,
     StreamOff = 0x58,
-    ConditionalOrderFirmupRequest = 0x52,
+    ConditionalOrderFirmUpRequest = 0x52,
 };
 
 type OrderRestatedOptionalField = enum {

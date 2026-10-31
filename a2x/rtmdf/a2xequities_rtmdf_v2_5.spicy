@@ -1,0 +1,194 @@
+module A2xA2xequitiesRtmdfAmdV25;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type A2xequitiesRtmdfV25 = unit {
+    message_count: uint8;
+    message: Message[self.message_count];
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::OrderAddMessage -> order_add_message: OrderAddMessage;
+        MsgType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MsgType::OrderModifyMessage -> order_modify_message: OrderModifyMessage;
+        MsgType::TradeMessage -> trade_message: TradeMessage;
+        MsgType::TradeBustMessage -> trade_bust_message: TradeBustMessage;
+        MsgType::TickTableDataMessage -> tick_table_data_message: TickTableDataMessage;
+        MsgType::SecurityDefinitionMessage -> security_definition_message: SecurityDefinitionMessage;
+        MsgType::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
+        MsgType::MacUpdateMessage -> mac_update_message: MacUpdateMessage;
+        MsgType::AodUpdateMessage -> aod_update_message: AodUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_type: uint8 &convert=MsgType($$);
+    msg_length: uint8;
+    seq_no: uint32;
+};
+
+type OrderAddMessage = unit {
+    security_id: uint16;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: uint64;
+    order_ref: uint32;
+    timestamp: uint64;
+    md_flags: bitfield(8) {
+        unrestricted_liquidity: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type OrderCancelMessage = unit {
+    security_id: uint16;
+    order_ref: uint32;
+    timestamp: uint64;
+    md_flags: bitfield(8) {
+        unrestricted_liquidity: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type OrderModifyMessage = unit {
+    security_id: uint16;
+    quantity: uint32;
+    price: uint64;
+    order_ref: uint32;
+    timestamp: uint64;
+    md_flags: bitfield(8) {
+        unrestricted_liquidity: 0;
+        unused_7: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type TradeMessage = unit {
+    security_id: uint16;
+    trade_type: uint8 &convert=TradeType($$);
+    quantity: uint32;
+    price: uint64;
+    order_ref: uint32;
+    trade_ref: uint32;
+    timestamp: uint64;
+};
+
+type TradeBustMessage = unit {
+    security_id: uint16;
+    quantity: uint32;
+    price: uint64;
+    trade_ref: uint32;
+    timestamp: uint64;
+};
+
+type TickTableDataMessage = unit {
+    tick_table_id: uint8;
+    name: bytes &size=10;
+    threshold: uint64;
+    tick_size: uint64;
+};
+
+type SecurityDefinitionMessage = unit {
+    security_id: uint16;
+    umtf: bytes &size=6;
+    isin: bytes &size=12;
+    currency: bytes &size=3;
+    mic: bytes &size=4;
+    tick_table_id: uint8;
+    flags: bitfield(16) {
+        mac_enabled: 0;
+        test_stock: 1;
+        illiquid: 2;
+        unused_1: 3;
+        aod_enabled: 4;
+        unused_11: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type SecurityStatusMessage = unit {
+    security_id: uint16;
+    trading_status: uint8 &convert=TradingStatus($$);
+    market_flags: bitfield(8) {
+        trading: 0;
+        mac_open: 1;
+        mac_run: 2;
+        unused_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64;
+};
+
+type MacUpdateMessage = unit {
+    security_id: uint16;
+    indicative_price: uint64;
+    closing_buy_qty: uint32;
+    closing_sell_qty: uint32;
+    timestamp: uint64;
+};
+
+type AodUpdateMessage = unit {
+    security_id: uint16;
+    indicative_price: uint64;
+    match_vol: uint32;
+    timestamp: uint64;
+};
+
+type MsgType = enum {
+    HeartbeatMessage = 1,
+    OrderAddMessage = 2,
+    OrderCancelMessage = 3,
+    OrderModifyMessage = 4,
+    TradeMessage = 5,
+    TradeBustMessage = 6,
+    TickTableDataMessage = 7,
+    SecurityDefinitionMessage = 8,
+    SecurityStatusMessage = 9,
+    MacUpdateMessage = 16,
+    AodUpdateMessage = 17,
+};
+
+type Side = enum {
+    BuyOrder = 1,
+    SellOrder = 2,
+};
+
+type UnrestrictedLiquidity = enum {
+    RestrictedLiquidityOnly = 0,
+    UnrestrictedLiquidityAvailable = 1,
+};
+
+type TradeType = enum {
+    Visible = 1,
+    HiddenOrReserve = 2,
+    MarketAtCloseTrade = 3,
+    LargeInScaleCrossTrade = 4,
+    BenchmarkCrossTrade = 5,
+    AuctionOnDemandTrade = 6,
+};
+
+type TradingStatus = enum {
+    Active = 1,
+    Halted = 2,
+    Suspended = 3,
+    AodStart = 8,
+    AodEnd = 24,
+};
+
+type Trading = enum {
+    ContinuousTradingClosed = 0,
+    ContinuousTradingOpen = 1,
+};
+
+type MacOpen = enum {
+    MacIsClosed = 0,
+    MacIsOpen = 1,
+};
+
+type MacRun = enum {
+    MacIsNotLockedDown = 0,
+    MacIsLockedDown = 1,
+};
+

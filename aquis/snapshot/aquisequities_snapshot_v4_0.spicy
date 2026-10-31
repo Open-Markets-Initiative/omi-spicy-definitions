@@ -2,7 +2,7 @@ module AquisAquisequitiesSnapshotAmdV40;
 
 import spicy;
 
-%byte-order = spicy::ByteOrder::Big;
+%byte-order = spicy::ByteOrder::Little;
 
 public type AquisequitiesSnapshotV40 = unit {
     packet_header: PacketHeader;
@@ -19,7 +19,7 @@ type Message = unit {
         MsgType::SnapshotStartMessage -> snapshot_start_message: SnapshotStartMessage;
         MsgType::BookStatusMessage -> book_status_message: BookStatusMessage;
         MsgType::BookEntryMessage -> book_entry_message: BookEntryMessage;
-        MsgType::MaCBookEntryMessage -> ma_c_book_entry_message: MaCBookEntryMessage;
+        MsgType::MacBookEntryMessage -> mac_book_entry_message: MacBookEntryMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -31,13 +31,13 @@ type MessageHeader = unit {
 };
 
 type SnapshotStartMessage = unit {
-    stream_seq_no: uint32 &byte-order=spicy::ByteOrder::Little;
-    security_count: uint16 &byte-order=spicy::ByteOrder::Little;
-    timestamp: uint64 &byte-order=spicy::ByteOrder::Little;
+    stream_seq_no: uint32;
+    security_count: uint16;
+    timestamp: uint64;
 };
 
 type BookStatusMessage = unit {
-    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    security_id: uint16;
     trading_status: uint8 &convert=TradingStatus($$);
     market_flags: bitfield(8) {
         trading: 0;
@@ -45,41 +45,56 @@ type BookStatusMessage = unit {
         mac_run: 2;
         unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
-    entries: uint16 &byte-order=spicy::ByteOrder::Little;
-    closing_buy_qty: uint32 &byte-order=spicy::ByteOrder::Little;
-    closing_sell_qty: uint32 &byte-order=spicy::ByteOrder::Little;
-    indicative_price: uint64 &byte-order=spicy::ByteOrder::Little;
+    entries: uint16;
+    closing_buy_qty: uint32;
+    closing_sell_qty: uint32;
+    indicative_price: uint64;
 };
 
 type BookEntryMessage = unit {
-    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+    security_id: uint16;
     side: uint8 &convert=Side($$);
-    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
-    price: uint64 &byte-order=spicy::ByteOrder::Little;
-    order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32;
+    price: uint64;
+    order_ref: uint32;
 };
 
-type MaCBookEntryMessage = unit {
-    security_id: uint16 &byte-order=spicy::ByteOrder::Little;
+type MacBookEntryMessage = unit {
+    security_id: uint16;
     side: uint8 &convert=Side($$);
-    quantity: uint32 &byte-order=spicy::ByteOrder::Little;
-    price: uint64 &byte-order=spicy::ByteOrder::Little;
-    order_ref: uint32 &byte-order=spicy::ByteOrder::Little;
+    quantity: uint32;
+    price: uint64;
+    order_ref: uint32;
 };
 
 type MsgType = enum {
     SnapshotStartMessage = 10,
     BookStatusMessage = 11,
     BookEntryMessage = 12,
-    MaCBookEntryMessage = 18,
+    MacBookEntryMessage = 18,
 };
 
 type TradingStatus = enum {
     Active = 1,
     Halted = 2,
     Suspended = 3,
-    AoDStart = 8,
-    AoDEnd = 24,
+    AodStart = 8,
+    AodEnd = 24,
+};
+
+type Trading = enum {
+    ContinuousTradingClosed = 0,
+    ContinuousTradingOpen = 1,
+};
+
+type MacOpen = enum {
+    MacIsClosed = 0,
+    MacIsOpen = 1,
+};
+
+type MacRun = enum {
+    MacIsNotLockedDown = 0,
+    MacIsLockedDown = 1,
 };
 
 type Side = enum {

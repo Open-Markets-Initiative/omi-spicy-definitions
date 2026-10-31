@@ -261,7 +261,11 @@ type OrderModifyResponseMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     timestamp: uint64;
     user_tag: uint64;
-    order_modify_response_flags_u_81: uint8;
+    order_modify_response_flags: bitfield(8) {
+        reserved_6: 0..5;
+        lis: 6;
+        dark_flag: 7;
+    } &byte-order=spicy::ByteOrder::Little;
 };
 
 type IcebergOrderRefreshMessage = unit {
@@ -405,7 +409,7 @@ type MsgType = enum {
 };
 
 type ResultCode = enum {
-    Success = 0,
+    SuccessfulLogin = 0,
     AlreadyLoggedIn = 1,
     SequenceNumberError = 2,
     UnsupportedProtocol = 3,
@@ -433,6 +437,7 @@ type OrderType = enum {
     PostOnly = 9,
     RestrictedPocrOrder = 10,
     RestrictedPostOnlyOrder = 11,
+    NonDisplayAquisMatchingPoolOrder = 12,
 };
 
 type TimeInForce = enum {
@@ -464,23 +469,38 @@ type PartyRoleQualifier = enum {
 
 type ShortCode1 = enum {
     None_0 = 0,
-    Aggregated = 1,
-    PendingAllocation = 2,
+    Aggr = 1,
+    Pnal = 2,
     Client = 3,
 };
 
 type ShortCode2 = enum {
     None_0 = 0,
-    Aggregated = 1,
-    PendingAllocation = 2,
+    Aggr = 1,
+    Pnal = 2,
     Client = 3,
 };
 
 type ShortCode3 = enum {
     None_0 = 0,
-    Aggregated = 1,
-    PendingAllocation = 2,
+    Aggr = 1,
+    Pnal = 2,
     Client = 3,
+};
+
+type StpEnable = enum {
+    NoRestriction = 0,
+    SelfTradePreventionEnabled = 1,
+};
+
+type LisOnly = enum {
+    NoRestriction = 0,
+    LisExecutionsOnly = 1,
+};
+
+type Routetolit = enum {
+    OrderIsNotRouted = 0,
+    RouteToLit = 1,
 };
 
 type Routing = enum {
@@ -518,7 +538,7 @@ type LiqIndicator = enum {
     AddedLiquidity = 1,
     RemovedLiquidity = 2,
     RemovedLiquidityHiddenQuantity = 3,
-    AuctionMaC = 4,
+    AuctionMac = 4,
     AuctionOnDemand = 6,
 };
 

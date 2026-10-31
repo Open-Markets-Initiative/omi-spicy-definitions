@@ -1,0 +1,248 @@
+module CurrenexCurrenexforexOrderserviceCbpV26;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type CurrenexforexOrderserviceV26 = unit {
+    frame: Frame[] &eod;
+};
+
+type Frame = unit {
+    soh: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::Logon -> logon: Logon;
+        MessageType::Logout -> logout: Logout;
+        MessageType::Heartbeat -> heartbeat: Heartbeat;
+        MessageType::InstrumentInfoRequest -> instrument_info_request: InstrumentInfoRequest;
+        MessageType::InstrumentInfo -> instrument_info: InstrumentInfo;
+        MessageType::NewOrderRequest -> new_order_request: NewOrderRequest;
+        MessageType::NewOrderAck -> new_order_ack: NewOrderAck;
+        MessageType::OrderCancelRequest -> order_cancel_request: OrderCancelRequest;
+        MessageType::OrderCancelReject -> order_cancel_reject: OrderCancelReject;
+        MessageType::OrderReplaceOrCancelRequest -> order_replace_or_cancel_request: OrderReplaceOrCancelRequest;
+        MessageType::OrderReplaceOrCancelAck -> order_replace_or_cancel_ack: OrderReplaceOrCancelAck;
+        MessageType::OrderCanceledOrExpired -> order_canceled_or_expired: OrderCanceledOrExpired;
+        MessageType::Trade -> trade: Trade;
+        MessageType::PendingFill -> pending_fill: PendingFill;
+        MessageType::PendingFillCancel -> pending_fill_cancel: PendingFillCancel;
+        MessageType::TradePending -> trade_pending: TradePending;
+        MessageType::ResendRequest -> resend_request: ResendRequest;
+        MessageType::GapFill -> gap_fill: GapFill;
+        * -> unknown: bytes &eod;
+    };
+    etx: uint8;
+};
+
+type MessageHeader = unit {
+    sequence_number: uint32;
+    timestamp: uint32;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type Logon = unit {
+    user_id: bytes &size=20;
+    password: bytes &size=20;
+    session_id: int32;
+};
+
+type Logout = unit {
+    user_id: bytes &size=20;
+    session_id: int32;
+    reason: bytes &size=3;
+};
+
+type Heartbeat = unit {
+    session_id: int32;
+};
+
+type InstrumentInfoRequest = unit {
+    session_id: int32;
+};
+
+type InstrumentInfo = unit {
+    session_id: int32;
+    instrument_index: int16;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    instrument_id: bytes &size=20;
+    settlement_date: int64;
+};
+
+type NewOrderRequest = unit {
+    cl_order_id: int32;
+    order_type: uint8 &convert=OrderType($$);
+    instrument_index: int16;
+    side: uint8 &convert=Side($$);
+    order_amt: int64;
+    min_amt: int64;
+    price: int32;
+    show_amt: int64;
+    expire_type: uint8 &convert=ExpireType($$);
+};
+
+type NewOrderAck = unit {
+    cl_order_id: int32;
+    order_id: int64;
+    ack_status: uint8 &convert=AckStatus($$);
+    error_code: int16;
+};
+
+type OrderCancelRequest = unit {
+    new_cl_order_id: int32;
+    prev_cl_order_id: int32;
+    instrument_index: int16;
+};
+
+type OrderCancelReject = unit {
+    new_cl_order_id: int32;
+    prev_cl_order_id: int32;
+    error_code: int16;
+};
+
+type OrderReplaceOrCancelRequest = unit {
+    new_cl_order_id: int32;
+    orig_cl_order_id: int32;
+    order_amt: int64;
+    price: int32;
+    instrument_index: int16;
+};
+
+type OrderReplaceOrCancelAck = unit {
+    new_cl_order_id: int32;
+    prev_cl_order_id: int32;
+    status: uint8 &convert=Status($$);
+    error_code: int16;
+};
+
+type OrderCanceledOrExpired = unit {
+    cl_order_id: int32;
+    order_id: int64;
+    status: uint8 &convert=Status($$);
+    type_field: int16 &convert=Type($$);
+};
+
+type Trade = unit {
+    cl_order_id: int32;
+    order_id: int64;
+    instrument_index: int16;
+    side: uint8 &convert=Side($$);
+    fill_amt: int64;
+    fill_rate: int32;
+    exec_broker: bytes &size=4;
+    execution_id: bytes &size=20;
+    exec_type: uint8 &convert=ExecType($$);
+    settle_date: int64;
+    trade_date: int64;
+    transact_time: int64;
+    leaves_amt: int64;
+    aggressor_flag: uint8 &convert=AggressorFlag($$);
+};
+
+type PendingFill = unit {
+    cl_order_id: int32;
+    order_id: int64;
+    trade_link_id: int32;
+    fill_amt: int64;
+    fill_rate: int32;
+    aggressor_flag: uint8 &convert=AggressorFlag($$);
+    exec_broker: bytes &size=4;
+};
+
+type PendingFillCancel = unit {
+    cl_order_id: int32;
+    order_id: int64;
+    trade_link_id: int32;
+};
+
+type TradePending = unit {
+    exec_type: uint8 &convert=ExecType($$);
+    settle_date: int64;
+    trade_date: int64;
+    transact_time: int64;
+    leaves_amt: int64;
+    aggressor_flag: uint8 &convert=AggressorFlag($$);
+};
+
+type ResendRequest = unit {
+    begin_seq_no: int32;
+};
+
+type GapFill = unit {
+    new_seq_no: int32;
+    reason_code: uint8 &convert=ReasonCode($$);
+};
+
+type MessageType = enum {
+    Logon = 0x41,
+    Logout = 0x42,
+    Heartbeat = 0x43,
+    InstrumentInfoRequest = 0x45,
+    InstrumentInfo = 0x44,
+    NewOrderRequest = 0x4c,
+    NewOrderAck = 0x4d,
+    OrderCancelRequest = 0x4e,
+    OrderCancelReject = 0x4f,
+    OrderReplaceOrCancelRequest = 0x50,
+    OrderReplaceOrCancelAck = 0x51,
+    OrderCanceledOrExpired = 0x52,
+    Trade = 0x54,
+    PendingFill = 0x55,
+    PendingFillCancel = 0x56,
+    TradePending = 0x74,
+    ResendRequest = 0x32,
+    GapFill = 0x34,
+};
+
+type InstrumentType = enum {
+    ForeignExchange = 0x31,
+    CashMetals = 0x32,
+};
+
+type OrderType = enum {
+    Limit = 0x46,
+    Iceberg = 0x5a,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type ExpireType = enum {
+    Gtc = 0x47,
+    Ioc = 0x49,
+};
+
+type AckStatus = enum {
+    Rejected = 0x52,
+    Confirmed = 0x43,
+};
+
+type Status = enum {
+    Rejected = 0x52,
+    Replaced = 0x50,
+    Cancelled = 0x43,
+    Expired = 0x45,
+};
+
+type Type = enum {
+    User = 0,
+    System = 1,
+    BelowMin = 2,
+};
+
+type ExecType = enum {
+    NewTrade = 0x31,
+};
+
+type AggressorFlag = enum {
+    Aggressor = 0x31,
+    NotAggressor = 0x32,
+};
+
+type ReasonCode = enum {
+    NotResendable = 0x31,
+    NotAvailable = 0x32,
+};
+

@@ -1,0 +1,78 @@
+module NseNsecmDropcopyNnfdcV30Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsecmDropcopyV30 = unit {
+    client_drop_copy_packet: ClientDropCopyPacket[] &eod;
+};
+
+type ClientDropCopyPacket = unit {
+    packet_header: PacketHeader;
+    request_message_header: RequestMessageHeader;
+    switch ( self.request_message_header.transaction_code ) {
+        TransactionCode::DcSignonInMessage -> dc_signon_in_message: DcSignonInMessage;
+        TransactionCode::DcTrdSubscriptionRequestMessage -> dc_trd_subscription_request_message: DcTrdSubscriptionRequestMessage;
+        TransactionCode::DcOntSubscriptionRequestMessage -> dc_ont_subscription_request_message: DcOntSubscriptionRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+    checksum: bytes &size=16;
+};
+
+type RequestMessageHeader = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    trader_id: int32;
+    request_sequence_number: int64;
+    partition_id: bytes &size=6;
+    concurrent_login_id: int16;
+    func_indc: bytes &size=1;
+    : skip bytes &size=1;   # padding
+};
+
+type DcSignonInMessage = unit {
+    password: bytes &size=8;
+    session_key: bytes &size=8;
+};
+
+type DcTrdSubscriptionRequestMessage = unit {
+    sequence_number: int64;
+};
+
+type DcOntSubscriptionRequestMessage = unit {
+    sequence_number: int64;
+};
+
+type TransactionCode = enum {
+    GrRequestMessage = 2400,
+    GrResponseMessage = 2401,
+    GrSecureUserRegistrationRequestMessage = 23008,
+    GrSecureUserRegistrationResponseMessage = 23009,
+    HeartbeatMessage = 23506,
+    DcSignonInMessage = 2500,
+    DcSignonOutMessage = 2501,
+    DcTrdSubscriptionRequestMessage = 8000,
+    DcOntSubscriptionRequestMessage = 9000,
+    DcErrorResponseTradeMessage = 8006,
+    DcErrorResponseOrderMessage = 9006,
+    TradeConfirmationMessage = 2222,
+    TradeCancelConfirmMessage = 2282,
+    TradeCancelRejectMessage = 2286,
+    TradeModifyConfirmMessage = 2287,
+    PriceConfirmationMessage = 2012,
+    OrderModRejectMessage = 2042,
+    OrderCancelRejectMessage = 2072,
+    OrderConfirmationMessage = 2073,
+    OrderModConfirmationMessage = 2074,
+    OrderCancelConfirmationMessage = 2075,
+    FreezeToControlMessage = 2170,
+    OnStopNotificationMessage = 2212,
+    OrderErrorMessage = 2231,
+    BatchOrderCancelMessage = 9002,
+};
+

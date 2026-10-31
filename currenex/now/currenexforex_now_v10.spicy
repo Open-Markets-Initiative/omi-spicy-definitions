@@ -1,0 +1,192 @@
+module CurrenexCurrenexforexNowCbpV10;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type CurrenexforexNowV10 = unit {
+    itch_soh: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::LogonMessage -> logon_message: LogonMessage;
+        MessageType::LogoutMessage -> logout_message: LogoutMessage;
+        MessageType::HeartBeatMessage -> heart_beat_message: HeartBeatMessage;
+        MessageType::InstrumentInfo -> instrument_info: InstrumentInfo;
+        MessageType::InstrumentInfoAckMessage -> instrument_info_ack_message: InstrumentInfoAckMessage;
+        MessageType::SubscriptionRequestMessage -> subscription_request_message: SubscriptionRequestMessage;
+        MessageType::MassSubscriptionRequestMessage -> mass_subscription_request_message: MassSubscriptionRequestMessage;
+        MessageType::SubscriptionReplyMessage -> subscription_reply_message: SubscriptionReplyMessage;
+        MessageType::MassSubscriptionReplyMessage -> mass_subscription_reply_message: MassSubscriptionReplyMessage;
+        MessageType::DepthOfBookMessage -> depth_of_book_message: DepthOfBookMessage;
+        MessageType::PaidGivenMessage -> paid_given_message: PaidGivenMessage;
+        MessageType::WamrWithConfidenceFactorMessage -> wamr_with_confidence_factor_message: WamrWithConfidenceFactorMessage;
+        MessageType::MidActivityIndicatorMessage -> mid_activity_indicator_message: MidActivityIndicatorMessage;
+        MessageType::RejectMessage -> reject_message: RejectMessage;
+        * -> unknown: bytes &eod;
+    };
+    itch_etx: uint8;
+};
+
+type MessageHeader = unit {
+    sequence_number: uint32;
+    timestamp: int64;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type LogonMessage = unit {
+    user_id: bytes &size=20;
+    password: bytes &size=20;
+    session_id: int32;
+};
+
+type LogoutMessage = unit {
+    user_id: bytes &size=20;
+    session_id: int32;
+    reason_alpha_3: bytes &size=3;
+};
+
+type HeartBeatMessage = unit {
+    session_id: int32;
+};
+
+type InstrumentInfo = unit {
+    session_id: int32;
+    instrument_index: int16;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    instrument_id: bytes &size=20;
+    settlement_date: int64;
+};
+
+type InstrumentInfoAckMessage = unit {
+    session_id: int32;
+    instrument_index: int16;
+};
+
+type SubscriptionRequestMessage = unit {
+    session_id: int32;
+    subscription_type: uint8 &convert=SubscriptionType($$);
+    instrument_index: int16;
+    subscribe_to_now_depth_of_book: uint8 &convert=SubscribeToNowDepthOfBook($$);
+    subscribe_to_now_paid_given_with_bucketed_size: bytes &eod;
+    subscribe_to_now_wamr_with_confidence_factor: bytes &size=1;
+    subscribe_to_now_mid_activity_indicator: bytes &size=1;
+};
+
+type MassSubscriptionRequestMessage = unit {
+    session_id: int32;
+    subscription_type: uint8 &convert=SubscriptionType($$);
+    subscribe_to_now_depth_of_book: uint8 &convert=SubscribeToNowDepthOfBook($$);
+    subscribe_to_now_paid_given_with_bucketed_size: bytes &eod;
+    subscribe_to_now_wamr_with_confidence_factor: bytes &size=1;
+    subscribe_to_now_mid_activity_indicator: bytes &size=1;
+};
+
+type SubscriptionReplyMessage = unit {
+    session_id: int32;
+    instrument_index: int16;
+    type_field: bytes &size=1;
+    reason_alpha_50: bytes &size=50;
+};
+
+type MassSubscriptionReplyMessage = unit {
+    session_id: int32;
+    type_field: bytes &size=1;
+    reason_alpha_50: bytes &size=50;
+};
+
+type DepthOfBookMessage = unit {
+    instrument_index: int16;
+    level: Level[20];
+};
+
+type Level = unit {
+    bid: Bid;
+    offer: Offer;
+};
+
+type Bid = unit {
+    rate: int32;
+    amount: int64;
+};
+
+type Offer = unit {
+    rate: int32;
+    amount: int64;
+};
+
+type PaidGivenMessage = unit {
+    instrument_index: int16;
+    rate: int32;
+    size_indicator: bytes &size=1;
+    paid_given_indicator: bytes &size=1;
+    transact_time: int64;
+};
+
+type WamrWithConfidenceFactorMessage = unit {
+    instrument_index: int16;
+    price: int32;
+    conf_factor_75: ConfFactor75;
+    conf_factor_50: ConfFactor50;
+    conf_factor_25: ConfFactor25;
+    timestamp: int64;
+};
+
+type ConfFactor75 = unit {
+    bid_price: int32;
+    offer_price: int32;
+};
+
+type ConfFactor50 = unit {
+    bid_price: int32;
+    offer_price: int32;
+};
+
+type ConfFactor25 = unit {
+    bid_price: int32;
+    offer_price: int32;
+};
+
+type MidActivityIndicatorMessage = unit {
+    instrument_index: int16;
+    activity_indicator: bytes &size=1;
+};
+
+type RejectMessage = unit {
+    session_id: int32;
+    reject_msg_type: bytes &size=1;
+    reason_alpha_50: bytes &size=50;
+};
+
+type MessageType = enum {
+    LogonMessage = 0x41,
+    LogoutMessage = 0x42,
+    HeartBeatMessage = 0x43,
+    InstrumentInfo = 0x44,
+    InstrumentInfoAckMessage = 0x45,
+    SubscriptionRequestMessage = 0x58,
+    MassSubscriptionRequestMessage = 0x59,
+    SubscriptionReplyMessage = 0x47,
+    MassSubscriptionReplyMessage = 0x5a,
+    DepthOfBookMessage = 0x64,
+    PaidGivenMessage = 0x6b,
+    WamrWithConfidenceFactorMessage = 0x72,
+    MidActivityIndicatorMessage = 0x78,
+    RejectMessage = 0x4b,
+};
+
+type InstrumentType = enum {
+    ForeignExchange = 0x31,
+    CashMetals = 0x32,
+};
+
+type SubscriptionType = enum {
+    Subscribe = 0x30,
+    Unsubscribe = 0x31,
+    Resubscribe = 0x32,
+};
+
+type SubscribeToNowDepthOfBook = enum {
+    Subscribe = 0x30,
+    DoNotSubscribe = 0x31,
+};
+

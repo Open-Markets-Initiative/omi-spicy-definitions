@@ -1,0 +1,69 @@
+module NseNsecdDropcopyNnfdirectV17Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsecdDropcopyV17 = unit {
+    client_direct_packet: ClientDirectPacket[] &eod;
+};
+
+type ClientDirectPacket = unit {
+    packet_header: PacketHeader;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignonInMessage -> signon_in_message: SignonInMessage;
+        TransactionCode::DcDownloadRequestMessage -> dc_download_request_message: DcDownloadRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+    checksum: bytes &size=16;
+};
+
+type MessageHeader = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32;
+    alpha_char: bytes &size=2;
+    trader_id: int32;
+    error_code: int16;
+    header_timestamp: int64;
+    time_stamp_1: bytes &size=8;
+    time_stamp_2: bytes &size=8;
+    message_length: int16;
+};
+
+type SignonInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=8;   # padding
+    password: bytes &size=12;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=38;   # padding
+    broker_id: bytes &size=5;
+    : skip bytes &size=119;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+};
+
+type DcDownloadRequestMessage = unit {
+    sequence_number: bytes &size=8;
+};
+
+type TransactionCode = enum {
+    SignonInMessage = 2300,
+    SignOnOutMessage = 2301,
+    HeartbeatMessage = 23506,
+    DcDownloadRequestMessage = 8000,
+    TradeConfirmationMessage = 2222,
+    TradeCancelConfirmMessage = 2282,
+    TradeCancelRejectMessage = 2286,
+    TradeModifyConfirmMessage = 2287,
+    TradeModifyRejectMessage = 2288,
+    GiveupAppConfirmTmMessage = 4506,
+    GiveupRejConfirmTmMessage = 4507,
+};
+

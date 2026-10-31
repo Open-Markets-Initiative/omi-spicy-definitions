@@ -5,8 +5,10 @@
 
 | [Protocol][Omi.A2X.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.A2X.Specifications] |
 | --- | --- | --- | ---: | ---: | --- | --- | --- |
-| [Rtmdf][A2X.A2XEquities.Rtmdf] | [Amd][Omi.Encoding.Amd] | [1.3.2][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Definition] | 9/15/2022 | 162 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Url] - [pdf][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Pdf] |
-| [Snapshot][A2X.A2XEquities.Snapshot] | [Amd][Omi.Encoding.Amd] | [1.3.2][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Definition] | 9/15/2022 | 71 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Url] - [pdf][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Pdf] |
+| [Rtmdf][A2X.A2XEquities.Rtmdf] | [Amd][Omi.Encoding.Amd] | [1.3.2][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Definition] | 8/15/2022 | 177 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Url] - [pdf][A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Pdf] |
+| [Rtmdf][A2X.A2XEquities.Rtmdf] | [Amd][Omi.Encoding.Amd] | [2.5][A2X.A2XEquities.Rtmdf.Amd.v2.5.Definition] | 8/1/2026 | 194 | [Pending][Omi.Glossary.Deployment.Pending] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.Rtmdf.Amd.v2.5.Url] - [pdf][A2X.A2XEquities.Rtmdf.Amd.v2.5.Pdf] |
+| [Snapshot][A2X.A2XEquities.Snapshot] | [Amd][Omi.Encoding.Amd] | [1.3.2][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Definition] | 8/15/2022 | 101 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Url] - [pdf][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Pdf] |
+| [Snapshot][A2X.A2XEquities.Snapshot] | [Amd][Omi.Encoding.Amd] | [2.5][A2X.A2XEquities.Snapshot.Amd.v2.5.Definition] | 8/1/2026 | 101 | [Pending][Omi.Glossary.Deployment.Pending] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.Snapshot.Amd.v2.5.Url] - [pdf][A2X.A2XEquities.Snapshot.Amd.v2.5.Pdf] |
 | [UdpHeader][A2X.A2XEquities.UdpHeader] | [Amd][Omi.Encoding.Amd] | [1][A2X.A2XEquities.UdpHeader.Amd.v1.Definition] | 9/1/2017 | 22 | [Header][Omi.Glossary.Deployment.Header] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.UdpHeader.Amd.v1.Url] |
 
 
@@ -38,8 +40,14 @@
 [A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/rtmdf/a2xequities_rtmdf_v1_3_2.spicy "A2X Rtmdf Amd v1.3.2 Spicy Definition"
 [A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 1.3.2 Url"
 [A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/A2X.A2XEquities.MarketDataTechnicalSpecification.Amd.v1.3.2.pdf "A2X Markets 1.3.2 Pdf"
+[A2X.A2XEquities.Rtmdf.Amd.v2.5.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/rtmdf/a2xequities_rtmdf_v2_5.spicy "A2X Rtmdf Amd v2.5 Spicy Definition"
+[A2X.A2XEquities.Rtmdf.Amd.v2.5.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 2.5 Url"
+[A2X.A2XEquities.Rtmdf.Amd.v2.5.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/A2X.A2XEquities.MarketDataTechnicalSpecification.Amd.v2.5.pdf "A2X Markets 2.5 Pdf"
 [A2X.A2XEquities.Snapshot.Amd.v1.3.2.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/snapshot/a2xequities_snapshot_v1_3_2.spicy "A2X Snapshot Amd v1.3.2 Spicy Definition"
 [A2X.A2XEquities.Snapshot.Amd.v1.3.2.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 1.3.2 Url"
 [A2X.A2XEquities.Snapshot.Amd.v1.3.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/A2X.A2XEquities.MarketDataTechnicalSpecification.Amd.v1.3.2.pdf "A2X Markets 1.3.2 Pdf"
+[A2X.A2XEquities.Snapshot.Amd.v2.5.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/snapshot/a2xequities_snapshot_v2_5.spicy "A2X Snapshot Amd v2.5 Spicy Definition"
+[A2X.A2XEquities.Snapshot.Amd.v2.5.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 2.5 Url"
+[A2X.A2XEquities.Snapshot.Amd.v2.5.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/A2X.A2XEquities.MarketDataTechnicalSpecification.Amd.v2.5.pdf "A2X Markets 2.5 Pdf"
 [A2X.A2XEquities.UdpHeader.Amd.v1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/udpheader/a2xequities_udpheader_v1.spicy "A2X UdpHeader Amd v1 Spicy Definition"
 [A2X.A2XEquities.UdpHeader.Amd.v1.Url]: https://www.a2x.co.za/?page_id=734/#a2xtech "A2X Markets 1 Url"

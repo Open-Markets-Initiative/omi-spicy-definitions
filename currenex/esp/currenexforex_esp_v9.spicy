@@ -1,0 +1,154 @@
+module CurrenexCurrenexforexEspCbpV9;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type CurrenexforexEspV9 = unit {
+    itch_soh: uint8;
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::Logon -> logon: Logon;
+        MessageType::Logout -> logout: Logout;
+        MessageType::Heartbeat -> heartbeat: Heartbeat;
+        MessageType::InstrumentInfo -> instrument_info: InstrumentInfo;
+        MessageType::InstrumentInfoAck -> instrument_info_ack: InstrumentInfoAck;
+        MessageType::SubscriptionRequest -> subscription_request: SubscriptionRequest;
+        MessageType::SubscriptionReply -> subscription_reply: SubscriptionReply;
+        MessageType::PriceMessage -> price_message: PriceMessage;
+        MessageType::PriceCancelMessage -> price_cancel_message: PriceCancelMessage;
+        MessageType::TradeTickerMessage -> trade_ticker_message: TradeTickerMessage;
+        MessageType::RejectMessage -> reject_message: RejectMessage;
+        * -> unknown: bytes &eod;
+    };
+    itch_etx: uint8;
+};
+
+type MessageHeader = unit {
+    sequence_number: uint32;
+    timestamp: uint32;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type Logon = unit {
+    user_id: bytes &size=20;
+    password: bytes &size=20;
+    session_id: int32;
+};
+
+type Logout = unit {
+    user_id: bytes &size=20;
+    session_id: int32;
+    reason: bytes &size=3;
+};
+
+type Heartbeat = unit {
+    session_id: int32;
+};
+
+type InstrumentInfo = unit {
+    session_id: int32;
+    instrument_index: int16;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    instrument_id: bytes &size=20;
+    settlement_date: int64;
+};
+
+type InstrumentInfoAck = unit {
+    session_id: int32;
+    instrument_index: int16;
+};
+
+type SubscriptionRequest = unit {
+    session_id: int32;
+    subscription_type: uint8 &convert=SubscriptionType($$);
+    instrument_index: int16;
+    subscribe_to_ticker: uint8 &convert=SubscribeToTicker($$);
+};
+
+type SubscriptionReply = unit {
+    session_id: int32;
+    instrument_index: int16;
+    reply_type: uint8 &convert=ReplyType($$);
+    reject_reason: bytes &size=50;
+};
+
+type PriceMessage = unit {
+    instrument_index: int16;
+    price_id: int8;
+    side: uint8 &convert=Side($$);
+    max_amount: int64;
+    min_amount: int64;
+    price: int32;
+    attributed: uint8 &convert=Attributed($$);
+    price_provider: bytes &size=4;
+};
+
+type PriceCancelMessage = unit {
+    instrument_index: int16;
+    price_id: int8;
+};
+
+type TradeTickerMessage = unit {
+    instrument_index: int16;
+    rate: int32;
+    ticker_type: uint8 &convert=TickerType($$);
+    transact_time: int64;
+};
+
+type RejectMessage = unit {
+    session_id: int32;
+    reject_msg_type: bytes &size=1;
+    reject_reason: bytes &size=50;
+};
+
+type MessageType = enum {
+    Logon = 0x41,
+    Logout = 0x42,
+    Heartbeat = 0x43,
+    InstrumentInfo = 0x44,
+    InstrumentInfoAck = 0x45,
+    SubscriptionRequest = 0x46,
+    SubscriptionReply = 0x47,
+    PriceMessage = 0x48,
+    PriceCancelMessage = 0x49,
+    TradeTickerMessage = 0x4a,
+    RejectMessage = 0x4b,
+};
+
+type InstrumentType = enum {
+    ForeignExchange = 0x31,
+    CashMetals = 0x32,
+};
+
+type SubscriptionType = enum {
+    Subscribe = 0x30,
+    Unsubscribe = 0x31,
+    Resubscribe = 0x32,
+};
+
+type SubscribeToTicker = enum {
+    Subscribe = 0x30,
+    DoNotSubscribe = 0x31,
+};
+
+type ReplyType = enum {
+    Accepted = 0x31,
+    Rejected = 0x32,
+};
+
+type Side = enum {
+    Bid = 0x31,
+    Offer = 0x32,
+};
+
+type Attributed = enum {
+    Attributed_x31 = 0x31,
+    NotAttributed = 0x32,
+};
+
+type TickerType = enum {
+    Given = 0x31,
+    Paid = 0x32,
+};
+

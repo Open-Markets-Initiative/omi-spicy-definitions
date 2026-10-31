@@ -36,8 +36,8 @@ type Hdr = unit {
     msg_seq_num: uint32;
     header_time: HeaderTime;
     message_type: uint8 &convert=MessageType($$);
-    fcmid: uint16;
-    sessionid: uint16;
+    fcm_id: uint16;
+    session_id: uint16;
 };
 
 type HeaderTime = unit {
@@ -46,8 +46,8 @@ type HeaderTime = unit {
 };
 
 type WakeUpCallMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
-    startinboundnum: uint32;
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    start_in_bound_num: uint32;
 };
 
 type WakeUpCallConfirmedMessage = unit {
@@ -55,319 +55,319 @@ type WakeUpCallConfirmedMessage = unit {
 };
 
 type LogonNoticeMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
-    appendno: uint16;
-    endoutboundnum: uint32;
-    systemtype: uint8 &convert=Systemtype($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    append_no: uint16;
+    end_out_bound_num: uint32;
+    system_type: uint8 &convert=SystemType($$);
     encrypt_method: uint8 &convert=EncryptMethod($$);
 };
 
 type FinalSequentialNumberNotificationForGroupMessage = unit {
-    subhdr: Subhdr;
-    statuscode_uint_162: uint16 &convert=StatuscodeUint162($$);
-    partid: uint8 &convert=Partid($$);
-    endoutboundnum: uint32;
+    sub_hdr: SubHdr;
+    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
+    part_id: uint8 &convert=PartId($$);
+    end_out_bound_num: uint32;
     : skip bytes &size=8;   # padding
 };
 
-type Subhdr = unit {
+type SubHdr = unit {
     msg_type_ext: uint8 &convert=MsgTypeExt($$);
     preserve: uint8;
-    msgtimens: uint32;
+    msg_time_ns: uint32;
 };
 
 type RequestLogonMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
-    appendno: uint16;
-    fcmid: uint16;
-    sessionid: uint16;
-    systemtype: uint8 &convert=Systemtype($$);
-    apcode: uint8 &convert=Apcode($$);
-    keyvalue: uint8;
-    requeststartseq: uint32;
-    cancelordersec: uint8;
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    append_no: uint16;
+    fcm_id: uint16;
+    session_id: uint16;
+    system_type: uint8 &convert=SystemType($$);
+    ap_code: uint8 &convert=ApCode($$);
+    key_value: uint8;
+    request_start_seq: uint32;
+    cancel_order_sec: uint8;
 };
 
 type ActivateApplicationSystemMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
     heart_bt_int: uint8;
-    maxflowctrlcnt: uint16;
+    max_flow_ctrl_cnt: uint16;
 };
 
 type ActivateApplicationSystemConfirmedMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
 };
 
 type LogoutConfirmedMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
 };
 
 type ConfirmConnectionMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
 };
 
 type ConnectionConfirmedMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
 };
 
 type OrderStatusReportMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
     exec_type: uint8 &convert=ExecType($$);
-    cmid: uint16;
-    fcmid: uint16;
-    orderno: bytes &size=5;
-    ordid: uint32;
-    userdefine: bytes &size=8;
-    symboltype: uint8 &convert=Symboltype($$);
-    switch ( self.symboltype ) {
-        Symboltype::NumericProductId -> symbolnum: Symbolnum;
-        Symboltype::TextProductId -> symboltext: Symboltext;
+    cm_id: uint16;
+    fcm_id: uint16;
+    order_no: bytes &size=5;
+    ord_id: uint32;
+    user_define: bytes &size=8;
+    symbol_type: uint8 &convert=SymbolType($$);
+    switch ( self.symbol_type ) {
+        SymbolType::NumericProductId -> symbol_num: SymbolNum;
+        SymbolType::TextProductId -> symbol_text: SymbolText;
         * -> unknown: bytes &eod;
     };
     price: int32;
     qty: uint16;
-    investoracno: uint32;
-    investorflag: bytes &size=1;
+    investor_acno: uint32;
+    investor_flag: bytes &size=1;
     side: uint8 &convert=Side($$);
     ord_type: uint8 &convert=OrdType($$);
     time_in_force: uint8 &convert=TimeInForce($$);
     position_effect: uint8 &convert=PositionEffect($$);
     last_px: int32;
     last_qty: uint16;
-    pxsubtotal: int64;
+    px_subtotal: int64;
     cum_qty: uint16;
     leaves_qty: uint16;
-    beforeqty: uint16;
-    legside_uint_822: uint8 &convert=LegsideUint822($$);
-    legpx: int32;
-    legqty_uint_1624: uint16;
-    orgtranstime_msgtime: OrgtranstimeMsgtime;
-    transact_time_msgtime: TransactTimeMsgtime;
-    targetid: uint8 &convert=Targetid($$);
-    uniqid: uint32;
-    rptseq: uint32;
-    protocoltype: uint8 &convert=Protocoltype($$);
+    before_qty: uint16;
+    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    leg_px: int32;
+    leg_qty_uint_1624: uint16;
+    org_trans_time_msg_time: OrgTransTimeMsgTime;
+    transact_time_msg_time: TransactTimeMsgTime;
+    target_id: uint8 &convert=TargetId($$);
+    uniq_id: uint32;
+    rpt_seq: uint32;
+    protocol_type: uint8 &convert=ProtocolType($$);
 };
 
-type Symbolnum = unit {
+type SymbolNum = unit {
     pseq_1: uint16;
     pseq_2: uint16;
-    legside_uint_822: uint8 &convert=LegsideUint822($$);
-    combop: uint8 &convert=Combop($$);
+    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    comb_op: uint8 &convert=CombOp($$);
     : skip bytes &size=13;   # padding
 };
 
-type Symboltext = unit {
+type SymbolText = unit {
     symbol_char_2020: bytes &size=20;
 };
 
-type OrgtranstimeMsgtime = unit {
-    epochs_int_324: int32;
+type OrgTransTimeMsgTime = unit {
+    epoch_s_int_324: int32;
     ms: uint16;
 };
 
-type TransactTimeMsgtime = unit {
-    epochs_int_324: int32;
+type TransactTimeMsgTime = unit {
+    epoch_s_int_324: int32;
     ms: uint16;
 };
 
 type OrderStatusReportLongFormatMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
     exec_type: uint8 &convert=ExecType($$);
-    cmid: uint16;
-    fcmid: uint16;
-    orderno: bytes &size=5;
-    ordid: uint32;
-    userdefine: bytes &size=8;
-    symboltype: uint8 &convert=Symboltype($$);
-    switch ( self.symboltype ) {
-        Symboltype::NumericProductIdLongFormat -> longsymbolnum: Longsymbolnum;
-        Symboltype::TextProductIdLongFormat -> longsymboltext: Longsymboltext;
+    cm_id: uint16;
+    fcm_id: uint16;
+    order_no: bytes &size=5;
+    ord_id: uint32;
+    user_define: bytes &size=8;
+    symbol_type: uint8 &convert=SymbolType($$);
+    switch ( self.symbol_type ) {
+        SymbolType::NumericProductIdLongFormat -> long_symbol_num: LongSymbolNum;
+        SymbolType::TextProductIdLongFormat -> long_symbol_text: LongSymbolText;
         * -> unknown: bytes &eod;
     };
     price: int32;
     qty: uint16;
-    investoracno: uint32;
-    investorflag: bytes &size=1;
+    investor_acno: uint32;
+    investor_flag: bytes &size=1;
     side: uint8 &convert=Side($$);
     ord_type: uint8 &convert=OrdType($$);
     time_in_force: uint8 &convert=TimeInForce($$);
     position_effect: uint8 &convert=PositionEffect($$);
     last_px: int32;
     last_qty: uint16;
-    pxsubtotal: int64;
+    px_subtotal: int64;
     cum_qty: uint16;
     leaves_qty: uint16;
-    beforeqty: uint16;
-    legside_uint_822: uint8 &convert=LegsideUint822($$);
-    legpx: int32;
-    legqty_uint_1624: uint16;
-    orgtranstime_msgtime: OrgtranstimeMsgtime;
-    transact_time_msgtime: TransactTimeMsgtime;
-    targetid: uint8 &convert=Targetid($$);
-    uniqid: uint32;
-    rptseq: uint32;
-    protocoltype: uint8 &convert=Protocoltype($$);
+    before_qty: uint16;
+    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    leg_px: int32;
+    leg_qty_uint_1624: uint16;
+    org_trans_time_msg_time: OrgTransTimeMsgTime;
+    transact_time_msg_time: TransactTimeMsgTime;
+    target_id: uint8 &convert=TargetId($$);
+    uniq_id: uint32;
+    rpt_seq: uint32;
+    protocol_type: uint8 &convert=ProtocolType($$);
 };
 
-type Longsymbolnum = unit {
+type LongSymbolNum = unit {
     pseq_1: uint16;
     pseq_2: uint16;
-    legside_uint_822: uint8 &convert=LegsideUint822($$);
-    combop: uint8 &convert=Combop($$);
+    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    comb_op: uint8 &convert=CombOp($$);
     : skip bytes &size=33;   # padding
 };
 
-type Longsymboltext = unit {
+type LongSymbolText = unit {
     symbol_char_4040: bytes &size=40;
 };
 
 type ErrorReportMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
     exec_type: uint8 &convert=ExecType($$);
-    fcmid: uint16;
-    orderno: bytes &size=5;
-    ordid: uint32;
-    userdefine: bytes &size=8;
-    rptseq: uint32;
+    fcm_id: uint16;
+    order_no: bytes &size=5;
+    ord_id: uint32;
+    user_define: bytes &size=8;
+    rpt_seq: uint32;
     side: uint8 &convert=Side($$);
 };
 
 type FlexOrderStatusReportMessage = unit {
-    subhdr: Subhdr;
-    partid: uint8 &convert=Partid($$);
+    sub_hdr: SubHdr;
+    part_id: uint8 &convert=PartId($$);
     no_leg: uint8;
-    statuscode_uint_162: uint16 &convert=StatuscodeUint162($$);
+    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
     exec_type: uint8 &convert=ExecType($$);
-    cmid: uint16;
-    fcmid: uint16;
-    orderno: bytes &size=5;
-    ordid: uint32;
-    userdefine: bytes &size=8;
-    switch ( self.subhdr.msg_type_ext ) {
-        MsgTypeExt::SingleLegOrderWithANumericProductSerialNumber -> symbolnumx: Symbolnumx;
-        MsgTypeExt::SingleLegOrderWithATextualProductSymbol -> symboltxtx: Symboltxtx;
-        MsgTypeExt::MultiLegOrderWithANumericProductSerialNumber -> multilegnum: Multilegnum;
-        MsgTypeExt::MultiLegOrderWithATextualProductSymbol -> multilegtxt: Multilegtxt;
+    cm_id: uint16;
+    fcm_id: uint16;
+    order_no: bytes &size=5;
+    ord_id: uint32;
+    user_define: bytes &size=8;
+    switch ( self.sub_hdr.msg_type_ext ) {
+        MsgTypeExt::SingleLegOrderWithANumericProductSerialNumber -> symbol_num_x: SymbolNumX;
+        MsgTypeExt::SingleLegOrderWithATextualProductSymbol -> symbol_txt_x: SymbolTxtX;
+        MsgTypeExt::MultiLegOrderWithANumericProductSerialNumber -> multi_leg_num: MultiLegNum;
+        MsgTypeExt::MultiLegOrderWithATextualProductSymbol -> multi_leg_txt: MultiLegTxt;
         * -> unknown: bytes &eod;
     };
     price: int32;
     qty: uint16;
-    investoracno: uint32;
-    investorflag: bytes &size=1;
+    investor_acno: uint32;
+    investor_flag: bytes &size=1;
     side: uint8 &convert=Side($$);
     ord_type: uint8 &convert=OrdType($$);
     time_in_force: uint8 &convert=TimeInForce($$);
     position_effect: uint8 &convert=PositionEffect($$);
     last_px: int32;
     last_qty: uint16;
-    pxsubtotal: int64;
+    px_subtotal: int64;
     cum_qty: uint16;
     leaves_qty: uint16;
-    beforeqty: uint16;
-    orgtranstime_msgtimex: OrgtranstimeMsgtimex;
-    transact_time_msgtimex: TransactTimeMsgtimex;
-    targetid: uint8 &convert=Targetid($$);
-    uniqid: uint32;
-    rptseq: uint32;
-    rptsessionid: uint16;
-    rptsessionseq: uint32;
+    before_qty: uint16;
+    org_trans_time_msg_time_x: OrgTransTimeMsgTimeX;
+    transact_time_msg_time_x: TransactTimeMsgTimeX;
+    target_id: uint8 &convert=TargetId($$);
+    uniq_id: uint32;
+    rpt_seq: uint32;
+    rpt_session_id: uint16;
+    rpt_session_seq: uint32;
     : skip bytes &size=12;   # padding
 };
 
-type Symbolnumx = unit {
+type SymbolNumX = unit {
     pseq: uint32;
 };
 
-type Symboltxtx = unit {
-    prodid: bytes &size=20;
+type SymbolTxtX = unit {
+    prod_id: bytes &size=20;
 };
 
-type Multilegnum = unit {
+type MultiLegNum = unit {
     no_leg: uint8;
-    combop: uint8 &convert=Combop($$);
-    legentrynum: Legentrynum[self.no_leg];
+    comb_op: uint8 &convert=CombOp($$);
+    leg_entry_num: LegEntryNum[self.no_leg];
 };
 
-type Legentrynum = unit {
-    legsym_symbolnumx: LegsymSymbolnumx;
-    legside_uint_81: uint8 &convert=LegsideUint81($$);
-    legqty_uint_162: uint16;
+type LegEntryNum = unit {
+    leg_sym_symbol_num_x: LegSymSymbolNumX;
+    leg_side_uint_81: uint8 &convert=LegSideUint81($$);
+    leg_qty_uint_162: uint16;
 };
 
-type LegsymSymbolnumx = unit {
+type LegSymSymbolNumX = unit {
     pseq: uint32;
 };
 
-type Multilegtxt = unit {
+type MultiLegTxt = unit {
     no_leg: uint8;
-    combop: uint8 &convert=Combop($$);
-    legentrytxt: Legentrytxt[self.no_leg];
+    comb_op: uint8 &convert=CombOp($$);
+    leg_entry_txt: LegEntryTxt[self.no_leg];
 };
 
-type Legentrytxt = unit {
-    legsym_symboltxtx: LegsymSymboltxtx;
-    legside_uint_81: uint8 &convert=LegsideUint81($$);
-    legqty_uint_162: uint16;
+type LegEntryTxt = unit {
+    leg_sym_symbol_txt_x: LegSymSymbolTxtX;
+    leg_side_uint_81: uint8 &convert=LegSideUint81($$);
+    leg_qty_uint_162: uint16;
 };
 
-type LegsymSymboltxtx = unit {
-    prodid: bytes &size=20;
+type LegSymSymbolTxtX = unit {
+    prod_id: bytes &size=20;
 };
 
-type OrgtranstimeMsgtimex = unit {
-    epochs_uint_324: uint32;
+type OrgTransTimeMsgTimeX = unit {
+    epoch_s_uint_324: uint32;
     nanosecond: uint32;
 };
 
-type TransactTimeMsgtimex = unit {
-    epochs_uint_324: uint32;
+type TransactTimeMsgTimeX = unit {
+    epoch_s_uint_324: uint32;
     nanosecond: uint32;
 };
 
 type FlexErrorReportMessage = unit {
-    subhdr: Subhdr;
-    partid: uint8 &convert=Partid($$);
+    sub_hdr: SubHdr;
+    part_id: uint8 &convert=PartId($$);
     ori_message_type: uint8;
-    statuscode_uint_162: uint16 &convert=StatuscodeUint162($$);
+    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
     exec_type: uint8 &convert=ExecType($$);
-    fcmid: uint16;
-    orderno: bytes &size=5;
-    ordid: uint32;
-    userdefine: bytes &size=8;
-    rptseq: uint32;
+    fcm_id: uint16;
+    order_no: bytes &size=5;
+    ord_id: uint32;
+    user_define: bytes &size=8;
+    rpt_seq: uint32;
     side: uint8 &convert=Side($$);
     : skip bytes &size=12;   # padding
 };
 
 type DropCopyInitiateOperationMessage = unit {
-    fcmid: uint16;
-    targetid: uint8 &convert=Targetid($$);
-    reqcmseq: uint32;
+    fcm_id: uint16;
+    target_id: uint8 &convert=TargetId($$);
+    req_cm_seq: uint32;
 };
 
 type DropCopyInitiateOperationConfirmedMessage = unit {
-    statuscode_uint_81: uint8 &convert=StatuscodeUint81($$);
-    fcmid: uint16;
-    targetid: uint8 &convert=Targetid($$);
-    reqcmseq: uint32;
+    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    fcm_id: uint16;
+    target_id: uint8 &convert=TargetId($$);
+    req_cm_seq: uint32;
 };
 
 type FlexDropCopyInitiateOperationMessage = unit {
-    subhdr: Subhdr;
-    partid: uint8 &convert=Partid($$);
-    fcmid: uint16;
-    targetid: uint8 &convert=Targetid($$);
-    reqcmseq: uint32;
+    sub_hdr: SubHdr;
+    part_id: uint8 &convert=PartId($$);
+    fcm_id: uint16;
+    target_id: uint8 &convert=TargetId($$);
+    req_cm_seq: uint32;
 };
 
 type FlexDropCopyInitiateOperationConfirmedMessage = unit {
-    subhdr: Subhdr;
-    partid: uint8 &convert=Partid($$);
-    statuscode_uint_162: uint16 &convert=StatuscodeUint162($$);
-    fcmid: uint16;
-    targetid: uint8 &convert=Targetid($$);
-    reqcmseq: uint32;
+    sub_hdr: SubHdr;
+    part_id: uint8 &convert=PartId($$);
+    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
+    fcm_id: uint16;
+    target_id: uint8 &convert=TargetId($$);
+    req_cm_seq: uint32;
     : skip bytes &size=16;   # padding
 };
 
@@ -398,7 +398,7 @@ type MessageType = enum {
     FlexDropCopyInitiateOperationConfirmedMessage = 216,
 };
 
-type StatuscodeUint81 = enum {
+type StatusCodeUint81 = enum {
     Succeed = 0,
     TradingTimeOver = 1,
     OrderAcceptanceNotYetStartedOrTradingHalt = 2,
@@ -415,7 +415,7 @@ type StatuscodeUint81 = enum {
     BranchNoError = 13,
     InvestorAccountError = 14,
     InvestorIdCodeError = 15,
-    RejectDeleteOrModifyOrderDuringNoncancelPeriod = 16,
+    RejectDeleteOrModifyOrderDuringNonCancelPeriod = 16,
     DuplicateOrderNoOrQuoteNo = 17,
     OrderNoOrQuoteNoError = 18,
     TheSameSideOrderNotExist = 19,
@@ -423,7 +423,7 @@ type StatuscodeUint81 = enum {
     ExceedingRisefallLimit = 21,
     OrderQuantityError = 22,
     PriceInquiryNotAcceptedYetOrPriceIsAtRisefallLimitPriceInquiryNotAccepted = 23,
-    BuysellError = 24,
+    BuySellError = 24,
     OrdTypeError = 25,
     OrderTypeAndPriceNotMatched = 26,
     TimeInForceError = 27,
@@ -435,16 +435,16 @@ type StatuscodeUint81 = enum {
     QuotedBidaskPriceMayNotExceedTheSpreadLimitOfTheProduct = 33,
     BidPriceExceedingAskPrice = 34,
     RemainingQuantityOfTheUnmodifiedSideIsZero = 35,
-    TheUnfilledPartOfTheOnewayQuoteIsLessThanTheMinimumQuantityLimit = 36,
+    TheUnfilledPartOfTheOneWayQuoteIsLessThanTheMinimumQuantityLimit = 36,
     PriceInquiryAlreadyPresent = 37,
     MarketOrderandMwpDoesNotAcceptRod = 38,
     DecreaseQuantityError = 39,
-    PriceErrorSinglesideQuoteOrderModification = 40,
+    PriceErrorSingleSideQuoteOrderModification = 40,
     SettlementMonthError = 41,
     StrikePriceError = 42,
     ClearingMemberIdError = 43,
-    OrdersourceError = 44,
-    InfosourceError = 45,
+    OrderSourceError = 44,
+    InfoSourceError = 45,
     DisableKillSwitchOperationError = 46,
     LeavesQuantityRejectedAtTheDynamicPriceBandingLimit = 47,
     DynamicPriceBandingLimitPriceDisclosure = 48,
@@ -458,7 +458,7 @@ type StatuscodeUint81 = enum {
     OrderPartiallyTradedModifyToMarketFokOrderOrMwpFokOrderIsNotAllowed = 64,
     KillSwitchInOperationTheOrderExecutionTypeIsNotAllowed = 65,
     NoSuchContract = 77,
-    OrderOfThisContractIsRestrictedForThisAccountcode = 78,
+    OrderOfThisContractIsRestrictedForThisAccountCode = 78,
     OrderDeletedDueToTradingSuspensionOrOrderAcceptanceBeforeCollectiveBidding = 79,
     FcmIsNotYetApprovedToTradeThisProductOrExecuteTheFunction = 80,
     TooManyErrors = 89,
@@ -472,49 +472,49 @@ type StatuscodeUint81 = enum {
     FileIsReadyButEmpty = 117,
     FileNotFoundForBroker = 120,
     IllegalTimeToGetFile = 121,
-    FcmuniqueidOrSerialNoDuplicate = 150,
+    FcmUniqueIdOrSerialNoDuplicate = 150,
     ProductCanNotBlockTrade = 151,
     BlockTradeOrderQuantityError = 152,
-    InvalidProdcount = 153,
-    ProdcountIsNotMatchWithTheNumberOfLegsInABlockTradeOrder = 154,
-    InvalidFcmuniqueidOrSerialNo = 155,
+    InvalidProdCount = 153,
+    ProdCountIsNotMatchWithTheNumberOfLegsInABlockTradeOrder = 154,
+    InvalidFcmUniqueIdOrSerialNo = 155,
     BlockTradeIdDuplicate = 156,
     InvalidBlockTradeId = 157,
-    InvalidParticipantfcmcount = 158,
-    ParticipantfcmcountIsNotConsistentWithParticipantfcmidList = 159,
-    ParticipantfcmidError = 160,
-    InvalidProdcount_161 = 161,
+    InvalidParticipantFcmCount = 158,
+    ParticipantFcmCountIsNotConsistentWithParticipantFcmIdList = 159,
+    ParticipantFcmIdError = 160,
+    InvalidProdCount_161 = 161,
     BlockTradeIdDoesNotExist = 162,
     NegotiatedBlockTradeSuccess = 163,
     NegotiatedBlockTradeFail = 164,
     NegotiatedBlockTradeCalcelled = 165,
     NegotiatedBlockTradeWaitFcmToComfirmOrder = 166,
-    FcmidNotMatchingRepresentFcm = 167,
-    SymboltypeError = 168,
-    InvalidOrdercountOfNegotiatedBlockTradeConfirmInput = 169,
-    NumberOfOrdersInB31Xb31IsNotConsistentWithOrdercountField = 170,
+    FcmIdNotMatchingRepresentFcm = 167,
+    SymbolTypeError = 168,
+    InvalidOrderCountOfNegotiatedBlockTradeConfirmInput = 169,
+    NumberOfOrdersInB31Xb31IsNotConsistentWithOrderCountField = 170,
     NegotiatedBlockTradeIsNotInTheStatusOfWaitingForConfirmInput = 171,
-    InvestoracnoDuplicateInNegotiatedBlockTradeConfirmInput = 172,
+    InvestorAcnoDuplicateInNegotiatedBlockTradeConfirmInput = 172,
     NegotiatedBlockTradeTimedOut = 175,
     TheConfirmInputDataIsNotConsistentWithB21Xb21RegisteredData = 176,
     NegotiatedBlockTradeBeyondThePositionLimit = 177,
     IllegalSourceId = 186,
     SignificantSystemTimeError = 200,
-    AppendnoError = 201,
-    FcmidError = 202,
-    ApcodeError = 203,
-    KeyvalueError = 204,
-    SessionidError = 205,
-    SystemtypeError = 206,
+    AppendNoError = 201,
+    FcmIdError = 202,
+    ApCodeError = 203,
+    KeyValueError = 204,
+    SessionIdError = 205,
+    SystemTypeError = 206,
     MsgSeqNumError = 207,
-    TargetidError = 208,
-    FlowgroupnoError = 209,
+    TargetIdError = 208,
+    FlowGroupNoError = 209,
     SubscriptionRequestTypeError = 210,
     MsgTypeExtError = 220,
-    PartidError = 221,
+    PartIdError = 221,
     SessionExceedsTheFlowLimit = 240,
     SessionExceedsFlowLimitContinuouslyAndIsLocked = 241,
-    OrderOlderThanCancelordersecAndRejected = 242,
+    OrderOlderThanCancelOrderSecAndRejected = 242,
     SessionReach80OfTheFlowLimit = 248,
     SessionReach90OfTheFlowLimit = 249,
     OrderOlderThanTwoSeconds = 250,
@@ -525,7 +525,7 @@ type Version = enum {
     RegularTradingAndFlexTrading = 1,
 };
 
-type Systemtype = enum {
+type SystemType = enum {
     OptionsRegularMarketHours = 10,
     FuturesRegularMarketHours = 20,
     OptionsAfterMarketHours = 11,
@@ -545,7 +545,7 @@ type MsgTypeExt = enum {
     UnexpectedErrorRecord = 255,
 };
 
-type StatuscodeUint162 = enum {
+type StatusCodeUint162 = enum {
     Succeed = 0,
     TradingTimeOver = 1,
     OrderAcceptanceNotYetStartedOrTradingHalt = 2,
@@ -562,7 +562,7 @@ type StatuscodeUint162 = enum {
     BranchNoError = 13,
     InvestorAccountError = 14,
     InvestorIdCodeError = 15,
-    RejectDeleteOrModifyOrderDuringNoncancelPeriod = 16,
+    RejectDeleteOrModifyOrderDuringNonCancelPeriod = 16,
     DuplicateOrderNoOrQuoteNo = 17,
     OrderNoOrQuoteNoError = 18,
     TheSameSideOrderNotExist = 19,
@@ -570,7 +570,7 @@ type StatuscodeUint162 = enum {
     ExceedingRisefallLimit = 21,
     OrderQuantityError = 22,
     PriceInquiryNotAcceptedYetOrPriceIsAtRisefallLimitPriceInquiryNotAccepted = 23,
-    BuysellError = 24,
+    BuySellError = 24,
     OrdTypeError = 25,
     OrderTypeAndPriceNotMatched = 26,
     TimeInForceError = 27,
@@ -582,16 +582,16 @@ type StatuscodeUint162 = enum {
     QuotedBidaskPriceMayNotExceedTheSpreadLimitOfTheProduct = 33,
     BidPriceExceedingAskPrice = 34,
     RemainingQuantityOfTheUnmodifiedSideIsZero = 35,
-    TheUnfilledPartOfTheOnewayQuoteIsLessThanTheMinimumQuantityLimit = 36,
+    TheUnfilledPartOfTheOneWayQuoteIsLessThanTheMinimumQuantityLimit = 36,
     PriceInquiryAlreadyPresent = 37,
     MarketOrderandMwpDoesNotAcceptRod = 38,
     DecreaseQuantityError = 39,
-    PriceErrorSinglesideQuoteOrderModification = 40,
+    PriceErrorSingleSideQuoteOrderModification = 40,
     SettlementMonthError = 41,
     StrikePriceError = 42,
     ClearingMemberIdError = 43,
-    OrdersourceError = 44,
-    InfosourceError = 45,
+    OrderSourceError = 44,
+    InfoSourceError = 45,
     DisableKillSwitchOperationError = 46,
     LeavesQuantityRejectedAtTheDynamicPriceBandingLimit = 47,
     DynamicPriceBandingLimitPriceDisclosure = 48,
@@ -605,7 +605,7 @@ type StatuscodeUint162 = enum {
     OrderPartiallyTradedModifyToMarketFokOrderOrMwpFokOrderIsNotAllowed = 64,
     KillSwitchInOperationTheOrderExecutionTypeIsNotAllowed = 65,
     NoSuchContract = 77,
-    OrderOfThisContractIsRestrictedForThisAccountcode = 78,
+    OrderOfThisContractIsRestrictedForThisAccountCode = 78,
     OrderDeletedDueToTradingSuspensionOrOrderAcceptanceBeforeCollectiveBidding = 79,
     FcmIsNotYetApprovedToTradeThisProductOrExecuteTheFunction = 80,
     TooManyErrors = 89,
@@ -619,49 +619,49 @@ type StatuscodeUint162 = enum {
     FileIsReadyButEmpty = 117,
     FileNotFoundForBroker = 120,
     IllegalTimeToGetFile = 121,
-    FcmuniqueidOrSerialNoDuplicate = 150,
+    FcmUniqueIdOrSerialNoDuplicate = 150,
     ProductCanNotBlockTrade = 151,
     BlockTradeOrderQuantityError = 152,
-    InvalidProdcount = 153,
-    ProdcountIsNotMatchWithTheNumberOfLegsInABlockTradeOrder = 154,
-    InvalidFcmuniqueidOrSerialNo = 155,
+    InvalidProdCount = 153,
+    ProdCountIsNotMatchWithTheNumberOfLegsInABlockTradeOrder = 154,
+    InvalidFcmUniqueIdOrSerialNo = 155,
     BlockTradeIdDuplicate = 156,
     InvalidBlockTradeId = 157,
-    InvalidParticipantfcmcount = 158,
-    ParticipantfcmcountIsNotConsistentWithParticipantfcmidList = 159,
-    ParticipantfcmidError = 160,
-    InvalidProdcount_161 = 161,
+    InvalidParticipantFcmCount = 158,
+    ParticipantFcmCountIsNotConsistentWithParticipantFcmIdList = 159,
+    ParticipantFcmIdError = 160,
+    InvalidProdCount_161 = 161,
     BlockTradeIdDoesNotExist = 162,
     NegotiatedBlockTradeSuccess = 163,
     NegotiatedBlockTradeFail = 164,
     NegotiatedBlockTradeCalcelled = 165,
     NegotiatedBlockTradeWaitFcmToComfirmOrder = 166,
-    FcmidNotMatchingRepresentFcm = 167,
-    SymboltypeError = 168,
-    InvalidOrdercountOfNegotiatedBlockTradeConfirmInput = 169,
-    NumberOfOrdersInB31Xb31IsNotConsistentWithOrdercountField = 170,
+    FcmIdNotMatchingRepresentFcm = 167,
+    SymbolTypeError = 168,
+    InvalidOrderCountOfNegotiatedBlockTradeConfirmInput = 169,
+    NumberOfOrdersInB31Xb31IsNotConsistentWithOrderCountField = 170,
     NegotiatedBlockTradeIsNotInTheStatusOfWaitingForConfirmInput = 171,
-    InvestoracnoDuplicateInNegotiatedBlockTradeConfirmInput = 172,
+    InvestorAcnoDuplicateInNegotiatedBlockTradeConfirmInput = 172,
     NegotiatedBlockTradeTimedOut = 175,
     TheConfirmInputDataIsNotConsistentWithB21Xb21RegisteredData = 176,
     NegotiatedBlockTradeBeyondThePositionLimit = 177,
     IllegalSourceId = 186,
     SignificantSystemTimeError = 200,
-    AppendnoError = 201,
-    FcmidError = 202,
-    ApcodeError = 203,
-    KeyvalueError = 204,
-    SessionidError = 205,
-    SystemtypeError = 206,
+    AppendNoError = 201,
+    FcmIdError = 202,
+    ApCodeError = 203,
+    KeyValueError = 204,
+    SessionIdError = 205,
+    SystemTypeError = 206,
     MsgSeqNumError = 207,
-    TargetidError = 208,
-    FlowgroupnoError = 209,
+    TargetIdError = 208,
+    FlowGroupNoError = 209,
     SubscriptionRequestTypeError = 210,
     MsgTypeExtError = 220,
-    PartidError = 221,
+    PartIdError = 221,
     SessionExceedsTheFlowLimit = 240,
     SessionExceedsFlowLimitContinuouslyAndIsLocked = 241,
-    OrderOlderThanCancelordersecAndRejected = 242,
+    OrderOlderThanCancelOrderSecAndRejected = 242,
     SessionReach80OfTheFlowLimit = 248,
     SessionReach90OfTheFlowLimit = 249,
     OrderOlderThanTwoSeconds = 250,
@@ -672,24 +672,24 @@ type StatuscodeUint162 = enum {
     DuplicateUniqueIdOfASecurityDefinitionRequestForTheFlexContract = 304,
     ExceedingTheFlexContractLimit = 305,
     NoRecordOfSuccessfulFlexContractApplicationWasFound = 306,
-    NonflexibleContractApplicationPeriod = 310,
+    NonFlexibleContractApplicationPeriod = 310,
     TheProprietaryTradingAccountHasNotBeenApprovedToApplyForFlexContracts = 311,
     TheFcmAccountHasNotBeenApprovedToApplyForFlexContracts = 312,
     IncorrectCoverageRangeForTheFlexContract = 313,
-    InvalidStrikepriceForTheFlexContract = 314,
+    InvalidStrikePriceForTheFlexContract = 314,
     InvalidSecurityRequestTypeForTheFlexContract = 315,
     InvalidApplicationTypeForTheFlexContract = 316,
     InvalidTypeForTheFlexContract = 317,
-    ExpirytypeError = 318,
-    CallputcodeError = 319,
+    ExpiryTypeError = 318,
+    CallPutCodeError = 319,
 };
 
-type Partid = enum {
+type PartId = enum {
     FlexOptionsRegularMarketHours = 102,
     FlexFuturesRegularMarketHours = 202,
 };
 
-type Apcode = enum {
+type ApCode = enum {
     FcmOrderTransaction = 4,
     FcmCondensedVersionOrderTransaction = 6,
     TmpdcSession = 7,
@@ -707,20 +707,20 @@ type ExecType = enum {
     ModifyPriceReplyingToTheOriginalLine = 0x6d,
 };
 
-type Symboltype = enum {
+type SymbolType = enum {
     NumericProductId = 1,
     TextProductId = 2,
     NumericProductIdLongFormat = 3,
     TextProductIdLongFormat = 4,
 };
 
-type LegsideUint822 = enum {
+type LegSideUint822 = enum {
     SingleOrder = 0,
     Buy = 1,
     Sell = 2,
 };
 
-type Combop = enum {
+type CombOp = enum {
     SingleOrder = 0,
     PriceSpread = 1,
     TimeSpread = 2,
@@ -756,7 +756,7 @@ type PositionEffect = enum {
     MarketMakerQuote = 0x39,
 };
 
-type Targetid = enum {
+type TargetId = enum {
     ExecutionReportIncludingHeadOfficeAndBranchOfficesInR02Format = 3,
     Fcm = 4,
     DropCopyInR02Format = 7,
@@ -769,13 +769,13 @@ type Targetid = enum {
     ExecutionReportIncludingHeadOfficeAndBranchOfficesInR06Format = 23,
 };
 
-type Protocoltype = enum {
+type ProtocolType = enum {
     Reserved = 0,
     Tmp = 1,
     Fix = 2,
 };
 
-type LegsideUint81 = enum {
+type LegSideUint81 = enum {
     SingleOrder = 0,
     Buy = 1,
     Sell = 2,

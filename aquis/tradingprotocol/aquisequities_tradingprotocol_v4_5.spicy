@@ -1,0 +1,569 @@
+module AquisAquisequitiesTradingprotocolAtpV45;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type AquisequitiesTradingprotocolV45 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::LoginMessage -> login_message: LoginMessage;
+        MsgType::LoginResponseMessage -> login_response_message: LoginResponseMessage;
+        MsgType::LogoutMessage -> logout_message: LogoutMessage;
+        MsgType::OrderAddMessage -> order_add_message: OrderAddMessage;
+        MsgType::OrderAddExtendedMessage -> order_add_extended_message: OrderAddExtendedMessage;
+        MsgType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MsgType::OrderModifyMessage -> order_modify_message: OrderModifyMessage;
+        MsgType::OrderModifyExtendedMessage -> order_modify_extended_message: OrderModifyExtendedMessage;
+        MsgType::OrderAddResponseMessage -> order_add_response_message: OrderAddResponseMessage;
+        MsgType::OrderCancelResponseMessage -> order_cancel_response_message: OrderCancelResponseMessage;
+        MsgType::OrderModifyResponseMessage -> order_modify_response_message: OrderModifyResponseMessage;
+        MsgType::IcebergOrderRefreshMessage -> iceberg_order_refresh_message: IcebergOrderRefreshMessage;
+        MsgType::TradeCaptureMessage -> trade_capture_message: TradeCaptureMessage;
+        MsgType::TradeCaptureResponseMessage -> trade_capture_response_message: TradeCaptureResponseMessage;
+        MsgType::TradeMessage -> trade_message: TradeMessage;
+        MsgType::TradeBustMessage -> trade_bust_message: TradeBustMessage;
+        MsgType::IoiAddMessage -> ioi_add_message: IoiAddMessage;
+        MsgType::IoiInviteMessage -> ioi_invite_message: IoiInviteMessage;
+        MsgType::IoiFirmupMessage -> ioi_firmup_message: IoiFirmupMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    msg_length: uint16;
+    msg_type: uint8 &convert=MsgType($$);
+    msg_seq_no: uint32;
+};
+
+type LoginMessage = unit {
+    protocol_version: uint16;
+    sender_id: bytes &size=16;
+    password: bytes &size=16;
+    inactivity_timeout: uint16;
+    atp_seq_no: uint32;
+};
+
+type LoginResponseMessage = unit {
+    result_code: uint8 &convert=ResultCode($$);
+    client_seq_no: uint32;
+};
+
+type LogoutMessage = unit {
+    logout_reason_code: uint8 &convert=LogoutReasonCode($$);
+    reason_text: bytes &size=32;
+};
+
+type OrderAddMessage = unit {
+    security_id_short: uint16;
+    order_type: uint8 &convert=OrderType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8;
+    quantity: uint32;
+    price: uint64;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    account: uint8;
+    user_tag: uint64;
+    flags: bitfield(8) {
+        liq_prov: 0;
+        algo_trade_flag: 1;
+        dea_flag: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    table_select_1: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_1: uint32 &convert=ShortCode1($$);
+    table_select_2: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_2: uint32 &convert=ShortCode2($$);
+    table_select_3: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_3: uint32 &convert=ShortCode3($$);
+};
+
+type OrderAddExtendedMessage = unit {
+    security_id_short: uint16;
+    order_type: uint8 &convert=OrderType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8;
+    quantity: uint32;
+    price: uint64;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    account: uint8;
+    user_tag: uint64;
+    flags: bitfield(8) {
+        liq_prov: 0;
+        algo_trade_flag: 1;
+        dea_flag: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    table_select_1: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_1: uint32 &convert=ShortCode1($$);
+    table_select_2: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_2: uint32 &convert=ShortCode2($$);
+    table_select_3: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_3: uint32 &convert=ShortCode3($$);
+    display_quantity: uint32;
+    min_qty: uint32;
+    extended_order_flags: bitfield(8) {
+        stp_enable: 0;
+        lis_only: 1;
+        routetolit: 2;
+        routing: 3..5;
+        reserved_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    reserved_long: uint64;
+    designated_order_id: uint64;
+    reserved_short: uint16;
+    peg_difference: int64;
+    display_low_qty: uint32;
+    display_high_qty: uint32;
+    order_flags_2: bitfield(16) {
+        reserved_1: 0;
+        reserved_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type OrderCancelMessage = unit {
+    order_ref: uint32;
+    user_tag: uint64;
+    flags: bitfield(8) {
+        liq_prov: 0;
+        algo_trade_flag: 1;
+        dea_flag: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    table_select_1: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_1: uint32 &convert=ShortCode1($$);
+    table_select_2: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_2: uint32 &convert=ShortCode2($$);
+    table_select_3: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_3: uint32 &convert=ShortCode3($$);
+};
+
+type OrderModifyMessage = unit {
+    order_ref: uint32;
+    price: uint64;
+    quantity: uint32;
+    user_tag: uint64;
+    flags: bitfield(8) {
+        liq_prov: 0;
+        algo_trade_flag: 1;
+        dea_flag: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    table_select_1: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_1: uint32 &convert=ShortCode1($$);
+    table_select_2: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_2: uint32 &convert=ShortCode2($$);
+    table_select_3: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_3: uint32 &convert=ShortCode3($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+};
+
+type OrderModifyExtendedMessage = unit {
+    order_ref: uint32;
+    price: uint64;
+    quantity: uint32;
+    user_tag: uint64;
+    flags: bitfield(8) {
+        liq_prov: 0;
+        algo_trade_flag: 1;
+        dea_flag: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    table_select_1: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_1: uint32 &convert=ShortCode1($$);
+    table_select_2: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_2: uint32 &convert=ShortCode2($$);
+    table_select_3: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_3: uint32 &convert=ShortCode3($$);
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    display_quantity: uint32;
+    min_qty: uint32;
+    reserved_long: uint64;
+};
+
+type OrderAddResponseMessage = unit {
+    order_ref: uint32;
+    market_data_id: uint32;
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    traded_quantity: uint32;
+    timestamp: uint64;
+    user_tag: uint64;
+    order_add_response_flags: bitfield(8) {
+        reserved_6: 0..5;
+        lis: 6;
+        dark_flag: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    reserved_short: uint16;
+};
+
+type OrderCancelResponseMessage = unit {
+    order_ref: uint32;
+    request_ref: uint32;
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64;
+    user_tag: uint64;
+    reserved_short: uint16;
+};
+
+type OrderModifyResponseMessage = unit {
+    order_ref: uint32;
+    request_ref: uint32;
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    timestamp: uint64;
+    user_tag: uint64;
+    order_modify_response_flags: bitfield(8) {
+        reserved_6: 0..5;
+        lis: 6;
+        dark_flag: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    reserved_short: uint16;
+};
+
+type IcebergOrderRefreshMessage = unit {
+    order_ref: uint32;
+    orig_aqx_ord_id: uint32;
+    new_aqx_ord_id: uint32;
+    quantity: uint32;
+};
+
+type TradeCaptureMessage = unit {
+    quantity: uint32;
+    price: uint64;
+    security_id_long: uint32;
+    trade_capture_type: uint8 &convert=TradeCaptureType($$);
+    trade_capture_flags: bitfield(8) {
+        reserved_1: 0;
+        algo_trade_flag: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: uint8;
+    user_tag: uint64;
+};
+
+type TradeCaptureResponseMessage = unit {
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    trade_ref: uint32;
+    request_ref: uint32;
+    user_tag: uint64;
+    reserved_short: uint16;
+};
+
+type TradeMessage = unit {
+    order_ref: uint32;
+    quantity: uint32;
+    price: uint64;
+    side: uint8;
+    trade_ref: uint32;
+    ccp_code: uint8;
+    liq_indicator: uint8 &convert=LiqIndicator($$);
+    security_id_short: uint16;
+    timestamp: uint64;
+    user_tag: uint64;
+    trade_flags: bitfield(8) {
+        reserved_6: 0..5;
+        lis: 6;
+        dark_flag: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+};
+
+type TradeBustMessage = unit {
+    order_ref: uint32;
+    quantity: uint32;
+    price: uint64;
+    side: uint8;
+    trade_ref: uint32;
+    timestamp: uint64;
+};
+
+type IoiAddMessage = unit {
+    security_id_short: uint16;
+    ioi_order_type: uint8 &convert=IoiOrderType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8;
+    quantity: uint32;
+    price: uint64;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    account: uint8;
+    user_tag: uint64;
+    flags: bitfield(8) {
+        liq_prov: 0;
+        algo_trade_flag: 1;
+        dea_flag: 2;
+        reserved_5: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    table_select_1: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_1: uint32 &convert=ShortCode1($$);
+    table_select_2: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_2: uint32 &convert=ShortCode2($$);
+    table_select_3: bitfield(8) {
+        party_role: 0..3;
+        party_role_qualifier: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    short_code_3: uint32 &convert=ShortCode3($$);
+    min_qty: uint32;
+    ioi_extended_flags: bitfield(8) {
+        stp_enable: 0;
+        lis_only: 1;
+        reserved_6: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    optim_x_universe: uint8 &convert=OptimXUniverse($$);
+    blotter_blacklist: bytes &size=50;
+};
+
+type IoiInviteMessage = unit {
+    order_ref: uint32;
+    price: uint64;
+    quantity: uint32;
+    min_qty: uint32;
+    timestamp: uint64;
+    user_tag: uint64;
+};
+
+type IoiFirmupMessage = unit {
+    order_ref: uint32;
+    price: uint64;
+    quantity: uint32;
+    min_qty: uint32;
+    user_tag: uint64;
+    time_in_force: uint8 &convert=TimeInForce($$);
+};
+
+type MsgType = enum {
+    LoginMessage = 1,
+    LoginResponseMessage = 2,
+    Heartbeat = 0,
+    LogoutRequestMessage = 3,
+    LogoutMessage = 4,
+    OrderAddMessage = 5,
+    OrderAddExtendedMessage = 21,
+    OrderCancelMessage = 7,
+    OrderModifyMessage = 9,
+    OrderModifyExtendedMessage = 22,
+    OrderAddResponseMessage = 6,
+    OrderCancelResponseMessage = 8,
+    OrderModifyResponseMessage = 10,
+    IcebergOrderRefreshMessage = 23,
+    TradeCaptureMessage = 17,
+    TradeCaptureResponseMessage = 18,
+    TradeMessage = 11,
+    TradeBustMessage = 12,
+    IoiAddMessage = 27,
+    IoiInviteMessage = 28,
+    IoiFirmupMessage = 29,
+};
+
+type ResultCode = enum {
+    SuccessfulLogin = 0,
+    AlreadyLoggedIn = 1,
+    SequenceNumberError = 2,
+    UnsupportedProtocol = 3,
+    FailedAuthentication = 4,
+    UnknownSourceNetwork = 5,
+};
+
+type LogoutReasonCode = enum {
+    UserRequested = 0,
+    Admin = 1,
+    Disconnect = 2,
+    EndOfDay = 3,
+    InactivityTimeout = 4,
+    ProtocolError = 5,
+    SequenceNumberError = 6,
+};
+
+type OrderType = enum {
+    LimitOrder = 1,
+    AuctionOnDemandLimitOrder = 2,
+    AuctionOnDemandMidPeggedLimit = 3,
+    AuctionOnDemandNearTouchPegged = 4,
+    MarketAtClose = 6,
+    PostOnlyCancelReplace = 8,
+    PostOnly = 9,
+    RestrictedPocrOrder = 10,
+    RestrictedPostOnlyOrder = 11,
+    NonDisplayAquisMatchingPoolOrder = 12,
+    AquisSmartMid = 19,
+};
+
+type TimeInForce = enum {
+    Day = 1,
+    FillOrKill = 2,
+    ImmediateOrCancel = 3,
+    GoodForAuction = 9,
+};
+
+type OrderCapacity = enum {
+    Aotc = 1,
+    Deal = 2,
+    Mtch = 3,
+};
+
+type PartyRole = enum {
+    None_0 = 0,
+    ClientId = 1,
+    ExecutingDecisionId = 2,
+    InvestingDecisionId = 3,
+};
+
+type PartyRoleQualifier = enum {
+    None_0 = 0,
+    Algo = 1,
+    Firm = 2,
+    Person = 3,
+};
+
+type ShortCode1 = enum {
+    None_0 = 0,
+    Aggr = 1,
+    Pnal = 2,
+    Client = 3,
+};
+
+type ShortCode2 = enum {
+    None_0 = 0,
+    Aggr = 1,
+    Pnal = 2,
+    Client = 3,
+};
+
+type ShortCode3 = enum {
+    None_0 = 0,
+    Aggr = 1,
+    Pnal = 2,
+    Client = 3,
+};
+
+type StpEnable = enum {
+    NoRestriction = 0,
+    SelfTradePreventionEnabled = 1,
+};
+
+type LisOnly = enum {
+    NoRestriction = 0,
+    LisExecutionsOnly = 1,
+};
+
+type Routetolit = enum {
+    OrderIsNotRouted = 0,
+    RouteToLit = 1,
+};
+
+type Routing = enum {
+    Limit = 0,
+    PostOnly = 1,
+    Pocr = 2,
+    RestrictedPostOnlyOrder = 3,
+    RestrictedPocrOrder = 4,
+};
+
+type OrderStatus = enum {
+    PendingNew = 1,
+    Acknowledged = 2,
+    Cancelled = 3,
+    Rejected = 4,
+    Filled = 5,
+    Modified = 6,
+};
+
+type Lis = enum {
+    ReferencePriceWaiver = 0,
+    LargeInScale = 1,
+};
+
+type TradeCaptureType = enum {
+    LisCross = 1,
+    LisCrossNoClearing = 2,
+    VwapBenchmarkCross = 3,
+    VwapBenchmarkCrossNoClearing = 4,
+    TwapBenchmarkCross = 5,
+    TwapBenchmarkCrossNoClearing = 6,
+};
+
+type LiqIndicator = enum {
+    AddedLiquidity = 1,
+    RemovedLiquidity = 2,
+    RemovedLiquidityHiddenQuantity = 3,
+    AuctionMac = 4,
+    AuctionOnDemand = 6,
+};
+
+type IoiOrderType = enum {
+    MidPegged = 12,
+    AquisVwapMatch = 17,
+    TargetedAquisVwapMatch = 18,
+    Reserved = 20,
+};
+
+type OptimXUniverse = enum {
+    Off = 0,
+    ShowToAllOptimXClients = 1,
+    ShowToCurrentBrokerClientsOnly = 2,
+};
+

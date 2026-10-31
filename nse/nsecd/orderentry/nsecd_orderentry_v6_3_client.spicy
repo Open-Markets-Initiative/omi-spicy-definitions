@@ -1,0 +1,1135 @@
+module NseNsecdOrderentryNnfV63Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NsecdOrderentryV63 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SystemInformationInMessage -> system_information_in_message: SystemInformationInMessage;
+        TransactionCode::BoardLotInMessage -> board_lot_in_message: BoardLotInMessage;
+        TransactionCode::OrderModInMessage -> order_mod_in_message: OrderModInMessage;
+        TransactionCode::OrderCancelInMessage -> order_cancel_in_message: OrderCancelInMessage;
+        TransactionCode::PriceModInMessage -> price_mod_in_message: PriceModInMessage;
+        TransactionCode::SpBoardLotInMessage -> sp_board_lot_in_message: SpBoardLotInMessage;
+        TransactionCode::TwolBoardLotInMessage -> twol_board_lot_in_message: TwolBoardLotInMessage;
+        TransactionCode::ThrlBoardLotInMessage -> thrl_board_lot_in_message: ThrlBoardLotInMessage;
+        TransactionCode::SpOrderCancelInMessage -> sp_order_cancel_in_message: SpOrderCancelInMessage;
+        TransactionCode::SpOrderModInMessage -> sp_order_mod_in_message: SpOrderModInMessage;
+        TransactionCode::TradeCancelInMessage -> trade_cancel_in_message: TradeCancelInMessage;
+        TransactionCode::TradeModInMessage -> trade_mod_in_message: TradeModInMessage;
+        TransactionCode::SignOnRequestInMessage -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::SignOffTraderInMessage -> sign_off_trader_in_message: SignOffTraderInMessage;
+        TransactionCode::GrRequestMessage -> gr_request_message: GrRequestMessage;
+        TransactionCode::UserAddrUnlockInMessage -> user_addr_unlock_in_message: UserAddrUnlockInMessage;
+        TransactionCode::BranchOrdValLimitUpdateInMessage -> branch_ord_val_limit_update_in_message: BranchOrdValLimitUpdateInMessage;
+        TransactionCode::UserOrdValLimitUpdateInMessage -> user_ord_val_limit_update_in_message: UserOrdValLimitUpdateInMessage;
+        TransactionCode::NormalOrdLimitUpdateInMessage -> normal_ord_limit_update_in_message: NormalOrdLimitUpdateInMessage;
+        TransactionCode::SpreadOrdLimitUpdateInMessage -> spread_ord_limit_update_in_message: SpreadOrdLimitUpdateInMessage;
+        TransactionCode::ResetUserPasswordInMessage -> reset_user_password_in_message: ResetUserPasswordInMessage;
+        TransactionCode::ColUserStatusChangeInMessage -> col_user_status_change_in_message: ColUserStatusChangeInMessage;
+        TransactionCode::DownloadRequestMessage -> download_request_message: DownloadRequestMessage;
+        TransactionCode::UpdateLocaldbInMessage -> update_localdb_in_message: UpdateLocaldbInMessage;
+        TransactionCode::BoxSignOnRequestInMessage -> box_sign_on_request_in_message: BoxSignOnRequestInMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32;
+    alpha_char: bytes &size=2;
+    trader_id: int32;
+    error_code: int16;
+    header_timestamp: int64;
+    time_stamp_1: bytes &size=8;
+    time_stamp_2: bytes &size=8;
+    message_length: int16;
+};
+
+type SystemInformationInMessage = unit {
+    last_update_portfolio_t_ime: int32;
+};
+
+type BoardLotInMessage = unit {
+    participant_type: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    modified_cancelled_by: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    reason_code: int16;
+    : skip bytes &size=4;   # padding
+    token_no: int32;
+    contract_desc: ContractDesc;
+    counter_party_broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    closeout_flag: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    order_type: int16;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type_short_2: int16;
+    buy_sell_indicator: int16;
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    good_till_date: int32;
+    entry_date_time: int32;
+    minimum_fill_aon_volume: int32;
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    settlement_period: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=4;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type ContractDesc = unit {
+    instrument_name: bytes &size=6;
+    symbol: bytes &size=10;
+    expiry_date: int32;
+    strike_price: int32;
+    option_type: bytes &size=2;
+    ca_level: int16;
+};
+
+type OrderModInMessage = unit {
+    participant_type: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    modified_cancelled_by: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    reason_code: int16;
+    : skip bytes &size=4;   # padding
+    token_no: int32;
+    contract_desc: ContractDesc;
+    counter_party_broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    closeout_flag: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    order_type: int16;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type_short_2: int16;
+    buy_sell_indicator: int16;
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    good_till_date: int32;
+    entry_date_time: int32;
+    minimum_fill_aon_volume: int32;
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    settlement_period: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=4;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type OrderCancelInMessage = unit {
+    participant_type: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    modified_cancelled_by: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    reason_code: int16;
+    : skip bytes &size=4;   # padding
+    token_no: int32;
+    contract_desc: ContractDesc;
+    counter_party_broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    closeout_flag: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    order_type: int16;
+    order_number: bytes &size=8;
+    account_number: bytes &size=10;
+    book_type_short_2: int16;
+    buy_sell_indicator: int16;
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    good_till_date: int32;
+    entry_date_time: int32;
+    minimum_fill_aon_volume: int32;
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    settlement_period: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    reference: bytes &size=4;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type PriceModInMessage = unit {
+    token_no: int32;
+    trader_id: int32;
+    order_number: bytes &size=8;
+    buy_sell: int16;
+    price: int32;
+    volume: int32;
+    last_modified: int32;
+    reference: bytes &size=4;
+    last_activity_reference: int64;
+    : skip bytes &size=24;   # padding
+};
+
+type SpBoardLotInMessage = unit {
+    participant_type_1: bytes &size=1;
+    filler_1: bytes &size=1;
+    competitor_period_1: int16;
+    solicitor_period_1: int16;
+    mod_cxl_by_1: bytes &size=1;
+    filler_9: bytes &size=1;
+    reason_code_1: int16;
+    start_alpha_1: bytes &size=2;
+    end_alpha_1: bytes &size=2;
+    token_1: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_1: bytes &size=5;
+    fillerx_1: bytes &size=1;
+    filler_options_1: bytes &size=3;
+    fillery_1: bytes &size=1;
+    order_type_1: int16;
+    order_number_1: bytes &size=8;
+    account_number_1: bytes &size=10;
+    book_type_1: int16;
+    buy_sell_1: int16;
+    disclosed_vol_1: int32;
+    disclosed_vol_remaining_1: int32;
+    total_vol_remaining_1: int32;
+    volume_1: int32;
+    volume_filled_today_1: int32;
+    price_1: int32;
+    trigger_price_1: int32;
+    good_till_date_1: int32;
+    entry_date_time_1: int32;
+    min_fill_aon_1: int32;
+    last_modified_1: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id_1: int16;
+    trader_id_1: int32;
+    broker_id_1: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close_1: bytes &size=1;
+    settlor_1: bytes &size=12;
+    pro_client_1: int16;
+    settlement_period_1: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    filler_17: bytes &size=1;
+    filler_18: bytes &size=1;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+    price_diff: int32;
+    ms_spd_leg_info_leg_2: MsSpdLegInfoLeg2;
+    ms_spd_leg_info_leg_3: MsSpdLegInfoLeg3;
+};
+
+type MsSpdLegInfoLeg2 = unit {
+    token_2: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_2: bytes &size=5;
+    fillerx_2: bytes &size=1;
+    order_type_2: int16;
+    buy_sell_2: int16;
+    disclosed_vol_2: int32;
+    disclosed_vol_remaining_2: int32;
+    total_vol_remaining_2: int32;
+    volume_2: int32;
+    volume_filled_today_2: int32;
+    price_2: int32;
+    trigger_price_2: int32;
+    min_fill_aon_2: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    open_close_2: bytes &size=1;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    filler_y: bytes &size=1;
+};
+
+type MsSpdLegInfoLeg3 = unit {
+    token_2: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_2: bytes &size=5;
+    fillerx_2: bytes &size=1;
+    order_type_2: int16;
+    buy_sell_2: int16;
+    disclosed_vol_2: int32;
+    disclosed_vol_remaining_2: int32;
+    total_vol_remaining_2: int32;
+    volume_2: int32;
+    volume_filled_today_2: int32;
+    price_2: int32;
+    trigger_price_2: int32;
+    min_fill_aon_2: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    open_close_2: bytes &size=1;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    filler_y: bytes &size=1;
+};
+
+type TwolBoardLotInMessage = unit {
+    participant_type_1: bytes &size=1;
+    filler_1: bytes &size=1;
+    competitor_period_1: int16;
+    solicitor_period_1: int16;
+    mod_cxl_by_1: bytes &size=1;
+    filler_9: bytes &size=1;
+    reason_code_1: int16;
+    start_alpha_1: bytes &size=2;
+    end_alpha_1: bytes &size=2;
+    token_1: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_1: bytes &size=5;
+    fillerx_1: bytes &size=1;
+    filler_options_1: bytes &size=3;
+    fillery_1: bytes &size=1;
+    order_type_1: int16;
+    order_number_1: bytes &size=8;
+    account_number_1: bytes &size=10;
+    book_type_1: int16;
+    buy_sell_1: int16;
+    disclosed_vol_1: int32;
+    disclosed_vol_remaining_1: int32;
+    total_vol_remaining_1: int32;
+    volume_1: int32;
+    volume_filled_today_1: int32;
+    price_1: int32;
+    trigger_price_1: int32;
+    good_till_date_1: int32;
+    entry_date_time_1: int32;
+    min_fill_aon_1: int32;
+    last_modified_1: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id_1: int16;
+    trader_id_1: int32;
+    broker_id_1: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close_1: bytes &size=1;
+    settlor_1: bytes &size=12;
+    pro_client_1: int16;
+    settlement_period_1: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    filler_17: bytes &size=1;
+    filler_18: bytes &size=1;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+    price_diff: int32;
+    ms_spd_leg_info_leg_2: MsSpdLegInfoLeg2;
+    ms_spd_leg_info_leg_3: MsSpdLegInfoLeg3;
+};
+
+type ThrlBoardLotInMessage = unit {
+    participant_type_1: bytes &size=1;
+    filler_1: bytes &size=1;
+    competitor_period_1: int16;
+    solicitor_period_1: int16;
+    mod_cxl_by_1: bytes &size=1;
+    filler_9: bytes &size=1;
+    reason_code_1: int16;
+    start_alpha_1: bytes &size=2;
+    end_alpha_1: bytes &size=2;
+    token_1: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_1: bytes &size=5;
+    fillerx_1: bytes &size=1;
+    filler_options_1: bytes &size=3;
+    fillery_1: bytes &size=1;
+    order_type_1: int16;
+    order_number_1: bytes &size=8;
+    account_number_1: bytes &size=10;
+    book_type_1: int16;
+    buy_sell_1: int16;
+    disclosed_vol_1: int32;
+    disclosed_vol_remaining_1: int32;
+    total_vol_remaining_1: int32;
+    volume_1: int32;
+    volume_filled_today_1: int32;
+    price_1: int32;
+    trigger_price_1: int32;
+    good_till_date_1: int32;
+    entry_date_time_1: int32;
+    min_fill_aon_1: int32;
+    last_modified_1: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id_1: int16;
+    trader_id_1: int32;
+    broker_id_1: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close_1: bytes &size=1;
+    settlor_1: bytes &size=12;
+    pro_client_1: int16;
+    settlement_period_1: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    filler_17: bytes &size=1;
+    filler_18: bytes &size=1;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+    price_diff: int32;
+    ms_spd_leg_info_leg_2: MsSpdLegInfoLeg2;
+    ms_spd_leg_info_leg_3: MsSpdLegInfoLeg3;
+};
+
+type SpOrderCancelInMessage = unit {
+    participant_type_1: bytes &size=1;
+    filler_1: bytes &size=1;
+    competitor_period_1: int16;
+    solicitor_period_1: int16;
+    mod_cxl_by_1: bytes &size=1;
+    filler_9: bytes &size=1;
+    reason_code_1: int16;
+    start_alpha_1: bytes &size=2;
+    end_alpha_1: bytes &size=2;
+    token_1: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_1: bytes &size=5;
+    fillerx_1: bytes &size=1;
+    filler_options_1: bytes &size=3;
+    fillery_1: bytes &size=1;
+    order_type_1: int16;
+    order_number_1: bytes &size=8;
+    account_number_1: bytes &size=10;
+    book_type_1: int16;
+    buy_sell_1: int16;
+    disclosed_vol_1: int32;
+    disclosed_vol_remaining_1: int32;
+    total_vol_remaining_1: int32;
+    volume_1: int32;
+    volume_filled_today_1: int32;
+    price_1: int32;
+    trigger_price_1: int32;
+    good_till_date_1: int32;
+    entry_date_time_1: int32;
+    min_fill_aon_1: int32;
+    last_modified_1: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id_1: int16;
+    trader_id_1: int32;
+    broker_id_1: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close_1: bytes &size=1;
+    settlor_1: bytes &size=12;
+    pro_client_1: int16;
+    settlement_period_1: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    filler_17: bytes &size=1;
+    filler_18: bytes &size=1;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+    price_diff: int32;
+    ms_spd_leg_info_leg_2: MsSpdLegInfoLeg2;
+    ms_spd_leg_info_leg_3: MsSpdLegInfoLeg3;
+};
+
+type SpOrderModInMessage = unit {
+    participant_type_1: bytes &size=1;
+    filler_1: bytes &size=1;
+    competitor_period_1: int16;
+    solicitor_period_1: int16;
+    mod_cxl_by_1: bytes &size=1;
+    filler_9: bytes &size=1;
+    reason_code_1: int16;
+    start_alpha_1: bytes &size=2;
+    end_alpha_1: bytes &size=2;
+    token_1: int32;
+    contract_desc: ContractDesc;
+    op_broker_id_1: bytes &size=5;
+    fillerx_1: bytes &size=1;
+    filler_options_1: bytes &size=3;
+    fillery_1: bytes &size=1;
+    order_type_1: int16;
+    order_number_1: bytes &size=8;
+    account_number_1: bytes &size=10;
+    book_type_1: int16;
+    buy_sell_1: int16;
+    disclosed_vol_1: int32;
+    disclosed_vol_remaining_1: int32;
+    total_vol_remaining_1: int32;
+    volume_1: int32;
+    volume_filled_today_1: int32;
+    price_1: int32;
+    trigger_price_1: int32;
+    good_till_date_1: int32;
+    entry_date_time_1: int32;
+    min_fill_aon_1: int32;
+    last_modified_1: int32;
+    st_order_flags: bitfield(16) {
+        reserved_13: 0..2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id_1: int16;
+    trader_id_1: int32;
+    broker_id_1: bytes &size=5;
+    c_ord_filler: bytes &size=24;
+    open_close_1: bytes &size=1;
+    settlor_1: bytes &size=12;
+    pro_client_1: int16;
+    settlement_period_1: int16;
+    additional_order_flags: bitfield(8) {
+        additional_order_flags_reserved_1: 0;
+        col: 1;
+        additional_order_flags_reserved_3: 2;
+        additional_order_flags_reserved_4: 3;
+        stpc: 4;
+        additional_order_flags_reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=2;   # padding
+    filler_17: bytes &size=1;
+    filler_18: bytes &size=1;
+    nnf_field: bytes &size=8;
+    mkt_replay: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+    price_diff: int32;
+    ms_spd_leg_info_leg_2: MsSpdLegInfoLeg2;
+    ms_spd_leg_info_leg_3: MsSpdLegInfoLeg3;
+};
+
+type TradeCancelInMessage = unit {
+    token_no: int32;
+    contract_desc: ContractDesc;
+    fill_number: int32;
+    fill_quantity: int32;
+    fill_price: int32;
+    mkt_type: bytes &size=1;
+    buy_open_close: bytes &size=1;
+    : skip bytes &size=4;   # padding
+    buy_broker_id: bytes &size=5;
+    sell_broker_id: bytes &size=5;
+    trader_id: int32;
+    requested_by: bytes &size=1;
+    sell_open_close: bytes &size=1;
+    buy_account_number: bytes &size=10;
+    sell_account_number: bytes &size=10;
+    : skip bytes &size=24;   # padding
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
+    buy_pan: bytes &size=10;
+    sell_pan: bytes &size=10;
+    : skip bytes &size=60;   # padding
+};
+
+type TradeModInMessage = unit {
+    token_no: int32;
+    contract_desc: ContractDesc;
+    fill_number: int32;
+    fill_quantity: int32;
+    fill_price: int32;
+    mkt_type: bytes &size=1;
+    buy_open_close: bytes &size=1;
+    : skip bytes &size=4;   # padding
+    buy_broker_id: bytes &size=5;
+    sell_broker_id: bytes &size=5;
+    trader_id: int32;
+    requested_by: bytes &size=1;
+    sell_open_close: bytes &size=1;
+    buy_account_number: bytes &size=10;
+    sell_account_number: bytes &size=10;
+    : skip bytes &size=24;   # padding
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=2;   # padding
+    buy_pan: bytes &size=10;
+    sell_pan: bytes &size=10;
+    : skip bytes &size=60;   # padding
+};
+
+type SignOnRequestInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=8;   # padding
+    password: bytes &size=8;
+    : skip bytes &size=8;   # padding
+    new_password: bytes &size=8;
+    trader_name: bytes &size=26;
+    last_password_change_date: int32;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch_id: int16;
+    version_number: int32;
+    batch_2_start_time: int32;
+    host_switch_context: bytes &size=1;
+    colour: bytes &size=50;
+    : skip bytes &size=1;   # padding
+    user_type: int16;
+    sequence_number: bytes &size=8;
+    ws_class_name: bytes &size=14;
+    broker_status: bytes &size=1;
+    show_index: bytes &size=1;
+    st_broker_eligibility_per_mkt: bitfield(16) {
+        reserved_112: 0..11;
+        oddlot_market: 12;
+        spot_market: 13;
+        auction_market: 14;
+        normal_market: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    member_type: int16;
+    clearing_status: bytes &size=1;
+    broker_name: bytes &size=25;
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+};
+
+type SignOffTraderInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=8;   # padding
+    password: bytes &size=8;
+    : skip bytes &size=8;   # padding
+    new_password: bytes &size=8;
+    trader_name: bytes &size=26;
+    last_password_change_date: int32;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch_id: int16;
+    version_number: int32;
+    batch_2_start_time: int32;
+    host_switch_context: bytes &size=1;
+    colour: bytes &size=50;
+    : skip bytes &size=1;   # padding
+    user_type: int16;
+    sequence_number: bytes &size=8;
+    ws_class_name: bytes &size=14;
+    broker_status: bytes &size=1;
+    show_index: bytes &size=1;
+    st_broker_eligibility_per_mkt: bitfield(16) {
+        reserved_112: 0..11;
+        oddlot_market: 12;
+        spot_market: 13;
+        auction_market: 14;
+        normal_market: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    member_type: int16;
+    clearing_status: bytes &size=1;
+    broker_name: bytes &size=25;
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+    : skip bytes &size=16;   # padding
+};
+
+type GrRequestMessage = unit {
+    box_id: int16;
+    broker_id: bytes &size=5;
+    filler: bytes &size=1;
+};
+
+type UserAddrUnlockInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=70;   # padding
+};
+
+type BranchOrdValLimitUpdateInMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=25;   # padding
+    branch_id: int16;
+    branch_limits_1: BranchLimits1;
+    branch_limits_2: BranchLimits2;
+};
+
+type BranchLimits1 = unit {
+    branch_buy_value_limit: bytes &size=8;
+    branch_sell_value_limit: bytes &size=8;
+    : skip bytes &size=16;   # padding
+};
+
+type BranchLimits2 = unit {
+    branch_buy_value_limit: bytes &size=8;
+    branch_sell_value_limit: bytes &size=8;
+    : skip bytes &size=16;   # padding
+};
+
+type UserOrdValLimitUpdateInMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch_id: int16;
+    : skip bytes &size=26;   # padding
+    user_id: int32;
+    : skip bytes &size=2;   # padding
+    user_limits_1: UserLimits1;
+    user_limits_2: UserLimits2;
+};
+
+type UserLimits1 = unit {
+    : skip bytes &size=32;   # padding
+    user_order_buy_value_limit: bytes &size=8;
+    user_order_sell_value_limit: bytes &size=8;
+    : skip bytes &size=16;   # padding
+};
+
+type UserLimits2 = unit {
+    : skip bytes &size=32;   # padding
+    user_order_buy_value_limit: bytes &size=8;
+    user_order_sell_value_limit: bytes &size=8;
+    : skip bytes &size=16;   # padding
+};
+
+type NormalOrdLimitUpdateInMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    user_id: int32;
+    order_qty_limit: bytes &size=8;
+    order_val_limit: bytes &size=8;
+};
+
+type SpreadOrdLimitUpdateInMessage = unit {
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    user_id: int32;
+    order_qty_limit: bytes &size=8;
+    order_val_limit: bytes &size=8;
+};
+
+type ResetUserPasswordInMessage = unit {
+    user_id: int32;
+    : skip bytes &size=14;   # padding
+};
+
+type ColUserStatusChangeInMessage = unit {
+    user_id: int32;
+    col_user_bit: bytes &size=1;
+    : skip bytes &size=7;   # padding
+};
+
+type DownloadRequestMessage = unit {
+    sequence_number: bytes &size=8;
+};
+
+type UpdateLocaldbInMessage = unit {
+    last_update_security_time: int32;
+    last_update_participant_time: int32;
+    last_update_instrument_time: int32;
+    last_update_index_time: int32;
+    request_for_open_orders: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    st_market_status: StMarketStatus;
+    st_ex_market_status: StExMarketStatus;
+    st_pl_market_status: StPlMarketStatus;
+};
+
+type StMarketStatus = unit {
+    normal: int16;
+    oddlot: int16;
+    spot: int16;
+    auction: int16;
+};
+
+type StExMarketStatus = unit {
+    normal: int16;
+    oddlot: int16;
+    spot: int16;
+    auction: int16;
+};
+
+type StPlMarketStatus = unit {
+    normal: int16;
+    oddlot: int16;
+    spot: int16;
+    auction: int16;
+};
+
+type BoxSignOnRequestInMessage = unit {
+    box_id: int16;
+    broker_id: bytes &size=5;
+    : skip bytes &size=5;   # padding
+    session_key: bytes &size=8;
+};
+
+type TransactionCode = enum {
+    SystemInformationInMessage = 1600,
+    SystemInformationOutMessage = 1601,
+    PartialSystemInformationMessage = 7321,
+    OpenOrderReportMessage = 1821,
+    SpreadOrderLogReportMessage = 1992,
+    SpreadTradeReportMessage = 1993,
+    BoardLotInMessage = 2000,
+    BoardLotOutMessage = 2001,
+    NegOrderToBlMessage = 2008,
+    OrderModInMessage = 2040,
+    OrderModOutMessage = 2041,
+    OrderModRejectMessage = 2042,
+    OrderCancelInMessage = 2070,
+    OrderCancelOutMessage = 2071,
+    OrderCancelRejectMessage = 2072,
+    OrderConfirmationMessage = 2073,
+    OrderModConfirmationMessage = 2074,
+    OrderCancelConfirmationMessage = 2075,
+    CancelNegOrderMessage = 2076,
+    FreezeToControlMessage = 2170,
+    OrderErrorMessage = 2231,
+    BatchOrderCancelMessage = 9002,
+    PriceModInMessage = 2013,
+    SpBoardLotInMessage = 2100,
+    SpBoardLotOutMessage = 2101,
+    TwolBoardLotInMessage = 2102,
+    TwolBoardLotOutMessage = 2103,
+    ThrlBoardLotInMessage = 2104,
+    ThrlBoardLotOutMessage = 2105,
+    SpOrderCancelInMessage = 2106,
+    SpOrderCancelOutMessage = 2107,
+    SpOrderModInMessage = 2118,
+    SpOrderModOutMessage = 2119,
+    SpOrderConfirmationMessage = 2124,
+    TwolOrderConfirmationMessage = 2125,
+    ThrlOrderConfirmationMessage = 2126,
+    SpOrderCxlRejOutMessage = 2127,
+    SpOrderCxlConfirmationMessage = 2130,
+    TwolOrderCxlConfirmatiMessage = 2131,
+    ThrlOrderCxlConfirmatiMessage = 2132,
+    SpOrderModRejOutMessage = 2133,
+    SpOrderModConOutMessage = 2136,
+    TwolOrderErrorMessage = 2155,
+    ThrlOrderErrorMessage = 2156,
+    OnStopNotificationMessage = 2212,
+    TradeConfirmationMessage = 2222,
+    TradeCancelConfirmMessage = 2282,
+    TradeCancelRejectMessage = 2286,
+    TradeModifyRejectMessage = 2288,
+    TradeErrorMessage = 2223,
+    TradeCancelInMessage = 5440,
+    TradeCancelOutMessage = 5441,
+    TradeModInMessage = 5445,
+    TradeModifyConfirmMessage = 2287,
+    SignOnRequestInMessage = 2300,
+    SignOnRequestOutMessage = 2301,
+    SignOffTraderInMessage = 5584,
+    SignOffTraderOutMessage = 5585,
+    ErrorResponseOutMessage = 2302,
+    GrRequestMessage = 2400,
+    GrResponseMessage = 2401,
+    GiveupAppConfirmTmMessage = 4506,
+    GiveupRejConfirmTmMessage = 4507,
+    UserAddrUnlockInMessage = 5427,
+    UserAddrUnlockConfirmOutMessage = 5428,
+    UserAddrUnlockApproveOutMessage = 5483,
+    UserAddrUnlockRejectOMessage = 5484,
+    BranchOrdValLimitUpdateInMessage = 5716,
+    BranchOrdValLimitUpdaMessage = 5717,
+    UserOrdValLimitUpdateInMessage = 5730,
+    UserOrderLimitUpdateOutMessage = 5731,
+    NormalOrdLimitUpdateInMessage = 5732,
+    SpreadOrdLimitUpdateInMessage = 5771,
+    DealerLimitUpdateOutMessage = 5733,
+    ResetUserPasswordInMessage = 5740,
+    ResetUserPasswordOutMessage = 5741,
+    ColUserStatusChangeInMessage = 5744,
+    ColUserStatusChangeOutMessage = 5745,
+    SpdOrdLimitUpdateOutMessage = 5772,
+    DownloadRequestMessage = 7000,
+    HeaderRecordMessage = 7011,
+    MessageRecordMessage = 7021,
+    TrailerRecordMessage = 7031,
+    UpdateLocaldbInMessage = 7300,
+    UpdateLocaldbHeaderMessage = 7307,
+    UpdateLocaldbTrailerMessage = 7308,
+    BcastAssetMstrChgMessage = 7325,
+    BoxSignOnRequestInMessage = 23000,
+    BoxSignOnRequestOutMessage = 23001,
+    BoxSignOffMessage = 20322,
+    SecureBoxRegistrationReMessage = 23008,
+    SecureBoxRegistrationReMessage_23009 = 23009,
+};
+
