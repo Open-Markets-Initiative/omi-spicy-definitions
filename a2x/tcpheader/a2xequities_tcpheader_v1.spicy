@@ -1,0 +1,21 @@
+module A2xA2xequitiesTcpheaderAtpV1;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type A2xequitiesTcpheaderV1 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    payload: bytes &size=self.message_header.length - 7;
+};
+
+type MessageHeader = unit {
+    length: uint16;
+    msg_type: uint8;
+    msg_seq_no: uint32;
+};
+

@@ -72,7 +72,7 @@ type OrderAddMessage = unit {
         liq_prov: 0;
         algo_trade_flag: 1;
         dea_flag: 2;
-        reserved_5: 3..7;
+        unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
     table_select_1: bitfield(8) {
         party_role: 0..3;
@@ -105,7 +105,7 @@ type OrderAddExtendedMessage = unit {
         liq_prov: 0;
         algo_trade_flag: 1;
         dea_flag: 2;
-        reserved_5: 3..7;
+        unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
     table_select_1: bitfield(8) {
         party_role: 0..3;
@@ -129,11 +129,11 @@ type OrderAddExtendedMessage = unit {
         lis_only: 1;
         routetolit: 2;
         routing: 3..5;
-        reserved_2: 6..7;
+        unused_2: 6..7;
     } &byte-order=spicy::ByteOrder::Little;
-    reserved_long: uint64;
+    : skip bytes &size=8;   # padding
     designated_order_id: uint64;
-    reserved_short: uint16;
+    : skip bytes &size=2;   # padding
     peg_difference: int64;
 };
 
@@ -144,7 +144,7 @@ type OrderCancelMessage = unit {
         liq_prov: 0;
         algo_trade_flag: 1;
         dea_flag: 2;
-        reserved_5: 3..7;
+        unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
     table_select_1: bitfield(8) {
         party_role: 0..3;
@@ -172,7 +172,7 @@ type OrderModifyMessage = unit {
         liq_prov: 0;
         algo_trade_flag: 1;
         dea_flag: 2;
-        reserved_5: 3..7;
+        unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
     table_select_1: bitfield(8) {
         party_role: 0..3;
@@ -201,7 +201,7 @@ type OrderModifyExtendedMessage = unit {
         liq_prov: 0;
         algo_trade_flag: 1;
         dea_flag: 2;
-        reserved_5: 3..7;
+        unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
     table_select_1: bitfield(8) {
         party_role: 0..3;
@@ -221,7 +221,7 @@ type OrderModifyExtendedMessage = unit {
     order_capacity: uint8 &convert=OrderCapacity($$);
     display_quantity: uint32;
     min_qty: uint32;
-    reserved_long: uint64;
+    : skip bytes &size=8;   # padding
 };
 
 type OrderAddResponseMessage = unit {
@@ -235,7 +235,7 @@ type OrderAddResponseMessage = unit {
     timestamp: uint64;
     user_tag: uint64;
     order_add_response_flags: bitfield(8) {
-        reserved_6: 0..5;
+        unused_6: 0..5;
         lis: 6;
         dark_flag: 7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -248,7 +248,7 @@ type OrderCancelResponseMessage = unit {
         reason_code: 0..4;
         order_status: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: uint64;
+    cancellation_timestamp: uint64;
     user_tag: uint64;
 };
 
@@ -259,10 +259,10 @@ type OrderModifyResponseMessage = unit {
         reason_code: 0..4;
         order_status: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: uint64;
+    modification_timestamp: uint64;
     user_tag: uint64;
     order_modify_response_flags: bitfield(8) {
-        reserved_6: 0..5;
+        unused_6: 0..5;
         lis: 6;
         dark_flag: 7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -281,9 +281,9 @@ type TradeCaptureMessage = unit {
     security_id_long: uint32;
     trade_capture_type: uint8 &convert=TradeCaptureType($$);
     trade_capture_flags: bitfield(8) {
-        reserved_1: 0;
+        unused_1: 0;
         algo_trade_flag: 1;
-        reserved_6: 2..7;
+        unused_6: 2..7;
     } &byte-order=spicy::ByteOrder::Little;
     account: uint8;
     user_tag: uint64;
@@ -308,10 +308,10 @@ type TradeMessage = unit {
     ccp_code: uint8;
     liq_indicator: uint8 &convert=LiqIndicator($$);
     security_id_short: uint16;
-    timestamp: uint64;
+    trade_timestamp: uint64;
     user_tag: uint64;
     trade_flags: bitfield(8) {
-        reserved_6: 0..5;
+        unused_6: 0..5;
         lis: 6;
         dark_flag: 7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -323,7 +323,7 @@ type TradeBustMessage = unit {
     price: uint64;
     side: uint8;
     trade_ref: uint32;
-    timestamp: uint64;
+    bust_timestamp: uint64;
 };
 
 type IoiAddMessage = unit {
@@ -340,7 +340,7 @@ type IoiAddMessage = unit {
         liq_prov: 0;
         algo_trade_flag: 1;
         dea_flag: 2;
-        reserved_5: 3..7;
+        unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
     table_select_1: bitfield(8) {
         party_role: 0..3;
@@ -361,7 +361,7 @@ type IoiAddMessage = unit {
     ioi_extended_flags: bitfield(8) {
         stp_enable: 0;
         lis_only: 1;
-        reserved_6: 2..7;
+        unused_6: 2..7;
     } &byte-order=spicy::ByteOrder::Little;
     optim_x_universe: uint8 &convert=OptimXUniverse($$);
     blotter_blacklist: bytes &size=50;
@@ -372,7 +372,7 @@ type IoiInviteMessage = unit {
     price: uint64;
     quantity: uint32;
     min_qty: uint32;
-    timestamp: uint64;
+    invite_timestamp: uint64;
     user_tag: uint64;
 };
 

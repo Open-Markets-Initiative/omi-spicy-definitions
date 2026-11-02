@@ -9,6 +9,11 @@
 | [Rtmdf][A2X.A2XEquities.Rtmdf] | [Amd][Omi.Encoding.Amd] | [2.5][A2X.A2XEquities.Rtmdf.Amd.v2.5.Definition] | 8/1/2026 | 194 | [Pending][Omi.Glossary.Deployment.Pending] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.Rtmdf.Amd.v2.5.Url] - [pdf][A2X.A2XEquities.Rtmdf.Amd.v2.5.Pdf] |
 | [Snapshot][A2X.A2XEquities.Snapshot] | [Amd][Omi.Encoding.Amd] | [1.3.2][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Definition] | 8/15/2022 | 101 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Url] - [pdf][A2X.A2XEquities.Snapshot.Amd.v1.3.2.Pdf] |
 | [Snapshot][A2X.A2XEquities.Snapshot] | [Amd][Omi.Encoding.Amd] | [2.5][A2X.A2XEquities.Snapshot.Amd.v2.5.Definition] | 8/1/2026 | 101 | [Pending][Omi.Glossary.Deployment.Pending] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.Snapshot.Amd.v2.5.Url] - [pdf][A2X.A2XEquities.Snapshot.Amd.v2.5.Pdf] |
+| [TcpHeader][A2X.A2XEquities.TcpHeader] | [Atp][Omi.Encoding.Atp] | [1][A2X.A2XEquities.TcpHeader.Atp.v1.Definition] | 8/1/2017 | 21 | [Header][Omi.Glossary.Deployment.Header] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.TcpHeader.Atp.v1.Url] |
+| [TradingProtocol][A2X.A2XEquities.TradingProtocol] | [Atp][Omi.Encoding.Atp] | [2.9][A2X.A2XEquities.TradingProtocol.Atp.v2.9.Definition] | 5/24/2023 | 320 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.TradingProtocol.Atp.v2.9.Url] - [pdf][A2X.A2XEquities.TradingProtocol.Atp.v2.9.Pdf] |
+| [TradingProtocol][A2X.A2XEquities.TradingProtocol] | [Atp][Omi.Encoding.Atp] | [2.9.2][A2X.A2XEquities.TradingProtocol.Atp.v2.9.2.Definition] | 2/7/2024 | 301 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.TradingProtocol.Atp.v2.9.2.Url] - [pdf][A2X.A2XEquities.TradingProtocol.Atp.v2.9.2.Pdf] |
+| [TradingProtocol][A2X.A2XEquities.TradingProtocol] | [Atp][Omi.Encoding.Atp] | [2.9.3][A2X.A2XEquities.TradingProtocol.Atp.v2.9.3.Definition] | 7/13/2026 | 301 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.TradingProtocol.Atp.v2.9.3.Url] - [pdf][A2X.A2XEquities.TradingProtocol.Atp.v2.9.3.Pdf] |
+| [TradingProtocol][A2X.A2XEquities.TradingProtocol] | [Atp][Omi.Encoding.Atp] | [3.0][A2X.A2XEquities.TradingProtocol.Atp.v3.0.Definition] | 8/1/2026 | 440 | [Pending][Omi.Glossary.Deployment.Pending] | [Untested][Omi.Glossary.Testing.Untested] | [url][A2X.A2XEquities.TradingProtocol.Atp.v3.0.Url] - [pdf][A2X.A2XEquities.TradingProtocol.Atp.v3.0.Pdf] |
 | [UdpHeader][A2X.A2XEquities.UdpHeader] | [Amd][Omi.Encoding.Amd] | [1][A2X.A2XEquities.UdpHeader.Amd.v1.Definition] | 9/1/2017 | 22 | [Header][Omi.Glossary.Deployment.Header] | [Beta][Omi.Glossary.Testing.Beta] | [url][A2X.A2XEquities.UdpHeader.Amd.v1.Url] |
 
 
@@ -32,9 +37,12 @@
 [Omi.A2X.Protocol.Definitions]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/A2X/Protocols "A2X Protocol Directory"
 [Omi.A2X.Specifications]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/A2X/Specifications "A2X Specifications Directory"
 [Omi.Encoding.Amd]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Amd.md "Amd Encoding"
+[Omi.Encoding.Atp]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Atp.md "Atp Encoding"
 [A2XEquities.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/A2X/Protocols/A2XEquities "A2X A2XEquities"
 [A2X.A2XEquities.Rtmdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/Rtmdf.md "Real Time Market Data Feed"
 [A2X.A2XEquities.Snapshot]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/Snapshot.md "Snapshot Feed"
+[A2X.A2XEquities.TcpHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/TcpHeader.md "Tcp Headers"
+[A2X.A2XEquities.TradingProtocol]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/TradingProtocol.md "A2X Binary Protocol"
 [A2X.A2XEquities.UdpHeader]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Protocols/A2XEquities/UdpHeader.md "Udp Headers"
 
 [A2X.A2XEquities.Rtmdf.Amd.v1.3.2.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/rtmdf/a2xequities_rtmdf_v1_3_2.spicy "A2X Rtmdf Amd v1.3.2 Spicy Definition"
@@ -49,5 +57,19 @@
 [A2X.A2XEquities.Snapshot.Amd.v2.5.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/snapshot/a2xequities_snapshot_v2_5.spicy "A2X Snapshot Amd v2.5 Spicy Definition"
 [A2X.A2XEquities.Snapshot.Amd.v2.5.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 2.5 Url"
 [A2X.A2XEquities.Snapshot.Amd.v2.5.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/A2X.A2XEquities.MarketDataTechnicalSpecification.Amd.v2.5.pdf "A2X Markets 2.5 Pdf"
+[A2X.A2XEquities.TcpHeader.Atp.v1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/tcpheader/a2xequities_tcpheader_v1.spicy "A2X TcpHeader Atp v1 Spicy Definition"
+[A2X.A2XEquities.TcpHeader.Atp.v1.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 1 Url"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/tradingprotocol/a2xequities_tradingprotocol_v2_9.spicy "A2X TradingProtocol Atp v2.9 Spicy Definition"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 2.9 Url"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/TradingProtocol/A2X.A2XEquities.TradingProtocol.Atp.v2.9.pdf "A2X Markets 2.9 Pdf"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.2.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/tradingprotocol/a2xequities_tradingprotocol_v2_9_2.spicy "A2X TradingProtocol Atp v2.9.2 Spicy Definition"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.2.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 2.9.2 Url"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.2.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/TradingProtocol/A2X.A2XEquities.TradingProtocol.Atp.v2.9.2.pdf "A2X Markets 2.9.2 Pdf"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.3.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/tradingprotocol/a2xequities_tradingprotocol_v2_9_3.spicy "A2X TradingProtocol Atp v2.9.3 Spicy Definition"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.3.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 2.9.3 Url"
+[A2X.A2XEquities.TradingProtocol.Atp.v2.9.3.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/TradingProtocol/A2X.A2XEquities.TradingProtocol.Atp.v2.9.3.pdf "A2X Markets 2.9.3 Pdf"
+[A2X.A2XEquities.TradingProtocol.Atp.v3.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/tradingprotocol/a2xequities_tradingprotocol_v3_0.spicy "A2X TradingProtocol Atp v3.0 Spicy Definition"
+[A2X.A2XEquities.TradingProtocol.Atp.v3.0.Url]: https://www.a2x.co.za/?page_id=531 "A2X Markets 3.0 Url"
+[A2X.A2XEquities.TradingProtocol.Atp.v3.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/A2X/Specifications/TradingProtocol/A2X.A2XEquities.TradingProtocol.Atp.v3.0.pdf "A2X Markets 3.0 Pdf"
 [A2X.A2XEquities.UdpHeader.Amd.v1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/a2x/udpheader/a2xequities_udpheader_v1.spicy "A2X UdpHeader Amd v1 Spicy Definition"
 [A2X.A2XEquities.UdpHeader.Amd.v1.Url]: https://www.a2x.co.za/?page_id=734/#a2xtech "A2X Markets 1 Url"

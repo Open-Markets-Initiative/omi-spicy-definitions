@@ -1,0 +1,320 @@
+module A2xA2xequitiesTradingprotocolAtpV29;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type A2xequitiesTradingprotocolV29 = unit {
+    message: Message[] &eod;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::LoginMessage -> login_message: LoginMessage;
+        MsgType::LoginResponseMessage -> login_response_message: LoginResponseMessage;
+        MsgType::LogoutMessage -> logout_message: LogoutMessage;
+        MsgType::OrderAddMessage -> order_add_message: OrderAddMessage;
+        MsgType::OrderAddExtendedMessage -> order_add_extended_message: OrderAddExtendedMessage;
+        MsgType::OrderCancelMessage -> order_cancel_message: OrderCancelMessage;
+        MsgType::OrderModifyMessage -> order_modify_message: OrderModifyMessage;
+        MsgType::OrderModifyExtendedMessage -> order_modify_extended_message: OrderModifyExtendedMessage;
+        MsgType::OrderAddResponseMessage -> order_add_response_message: OrderAddResponseMessage;
+        MsgType::OrderCancelResponseMessage -> order_cancel_response_message: OrderCancelResponseMessage;
+        MsgType::OrderModifyResponseMessage -> order_modify_response_message: OrderModifyResponseMessage;
+        MsgType::IcebergOrderRefreshMessage -> iceberg_order_refresh_message: IcebergOrderRefreshMessage;
+        MsgType::TradeCaptureMessage -> trade_capture_message: TradeCaptureMessage;
+        MsgType::TradeCaptureResponseMessage -> trade_capture_response_message: TradeCaptureResponseMessage;
+        MsgType::TradeMessage -> trade_message: TradeMessage;
+        MsgType::TradeBustMessage -> trade_bust_message: TradeBustMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    length: uint16;
+    msg_type: uint8 &convert=MsgType($$);
+    msg_seq_no: uint32;
+};
+
+type LoginMessage = unit {
+    protocol_version: uint16;
+    sender_id: bytes &size=16;
+    password: bytes &size=16;
+    inactivity_timeout: uint16;
+    atp_seq_no: uint32;
+};
+
+type LoginResponseMessage = unit {
+    result_code: uint8 &convert=ResultCode($$);
+    client_seq_no: uint32;
+};
+
+type LogoutMessage = unit {
+    logout_reason_code: uint8 &convert=LogoutReasonCode($$);
+    reason_text: bytes &size=32;
+};
+
+type OrderAddMessage = unit {
+    security_id_long: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: uint64;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    account: uint16;
+    user_tag: uint64;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+};
+
+type OrderAddExtendedMessage = unit {
+    security_id_long: uint32;
+    order_type: uint8 &convert=OrderType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    price: uint64;
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    account: uint16;
+    user_tag: uint64;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    display_quantity: uint32;
+    min_qty: uint32;
+    : skip bytes &size=1;   # padding
+};
+
+type OrderCancelMessage = unit {
+    order_ref: uint32;
+    user_tag: uint64;
+};
+
+type OrderModifyMessage = unit {
+    order_ref: uint32;
+    price: uint64;
+    quantity: uint32;
+    user_tag: uint64;
+};
+
+type OrderModifyExtendedMessage = unit {
+    order_ref: uint32;
+    price: uint64;
+    quantity: uint32;
+    user_tag: uint64;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    order_capacity: uint8 &convert=OrderCapacity($$);
+    display_quantity: uint32;
+    : skip bytes &size=4;   # padding
+};
+
+type OrderAddResponseMessage = unit {
+    order_ref: uint32;
+    market_data_id: uint32;
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    traded_quantity: uint32;
+    timestamp: uint64;
+    user_tag: uint64;
+    : skip bytes &size=1;   # padding
+};
+
+type OrderCancelResponseMessage = unit {
+    order_ref: uint32;
+    request_ref: uint32;
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    cancellation_timestamp: uint64;
+    user_tag: uint64;
+};
+
+type OrderModifyResponseMessage = unit {
+    order_ref: uint32;
+    request_ref: uint32;
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    modification_timestamp: uint64;
+    user_tag: uint64;
+    : skip bytes &size=1;   # padding
+};
+
+type IcebergOrderRefreshMessage = unit {
+    order_ref: uint32;
+    orig_a2x_ord_id: uint32;
+    new_a2x_ord_id: uint32;
+    quantity: uint32;
+};
+
+type TradeCaptureMessage = unit {
+    quantity: uint32;
+    price: uint64;
+    security_id_long: uint32;
+    trade_capture_type: uint8 &convert=TradeCaptureType($$);
+    : skip bytes &size=1;   # padding
+    user_tag: uint64;
+    : skip bytes &size=8;   # padding
+    buy_account: uint16;
+    buy_order_capacity: uint8 &convert=BuyOrderCapacity($$);
+    : skip bytes &size=8;   # padding
+    sell_account: uint16;
+    sell_order_capacity: uint8 &convert=SellOrderCapacity($$);
+};
+
+type TradeCaptureResponseMessage = unit {
+    status: bitfield(8) {
+        reason_code: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    trade_ref: uint32;
+    request_ref: uint32;
+    user_tag: uint64;
+};
+
+type TradeMessage = unit {
+    order_ref: uint32;
+    quantity: uint32;
+    price: uint64;
+    side: uint8 &convert=Side($$);
+    trade_ref: uint32;
+    ccp_code: uint8 &convert=CcpCode($$);
+    liq_indicator: uint8 &convert=LiqIndicator($$);
+    security_id_short: uint16;
+    trade_timestamp: uint64;
+    user_tag: uint64;
+    : skip bytes &size=1;   # padding
+};
+
+type TradeBustMessage = unit {
+    order_ref: uint32;
+    quantity: uint32;
+    price: uint64;
+    side: uint8 &convert=Side($$);
+    trade_ref: uint32;
+    bust_timestamp: uint64;
+};
+
+type MsgType = enum {
+    LoginMessage = 1,
+    LoginResponseMessage = 2,
+    Heartbeat = 0,
+    LogoutRequestMessage = 3,
+    LogoutMessage = 4,
+    OrderAddMessage = 24,
+    OrderAddExtendedMessage = 25,
+    OrderCancelMessage = 7,
+    OrderModifyMessage = 9,
+    OrderModifyExtendedMessage = 22,
+    OrderAddResponseMessage = 6,
+    OrderCancelResponseMessage = 8,
+    OrderModifyResponseMessage = 10,
+    IcebergOrderRefreshMessage = 23,
+    TradeCaptureMessage = 26,
+    TradeCaptureResponseMessage = 18,
+    TradeMessage = 11,
+    TradeBustMessage = 12,
+};
+
+type ResultCode = enum {
+    SuccessfulLogin = 0,
+    AlreadyLoggedIn = 1,
+    SequenceNumberError = 2,
+    UnsupportedProtocol = 3,
+    FailedAuthentication = 4,
+    UnknownSourceNetwork = 5,
+};
+
+type LogoutReasonCode = enum {
+    UserRequested = 0,
+    Admin = 1,
+    Disconnect = 2,
+    EndOfDay = 3,
+    InactivityTimeout = 4,
+    ProtocolError = 5,
+    SequenceNumberError = 6,
+};
+
+type OrderType = enum {
+    LimitOrder = 1,
+    AuctionOnDemandLimitOrder = 2,
+    AuctionOnDemandTradeAtMiddleLimitOrPeggedLimit = 3,
+    MarketAtClose = 6,
+    PostOnlyCancelReplace = 8,
+    PostOnly = 9,
+};
+
+type TimeInForce = enum {
+    Day = 1,
+    FillOrKill = 2,
+    ImmediateOrCancel = 3,
+    GoodForAuction = 9,
+};
+
+type Side = enum {
+    BuyOrder = 1,
+    SellOrder = 2,
+};
+
+type OrderCapacity = enum {
+    Agency = 1,
+    Principal = 2,
+};
+
+type OrderStatus = enum {
+    PendingNew = 1,
+    Acknowledged = 2,
+    Cancelled = 3,
+    Rejected = 4,
+    Filled = 5,
+    Modified = 6,
+};
+
+type TradeCaptureType = enum {
+    LargeInScale = 1,
+    NegotiatedBenchmarkCross = 3,
+    MatchedPrincipal = 5,
+};
+
+type BuyOrderCapacity = enum {
+    Agency = 1,
+    Principal = 2,
+};
+
+type SellOrderCapacity = enum {
+    Agency = 1,
+    Principal = 2,
+};
+
+type CcpCode = enum {
+    SelfClearing = 1,
+    Emcfnl2A = 2,
+};
+
+type LiqIndicator = enum {
+    AddedLiquidity = 1,
+    RemovedLiquidity = 2,
+    RemovedLiquidityHiddenQuantity = 3,
+};
+
