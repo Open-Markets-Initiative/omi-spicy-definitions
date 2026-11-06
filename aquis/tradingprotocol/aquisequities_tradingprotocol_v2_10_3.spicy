@@ -1,3 +1,5 @@
+# License: MIT No Attribution
+
 module AquisAquisequitiesTradingprotocolAtpV2103;
 
 import spicy;
@@ -217,10 +219,11 @@ type OrderModifyExtendedMessage = unit {
 type OrderAddResponseMessage = unit {
     order_ref: uint32;
     market_data_id: uint32;
-    status: bitfield(8) {
-        reason_code: 0..4;
-        order_status: 5..7;
-    } &byte-order=spicy::ByteOrder::Little;
+    switch ( self.order_add_response_status.status_cancel_reason.order_status ) {
+        OrderStatus::Cancelled -> status_cancel_reason: StatusCancelReason;
+        OrderStatus::Rejected -> status_reject_reason: StatusRejectReason;
+        * -> status: Status;
+    };
     traded_quantity: uint32;
     timestamp: uint64;
     user_tag: uint64;
@@ -234,10 +237,11 @@ type OrderAddResponseMessage = unit {
 type OrderCancelResponseMessage = unit {
     order_ref: uint32;
     request_ref: uint32;
-    status: bitfield(8) {
-        reason_code: 0..4;
-        order_status: 5..7;
-    } &byte-order=spicy::ByteOrder::Little;
+    switch ( self.order_cancel_response_status.status_cancel_reason.order_status ) {
+        OrderStatus::Cancelled -> status_cancel_reason: StatusCancelReason;
+        OrderStatus::Rejected -> status_reject_reason: StatusRejectReason;
+        * -> status: Status;
+    };
     cancellation_timestamp: uint64;
     user_tag: uint64;
 };
@@ -245,10 +249,10 @@ type OrderCancelResponseMessage = unit {
 type OrderModifyResponseMessage = unit {
     order_ref: uint32;
     request_ref: uint32;
-    status: bitfield(8) {
-        reason_code: 0..4;
-        order_status: 5..7;
-    } &byte-order=spicy::ByteOrder::Little;
+    switch ( self.order_modify_response_status.status_reject_reason.order_status ) {
+        OrderStatus::Rejected -> status_reject_reason: StatusRejectReason;
+        * -> status_modification_reason: StatusModificationReason;
+    };
     modification_timestamp: uint64;
     user_tag: uint64;
     order_modify_response_flags: bitfield(8) {
@@ -424,6 +428,21 @@ type LisOnly = enum {
     LisExecutionsOnly = 1,
 };
 
+type CancelReason = enum {
+    MemberRequest = 1,
+    AquisForcedCancel = 2,
+    MarketClose = 3,
+    Expired = 4,
+    Reserved = 5,
+    Aborted = 6,
+    SelfTradePrevention = 7,
+    CancelOnDisconnect = 8,
+    PostOnlyCancel = 9,
+    CancelResidualQuantity = 10,
+    PostOnlyCancelResting = 11,
+    MinimumRestingValue = 12,
+};
+
 type OrderStatus = enum {
     PendingNew = 1,
     Acknowledged = 2,
@@ -433,9 +452,43 @@ type OrderStatus = enum {
     Modified = 6,
 };
 
+type RejectReason = enum {
+    NotAuthorisedToTrade = 1,
+    InvalidQuantity = 2,
+    InvalidPrice = 3,
+    UnknownSecurity = 4,
+    PriceDoesNotConformToTick = 5,
+    InvalidOrderType = 6,
+    InvalidSide = 7,
+    InvalidOrderCapacity = 8,
+    MarketIsClosed = 9,
+    Halted = 10,
+    Suspended = 11,
+    InvalidTimeInForce = 12,
+    OrderNotFoundNotOpen = 13,
+    FailedPriceRangeCheck = 15,
+    InvalidClearingAccount = 16,
+    NotSupported = 17,
+    MaxValueExceeded = 18,
+    AuctionEnded = 19,
+    DropFeedDown = 20,
+    TechnicalReject = 21,
+    StockRestricted = 23,
+    MinimumConsideration = 24,
+    Invalid = 27,
+    BadDate = 29,
+    Duplicate = 30,
+    RejectInternal = 31,
+};
+
 type Lis = enum {
     ReferencePriceWaiver = 0,
     LargeInScale = 1,
+};
+
+type ModificationReason = enum {
+    ModificationAccepted = 1,
+    OrderCancelled = 2,
 };
 
 type TradeCaptureType = enum {

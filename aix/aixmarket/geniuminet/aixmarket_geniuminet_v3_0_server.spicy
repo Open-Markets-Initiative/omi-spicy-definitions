@@ -1,0 +1,313 @@
+# License: MIT No Attribution
+
+module AixAixmarketGeniuminetItchV30Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type AixmarketGeniuminetV30 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket(self.server_packet_header.packet_length);
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SecondsMessage -> seconds_message: SecondsMessage;
+        SequencedMessageType::OrderBookDirectoryMessage -> order_book_directory_message: OrderBookDirectoryMessage;
+        SequencedMessageType::TickSizeTableEntryMessage -> tick_size_table_entry_message: TickSizeTableEntryMessage;
+        SequencedMessageType::ShortSellStatusMessage -> short_sell_status_message: ShortSellStatusMessage;
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::OrderBookStateMessage -> order_book_state_message: OrderBookStateMessage;
+        SequencedMessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        SequencedMessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        SequencedMessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        SequencedMessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        SequencedMessageType::OrderBookFlushMessage -> order_book_flush_message: OrderBookFlushMessage;
+        SequencedMessageType::TradeMessage -> trade_message: TradeMessage;
+        SequencedMessageType::EquilibriumPriceUpdateMessage -> equilibrium_price_update_message: EquilibriumPriceUpdateMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SecondsMessage = unit {
+    second: uint32;
+};
+
+type OrderBookDirectoryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    symbol: bytes &size=32;
+    long_name: bytes &size=32;
+    isin: bytes &size=12;
+    financial_product: uint8 &convert=FinancialProduct($$);
+    trading_currency: bytes &size=3;
+    number_of_decimals_in_price: uint16;
+    number_of_decimals_in_nominal_value: uint16 &convert=NumberOfDecimalsInNominalValue($$);
+    odd_lot_size: uint32;
+    round_lot_size: uint32;
+    block_lot_size: uint32;
+    nominal_value: uint64;
+    : skip bytes &size=1;   # padding
+    underlying_order_book_id: uint32;
+    strike_price: int32;
+    expiration_date: uint32;
+    number_of_decimals_in_strike_price: uint16 &convert=NumberOfDecimalsInStrikePrice($$);
+    put_or_call: uint8 &convert=PutOrCall($$);
+    ranking_type: uint8 &convert=RankingType($$);
+};
+
+type TickSizeTableEntryMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    tick_size: uint64;
+    price_from: int32;
+    price_to: int32;
+};
+
+type ShortSellStatusMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    short_sale_restriction: uint8 &convert=ShortSaleRestriction($$);
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: uint32;
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type OrderBookStateMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    state_name: bytes &size=20;
+};
+
+type AddOrderMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    ranking_sequence_number: uint32;
+    quantity: uint64;
+    price: int32;
+    order_attributes: uint16 &convert=OrderAttributes($$);
+    lot_type: uint8 &convert=LotType($$);
+    ranking_time: uint64;
+};
+
+type OrderExecutedMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: uint64;
+    : skip bytes &size=4;   # padding
+    : skip bytes &size=14;   # padding
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+    executed_quantity: uint64;
+    match_id: uint64;
+    : skip bytes &size=18;   # padding
+    trade_price: int32;
+    occurred_at_cross: uint8 &convert=OccurredAtCross($$);
+    printable: uint8 &convert=Printable($$);
+};
+
+type OrderDeleteMessage = unit {
+    nanoseconds: uint32;
+    order_id: uint64;
+    order_book_id: uint32;
+    side: uint8 &convert=Side($$);
+};
+
+type OrderBookFlushMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+};
+
+type TradeMessage = unit {
+    nanoseconds: uint32;
+    match_id: uint64;
+    combo_group_id: uint32;
+    side: uint8 &convert=Side($$);
+    quantity: uint64;
+    order_book_id: uint32;
+    trade_price: int32;
+    trade_report: uint8 &convert=TradeReport($$);
+    : skip bytes &size=13;   # padding
+    printable: uint8 &convert=Printable($$);
+    occurred_at_cross: uint8 &convert=OccurredAtCross($$);
+};
+
+type EquilibriumPriceUpdateMessage = unit {
+    nanoseconds: uint32;
+    order_book_id: uint32;
+    available_bid_quantity_at_equilibrium_price: uint64;
+    available_ask_quantity_at_equilibrium_price: uint64;
+    equilibrium_price: int32;
+    best_bid_price: int32;
+    best_ask_price: int32;
+    best_bid_quantity: uint64;
+    best_ask_quantity: uint64;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    SecondsMessage = 0x54,
+    OrderBookDirectoryMessage = 0x52,
+    TickSizeTableEntryMessage = 0x4c,
+    ShortSellStatusMessage = 0x56,
+    SystemEventMessage = 0x53,
+    OrderBookStateMessage = 0x4f,
+    AddOrderMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderDeleteMessage = 0x44,
+    OrderBookFlushMessage = 0x59,
+    TradeMessage = 0x50,
+    EquilibriumPriceUpdateMessage = 0x5a,
+};
+
+type FinancialProduct = enum {
+    Option = 1,
+    Forward = 2,
+    Future = 3,
+    Fra = 4,
+    Cash = 5,
+    Payment = 6,
+    ExchangeRate = 7,
+    InterestRateSwap = 8,
+    Repo = 9,
+    SyntheticBoxLegReference = 10,
+    StandardCombination = 11,
+    Guarantee = 12,
+    OtcGeneral = 13,
+    EquityWarrant = 14,
+    SecurityLending = 15,
+    Certificate = 18,
+};
+
+type NumberOfDecimalsInNominalValue = enum {
+    ZeroDecimals = 0,
+    OneDecimals = 1,
+    TwoDecimals = 2,
+    ThreeDecimals = 3,
+    FourDecimals = 4,
+    FiveDecimals = 5,
+    SixDecimals = 6,
+    SevenDecimals = 7,
+    EightDecimals = 8,
+    NineDecimals = 9,
+};
+
+type NumberOfDecimalsInStrikePrice = enum {
+    ZeroDecimals = 0,
+    OneDecimals = 1,
+    TwoDecimals = 2,
+    ThreeDecimals = 3,
+    FourDecimals = 4,
+    FiveDecimals = 5,
+    SixDecimals = 6,
+    SevenDecimals = 7,
+    EightDecimals = 8,
+    NineDecimals = 9,
+};
+
+type PutOrCall = enum {
+    Undefined = 0,
+    Call = 1,
+    Put = 2,
+};
+
+type RankingType = enum {
+    PriceTime = 1,
+};
+
+type ShortSaleRestriction = enum {
+    NoRestrictions = 0,
+    ShortSellingIsNotAllowed = 1,
+    ShortSellingIsAllowedWithUpTickRule = 2,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    EndOfMessages = 0x43,
+};
+
+type Side = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+    Blank = 0x20,
+};
+
+type OrderAttributes = enum {
+    NotApplicable = 0,
+};
+
+type LotType = enum {
+    RoundLot = 2,
+};
+
+type OccurredAtCross = enum {
+    TradeOccurredAtTheCross = 0x59,
+    TradeOccurredAtContinuousMarket = 0x4e,
+};
+
+type Printable = enum {
+    NonPrintable = 0x4e,
+    Printable_x59 = 0x59,
+};
+
+type TradeReport = enum {
+    MatchedTradeReport = 0x59,
+    StandardTrade = 0x4e,
+};
+

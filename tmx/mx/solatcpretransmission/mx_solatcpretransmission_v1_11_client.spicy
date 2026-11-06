@@ -1,3 +1,5 @@
+# License: MIT No Attribution
+
 module TmxMxSolatcpretransmissionHsvfV111Client;
 
 import spicy;
@@ -5,18 +7,18 @@ import spicy;
 %byte-order = spicy::ByteOrder::Big;
 
 public type MxSolatcpretransmissionV111 = unit {
-    client_frame: ClientFrame[] &eod;
+    client_sola_frame: ClientSolaFrame[] &eod;
 };
 
-type ClientFrame = unit {
-    hsvf_stx: uint8;
+type ClientSolaFrame = unit {
+    sola_message_start: uint8;
     client_message_header: ClientMessageHeader;
     switch ( self.client_message_header.client_message_type ) {
         0 -> login_message: LoginMessage;
         0 -> retransmission_request_message: RetransmissionRequestMessage;
         * -> unknown: bytes &eod;
     };
-    hsvf_etx: uint8;
+    sola_message_end: uint8;
 };
 
 type ClientMessageHeader = unit {

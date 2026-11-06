@@ -1,3 +1,5 @@
+# License: MIT No Attribution
+
 module BoxBoxoptionsSolatradereportingAtrV45Server;
 
 import spicy;
@@ -5,10 +7,10 @@ import spicy;
 %byte-order = spicy::ByteOrder::Big;
 
 public type BoxoptionsSolatradereportingV45 = unit {
-    server_frame: ServerFrame[] &eod;
+    server_sola_frame: ServerSolaFrame[] &eod;
 };
 
-type ServerFrame = unit {
+type ServerSolaFrame = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
         MessageType::ClientSignonAcknowledgment -> client_signon_acknowledgment: ClientSignonAcknowledgment;
@@ -21,7 +23,7 @@ type ServerFrame = unit {
         MessageType::ErrorMessage -> error_message: ErrorMessage;
         * -> unknown: bytes &eod;
     };
-    end_of_text: uint8;
+    sola_message_end: uint8;
 };
 
 type MessageHeader = unit {

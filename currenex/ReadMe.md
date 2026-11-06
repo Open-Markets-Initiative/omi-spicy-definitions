@@ -1,13 +1,13 @@
-[![Currenex](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Currenex/Images/Logo.png)](https://currenex.com)
+[![Currenex](https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/Organizations/Currenex/Images/Logo.png)](https://currenex.com)
 
 
 ## Currenex
 
 | [Protocol][Omi.Currenex.Protocol.Definitions] | [Encoding][Omi.Encoding.Definitions] | Version | Date | Size | [Deployment][Omi.Glossary.Deployment] | [Testing][Omi.Glossary.Testing] | [Documentation][Omi.Currenex.Specifications] |
 | --- | --- | --- | ---: | ---: | --- | --- | --- |
-| [Esp][Currenex.CurrenexForex.Esp] | [Cbp][Omi.Encoding.Cbp] | [9][Currenex.CurrenexForex.Esp.Cbp.v9.Definition] | 3/24/2021 | 154 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][Currenex.CurrenexForex.Esp.Cbp.v9.Url] - [pdf][Currenex.CurrenexForex.Esp.Cbp.v9.Pdf] |
-| [Now][Currenex.CurrenexForex.Now] | [Cbp][Omi.Encoding.Cbp] | [10][Currenex.CurrenexForex.Now.Cbp.v10.Definition] | 5/7/2018 | 192 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][Currenex.CurrenexForex.Now.Cbp.v10.Url] - [pdf][Currenex.CurrenexForex.Now.Cbp.v10.Pdf] |
-| [OrderService][Currenex.CurrenexForex.OrderService] | [Cbp][Omi.Encoding.Cbp] | [26][Currenex.CurrenexForex.OrderService.Cbp.v26.Definition] | 4/6/2024 | 248 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][Currenex.CurrenexForex.OrderService.Cbp.v26.Url] - [pdf][Currenex.CurrenexForex.OrderService.Cbp.v26.Pdf] |
+| [Esp][Currenex.CurrenexForex.Esp] | [Cbp][Omi.Encoding.Cbp] | [9][Currenex.CurrenexForex.Esp.Cbp.v9.Definition] | 3/24/2021 | 160 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][Currenex.CurrenexForex.Esp.Cbp.v9.Url] - [pdf][Currenex.CurrenexForex.Esp.Cbp.v9.Pdf] |
+| [Now][Currenex.CurrenexForex.Now] | [Cbp][Omi.Encoding.Cbp] | [10][Currenex.CurrenexForex.Now.Cbp.v10.Definition] | 5/7/2018 | 198 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][Currenex.CurrenexForex.Now.Cbp.v10.Url] - [pdf][Currenex.CurrenexForex.Now.Cbp.v10.Pdf] |
+| [OrderService][Currenex.CurrenexForex.OrderService] | [Cbp][Omi.Encoding.Cbp] | [26][Currenex.CurrenexForex.OrderService.Cbp.v26.Definition] | 4/6/2024 | 250 | [Active][Omi.Glossary.Deployment.Active] | [Beta][Omi.Glossary.Testing.Beta] | [url][Currenex.CurrenexForex.OrderService.Cbp.v26.Url] - [pdf][Currenex.CurrenexForex.OrderService.Cbp.v26.Pdf] |
 
 
 <p align="center"><a href="https://currenex.com" title="Currenex Website"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/Website.png" alt="Website" width="32" height="32"></a>&nbsp;&nbsp;<a href="https://www.linkedin.com/showcase/currenex/" title="Currenex on LinkedIn"><img src="https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/raw/main/About/Icons/LinkedIn.png" alt="LinkedIn" width="32" height="32"></a></p>

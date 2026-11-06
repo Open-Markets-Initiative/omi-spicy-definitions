@@ -1,3 +1,5 @@
+# License: MIT No Attribution
+
 module CurrenexCurrenexforexNowCbpV10;
 
 import spicy;
@@ -5,7 +7,11 @@ import spicy;
 %byte-order = spicy::ByteOrder::Big;
 
 public type CurrenexforexNowV10 = unit {
-    itch_soh: uint8;
+    itch_frame: ItchFrame[] &eod;
+};
+
+type ItchFrame = unit {
+    itch_message_start: uint8;
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
         MessageType::LogonMessage -> logon_message: LogonMessage;
@@ -24,7 +30,7 @@ public type CurrenexforexNowV10 = unit {
         MessageType::RejectMessage -> reject_message: RejectMessage;
         * -> unknown: bytes &eod;
     };
-    itch_etx: uint8;
+    itch_message_end: uint8;
 };
 
 type MessageHeader = unit {

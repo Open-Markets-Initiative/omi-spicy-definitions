@@ -1,3 +1,5 @@
+# License: MIT No Attribution
+
 module TmxMxSolamulticastHsvfV1141;
 
 import spicy;
@@ -5,7 +7,11 @@ import spicy;
 %byte-order = spicy::ByteOrder::Big;
 
 public type MxSolamulticastV1141 = unit {
-    hsvf_stx: uint8;
+    sola_frame: SolaFrame[] &eod;
+};
+
+type SolaFrame = unit {
+    sola_message_start: uint8;
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
         MessageType::OptionTradeMessage -> option_trade_message: OptionTradeMessage;
@@ -63,7 +69,7 @@ public type MxSolamulticastV1141 = unit {
         MessageType::StartOfDayMessage -> start_of_day_message: StartOfDayMessage;
         * -> unknown: bytes &eod;
     };
-    hsvf_etx: uint8;
+    sola_message_end: uint8;
 };
 
 type MessageHeader = unit {
