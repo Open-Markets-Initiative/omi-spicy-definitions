@@ -373,14 +373,12 @@ type MassCancelResponse = unit {
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     number_of_matching_engines: uint8;
-    matching_engine_status: MatchingEngineStatus[self.number_of_matching_engines];
+    matching_engine: MatchingEngine[self.number_of_matching_engines];
     : skip bytes &size=10;   # padding
 };
 
-type MatchingEngineStatus = unit {
-    login_status: uint8 &convert=LoginStatus($$);
-    trading_session_id: uint8;
-    highest_sequence_number: uint64;
+type MatchingEngine = unit {
+    matching_engine_status: uint8 &convert=MatchingEngineStatus($$);
 };
 
 type LoginRequest = unit {
@@ -399,7 +397,13 @@ type RequestedMatchingEngine = unit {
 
 type LoginResponse = unit {
     number_of_matching_engines: uint8;
-    matching_engine_status: MatchingEngineStatus[self.number_of_matching_engines];
+    login_matching_engine: LoginMatchingEngine[self.number_of_matching_engines];
+};
+
+type LoginMatchingEngine = unit {
+    login_status: uint8 &convert=LoginStatus($$);
+    trading_session_id: uint8;
+    highest_sequence_number: uint64;
 };
 
 type SynchronizationComplete = unit {
@@ -817,6 +821,21 @@ type Action = enum {
     MassCancelOnly = 0x4d,
     BlockAndMassCancel = 0x58,
     RemoveBlockingForTheSpecifiedScope = 0x52,
+};
+
+type MatchingEngineStatus = enum {
+    Successful = 0x20,
+    InvalidMpid = 0x49,
+    MpidNotPermitted = 0x58,
+    RequestIsNotPermittedForThisSession = 0x50,
+    InvalidScope = 0x52,
+    InvalidAction = 0x41,
+    MatchingEngineNotAvailable = 0x43,
+    StateOfTheRequestForThisMatchingEngine = 0x55,
+    InvalidClientOrderId = 0x4f,
+    UndefinedReason = 0x5a,
+    InvalidPurgeGroupSpecified = 0x36,
+    DowngradedFromOlderVersion = 0x2a,
 };
 
 type LoginStatus = enum {
