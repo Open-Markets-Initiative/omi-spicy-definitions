@@ -1,0 +1,301 @@
+# License: MIT No Attribution
+
+module SseSsesecuritiesMdgwIs120V063;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SsesecuritiesMdgwV063 = unit {
+    binary_message: BinaryMessage[] &eod;
+};
+
+type BinaryMessage = unit {
+    standard_header: StandardHeader;
+    switch ( self.standard_header.msgtype ) {
+        0 -> logon_message: LogonMessage;
+        0 -> logout_message: LogoutMessage;
+        0 -> channel_heartbeat: ChannelHeartbeat;
+        0 -> retransmission_message: RetransmissionMessage;
+        0 -> market_status_message: MarketStatusMessage;
+        0 -> market_data_snapshot_message: MarketDataSnapshotMessage;
+        0 -> tickbytick_market_data_message: TickbytickMarketDataMessage;
+        * -> unknown: bytes &eod;
+    };
+    standard_trailer: StandardTrailer;
+};
+
+type StandardHeader = unit {
+    msgtype: bytes &size=4;
+    sendingtime: uint64;
+    msgseqnum: uint64;
+    bodylength: uint32;
+};
+
+type LogonMessage = unit {
+    sendercompid: bytes &size=32;
+    targetcompid: bytes &size=32;
+    heartbtint: uint16;
+    applverid: bytes &size=8;
+};
+
+type LogoutMessage = unit {
+    sessionstatus: uint32 &convert=Sessionstatus($$);
+    text: bytes &size=256;
+};
+
+type ChannelHeartbeat = unit {
+    channel_heartbeat_securitytype: uint8 &convert=ChannelHeartbeatSecuritytype($$);
+    channel_heartbeat_channelno: uint16 &convert=ChannelHeartbeatChannelno($$);
+    appllastseqnum: uint64;
+    endofchannel: uint8 &convert=Endofchannel($$);
+};
+
+type RetransmissionMessage = unit {
+    retransmission_message_channelno: uint16 &convert=RetransmissionMessageChannelno($$);
+    resendtype: uint8 &convert=Resendtype($$);
+    applbegseqnum: uint64;
+    applendseqnum: uint64;
+    resendstatus: uint8 &convert=Resendstatus($$);
+    rejecttext: bytes &size=32;
+};
+
+type MarketStatusMessage = unit {
+    market_status_message_securitytype: uint8 &convert=MarketStatusMessageSecuritytype($$);
+    tradsesmode: uint8 &convert=Tradsesmode($$);
+    tradingsessionid: bytes &size=8;
+    totnorelatedsym: uint32;
+};
+
+type MarketDataSnapshotMessage = unit {
+    market_data_snapshot_message_securitytype: uint8 &convert=MarketDataSnapshotMessageSecuritytype($$);
+    tradsesmode: uint8 &convert=Tradsesmode($$);
+    tradedate: uint32;
+    lastupdatetime: uint32;
+    mdstreamid: bytes &size=5;
+    securityid: bytes &size=8;
+    symbol: bytes &size=8;
+    preclosepx: uint64;
+    totalvolumetraded: uint64;
+    numtrades: uint64;
+    market_data_snapshot_message_totalvaluetraded: uint64;
+    tradingphasecode: bytes &size=8;
+    switch ( self.mdstreamid ) {
+        0 -> index_market_data_snapshot_extension_fields: IndexMarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type IndexMarketDataSnapshotExtensionFields = unit {
+    nomdentries: uint16;
+    index_market_data_snapshot_entries: IndexMarketDataSnapshotEntries[self.nomdentries];
+};
+
+type IndexMarketDataSnapshotEntries = unit {
+    index_market_data_snapshot_entries_mdentrytype: bytes &size=2;
+    index_market_data_snapshot_entries_mdentrypx: uint64;
+};
+
+type MarketDataSnapshotExtensionFields = unit {
+    nomdentries: uint16;
+    market_data_snapshot_entries: MarketDataSnapshotEntries[self.nomdentries];
+};
+
+type MarketDataSnapshotEntries = unit {
+    market_data_snapshot_entries_mdentrytype: bytes &size=2;
+    market_data_snapshot_entries_mdentrypx: uint64;
+    mdentrysize: uint64;
+    mdentrypositionno: uint8;
+};
+
+type TickbytickMarketDataMessage = unit {
+    tickbytick_market_data_message_securitytype: uint8 &convert=TickbytickMarketDataMessageSecuritytype($$);
+    tickbytick_market_data_message_channelno: uint16;
+    applseqnum: uint64;
+    mdstreamid: bytes &size=5;
+    securityid: bytes &size=8;
+    transacttime: uint32;
+    exectype: uint8 &convert=Exectype($$);
+    price: uint64;
+    orderqty: uint64;
+    switch ( self.mdstreamid ) {
+        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        0 -> tickbytick_trade_market_data_extension_fields: TickbytickTradeMarketDataExtensionFields;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TickbytickOrderMarketDataExtensionFields = unit {
+    side: uint8 &convert=Side($$);
+    quoteid: bytes &size=18;
+    memberid: bytes &size=12;
+    tradercode: bytes &size=12;
+    fullamounttrade: uint8 &convert=Fullamounttrade($$);
+    settltype: uint8 &convert=Settltype($$);
+    contractmultiplier: uint32;
+    expirationdays: uint16;
+    tickbytick_order_market_data_extension_fields_totalvaluetraded: uint64;
+    basketid: bytes &size=16;
+    investorname: bytes &size=32;
+    bidtranstype: uint8 &convert=Bidtranstype($$);
+    bidexecinsttype: uint8 &convert=Bidexecinsttype($$);
+    expiredate: uint32;
+    secondaryorderid: bytes &size=18;
+    minqty: uint64;
+};
+
+type TickbytickTradeMarketDataExtensionFields = unit {
+    bidapplseqnum: bytes &size=18;
+    offerapplseqnum: bytes &size=18;
+    tickbytick_trade_market_data_extension_fields_totalvaluetraded: uint64;
+    trademethod: uint8 &convert=Trademethod($$);
+    marginprice: uint64;
+};
+
+type StandardTrailer = unit {
+    checksum: uint32;
+};
+
+type Sessionstatus = enum {
+    NormalLogout = 0,
+};
+
+type ChannelHeartbeatSecuritytype = enum {
+    BondsNonmatchedTrading = 13,
+};
+
+type ChannelHeartbeatChannelno = enum {
+    NonmatchedTradingTickbytickMarketData = 100,
+};
+
+type Endofchannel = enum {
+    MarketDataUpdatesHaveEnded = 0x59,
+    MarketDataUpdatesHaveNotEnded = 0x4e,
+};
+
+type RetransmissionMessageChannelno = enum {
+    NonmatchedTradingTickbytickMarketData = 100,
+};
+
+type Resendtype = enum {
+    TickbytickMarketData = 1,
+};
+
+type Resendstatus = enum {
+    AllComplete = 1,
+    PartiallyCompletePartOfTheRequestedDataWasNotReturned = 2,
+    NoPermission = 3,
+    DataNotAvailable = 4,
+    ARetransmissionRequestIsBeingProcessed = 5,
+    Other = 99,
+};
+
+type MarketStatusMessageSecuritytype = enum {
+    StocksFundsIndicesAndBondDistribution = 1,
+    Derivatives = 2,
+    ComprehensiveBusiness = 3,
+    BondsMatchedTrading = 12,
+    BondsNonmatchedTrading = 13,
+    ExternalSourceMarketData = 14,
+};
+
+type Tradsesmode = enum {
+    SystemTest = 1,
+    SimulatedTrading = 2,
+    ProductionNormalTrading = 3,
+};
+
+type MarketDataSnapshotMessageSecuritytype = enum {
+    StocksFundsIndicesAndBondDistribution = 1,
+    Derivatives = 2,
+    ComprehensiveBusiness = 3,
+    BondsMatchedTrading = 12,
+    BondsNonmatchedTrading = 13,
+    ExternalSourceMarketData = 14,
+};
+
+type IndexMarketDataSnapshotEntriesMdentrytype = enum {
+    LatestIndex = 0x33,
+    TodaysOpeningIndex = 0x34,
+    TodaysClosingIndex = 0x35,
+    HighestIndex = 0x37,
+    LowestIndex = 0x38,
+};
+
+type MarketDataSnapshotEntriesMdentrytype = enum {
+    Buy = 0x30,
+    Sell = 0x31,
+    LatestTradePrice = 0x32,
+    TodaysOpenPrice = 0x34,
+    TodaysClosePrice = 0x35,
+    TodaysSettlementPrice = 0x36,
+    DaysHighestTradePrice = 0x37,
+    DaysLowestTradePrice = 0x38,
+    DaysAverageTradePrice = 0x39,
+    Iopv = 0x76,
+    PreviousDaysIopv = 0x77,
+    DynamicReferencePriceAndVirtualMatchedQuantity = 0x78,
+};
+
+type TickbytickMarketDataMessageSecuritytype = enum {
+    BondsNonmatchedTrading = 13,
+};
+
+type Exectype = enum {
+    NewOrder = 0x30,
+    DeleteOrder = 0x34,
+    Trade = 0x46,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+};
+
+type Fullamounttrade = enum {
+    Yes = 1,
+    No = 2,
+};
+
+type Settltype = enum {
+    NetSettlement = 1,
+    Rtgs = 2,
+};
+
+type Bidtranstype = enum {
+    CompetitiveBiddingReservation = 1,
+    CompetitiveBiddingDeclaration = 2,
+    ResponsePriceDeclarationForASingleWinningEntity = 3,
+};
+
+type Bidexecinsttype = enum {
+    SingleWinningEntity = 1,
+    MultipleWinningEntitiesAtASinglePrice = 2,
+    MultipleWinningEntitiesAtMultiplePrices = 3,
+};
+
+type Trademethod = enum {
+    MatchedTradeReserved = 0,
+    FirmQuoteClickTrade = 1,
+    IndicativeQuoteClickTrade = 2,
+    InquiryTrade = 3,
+    NegotiatedTradeIncludingMergedDeclarations = 6,
+    CompetitiveBiddingSingleentityTrade = 7,
+    CompetitiveBiddingMultientitySinglepriceTrade = 10,
+    CompetitiveBiddingMultientityMultiplepriceTrade = 11,
+};
+

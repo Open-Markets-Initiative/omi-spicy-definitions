@@ -21,6 +21,7 @@ type EsesmTcpPacket = unit {
         EsesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
         EsesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.esesm_packet_header.esesm_packet_length);
         EsesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.esesm_packet_header.esesm_packet_length);
+        EsesmPacketType::TradingSessionUpdate -> trading_session_update: TradingSessionUpdate;
         EsesmPacketType::TestPacket -> test_packet: TestPacket(self.esesm_packet_header.esesm_packet_length);
         * -> unknown: bytes &eod;
     };
@@ -64,19 +65,28 @@ type LoginRequest = unit {
     username: bytes &size=5;
     computer_id: bytes &size=8;
     application_protocol: bytes &size=8;
+    number_of_matching_engines: uint8;
+    requested_matching_engine: RequestedMatchingEngine[self.number_of_matching_engines];
+};
+
+type RequestedMatchingEngine = unit {
     requested_trading_session_id: uint8;
     requested_sequence_number: uint64;
 };
 
 type LoginResponse = unit {
     number_of_matching_engines: uint8;
+    login_matching_engine: LoginMatchingEngine[self.number_of_matching_engines];
+};
+
+type LoginMatchingEngine = unit {
     login_status: uint8 &convert=LoginStatus($$);
     trading_session_id: uint8;
     highest_sequence_number: uint64;
 };
 
 type SynchronizationComplete = unit {
-    number_of_matching_engines: uint8;
+    matching_engine_id: uint8;
 };
 
 type RetransmissionRequest = unit {
@@ -90,8 +100,13 @@ type LogoutRequest = unit(esesm_packet_length: uint16) {
 };
 
 type GoodbyePacket = unit(esesm_packet_length: uint16) {
-    logout_reason: uint8 &convert=LogoutReason($$);
+    goodbye_reason: uint8 &convert=GoodbyeReason($$);
     logout_text: bytes &size=esesm_packet_length - 2;
+};
+
+type TradingSessionUpdate = unit {
+    matching_engine_id: uint8;
+    trading_session_id: uint8;
 };
 
 type TestPacket = unit(esesm_packet_length: uint16) {
@@ -129,16 +144,23 @@ type RefreshMessageType = enum {
 type LoginStatus = enum {
     Successful = 0x20,
     InvalidTradingSessionRequested = 0x53,
+    InvalidStartSequenceNumberRequested = 0x4e,
     NoActiveTradingSessionExists = 0x55,
     Rejected = 0x58,
-    InvalidStartSequenceNumberRequested = 0x4e,
     IncompatibleSessionProtocolVersion = 0x49,
     IncompatibleApplicationProtocolVersion = 0x41,
+    InvalidNumberOfMatchingEnginesSpecifiedInLoginRequest = 0x43,
     RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
 };
 
 type LogoutReason = enum {
     GracefulLogout = 0x20,
+    BadPacket = 0x42,
+    TimedOut = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+
+type GoodbyeReason = enum {
     BadPacket = 0x42,
     TimedOut = 0x4c,
     ApplicationTerminatingConnection = 0x41,

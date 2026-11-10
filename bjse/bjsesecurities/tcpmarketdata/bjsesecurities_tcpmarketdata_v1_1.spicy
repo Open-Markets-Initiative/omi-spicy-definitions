@@ -1,0 +1,425 @@
+# License: MIT No Attribution
+
+module BjseBjsesecuritiesTcpmarketdataBjsebinaryV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BjsesecuritiesTcpmarketdataV11 = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.msg_type ) {
+        MsgType::LogonMessage -> logon_message: LogonMessage;
+        MsgType::LogoutMessage -> logout_message: LogoutMessage;
+        MsgType::ChannelHeartbeatMessage -> channel_heartbeat_message: ChannelHeartbeatMessage;
+        MsgType::RetransmissionMessage -> retransmission_message: RetransmissionMessage;
+        MsgType::SnapshotChannelStatisticsMessage -> snapshot_channel_statistics_message: SnapshotChannelStatisticsMessage;
+        MsgType::BusinessRejectMessage -> business_reject_message: BusinessRejectMessage;
+        MsgType::SecurityRealTimeStatusMessage -> security_real_time_status_message: SecurityRealTimeStatusMessage;
+        MsgType::AnnouncementMessage -> announcement_message: AnnouncementMessage;
+        MsgType::BondSpotTradingSnapshotMessage -> bond_spot_trading_snapshot_message: BondSpotTradingSnapshotMessage;
+        MsgType::AuctionTradingSnapshotMessage -> auction_trading_snapshot_message: AuctionTradingSnapshotMessage;
+        MsgType::IndexSnapshotMessage -> index_snapshot_message: IndexSnapshotMessage;
+        MsgType::BondSpotMatchingLargeOrderTickMessage -> bond_spot_matching_large_order_tick_message: BondSpotMatchingLargeOrderTickMessage;
+        MsgType::AgreementTradingOrderTickMessage -> agreement_trading_order_tick_message: AgreementTradingOrderTickMessage;
+        MsgType::SecuritiesLendingOrderTickMessage -> securities_lending_order_tick_message: SecuritiesLendingOrderTickMessage;
+        MsgType::BondSpotMatchingLargeTradeTickMessage -> bond_spot_matching_large_trade_tick_message: BondSpotMatchingLargeTradeTickMessage;
+        MsgType::BondSpotNegotiatedTradeTickMessage -> bond_spot_negotiated_trade_tick_message: BondSpotNegotiatedTradeTickMessage;
+        MsgType::SecuritiesLendingTradeTickMessage -> securities_lending_trade_tick_message: SecuritiesLendingTradeTickMessage;
+        * -> unknown: bytes &eod;
+    };
+    message_tail: MessageTail;
+};
+
+type MessageHeader = unit {
+    msg_type: uint32 &convert=MsgType($$);
+    body_length: uint32;
+};
+
+type LogonMessage = unit {
+    sender_comp_id: bytes &size=20;
+    target_comp_id: bytes &size=20;
+    heart_bt_int: int32;
+    password: bytes &size=16;
+    default_appl_ver_id: bytes &size=32;
+};
+
+type LogoutMessage = unit {
+    session_status: int32 &convert=SessionStatus($$);
+    text: bytes &size=200;
+};
+
+type ChannelHeartbeatMessage = unit {
+    channel_no: uint16;
+    appl_last_seq_num: int64;
+    end_of_channel: uint16 &convert=EndOfChannel($$);
+    orig_time: int64;
+};
+
+type RetransmissionMessage = unit {
+    resend_type: uint8 &convert=ResendType($$);
+    channel_no: uint16;
+    appl_beg_seq_num: int64;
+    appl_end_seq_num: int64;
+    news_id: bytes &size=16;
+    resend_status: uint8 &convert=ResendStatus($$);
+    reject_text: bytes &size=16;
+};
+
+type SnapshotChannelStatisticsMessage = unit {
+    orig_time: int64;
+    channel_no: uint16;
+    no_md_stream_id: uint32;
+    md_stream_i_ds: MdStreamIDs[self.no_md_stream_id];
+};
+
+type MdStreamIDs = unit {
+    md_stream_id: bytes &size=3;
+    stock_num: uint32;
+    trading_phase_code: bytes &size=8;
+};
+
+type BusinessRejectMessage = unit {
+    ref_seq_num: int64;
+    ref_msg_type: uint32;
+    business_reject_ref_id: bytes &size=10;
+    business_reject_reason: uint16;
+    business_reject_text: bytes &size=50;
+};
+
+type SecurityRealTimeStatusMessage = unit {
+    orig_time: int64;
+    channel_no: uint16;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    security_symbol: bytes &size=40;
+    no_switch: uint32;
+    switch_field: Switch[self.no_switch];
+};
+
+type Switch = unit {
+    security_switch_type: uint16 &convert=SecuritySwitchType($$);
+    security_switch_status: uint16 &convert=SecuritySwitchStatus($$);
+};
+
+type AnnouncementMessage = unit {
+    orig_time: int64;
+    channel_no: uint16;
+    news_id: bytes &size=16;
+    headline: bytes &size=128;
+    news_type: uint8 &convert=NewsType($$);
+    raw_data_format: bytes &size=8;
+    raw_data_length: uint32;
+    raw_data: bytes &size=self.raw_data_length;
+};
+
+type BondSpotTradingSnapshotMessage = unit {
+    orig_time: int64;
+    channel_no: uint16;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    trading_phase_code: bytes &size=8;
+    pre_close_px: int64;
+    num_trades: int64;
+    total_volume_trade: int64;
+    total_value_trade: int64;
+    no_md_entries: uint32;
+    md_entries: MdEntries[self.no_md_entries];
+    no_sub_trading_phase_codes: uint32;
+    sub_trading_phase_codes: SubTradingPhaseCodes[self.no_sub_trading_phase_codes];
+    auction_volume_trade: int64;
+    auction_value_trade: int64;
+    trade_time: int64;
+};
+
+type MdEntries = unit {
+    md_entry_type: bytes &size=2;
+    md_entry_px: int64;
+    md_entry_size: int64;
+    md_price_level: uint16;
+    number_of_orders: int64;
+    no_orders: uint32;
+    orders: Orders[self.no_orders];
+};
+
+type Orders = unit {
+    order_qty: int64;
+};
+
+type SubTradingPhaseCodes = unit {
+    sub_trading_phase_code: bytes &size=8;
+    trading_type: uint8 &convert=TradingType($$);
+};
+
+type AuctionTradingSnapshotMessage = unit {
+    orig_time: int64;
+    channel_no: uint16;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    trading_phase_code: bytes &size=8;
+    pre_close_px: int64;
+    num_trades: int64;
+    total_volume_trade: int64;
+    total_value_trade: int64;
+    no_md_entries: uint32;
+    md_entries: MdEntries[self.no_md_entries];
+};
+
+type IndexSnapshotMessage = unit {
+    orig_time: int64;
+    channel_no: uint16;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    trading_phase_code: bytes &size=8;
+    pre_close_px: int64;
+    num_trades: int64;
+    total_volume_trade: int64;
+    total_value_trade: int64;
+    no_md_entries: uint32;
+    index_md_entries: IndexMdEntries[self.no_md_entries];
+};
+
+type IndexMdEntries = unit {
+    md_entry_type: bytes &size=2;
+    md_entry_px: int64;
+};
+
+type BondSpotMatchingLargeOrderTickMessage = unit {
+    channel_no: uint16;
+    appl_seq_num: int64;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    price: int64;
+    order_qty: int64;
+    side: uint8 &convert=Side($$);
+    transact_time: int64;
+    ord_type: uint8 &convert=OrdType($$);
+    settl_type: uint8 &convert=SettlType($$);
+    settl_period: uint8 &convert=SettlPeriod($$);
+};
+
+type AgreementTradingOrderTickMessage = unit {
+    channel_no: uint16;
+    appl_seq_num: int64;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    price: int64;
+    order_qty: int64;
+    side: uint8 &convert=Side($$);
+    transact_time: int64;
+    confirm_id: uint32;
+};
+
+type SecuritiesLendingOrderTickMessage = unit {
+    channel_no: uint16;
+    appl_seq_num: int64;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    price: int64;
+    order_qty: int64;
+    side: uint8 &convert=Side($$);
+    transact_time: int64;
+    expiration_days: uint16;
+    expiration_type: uint8 &convert=ExpirationType($$);
+};
+
+type BondSpotMatchingLargeTradeTickMessage = unit {
+    channel_no: uint16;
+    appl_seq_num: int64;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    bid_appl_seq_num: int64;
+    ask_appl_seq_num: int64;
+    trade_price: int64;
+    trade_qty: int64;
+    trade_money: int64;
+    exec_type: uint8 &convert=ExecType($$);
+    transact_time: int64;
+    settl_period: uint8 &convert=SettlPeriod($$);
+    settl_type: uint8 &convert=SettlType($$);
+};
+
+type BondSpotNegotiatedTradeTickMessage = unit {
+    channel_no: uint16;
+    appl_seq_num: int64;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    bid_appl_seq_num: int64;
+    ask_appl_seq_num: int64;
+    trade_price: int64;
+    trade_qty: int64;
+    trade_money: int64;
+    exec_type: uint8 &convert=ExecType($$);
+    transact_time: int64;
+    settl_period: uint8 &convert=SettlPeriod($$);
+    settl_type: uint8 &convert=SettlType($$);
+};
+
+type SecuritiesLendingTradeTickMessage = unit {
+    channel_no: uint16;
+    appl_seq_num: int64;
+    md_stream_id: bytes &size=3;
+    security_id: bytes &size=8;
+    security_id_source: bytes &size=4;
+    bid_appl_seq_num: int64;
+    ask_appl_seq_num: int64;
+    trade_price: int64;
+    trade_qty: int64;
+    trade_money: int64;
+    exec_type: uint8 &convert=ExecType($$);
+    transact_time: int64;
+};
+
+type MessageTail = unit {
+    checksum: uint32;
+};
+
+type MsgType = enum {
+    LogonMessage = 1,
+    LogoutMessage = 2,
+    HeartbeatMessage = 3,
+    ChannelHeartbeatMessage = 301000,
+    RetransmissionMessage = 302000,
+    SnapshotChannelStatisticsMessage = 303000,
+    BusinessRejectMessage = 8,
+    SecurityRealTimeStatusMessage = 304000,
+    AnnouncementMessage = 305000,
+    BondSpotTradingSnapshotMessage = 306001,
+    AuctionTradingSnapshotMessage = 306002,
+    IndexSnapshotMessage = 306003,
+    BondSpotMatchingLargeOrderTickMessage = 307011,
+    AgreementTradingOrderTickMessage = 307021,
+    SecuritiesLendingOrderTickMessage = 307023,
+    BondSpotMatchingLargeTradeTickMessage = 308011,
+    BondSpotNegotiatedTradeTickMessage = 308012,
+    SecuritiesLendingTradeTickMessage = 308023,
+};
+
+type SessionStatus = enum {
+    SessionActive = 0,
+    SessionPasswordChanged = 1,
+    SessionPasswordDueToExpire = 2,
+    NewSessionPasswordDoesNotComplyWithPolicy = 3,
+    SessionLogoutComplete = 4,
+    InvalidUsernameOrPassword = 5,
+    AccountLocked = 6,
+    LogonsAreNotAllowedAtThisTime = 7,
+    PasswordExpired = 8,
+    MsgSeqNumReceivedTooLow = 9,
+    NextExpectedMsgSeqNumReceivedTooHigh = 10,
+    Other = 101,
+    InvalidMessage = 102,
+};
+
+type EndOfChannel = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type ResendType = enum {
+    TickData = 1,
+    Announcement = 2,
+};
+
+type ResendStatus = enum {
+    Complete = 1,
+    PartiallyComplete = 2,
+    NoPermission = 3,
+    DataUnavailable = 4,
+};
+
+type SecurityIdSource = enum {
+    BeijingStockExchange = 106,
+};
+
+type SecuritySwitchType = enum {
+    MarginBuy = 1,
+    ShortSell = 2,
+    Subscription = 5,
+    Conversion = 6,
+    PutBack = 7,
+    TenderOfferAcceptance = 14,
+    TenderOfferWithdrawal = 15,
+    VotingRight = 22,
+    StockPledgedRepo = 23,
+    MarketMakerQuotation = 27,
+    PutBackCancellation = 34,
+};
+
+type SecuritySwitchStatus = enum {
+    No = 0,
+    Yes = 1,
+};
+
+type NewsType = enum {
+    InformationAnnouncement = 1,
+    ListedCompanyInformation = 2,
+    UrgentAnnouncement = 3,
+    SecuritiesCompanyInformation = 4,
+    OtherAnnouncement = 5,
+    StockTemporaryHaltAnnouncement = 6,
+    BondTemporaryHaltAnnouncement = 7,
+};
+
+type MdEntryType = enum {
+    Bid = 0x30,
+    Offer = 0x31,
+    LastPrice = 0x32,
+    CurrentIndex = 0x33,
+    OpeningPrice = 0x34,
+    ClosingPrice = 0x35,
+    HighPrice = 0x37,
+    LowPrice = 0x38,
+    WeightedAveragePrice = 0x39,
+};
+
+type TradingType = enum {
+    MatchingTrade = 1,
+    ClickTrade = 2,
+    NegotiatedTrade = 3,
+    InquiryTrade = 4,
+    BiddingTrade = 5,
+};
+
+type Side = enum {
+    Buy = 0x31,
+    Sell = 0x32,
+    Borrow = 0x47,
+    Lend = 0x46,
+};
+
+type OrdType = enum {
+    Market = 0x31,
+    Limit = 0x32,
+    BestOwnSide = 0x55,
+};
+
+type SettlType = enum {
+    Gross = 0x31,
+    MultilateralNet = 0x32,
+};
+
+type SettlPeriod = enum {
+    TPlus0 = 0x30,
+    TPlus1 = 0x31,
+    TPlus2 = 0x32,
+    TPlus3 = 0x33,
+};
+
+type ExpirationType = enum {
+    FixedTerm = 1,
+};
+
+type ExecType = enum {
+    Cancelled = 0x34,
+    Trade = 0x46,
+};
+
