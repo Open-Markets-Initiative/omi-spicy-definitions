@@ -12,7 +12,7 @@ public type DeribitMarketdataapiV01 = unit {
 };
 
 type PacketHeader = unit {
-    sending_time: int64;
+    sending_time: int64 &convert=time_ns($$);
     seq_num: int64;
     channel_id: int32;
     packet_type: bitfield(16) {
@@ -59,7 +59,7 @@ type MdMessageHeader = unit {
         end_of_transaction: 1;
         reserved_bits: 2..15;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
 };
 
 type InstrumentMessage = unit {
@@ -75,7 +75,7 @@ type InstrumentMessage = unit {
     large_tick_threshold_0: int64;
     large_tick_size_1: int64;
     large_tick_threshold_1: int64;
-    creation_time: int64;
+    creation_time: int64 &convert=time_ns($$);
     expiry_time: int64;
     logical_expiry: LogicalExpiry;
     flags: bitfield(32) {

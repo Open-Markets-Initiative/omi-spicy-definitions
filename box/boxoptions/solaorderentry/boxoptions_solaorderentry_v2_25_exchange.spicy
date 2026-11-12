@@ -10,38 +10,38 @@ public type BoxoptionsSolaorderentryV225 = unit {
     message_length: uint32;
     outgoing_header: OutgoingHeader;
     switch ( self.outgoing_header.message_type ) {
-        0 -> heartbeat_question: HeartbeatQuestion;
-        0 -> out_of_sequence: OutOfSequence;
-        0 -> technical_error_notice: TechnicalErrorNotice;
-        0 -> disconnection_instruction_acknowledgement: DisconnectionInstructionAcknowledgement;
-        0 -> connection_acknowledgement: ConnectionAcknowledgement;
-        0 -> disconnection_acknowledgement: DisconnectionAcknowledgement;
-        0 -> end_of_transmission: EndOfTransmission;
-        0 -> error_notice: ErrorNotice;
-        0 -> bulk_quote_data_acknowledgement: BulkQuoteDataAcknowledgement;
-        0 -> order_acknowledgement: OrderAcknowledgement;
-        0 -> global_cancellation_confirmation: GlobalCancellationConfirmation;
-        0 -> improvement_order_acknowlegment: ImprovementOrderAcknowlegment;
-        0 -> order_modification_acknowledgement: OrderModificationAcknowledgement;
-        0 -> new_complex_order_instrument_acknowledgement: NewComplexOrderInstrumentAcknowledgement;
-        0 -> standard_acknowledgement: StandardAcknowledgement;
-        0 -> complex_order_auction_acknowledgement: ComplexOrderAuctionAcknowledgement;
-        0 -> auction_or_improvement_cancellation_acknowledgement: AuctionOrImprovementCancellationAcknowledgement;
-        0 -> order_cancellation_acknowledgement: OrderCancellationAcknowledgement;
-        0 -> bulk_quote_acknowledgement: BulkQuoteAcknowledgement;
-        0 -> trader_status: TraderStatus;
-        0 -> directed_order_cancellation_notice: DirectedOrderCancellationNotice;
-        0 -> directed_order_notice: DirectedOrderNotice;
-        0 -> excluded_instrument_notice: ExcludedInstrumentNotice;
-        0 -> group_state_change: GroupStateChange;
-        0 -> leg_execution_notice: LegExecutionNotice;
-        0 -> cancellation_of_all_quotes_notices: CancellationOfAllQuotesNotices;
-        0 -> quality_market_maker_notification: QualityMarketMakerNotification;
-        0 -> execution_notice: ExecutionNotice;
-        0 -> quote_notice: QuoteNotice;
-        0 -> execution_cancellation_notice: ExecutionCancellationNotice;
-        0 -> leg_execution_cancellation_notice: LegExecutionCancellationNotice;
-        0 -> order_cancellation_notice_by_system: OrderCancellationNoticeBySystem;
+        b"TH" -> heartbeat_question: HeartbeatQuestion;
+        b"TO" -> out_of_sequence: OutOfSequence;
+        b"TE" -> technical_error_notice: TechnicalErrorNotice;
+        b"TM" -> disconnection_instruction_acknowledgement: DisconnectionInstructionAcknowledgement;
+        b"TK" -> connection_acknowledgement: ConnectionAcknowledgement;
+        b"TL" -> disconnection_acknowledgement: DisconnectionAcknowledgement;
+        b"TT" -> end_of_transmission: EndOfTransmission;
+        b"ER" -> error_notice: ErrorNotice;
+        b"KD" -> bulk_quote_data_acknowledgement: BulkQuoteDataAcknowledgement;
+        b"KE" -> order_acknowledgement: OrderAcknowledgement;
+        b"KG" -> global_cancellation_confirmation: GlobalCancellationConfirmation;
+        b"KI" -> improvement_order_acknowlegment: ImprovementOrderAcknowlegment;
+        b"KM" -> order_modification_acknowledgement: OrderModificationAcknowledgement;
+        b"KN" -> new_complex_order_instrument_acknowledgement: NewComplexOrderInstrumentAcknowledgement;
+        b"KO" -> standard_acknowledgement: StandardAcknowledgement;
+        b"KT" -> complex_order_auction_acknowledgement: ComplexOrderAuctionAcknowledgement;
+        b"KY" -> auction_or_improvement_cancellation_acknowledgement: AuctionOrImprovementCancellationAcknowledgement;
+        b"KZ" -> order_cancellation_acknowledgement: OrderCancellationAcknowledgement;
+        b"LA" -> bulk_quote_acknowledgement: BulkQuoteAcknowledgement;
+        b"MU" -> trader_status: TraderStatus;
+        b"NC" -> directed_order_cancellation_notice: DirectedOrderCancellationNotice;
+        b"ND" -> directed_order_notice: DirectedOrderNotice;
+        b"NE" -> excluded_instrument_notice: ExcludedInstrumentNotice;
+        b"NG" -> group_state_change: GroupStateChange;
+        b"NL" -> leg_execution_notice: LegExecutionNotice;
+        b"NP" -> cancellation_of_all_quotes_notices: CancellationOfAllQuotesNotices;
+        b"NQ" -> quality_market_maker_notification: QualityMarketMakerNotification;
+        b"NT" -> execution_notice: ExecutionNotice;
+        b"NU" -> quote_notice: QuoteNotice;
+        b"NX" -> execution_cancellation_notice: ExecutionCancellationNotice;
+        b"NY" -> leg_execution_cancellation_notice: LegExecutionCancellationNotice;
+        b"NZ" -> order_cancellation_notice_by_system: OrderCancellationNoticeBySystem;
         * -> unknown: bytes &eod;
     };
     end_of_text: uint8;
@@ -193,7 +193,7 @@ type NewComplexOrderInstrumentAcknowledgement = unit {
     strategy_instrument_id: bytes &size=4;
     creation_status: bytes &size=1;
     number_of_legs: bytes &size=2;
-    new_complex_order_instrument_acknowledgement_occurrence: NewComplexOrderInstrumentAcknowledgementOccurrence[self.number_of_legs];
+    new_complex_order_instrument_acknowledgement_occurrence: NewComplexOrderInstrumentAcknowledgementOccurrence[self.number_of_legs.to_uint()];
 };
 
 type NewComplexOrderInstrumentAcknowledgementOccurrence = unit {
@@ -262,7 +262,7 @@ type BulkQuoteAcknowledgement = unit {
     group: bytes &size=2;
     quote_id: bytes &size=8;
     number_of_quotes_in_error: bytes &size=3;
-    bulk_quote_acknowledgement_occurrence: BulkQuoteAcknowledgementOccurrence[self.number_of_quotes_in_error];
+    bulk_quote_acknowledgement_occurrence: BulkQuoteAcknowledgementOccurrence[self.number_of_quotes_in_error.to_uint()];
 };
 
 type BulkQuoteAcknowledgementOccurrence = unit {

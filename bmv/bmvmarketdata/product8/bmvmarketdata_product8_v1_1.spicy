@@ -1,0 +1,305 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataProduct8IntraV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataProduct8V11 = unit {
+    intra_multicast_header: IntraMulticastHeader;
+    message_block: MessageBlock[self.intra_multicast_header.total_messages];
+};
+
+type IntraMulticastHeader = unit {
+    length: int16;
+    total_messages: int8;
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    session: int8;
+    sequence_number: int32;
+    datetime: int64 &convert=time($$ / 1000.0);
+};
+
+type MessageBlock = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::EventsSystemMessage -> events_system_message: EventsSystemMessage;
+        MessageType::TradeCancellationMessage -> trade_cancellation_message: TradeCancellationMessage;
+        MessageType::StatusChangesMessage -> status_changes_message: StatusChangesMessage;
+        MessageType::WeightedAveragePriceSettlementPricesMessage -> weighted_average_price_settlement_prices_message: WeightedAveragePriceSettlementPricesMessage;
+        MessageType::DepthMessage -> depth_message: DepthMessage;
+        MessageType::OpenInterestMessage -> open_interest_message: OpenInterestMessage;
+        MessageType::DerivativesMarketTradesMessage -> derivatives_market_trades_message: DerivativesMarketTradesMessage;
+        MessageType::StatisticsOfInstrumentsMessage -> statistics_of_instruments_message: StatisticsOfInstrumentsMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: int16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type EventsSystemMessage = unit {
+    instrument_number: int32;
+    event_code: uint8 &convert=EventCode($$);
+    market: uint8 &convert=Market($$);
+    sending_time: int64 &convert=time($$ / 1000.0);
+    ending_time: int64 &convert=time($$ / 1000.0);
+};
+
+type TradeCancellationMessage = unit {
+    instrument_number: int32;
+    trade_number: int32;
+};
+
+type StatusChangesMessage = unit {
+    instrument_number: int32;
+    instrument_status: uint8 &convert=InstrumentStatus($$);
+};
+
+type WeightedAveragePriceSettlementPricesMessage = unit {
+    instrument_number: int32;
+    weighted_average_price: int64;
+    volatility: int64;
+};
+
+type DepthMessage = unit {
+    instrument_number: int32;
+    side: int8 &convert=Side($$);
+    purchase_or_sale_levels: int8;
+    price_level: PriceLevel[self.purchase_or_sale_levels];
+};
+
+type PriceLevel = unit {
+    price: int64;
+    number_of_orders: int16;
+    volume: int32;
+};
+
+type OpenInterestMessage = unit {
+    instrument_number: int32;
+    open_interest: int32;
+};
+
+type DerivativesMarketTradesMessage = unit {
+    instrument_number: int32;
+    trade_time: int64 &convert=time($$ / 1000.0);
+    volume: int32;
+    price_rate: int64;
+    concertation_type: uint8 &convert=ConcertationType($$);
+    trade_number: int32;
+    operation_type: uint8 &convert=OperationType($$);
+    amount: int64;
+    parent_trade_number: int32;
+    leg_type: uint8 &convert=LegType($$);
+};
+
+type StatisticsOfInstrumentsMessage = unit {
+    instrument_number: int32;
+    previous_settlement_price: int64;
+    opening_price: int64;
+    max_price_of_the_day: int64;
+    lower_price_of_the_day: int64;
+    last_price_of_the_day: int64;
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    EventsSystemMessage = 0x53,
+    TradeCancellationMessage = 0x48,
+    StatusChangesMessage = 0x34,
+    WeightedAveragePriceSettlementPricesMessage = 0x4d,
+    DepthMessage = 0x31,
+    OpenInterestMessage = 0x49,
+    DerivativesMarketTradesMessage = 0x51,
+    StatisticsOfInstrumentsMessage = 0x52,
+};
+
+type EventCode = enum {
+    StartOfSystemHours = 0x41,
+    CancelationOfOffers = 0x42,
+    StartOfOpeningAuction = 0x43,
+    StartOfContinuousMarket = 0x44,
+    StartOfWapPeriod = 0x45,
+    ContinuousMarketEnds = 0x46,
+    StartOfAfterClosingPhase = 0x47,
+    ItEndsAfterClosing = 0x48,
+    TransmissionOfFinalPricesEnds = 0x4a,
+    EndOfSystemHours = 0x4b,
+    StartOfAdministrativeRecess = 0x4d,
+    EndOfAdministrativeRecess = 0x4e,
+    StartDvmamxMarkets = 0x4f,
+    EndOfDvmaMarkets = 0x50,
+    EndOfMxMarkets = 0x51,
+    StartOfOpcModality = 0x52,
+    EndOfOpcModality = 0x53,
+    StartOfSettlementAuction = 0x54,
+    EndOfSettlementAuction = 0x55,
+    FinalRegisterOfSettlementPrices = 0x56,
+    OpenInterest = 0x57,
+};
+
+type Market = enum {
+    Local = 0x4c,
+    Global = 0x47,
+    LocalDebt = 0x44,
+    GlobalDebt = 0x46,
+    Money = 0x45,
+    DollarOptionMarket = 0x4d,
+    StockMarket = 0x58,
+    ForexAndRatesMarket = 0x56,
+    FixedIncome = 0x4a,
+    VariableIncome = 0x42,
+    Metals = 0x54,
+    MutualFunds = 0x49,
+    Warrants = 0x57,
+    AllMarkets = 0x20,
+};
+
+type InstrumentStatus = enum {
+    CancellationOfOffers = 0x43,
+    OpeningAuction = 0x41,
+    PreOpening = 0x50,
+    BeingAllocated = 0x45,
+    AuctionAllocated = 0x47,
+    AuctionEnded = 0x54,
+    ContinuousTrading = 0x4e,
+    BreakingAuctionParameters = 0x4b,
+    ContinuousAuctionDueToStopOperatingMoreThan20WorkingDays = 0x4d,
+    CleavingAuction = 0x55,
+    SuspendedSeries = 0x4f,
+    SuspendedQuotation = 0x56,
+    AuctionForBreach = 0x4c,
+    WithdrawalOfOrdersOnContinuousAuction = 0x49,
+    WithdrawalOfOrderOnIntradayAuction = 0x42,
+    NewsPending = 0x57,
+    SettlementAuction = 0x58,
+    ExtraordinarySettlementAuction = 0x59,
+    AuctionTotalOfCkDes = 0x52,
+};
+
+type Side = enum {
+    Buy = 0,
+    Sell = 1,
+};
+
+type ConcertationType = enum {
+    CrossingOperation = 0x43,
+    OrderClosing = 0x4f,
+    OperationAtClosingPrice = 0x48,
+    OperationAfterClosing = 0x44,
+    OperationAtMediumPrice = 0x4d,
+    OperationAtAveragePriceForTheDay = 0x50,
+    BlockOperationsByException = 0x58,
+    VwapOperationsByException = 0x76,
+    TwapOperationsByException = 0x77,
+    BasketTrading = 0x25,
+    OtcRecentOperations = 0x78,
+    OtcAgreedOperations = 0x79,
+    BuyAutoEntry = 0x41,
+    SellAutoEntry = 0x42,
+    BlockTrade = 0x45,
+    LegOfBlocktradeForChainOfForwards = 0x46,
+    LegOfChainOfForwards = 0x47,
+    LegOfCrossingOfForeignCurrencyStrategy = 0x4a,
+    SellLegAutoEntryOfForeignCurrencyStrategy = 0x4b,
+    BuyLegAutoEntryOfForeignCurrencyStrategy = 0x4c,
+    LegOfForeignCurrencyStrategy = 0x4e,
+    LegOfForeignCurrencyStrategy_x51 = 0x51,
+    LegOfCrossingOfChainOfForwards = 0x52,
+    SellLegAutoEntryOfChainOfForwards = 0x53,
+    BuyLegAutoEntryOfChainOfForwards = 0x54,
+    LegOfAuctionOfChainOfForwards = 0x55,
+    LegOfRoundOfChainOfForwards = 0x56,
+    ChainsOfForwards = 0x57,
+    LegOfRolloverCrossing = 0x59,
+    SellLegAutoEntryOfRollover = 0x5a,
+    BuyLegAutoEntryOfRollover = 0x61,
+    LegOfRoundOfRollover = 0x62,
+    DepthOfRoundOfChainOfForwards = 0x63,
+    TradingOfChainOfForwards = 0x64,
+    DepthOfRound = 0x65,
+    RoundOfChainOfForwards = 0x66,
+    RolloverSentra = 0x67,
+    TypeRound = 0x68,
+    Auctions = 0x69,
+    LegOfBlockTradeOfRollover = 0x6a,
+    LegOfBlockTradeOfForeignCurrencyStrategy = 0x6b,
+    BlockTradeOfForeignCurrencyStrategy = 0x6c,
+    BlockTradeOfChainOfForwards = 0x6d,
+    BlocktradeOfRollover = 0x6e,
+    CrossingOfChainOfForwards = 0x6f,
+    SellAutoEntryOfChainOfForwards = 0x70,
+    BuyAutoEntryOfChainOfForwards = 0x71,
+    SwapBlockTrade = 0x72,
+    SwapBlockTradeWithContinuousCoupon = 0x73,
+    BlockTradeOfUnwind = 0x74,
+    BlockTradeOfSubstitution = 0x75,
+    VoiceOver = 0x7a,
+    FirmOrder = 0x23,
+    IpoCross = 0x49,
+    UnintentionalSelfCross = 0x2b,
+    WithoutConcertation = 0x26,
+    InavToClosingPriceTrading = 0x28,
+    InavAfterClosing = 0x29,
+};
+
+type OperationType = enum {
+    Cash = 0x43,
+    PublicOffering = 0x4f,
+    RegistrationOperation = 0x52,
+    Overallocation = 0x41,
+    ReciprocalSubscription = 0x53,
+    PublicBuyOffering = 0x46,
+    TradesAtClosing = 0x48,
+    MediumPrice = 0x4d,
+    OperationByException = 0x58,
+    AverageForTheDay = 0x50,
+    AfterClosing = 0x44,
+    InavTrading = 0x4e,
+};
+
+type LegType = enum {
+    LongLeg = 0x4c,
+    ShortLeg = 0x43,
+    ForwardsChainLeg = 0x58,
+    ParentStrategy = 0x50,
+    NotGeneratedFromAStrategy = 0x20,
+};
+

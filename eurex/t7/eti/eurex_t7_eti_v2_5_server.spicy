@@ -79,8 +79,8 @@ type AddComplexInstrumentResponse = unit {
     low_limit_price: int64;
     high_limit_price: int64;
     security_id: int64;
-    last_update_time: uint64;
-    security_response_id: uint64;
+    last_update_time: uint64 &convert=time_ns($$);
+    security_response_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     number_of_securities: int32;
     security_sub_type: int32;
@@ -92,12 +92,12 @@ type AddComplexInstrumentResponse = unit {
 };
 
 type NrResponseHeaderMeComp = unit {
-    request_time: uint64;
-    request_out: uint64;
-    trd_reg_ts_time_in: uint64;
-    trd_reg_ts_time_out: uint64;
-    response_in: uint64;
-    sending_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    request_out: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_in: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_out: uint64 &convert=time_ns($$);
+    response_in: uint64 &convert=time_ns($$);
+    sending_time: uint64 &convert=time_ns($$);
     msg_seq_num: uint32;
     last_fragment: uint8 &convert=LastFragment($$);
     : skip bytes &size=3;   # padding
@@ -127,19 +127,19 @@ type BroadcastErrorNotification = unit {
 };
 
 type NotifHeaderComp = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type CrossRequestResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
 };
 
 type DeleteAllOrderBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_me_comp: RbcHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
     security_id: int64;
     market_segment_id: int32;
     target_party_id_session_id: uint32;
@@ -154,9 +154,9 @@ type DeleteAllOrderBroadcast = unit {
 };
 
 type RbcHeaderMeComp = unit {
-    trd_reg_ts_time_out: uint64;
-    notification_in: uint64;
-    sending_time: uint64;
+    trd_reg_ts_time_out: uint64 &convert=time_ns($$);
+    notification_in: uint64 &convert=time_ns($$);
+    sending_time: uint64 &convert=time_ns($$);
     appl_sub_id: uint32;
     partition_id: uint16;
     appl_msg_id: bytes &size=16;
@@ -174,13 +174,13 @@ type NotAffectedOrdersGrpComp = unit {
 type DeleteAllOrderNrResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
 };
 
 type DeleteAllOrderQuoteEventBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_me_comp: RbcHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
     security_id: int64;
     market_segment_id: int32;
     mass_action_reason: uint8 &convert=MassActionReason($$);
@@ -191,19 +191,19 @@ type DeleteAllOrderQuoteEventBroadcast = unit {
 type DeleteAllOrderResponse = unit {
     : skip bytes &size=2;   # padding
     response_header_me_comp: ResponseHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
     no_not_affected_orders: uint16;
     : skip bytes &size=6;   # padding
     not_affected_orders_grp_comp: NotAffectedOrdersGrpComp[self.no_not_affected_orders];
 };
 
 type ResponseHeaderMeComp = unit {
-    request_time: uint64;
-    request_out: uint64;
-    trd_reg_ts_time_in: uint64;
-    trd_reg_ts_time_out: uint64;
-    response_in: uint64;
-    sending_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    request_out: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_in: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_out: uint64 &convert=time_ns($$);
+    response_in: uint64 &convert=time_ns($$);
+    sending_time: uint64 &convert=time_ns($$);
     msg_seq_num: uint32;
     partition_id: uint16;
     appl_id: uint8 &convert=ApplId($$);
@@ -214,7 +214,7 @@ type ResponseHeaderMeComp = unit {
 type DeleteAllQuoteBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_me_comp: RbcHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
     security_id: int64;
     market_segment_id: int32;
     target_party_id_session_id: uint32;
@@ -235,7 +235,7 @@ type NotAffectedSecuritiesGrpComp = unit {
 type DeleteAllQuoteResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
     no_not_affected_securities: uint16;
     : skip bytes &size=6;   # padding
     not_affected_securities_grp_comp: NotAffectedSecuritiesGrpComp[self.no_not_affected_securities];
@@ -248,7 +248,7 @@ type DeleteOrderBroadcast = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     cum_qty: int32;
     cxl_qty: int32;
     market_segment_id: int32;
@@ -269,7 +269,7 @@ type DeleteOrderNrResponse = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     cum_qty: int32;
     cxl_qty: int32;
     ord_status: uint8 &convert=OrdStatus($$);
@@ -286,7 +286,7 @@ type DeleteOrderResponse = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     cum_qty: int32;
     cxl_qty: int32;
     ord_status: uint8 &convert=OrdStatus($$);
@@ -318,8 +318,8 @@ type GatewayResponse = unit {
 };
 
 type ResponseHeaderComp = unit {
-    request_time: uint64;
-    sending_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    sending_time: uint64 &convert=time_ns($$);
     msg_seq_num: uint32;
     : skip bytes &size=4;   # padding
 };
@@ -355,7 +355,7 @@ type EnrichmentRulesGrpComp = unit {
 type InquireMmParameterResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    mm_parameter_report_id: uint64;
+    mm_parameter_report_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     no_mm_parameters: uint8;
     : skip bytes &size=3;   # padding
@@ -408,7 +408,7 @@ type PartyDetailsGrpComp = unit {
 type LegalNotificationBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     var_text_len: uint16;
     user_status: uint8 &convert=UserStatus($$);
     : skip bytes &size=5;   # padding
@@ -417,7 +417,7 @@ type LegalNotificationBroadcast = unit {
 };
 
 type RbcHeaderComp = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     appl_seq_num: uint64;
     appl_sub_id: uint32;
     partition_id: uint16;
@@ -448,14 +448,14 @@ type LogoutResponse = unit {
 type MmParameterDefinitionResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
 };
 
 type MassQuoteResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
     quote_id: uint64;
-    quote_response_id: uint64;
+    quote_response_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     no_quote_entries: uint8;
     : skip bytes &size=3;   # padding
@@ -478,7 +478,7 @@ type ModifyOrderNrResponse = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     leaves_qty: int32;
     cum_qty: int32;
     cxl_qty: int32;
@@ -496,8 +496,8 @@ type ModifyOrderResponse = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
-    trd_reg_ts_time_priority: uint64;
+    exec_id: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_priority: uint64 &convert=time_ns($$);
     leaves_qty: int32;
     cum_qty: int32;
     cxl_qty: int32;
@@ -514,7 +514,7 @@ type NewOrderNrResponse = unit {
     order_id: uint64;
     cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     ord_status: uint8 &convert=OrdStatus($$);
     exec_type: uint8 &convert=ExecType($$);
     exec_restatement_reason: uint16 &convert=ExecRestatementReason($$);
@@ -528,9 +528,9 @@ type NewOrderResponse = unit {
     order_id: uint64;
     cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
-    trd_reg_ts_entry_time: uint64;
-    trd_reg_ts_time_priority: uint64;
+    exec_id: uint64 &convert=time_ns($$);
+    trd_reg_ts_entry_time: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_priority: uint64 &convert=time_ns($$);
     ord_status: uint8 &convert=OrdStatus($$);
     exec_type: uint8 &convert=ExecType($$);
     exec_restatement_reason: uint16 &convert=ExecRestatementReason($$);
@@ -541,7 +541,7 @@ type NewOrderResponse = unit {
 type NewsBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    orig_time: uint64;
+    orig_time: uint64 &convert=time_ns($$);
     var_text_len: uint16;
     headline: bytes &size=256;
     : skip bytes &size=6;   # padding
@@ -556,7 +556,7 @@ type OrderExecNotification = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     leaves_qty: int32;
     cum_qty: int32;
@@ -599,9 +599,9 @@ type OrderExecReportBroadcast = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
-    trd_reg_ts_entry_time: uint64;
-    trd_reg_ts_time_priority: uint64;
+    exec_id: uint64 &convert=time_ns($$);
+    trd_reg_ts_entry_time: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_priority: uint64 &convert=time_ns($$);
     price: int64;
     stop_px: int64;
     market_segment_id: int32;
@@ -661,9 +661,9 @@ type OrderExecResponse = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
-    trd_reg_ts_entry_time: uint64;
-    trd_reg_ts_time_priority: uint64;
+    exec_id: uint64 &convert=time_ns($$);
+    trd_reg_ts_entry_time: uint64 &convert=time_ns($$);
+    trd_reg_ts_time_priority: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     leaves_qty: int32;
     cum_qty: int32;
@@ -683,7 +683,7 @@ type OrderExecResponse = unit {
 type PartyActionReport = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     trade_date: uint32;
     requesting_party_id_executing_trader: uint32;
     party_id_executing_unit: uint32;
@@ -697,7 +697,7 @@ type PartyActionReport = unit {
 type PartyEntitlementsUpdateReport = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     trade_date: uint32;
     party_detail_id_executing_unit: uint32;
     requesting_party_id_executing_system: uint32 &convert=RequestingPartyIdExecutingSystem($$);
@@ -712,7 +712,7 @@ type PartyEntitlementsUpdateReport = unit {
 type QuoteActivationNotification = unit {
     : skip bytes &size=2;   # padding
     rbc_header_me_comp: RbcHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     party_id_entering_trader: uint32;
     no_not_affected_securities: uint16;
@@ -727,7 +727,7 @@ type QuoteActivationNotification = unit {
 type QuoteActivationResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    mass_action_report_id: uint64;
+    mass_action_report_id: uint64 &convert=time_ns($$);
     no_not_affected_securities: uint16;
     : skip bytes &size=6;   # padding
     not_affected_securities_grp_comp: NotAffectedSecuritiesGrpComp[self.no_not_affected_securities];
@@ -736,7 +736,7 @@ type QuoteActivationResponse = unit {
 type QuoteExecutionReport = unit {
     : skip bytes &size=2;   # padding
     rbc_header_me_comp: RbcHeaderMeComp;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     no_leg_execs: uint16;
     no_quote_events: uint8;
@@ -771,7 +771,7 @@ type QuoteLegExecGrpComp = unit {
 type RfqResponse = unit {
     : skip bytes &size=2;   # padding
     nr_response_header_me_comp: NrResponseHeaderMeComp;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
 };
 
 type Reject = unit {
@@ -806,7 +806,7 @@ type RetransmitResponse = unit {
 type RiskNotificationBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     trade_date: uint32;
     party_detail_id_executing_unit: uint32;
     requesting_party_id_executing_system: uint32 &convert=RequestingPartyIdExecutingSystem($$);
@@ -832,7 +832,7 @@ type ServiceAvailabilityBroadcast = unit {
 };
 
 type NrbcHeaderComp = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     appl_sub_id: uint32;
     appl_id: uint8 &convert=ApplId($$);
     last_fragment: uint8 &convert=LastFragment($$);
@@ -870,7 +870,7 @@ type TradeBroadcast = unit {
     last_px: int64;
     side_last_px: int64;
     clearing_trade_price: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     order_id: uint64;
     cl_ord_id: uint64;
     trade_id: uint32;

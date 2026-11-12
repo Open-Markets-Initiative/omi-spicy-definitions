@@ -1,0 +1,133 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataReplayIntraV11Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataReplayV11 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    client_message_header: ClientMessageHeader;
+    switch ( self.client_message_header.client_message_type ) {
+        ClientMessageType::LoginMessage -> login_message: LoginMessage;
+        ClientMessageType::ReplayRequestMessage -> replay_request_message: ReplayRequestMessage;
+        ClientMessageType::SnapshotRequestMessage -> snapshot_request_message: SnapshotRequestMessage;
+        ClientMessageType::SnapshotIndicesRequestMessage -> snapshot_indices_request_message: SnapshotIndicesRequestMessage;
+        ClientMessageType::SnapshotConsolidatedFeedRequestMessage -> snapshot_consolidated_feed_request_message: SnapshotConsolidatedFeedRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ClientMessageHeader = unit {
+    client_length: int8;
+    client_message_type: uint8 &convert=ClientMessageType($$);
+};
+
+type LoginMessage = unit {
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    user: bytes &size=6;
+    password: bytes &size=10;
+};
+
+type ReplayRequestMessage = unit {
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    first_message: int32;
+    quantity: int16;
+};
+
+type SnapshotRequestMessage = unit {
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    instrument_id: int32;
+    snapshot_type: int8 &convert=SnapshotType($$);
+};
+
+type SnapshotIndicesRequestMessage = unit {
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    component: bytes &size=2;
+    recovery_hour: int64 &convert=time($$ / 1000.0);
+};
+
+type SnapshotConsolidatedFeedRequestMessage = unit {
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    instrument_id: int32;
+    snapshot_type: int8 &convert=SnapshotType($$);
+    origin: uint8 &convert=Origin($$);
+};
+
+type ClientMessageType = enum {
+    LoginMessage = 0x21,
+    ReplayRequestMessage = 0x23,
+    SnapshotRequestMessage = 0x24,
+    SnapshotIndicesRequestMessage = 0x2d,
+    SnapshotConsolidatedFeedRequestMessage = 0x5f,
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type SnapshotType = enum {
+    FullDepth = 1,
+    PriceLevels = 2,
+    BestOffers = 3,
+    Trades = 4,
+    FullDepthTradabilityAndTrades = 5,
+    PriceLevelsTradabilityAndTrades = 6,
+    BestOffersAndTrades = 7,
+    FullDepthTradabilityAndPriceSetterTrade = 8,
+    PriceLevelsTradabilityAndPriceSetterTrade = 9,
+    BestOffersAndPriceSetterTrade = 10,
+    GeneralIndices = 11,
+    PriceLevelsBestOffersAndTradability = 12,
+    InstrumentsCatalogConsolidatedFeed = 13,
+    TradesConsolidatedFeed = 14,
+    BestOffersConsolidatedFeed = 15,
+    FullDepthConsolidatedFeed = 16,
+    BestOffersAndTradesConsolidatedFeed = 17,
+    FullDepthAndTradesConsolidatedFeed = 18,
+    AgileSnapshot = 19,
+    LatestTrades = 20,
+};
+
+type Origin = enum {
+    Bmv = 0x4d,
+    Biva = 0x49,
+    Both = 0x41,
+};
+

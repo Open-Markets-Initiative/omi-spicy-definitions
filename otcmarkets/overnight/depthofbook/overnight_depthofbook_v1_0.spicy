@@ -22,7 +22,7 @@ type PacketHeader = unit {
         test: 7;
     } &byte-order=spicy::ByteOrder::Little;
     message_count: uint8;
-    packet_milli: uint32;
+    packet_milli: uint32 &convert=interval($$ / 1000.0);
 };
 
 type Message = unit {
@@ -51,25 +51,25 @@ type MessageHeader = unit {
 
 type StartOfSpinMessage = unit {
     spin_type: uint8 &convert=SpinType($$);
-    spin_start_time_milli: uint64;
+    spin_start_time_milli: uint64 &convert=time($$ / 1000.0);
     spin_last_seq_num: uint32;
 };
 
 type EndOfSpinMessage = unit {
     spin_type: uint8 &convert=SpinType($$);
     spin_msg_ct: uint32;
-    spin_end_time_milli: uint64;
+    spin_end_time_milli: uint64 &convert=time($$ / 1000.0);
     spin_last_seq_num: uint32;
 };
 
 type TradingSessionMessage = unit {
-    session_time: uint64;
+    session_time: uint64 &convert=time($$ / 1000.0);
     trading_session: uint8 &convert=TradingSession($$);
 };
 
 type SecurityMessage = unit {
     symbol: bytes &size=14;
-    last_update_milli: uint64;
+    last_update_milli: uint64 &convert=time($$ / 1000.0);
     security_action: uint8 &convert=SecurityAction($$);
     asset_class: uint8 &convert=AssetClass($$);
     security_id: uint32;
@@ -87,7 +87,7 @@ type SecurityMessage = unit {
 };
 
 type OrderAddMessage = unit {
-    time_field: uint32;
+    time_field: uint32 &convert=interval($$ / 1000.0);
     order_id: bytes &size=14;
     side_indicator: uint8 &convert=SideIndicator($$);
     quantity: uint32;
@@ -99,7 +99,7 @@ type OrderAddMessage = unit {
 };
 
 type OrderUpdateMessage = unit {
-    time_field: uint32;
+    time_field: uint32 &convert=interval($$ / 1000.0);
     order_id: bytes &size=14;
     quantity: uint32;
     price: uint64;
@@ -107,12 +107,12 @@ type OrderUpdateMessage = unit {
 };
 
 type OrderDeleteMessage = unit {
-    time_field: uint32;
+    time_field: uint32 &convert=interval($$ / 1000.0);
     order_id: bytes &size=14;
 };
 
 type OrderExecutionMessage = unit {
-    time_field: uint32;
+    time_field: uint32 &convert=interval($$ / 1000.0);
     order_id: bytes &size=14;
     executed_quantity: uint32;
     remaining_quantity: uint32;
@@ -120,7 +120,7 @@ type OrderExecutionMessage = unit {
 };
 
 type OrderExecutionWithPriceMessage = unit {
-    time_field: uint32;
+    time_field: uint32 &convert=interval($$ / 1000.0);
     order_id: bytes &size=14;
     executed_quantity: uint32;
     remaining_quantity: uint32;
@@ -129,7 +129,7 @@ type OrderExecutionWithPriceMessage = unit {
 };
 
 type TradeMessage = unit {
-    time_field: uint32;
+    time_field: uint32 &convert=interval($$ / 1000.0);
     side_indicator: uint8 &convert=SideIndicator($$);
     quantity: uint32;
     symbol: bytes &size=14;
@@ -139,7 +139,7 @@ type TradeMessage = unit {
 };
 
 type ImbalanceMessage = unit {
-    time_field: uint32;
+    time_field: uint32 &convert=interval($$ / 1000.0);
     symbol: bytes &size=14;
     current_inside_paired_shares: uint32;
     current_inside_closing_price: uint64;
@@ -154,7 +154,7 @@ type SystemRecoveryEventMessage = unit {
     deprecated: uint32;
     recovery_type: uint8 &convert=RecoveryType($$);
     next_sequence_number: uint32;
-    recovery_start_time: uint64;
+    recovery_start_time: uint64 &convert=time($$ / 1000.0);
 };
 
 type MessageType = enum {

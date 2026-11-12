@@ -53,13 +53,13 @@ type SequencedMessage = unit {
 type SystemEventMessage = unit {
     event_code: uint8 &convert=EventCode($$);
     : skip bytes &size=2;   # padding
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
 };
 
 type StockDirectoryMessage = unit {
     market: uint8 &convert=Market($$);
     stock: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     board_lot_size: uint32;
     instrument_id: uint16;
     shortable: uint8 &convert=Shortable($$);
@@ -71,7 +71,7 @@ type StockDirectoryMessage = unit {
 type ExtendedStockDirectoryMessage = unit {
     market: uint8 &convert=Market($$);
     stock: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     board_lot_size: uint32;
     instrument_id: uint16;
     shortable: uint8 &convert=Shortable($$);
@@ -87,14 +87,14 @@ type ExtendedStockDirectoryMessage = unit {
 type StockTradingActionMessage = unit {
     trading_state: uint8 &convert=TradingState($$);
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     reason: bytes &size=4;
 };
 
 type AddOrderMessage = unit {
     buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     order_reference_number: uint32;
     shares: uint32;
     price: uint32;

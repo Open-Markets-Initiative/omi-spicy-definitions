@@ -20,9 +20,9 @@ type ServiceHeader = unit {
     exchange_code: uint8 &convert=ExchangeCode($$);
     session_distinction: bytes &size=2;
     issue_classification: IssueClassification;
-    switch ( self.issue_classification.issue_classification_large_classification ) {
-        IssueClassificationLargeClassification::Stockrelated -> stock_issue_code: StockIssueCode;
-        IssueClassificationLargeClassification::Cbrelated -> cb_issue_code: CbIssueCode;
+    switch ( self.issue_classification.issue_classification_large_classification.strip() ) {
+        b"01" -> stock_issue_code: StockIssueCode;
+        b"02" -> cb_issue_code: CbIssueCode;
         * -> unknown: bytes &eod;
     };
 };
@@ -57,10 +57,10 @@ type CbIssueCode = unit {
 
 type TagInformation = unit {
     tag_id: bytes &size=2;
-    switch ( self.tag_id ) {
-        0 -> tostnet_byissue_information_message: TostnetByissueInformationMessage;
-        0 -> tostnet_market_information_message: TostnetMarketInformationMessage;
-        0 -> control_message: ControlMessage;
+    switch ( self.tag_id.strip() ) {
+        b"TI" -> tostnet_byissue_information_message: TostnetByissueInformationMessage;
+        b"TM" -> tostnet_market_information_message: TostnetMarketInformationMessage;
+        b"LC" -> control_message: ControlMessage;
         * -> unknown: bytes &eod;
     };
     separation_of_tag: uint8 &convert=SeparationOfTag($$);

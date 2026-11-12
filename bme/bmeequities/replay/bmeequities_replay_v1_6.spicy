@@ -106,7 +106,7 @@ type TradingSessionStatusMessage = unit {
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
     trad_ses_status: uint8 &convert=TradSesStatus($$);
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
 };
 
 type NewsMessage = unit {
@@ -126,7 +126,7 @@ type SecurityListCancellationReportMessage = unit {
 type StatisticsMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     data_count: uint8;
     statistics_repeating_group: StatisticsRepeatingGroup[self.data_count];
 };
@@ -208,7 +208,7 @@ type SecurityListMessage = unit {
     investment_fund_category: bytes &size=80;
     investment_fund_minimum_subscription_amount: int64;
     investment_fund_minimum_maintenance_amount: int64;
-    investment_fund_cut_off_time: int64;
+    investment_fund_cut_off_time: int64 &convert=time_ns($$);
     nav_communication_term: uint8 &convert=NavCommunicationTerm($$);
     investment_fund_number_of_decimals: uint8;
     commodity_derivative_indicator: uint8 &convert=CommodityDerivativeIndicator($$);
@@ -299,7 +299,7 @@ type SecurityListUpdateReportMessage = unit {
     investment_fund_category: bytes &size=80;
     investment_fund_minimum_subscription_amount: int64;
     investment_fund_minimum_maintenance_amount: int64;
-    investment_fund_cut_off_time: int64;
+    investment_fund_cut_off_time: int64 &convert=time_ns($$);
     nav_communication_term: uint8 &convert=NavCommunicationTerm($$);
     investment_fund_number_of_decimals: uint8;
     commodity_derivative_indicator: uint8 &convert=CommodityDerivativeIndicator($$);
@@ -321,13 +321,13 @@ type SecurityListUpdateReportMessage = unit {
 type SecurityStatusMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     reference_price: int64;
     static_price: int64;
     dynamic_price_oscilation_percentage: int64;
     dynamic_range_multiplier: uint8;
     auction_trigger_price: int64;
-    auction_end_time: int64;
+    auction_end_time: int64 &convert=time_ns($$);
     liquidative_value_date: int32;
     bonus_warrants_with_active_bonus: uint8 &convert=BonusWarrantsWithActiveBonus($$);
     security_trading_status: uint8 &convert=SecurityTradingStatus($$);
@@ -346,13 +346,13 @@ type SecurityStatusMessage = unit {
 type OrderBookClearMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
 };
 
 type OrderMarketPreTransparencyInformationMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     entry_date: int32;
     retail_flag: uint8 &convert=RetailFlag($$);
@@ -365,7 +365,7 @@ type OrderMarketPreTransparencyInformationMessage = unit {
 type QuoteMarketPreTransparencyInformationMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     secondary_order_id_2: uint32;
     retail_flag: uint8 &convert=RetailFlag($$);
@@ -380,7 +380,7 @@ type QuoteMarketPreTransparencyInformationMessage = unit {
 type OrderCancellationMarketMemberMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     entry_date: int32;
     retail_flag: uint8 &convert=RetailFlag($$);
@@ -389,7 +389,7 @@ type OrderCancellationMarketMemberMessage = unit {
 type QuoteCancellationMarketMemberMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     secondary_order_id_2: uint32;
     retail_flag: uint8 &convert=RetailFlag($$);
@@ -398,7 +398,7 @@ type QuoteCancellationMarketMemberMessage = unit {
 type TradeMarketPostTransparencyInformationTopOfBookMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -417,7 +417,7 @@ type TradeMarketPostTransparencyInformationTopOfBookMessage = unit {
 type TradeTradeAmendmentOrCancellationMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -436,8 +436,8 @@ type TradeTradeAmendmentOrCancellationMessage = unit {
     trade_price_condition: uint8 &convert=TradePriceCondition($$);
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
     deferral_waiver: uint8 &convert=DeferralWaiver($$);
-    publish_date_and_time: int64;
-    trade_date: int64;
+    publish_date_and_time: int64 &convert=time_ns($$);
+    trade_date: int64 &convert=time_ns($$);
     trade_session_date: int32;
     volume_float: uint64;
     sicav_fund_counterparty_side: uint8 &convert=SicavFundCounterpartySide($$);
@@ -449,7 +449,7 @@ type TradeTradeAmendmentOrCancellationMessage = unit {
 type TradeMarketPostTransparencyInformationFullDepthMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -480,7 +480,7 @@ type TradeMarketPostTransparencyInformationFullDepthMessage = unit {
 type TopOfBookMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     bid_orders_1: uint16;
     bid_size_1: uint32;
     bid_px_1: int64;

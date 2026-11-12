@@ -24,29 +24,29 @@ type BlockHeader = unit {
 type Message = unit {
     message_header: MessageHeader;
     switch ( self.message_header ) {
-        0x4152 -> rejection_message: RejectionMessage;
-        0x4157 -> warning_message: WarningMessage;
-        0x434e -> sequence_information_and_message_count_response_message: SequenceInformationAndMessageCountResponseMessage;
-        0x4335 -> test_message: TestMessage;
-        0x4949 -> index_message: IndexMessage;
-        0x4951 -> bid_and_offer_index_message: BidAndOfferIndexMessage;
-        0x4d4f -> approximate_trades_and_total_dollar_value_message: ApproximateTradesAndTotalDollarValueMessage;
-        0x4d50 -> crossing_session_message: CrossingSessionMessage;
-        0x5043 -> prior_day_trade_correction_message: PriorDayTradeCorrectionMessage;
-        0x504f -> fractional_prior_day_trade_correction_message: FractionalPriorDayTradeCorrectionMessage;
-        0x5054 -> prior_day_trade_message: PriorDayTradeMessage;
-        0x5052 -> fractional_prior_day_trade_message: FractionalPriorDayTradeMessage;
-        0x5058 -> prior_day_trade_cancel_error_message: PriorDayTradeCancelErrorMessage;
-        0x5045 -> fractional_prior_day_trade_cancel_error_message: FractionalPriorDayTradeCancelErrorMessage;
-        0x5441 -> auction_status_message: AuctionStatusMessage;
-        0x5443 -> trade_correction_message: TradeCorrectionMessage;
-        0x544f -> fractional_trade_correction_message: FractionalTradeCorrectionMessage;
-        0x544c -> long_trade_message: LongTradeMessage;
-        0x5452 -> fractional_long_trade_message: FractionalLongTradeMessage;
-        0x5453 -> trading_status_message: TradingStatusMessage;
-        0x5454 -> short_trade_message: ShortTradeMessage;
-        0x5448 -> fractional_short_trade_message: FractionalShortTradeMessage;
-        0x5458 -> trade_cancel_error_message: TradeCancelErrorMessage;
+        b"0x4152" -> rejection_message: RejectionMessage;
+        b"0x4157" -> warning_message: WarningMessage;
+        b"0x434E" -> sequence_information_and_message_count_response_message: SequenceInformationAndMessageCountResponseMessage;
+        b"0x4335" -> test_message: TestMessage;
+        b"0x4949" -> index_message: IndexMessage;
+        b"0x4951" -> bid_and_offer_index_message: BidAndOfferIndexMessage;
+        b"0x4D4F" -> approximate_trades_and_total_dollar_value_message: ApproximateTradesAndTotalDollarValueMessage;
+        b"0x4D50" -> crossing_session_message: CrossingSessionMessage;
+        b"0x5043" -> prior_day_trade_correction_message: PriorDayTradeCorrectionMessage;
+        b"0x504F" -> fractional_prior_day_trade_correction_message: FractionalPriorDayTradeCorrectionMessage;
+        b"0x5054" -> prior_day_trade_message: PriorDayTradeMessage;
+        b"0x5052" -> fractional_prior_day_trade_message: FractionalPriorDayTradeMessage;
+        b"0x5058" -> prior_day_trade_cancel_error_message: PriorDayTradeCancelErrorMessage;
+        b"0x5045" -> fractional_prior_day_trade_cancel_error_message: FractionalPriorDayTradeCancelErrorMessage;
+        b"0x5441" -> auction_status_message: AuctionStatusMessage;
+        b"0x5443" -> trade_correction_message: TradeCorrectionMessage;
+        b"0x544F" -> fractional_trade_correction_message: FractionalTradeCorrectionMessage;
+        b"0x544C" -> long_trade_message: LongTradeMessage;
+        b"0x5452" -> fractional_long_trade_message: FractionalLongTradeMessage;
+        b"0x5453" -> trading_status_message: TradingStatusMessage;
+        b"0x5454" -> short_trade_message: ShortTradeMessage;
+        b"0x5448" -> fractional_short_trade_message: FractionalShortTradeMessage;
+        b"0x5458" -> trade_cancel_error_message: TradeCancelErrorMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -63,8 +63,8 @@ type MessageHeader = unit {
 };
 
 type Timestamp1 = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    seconds: uint32 &convert=time($$);
+    nanoseconds: uint32 &convert=interval_ns($$);
 };
 
 type RejectionMessage = unit {
@@ -134,13 +134,13 @@ type PriorDayTradeCorrectionMessage = unit {
 };
 
 type CorrectedPriorDayTradeDateAndTime = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    seconds: uint32 &convert=time($$);
+    nanoseconds: uint32 &convert=interval_ns($$);
 };
 
 type OriginalPriorDayTradeDateAndTime = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    seconds: uint32 &convert=time($$);
+    nanoseconds: uint32 &convert=interval_ns($$);
 };
 
 type FractionalPriorDayTradeCorrectionMessage = unit {
@@ -180,8 +180,8 @@ type PriorDayTradeMessage = unit {
 };
 
 type PriorDayTradeDateAndTime = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    seconds: uint32 &convert=time($$);
+    nanoseconds: uint32 &convert=interval_ns($$);
 };
 
 type FractionalPriorDayTradeMessage = unit {
@@ -254,8 +254,8 @@ type TradeCorrectionMessage = unit {
 };
 
 type Timestamp2 = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    seconds: uint32 &convert=time($$);
+    nanoseconds: uint32 &convert=interval_ns($$);
 };
 
 type FractionalTradeCorrectionMessage = unit {

@@ -15,7 +15,7 @@ type PacketHeader = unit {
     session: uint16;
     sequence: uint32;
     number_of_msgs: uint16;
-    sent_date_time: uint64;
+    sent_date_time: uint64 &convert=time_ns($$);
 };
 
 type Message = unit {
@@ -86,8 +86,8 @@ type MarketSnapshotMessage = unit {
     num_of_book_entries: int32;
     last_trade_price: int64;
     last_trade_quantity: int32;
-    last_trade_date_time: int64;
-    settle_price_date_time: int64;
+    last_trade_date_time: int64 &convert=time($$ / 1000.0);
+    settle_price_date_time: int64 &convert=time($$ / 1000.0);
     last_message_sequence_id: int32;
     : skip bytes &size=2;   # padding
     open_interest_date: bytes &size=10;
@@ -104,7 +104,7 @@ type TradeMessage = unit {
     price: int64;
     quantity: int32;
     old_off_market_trade_type: bytes &size=1;
-    transact_date_time: int64;
+    transact_date_time: int64 &convert=time($$ / 1000.0);
     system_priced_leg_type: uint8 &convert=SystemPricedLegType($$);
     is_implied_spread_at_market_open: bytes &size=1;
     is_adjusted_trade: bytes &size=1;
@@ -120,7 +120,7 @@ type TradeMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     off_market_trade_type: bytes &size=3;
     sequence_within_millis: int32;
-    request_trading_engine_received_timestamp: int64;
+    request_trading_engine_received_timestamp: int64 &convert=time_ns($$);
 };
 
 type SpotMarketTradeMessage = unit {
@@ -128,10 +128,10 @@ type SpotMarketTradeMessage = unit {
     trade_id: int64;
     price: int64;
     quantity: int32;
-    transact_date_time: int64;
+    transact_date_time: int64 &convert=time($$ / 1000.0);
     extra_flags: int8;
-    delivery_begin_date_time: int64;
-    delivery_end_date_time: int64;
+    delivery_begin_date_time: int64 &convert=time($$ / 1000.0);
+    delivery_end_date_time: int64 &convert=time($$ / 1000.0);
     is_system_priced_leg: uint8 &convert=IsSystemPricedLeg($$);
 };
 
@@ -141,7 +141,7 @@ type InvestigatedTradeMessage = unit {
     price: int64;
     quantity: int32;
     old_off_market_trade_type: bytes &size=1;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     investigation_status: uint8 &convert=InvestigationStatus($$);
     off_market_trade_type: bytes &size=3;
 };
@@ -152,7 +152,7 @@ type CancelledTradeMessage = unit {
     price: int64;
     quantity: int32;
     old_off_market_trade_type: bytes &size=1;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     off_market_trade_type: bytes &size=3;
 };
 
@@ -165,18 +165,18 @@ type MarketStatisticsMessage = unit {
     high: int64;
     low: int64;
     vwap: int64;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
 };
 
 type MarketStateChangeMessage = unit {
     market_id: int32;
     trading_status: uint8 &convert=TradingStatus($$);
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
 };
 
 type SystemTextMessage = unit {
     text_message: bytes &size=200;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     text_message_extra_fld: bytes &size=800;
 };
 
@@ -184,28 +184,28 @@ type OpenInterestMessage = unit {
     market_id: int32;
     open_interest: int32;
     open_interest_change: int32;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     open_interest_date: bytes &size=10;
 };
 
 type OpenPriceMessage = unit {
     market_id: int32;
     open_price: int64;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
 };
 
 type ClosePriceMessage = unit {
     market_id: int32;
     close_price: int64;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
 };
 
 type SettlementPriceMessage = unit {
     market_id: int32;
     settlement_price_with_deal_price_precision: int64;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     is_official: uint8 &convert=IsOfficial($$);
-    valuation_date_time: int64;
+    valuation_date_time: int64 &convert=time($$ / 1000.0);
     settlement_price: int64;
 };
 
@@ -213,7 +213,7 @@ type IndexPricesMessage = unit {
     market_id: int32;
     price: int64;
     short_name: bytes &size=30;
-    published_date_time: int64;
+    published_date_time: int64 &convert=time($$ / 1000.0);
     valuation_date_applying_date: bytes &size=10;
     endex_status: uint8 &convert=EndexStatus($$);
     alt_market_id: int32;
@@ -232,20 +232,20 @@ type EndOfDayMarketSummaryMessage = unit {
     vwap: int64;
     settlement_price_with_deal_price_precision: int64;
     open_interest: int32;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     settlement_price: int64;
 };
 
 type MarketEventMessage = unit {
     market_id: int32;
     event_type: uint8 &convert=EventType($$);
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
 };
 
 type PreOpenPriceIndicatorMessage = unit {
     market_id: int32;
     pre_open_price: int64;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     has_pre_open_volume: bytes &size=1;
     pre_open_volume: int32;
 };
@@ -266,7 +266,7 @@ type StripInfoMessage = unit {
 type IntervalPriceLimitNotificationMessage = unit {
     market_id: int32;
     ipl_tpl_hold_type: bytes &size=1;
-    notification_date_time: int64;
+    notification_date_time: int64 &convert=time($$ / 1000.0);
     is_up: uint8 &convert=IsUp($$);
     ipl_tpl_hold_duration: int32;
     ipl_tpl_up: int64;
@@ -543,16 +543,16 @@ type NewOptionsMarketDefinitionMessage = unit {
 type OptionOpenInterestMessage = unit {
     market_id: int32;
     open_interest: int32;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     open_interest_date: bytes &size=10;
 };
 
 type OptionSettlementPriceMessage = unit {
     market_id: int32;
     settlement_price_with_deal_price_precision: int64;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     is_official: uint8 &convert=IsOfficial($$);
-    valuation_date_time: int64;
+    valuation_date_time: int64 &convert=time($$ / 1000.0);
     volatility: int64;
     settlement_price: int64;
     delta: int64;
@@ -567,7 +567,7 @@ type MarketSnapshotOrderMessage = unit {
     quantity: int32;
     is_implied: uint8 &convert=IsImplied($$);
     is_rfq: uint8 &convert=IsRfq($$);
-    order_entry_date_time: int64;
+    order_entry_date_time: int64 &convert=time($$ / 1000.0);
     sequence_within_millis: int32;
 };
 
@@ -580,22 +580,22 @@ type AddOrModifyOrderMessage = unit {
     quantity: int32;
     is_implied: uint8 &convert=IsImplied($$);
     is_rfq: uint8 &convert=IsRfq($$);
-    order_entry_date_time: int64;
+    order_entry_date_time: int64 &convert=time($$ / 1000.0);
     modify_flags: bitfield(8) {
         is_modify_order: 0;
         unused_7: 1..7;
     } &byte-order=spicy::ByteOrder::Little;
     sequence_within_millis: int32;
-    modification_timestamp: int64;
-    request_trading_engine_received_timestamp: int64;
+    modification_timestamp: int64 &convert=time_ns($$);
+    request_trading_engine_received_timestamp: int64 &convert=time_ns($$);
 };
 
 type DeleteOrderMessage = unit {
     market_id: int32;
     order_id: int64;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     sequence_within_millis: int32;
-    request_trading_engine_received_timestamp: int64;
+    request_trading_engine_received_timestamp: int64 &convert=time_ns($$);
 };
 
 type MessageBundleMarker = unit {
@@ -607,16 +607,16 @@ type MessageBundleMarker = unit {
 type FixingTransitionMessage = unit {
     market_id: int32;
     fixing_status: uint8 &convert=FixingStatus($$);
-    auction_end_time: int64;
+    auction_end_time: int64 &convert=time($$ / 1000.0);
     threshold_imbalance_qty: int32;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     num_decimals_quantity: int8;
 };
 
 type FixingLockdownMessage = unit {
     market_id: int32;
     auction_date: bytes &size=10;
-    message_date_time: int64;
+    message_date_time: int64 &convert=time($$ / 1000.0);
     description: bytes &size=20;
     round: int16;
     agg_bid_qty: int32;
@@ -658,7 +658,7 @@ type AddPriceLevelMessage = unit {
     order_count: int16;
     implied_quantity: int32;
     implied_order_count: int16;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
 };
 
 type ChangePriceLevelMessage = unit {
@@ -670,19 +670,19 @@ type ChangePriceLevelMessage = unit {
     order_count: int16;
     implied_quantity: int32;
     implied_order_count: int16;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
 };
 
 type DeletePriceLevelMessage = unit {
     market_id: int32;
     side: uint8 &convert=Side($$);
     price_level_position: int8;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
 };
 
 type RfqMessage = unit {
     market_id: int32;
-    message_timestamp: int64;
+    message_timestamp: int64 &convert=time($$ / 1000.0);
     rfq_system_id: int64;
     market_type_id: int16 &convert=MarketTypeId($$);
     underlying_market_id: int32;

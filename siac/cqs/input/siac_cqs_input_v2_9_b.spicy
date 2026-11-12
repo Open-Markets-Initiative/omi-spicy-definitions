@@ -24,23 +24,23 @@ type BlockHeader = unit {
 type Message = unit {
     message_header: MessageHeader;
     switch ( self.message_header ) {
-        0x4152 -> rejection_message: RejectionMessage;
-        0x4150 -> partial_rejection_message: PartialRejectionMessage;
-        0x4157 -> warning_message: WarningMessage;
-        0x434e -> sequence_information_and_message_count_response_message: SequenceInformationAndMessageCountResponseMessage;
-        0x4352 -> odd_lot_refresh_request_message: OddLotRefreshRequestMessage;
-        0x4335 -> test_message: TestMessage;
-        0x5141 -> auction_status_message: AuctionStatusMessage;
-        0x5151 -> short_quote_message: ShortQuoteMessage;
-        0x514c -> long_quote_message: LongQuoteMessage;
-        0x5153 -> special_long_quote_message: SpecialLongQuoteMessage;
-        0x5150 -> round_lot_short_quote_message: RoundLotShortQuoteMessage;
-        0x514b -> round_lot_long_quote_message: RoundLotLongQuoteMessage;
-        0x5155 -> round_lot_finra_adf_quote_message: RoundLotFinraAdfQuoteMessage;
-        0x5152 -> odd_lot_short_quote_message: OddLotShortQuoteMessage;
-        0x514d -> odd_lot_long_quote_message: OddLotLongQuoteMessage;
-        0x5154 -> odd_lot_finra_adf_quote_message: OddLotFinraAdfQuoteMessage;
-        0x5453 -> trading_status_message: TradingStatusMessage;
+        b"0x4152" -> rejection_message: RejectionMessage;
+        b"0x4150" -> partial_rejection_message: PartialRejectionMessage;
+        b"0x4157" -> warning_message: WarningMessage;
+        b"0x434E" -> sequence_information_and_message_count_response_message: SequenceInformationAndMessageCountResponseMessage;
+        b"0x4352" -> odd_lot_refresh_request_message: OddLotRefreshRequestMessage;
+        b"0x4335" -> test_message: TestMessage;
+        b"0x5141" -> auction_status_message: AuctionStatusMessage;
+        b"0x5151" -> short_quote_message: ShortQuoteMessage;
+        b"0x514C" -> long_quote_message: LongQuoteMessage;
+        b"0x5153" -> special_long_quote_message: SpecialLongQuoteMessage;
+        b"0x5150" -> round_lot_short_quote_message: RoundLotShortQuoteMessage;
+        b"0x514B" -> round_lot_long_quote_message: RoundLotLongQuoteMessage;
+        b"0x5155" -> round_lot_finra_adf_quote_message: RoundLotFinraAdfQuoteMessage;
+        b"0x5152" -> odd_lot_short_quote_message: OddLotShortQuoteMessage;
+        b"0x514D" -> odd_lot_long_quote_message: OddLotLongQuoteMessage;
+        b"0x5154" -> odd_lot_finra_adf_quote_message: OddLotFinraAdfQuoteMessage;
+        b"0x5453" -> trading_status_message: TradingStatusMessage;
         * -> unknown: bytes &eod;
     };
 };
@@ -57,8 +57,8 @@ type MessageHeader = unit {
 };
 
 type Timestamp1 = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    seconds: uint32 &convert=time($$);
+    nanoseconds: uint32 &convert=interval_ns($$);
 };
 
 type RejectionMessage = unit {
@@ -175,8 +175,8 @@ type LongQuoteMessage = unit {
 };
 
 type Timestamp2 = unit {
-    seconds: uint32;
-    nanoseconds: uint32;
+    seconds: uint32 &convert=time($$);
+    nanoseconds: uint32 &convert=interval_ns($$);
 };
 
 type SpecialLongQuoteMessage = unit {

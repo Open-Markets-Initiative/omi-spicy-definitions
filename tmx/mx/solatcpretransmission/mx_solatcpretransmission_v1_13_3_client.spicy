@@ -13,9 +13,9 @@ public type MxSolatcpretransmissionV1133 = unit {
 type ClientSolaFrame = unit {
     sola_message_start: uint8;
     client_message_header: ClientMessageHeader;
-    switch ( self.client_message_header.client_message_type ) {
-        0 -> login_message: LoginMessage;
-        0 -> retransmission_request_message: RetransmissionRequestMessage;
+    switch ( self.client_message_header.client_message_type.strip() ) {
+        b"LI" -> login_message: LoginMessage;
+        b"RT" -> retransmission_request_message: RetransmissionRequestMessage;
         * -> unknown: bytes &eod;
     };
     sola_message_end: uint8;

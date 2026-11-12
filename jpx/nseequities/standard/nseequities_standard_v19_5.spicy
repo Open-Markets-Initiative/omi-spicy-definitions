@@ -20,9 +20,9 @@ type ServiceHeader = unit {
     exchange_code: uint8 &convert=ExchangeCode($$);
     session_distinction: bytes &size=2;
     issue_classification: IssueClassification;
-    switch ( self.issue_classification.issue_classification_large_classification ) {
-        IssueClassificationLargeClassification::Stockrelated -> stock_issue_code: StockIssueCode;
-        IssueClassificationLargeClassification::Cbrelated -> cb_issue_code: CbIssueCode;
+    switch ( self.issue_classification.issue_classification_large_classification.strip() ) {
+        b"01" -> stock_issue_code: StockIssueCode;
+        b"02" -> cb_issue_code: CbIssueCode;
         * -> unknown: bytes &eod;
     };
 };
@@ -57,28 +57,28 @@ type CbIssueCode = unit {
 
 type TagInformation = unit {
     tag_id: bytes &size=2;
-    switch ( self.tag_id ) {
-        0 -> update_no_message: UpdateNoMessage;
-        0 -> status_information_message: StatusInformationMessage;
-        0 -> open_high_low_and_current_price_message: OpenHighLowAndCurrentPriceMessage;
-        0 -> quote_1_message: Quote1Message;
-        0 -> quote_2_message: Quote2Message;
-        0 -> quote_3_message: Quote3Message;
-        0 -> quote_4_message: Quote4Message;
-        0 -> quote_5_message: Quote5Message;
-        0 -> quote_6_message: Quote6Message;
-        0 -> quote_7_message: Quote7Message;
-        0 -> quote_8_message: Quote8Message;
-        0 -> quote_9_message: Quote9Message;
-        0 -> quote_10_message: Quote10Message;
-        0 -> market_order_message: MarketOrderMessage;
-        0 -> over_under_message: OverUnderMessage;
-        0 -> trading_volume_message: TradingVolumeMessage;
-        0 -> turnover_message: TurnoverMessage;
-        0 -> vwap_message: VwapMessage;
-        0 -> parity_message: ParityMessage;
-        0 -> yield_message: YieldMessage;
-        0 -> control_message: ControlMessage;
+    switch ( self.tag_id.strip() ) {
+        b"NO" -> update_no_message: UpdateNoMessage;
+        b"ST" -> status_information_message: StatusInformationMessage;
+        b"4P" -> open_high_low_and_current_price_message: OpenHighLowAndCurrentPriceMessage;
+        b"Q1" -> quote_1_message: Quote1Message;
+        b"Q2" -> quote_2_message: Quote2Message;
+        b"Q3" -> quote_3_message: Quote3Message;
+        b"Q4" -> quote_4_message: Quote4Message;
+        b"Q5" -> quote_5_message: Quote5Message;
+        b"Q6" -> quote_6_message: Quote6Message;
+        b"Q7" -> quote_7_message: Quote7Message;
+        b"Q8" -> quote_8_message: Quote8Message;
+        b"Q9" -> quote_9_message: Quote9Message;
+        b"QA" -> quote_10_message: Quote10Message;
+        b"QM" -> market_order_message: MarketOrderMessage;
+        b"QO" -> over_under_message: OverUnderMessage;
+        b"VL" -> trading_volume_message: TradingVolumeMessage;
+        b"VA" -> turnover_message: TurnoverMessage;
+        b"VW" -> vwap_message: VwapMessage;
+        b"PA" -> parity_message: ParityMessage;
+        b"YI" -> yield_message: YieldMessage;
+        b"LC" -> control_message: ControlMessage;
         * -> unknown: bytes &eod;
     };
     separation_of_tag: uint8 &convert=SeparationOfTag($$);

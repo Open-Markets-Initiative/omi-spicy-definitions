@@ -32,8 +32,8 @@ type Metadata = unit {
     metadata_length: uint32;
     dataset: bytes &size=16;
     schema: uint16 &convert=Schema($$);
-    start: uint64;
-    end_field: uint64;
+    start: uint64 &convert=time_ns($$);
+    end_field: uint64 &convert=time_ns($$);
     limit: uint64;
     stype_in: uint8 &convert=StypeIn($$);
     stype_out: uint8 &convert=StypeOut($$);
@@ -93,7 +93,7 @@ type Record = unit {
         Rtype::Bbo1Minute -> bbo_msg: BboMsg;
         * -> unknown: bytes &eod;
     };
-    ts_out_time: uint64;
+    ts_out_time: uint64 &convert=time_ns($$);
 };
 
 type RecordHeader = unit {
@@ -101,7 +101,7 @@ type RecordHeader = unit {
     rtype: uint8 &convert=Rtype($$);
     publisher_id: uint16;
     instrument_id: uint32;
-    ts_event: uint64;
+    ts_event: uint64 &convert=time_ns($$);
 };
 
 type TradeMsg = unit {
@@ -120,7 +120,7 @@ type TradeMsg = unit {
         last: 7;
     } &byte-order=spicy::ByteOrder::Little;
     depth: uint8;
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     ts_in_delta: int32;
     sequence: uint32;
 };
@@ -141,7 +141,7 @@ type Mbp1Msg = unit {
         last: 7;
     } &byte-order=spicy::ByteOrder::Little;
     depth: uint8;
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     ts_in_delta: int32;
     sequence: uint32;
     bid_ask_pair: BidAskPair;
@@ -172,7 +172,7 @@ type Mbp10Msg = unit {
         last: 7;
     } &byte-order=spicy::ByteOrder::Little;
     depth: uint8;
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     ts_in_delta: int32;
     sequence: uint32;
     bid_ask_pair: BidAskPair[10];
@@ -187,7 +187,7 @@ type OhlcvMsg = unit {
 };
 
 type StatusMsg = unit {
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     status_action: uint16 &convert=StatusAction($$);
     status_reason: uint16 &convert=StatusReason($$);
     trading_event: uint16 &convert=TradingEvent($$);
@@ -198,11 +198,11 @@ type StatusMsg = unit {
 };
 
 type InstrumentDefMsg = unit {
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     min_price_increment: int64;
     display_factor: int64;
-    expiration: uint64;
-    activation: uint64;
+    expiration: uint64 &convert=time_ns($$);
+    activation: uint64 &convert=time_ns($$);
     high_limit_price: int64;
     low_limit_price: int64;
     max_price_variation: int64;
@@ -271,9 +271,9 @@ type InstrumentDefMsg = unit {
 };
 
 type ImbalanceMsg = unit {
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     ref_price: int64;
-    auction_time: uint64;
+    auction_time: uint64 &convert=time_ns($$);
     cont_book_clr_price: int64;
     auct_interest_clr_price: int64;
     ssr_filling_price: int64;
@@ -305,8 +305,8 @@ type SymbolMappingMsg = unit {
     stype_in_symbol: bytes &size=71;
     stype_out: uint8 &convert=StypeOut($$);
     stype_out_symbol: bytes &size=71;
-    start_ts: uint64;
-    end_ts: uint64;
+    start_ts: uint64 &convert=time_ns($$);
+    end_ts: uint64 &convert=time_ns($$);
 };
 
 type SystemMsg = unit {
@@ -315,8 +315,8 @@ type SystemMsg = unit {
 };
 
 type StatMsg = unit {
-    ts_recv: uint64;
-    ts_ref: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
+    ts_ref: uint64 &convert=time_ns($$);
     price: int64;
     quantity: int64;
     sequence: uint32;
@@ -345,7 +345,7 @@ type MboMsg = unit {
     channel_id: uint8;
     action: uint8 &convert=Action($$);
     side: uint8 &convert=Side($$);
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     ts_in_delta: int32;
     sequence: uint32;
 };
@@ -366,7 +366,7 @@ type Cmbp1Msg = unit {
         last: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     ts_in_delta: int32;
     : skip bytes &size=4;   # padding
     consolidated_bid_ask_pair: ConsolidatedBidAskPair;
@@ -399,7 +399,7 @@ type CbboMsg = unit {
         last: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     : skip bytes &size=8;   # padding
     consolidated_bid_ask_pair: ConsolidatedBidAskPair;
 };
@@ -420,7 +420,7 @@ type BboMsg = unit {
         last: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
-    ts_recv: uint64;
+    ts_recv: uint64 &convert=time_ns($$);
     : skip bytes &size=4;   # padding
     sequence: uint32;
     bid_ask_pair: BidAskPair;

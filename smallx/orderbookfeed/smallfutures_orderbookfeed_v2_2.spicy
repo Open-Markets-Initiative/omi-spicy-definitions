@@ -56,7 +56,7 @@ type MessageHeader = unit {
 type InstrumentTradingStatusIncrementalMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -74,7 +74,7 @@ type InstrumentTradingStatusIncrementalMessage = unit {
 type TradesIncrementalMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -89,7 +89,7 @@ type TradesIncrementalMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     last_trade_price: int64;
     last_trade_size: int64;
-    last_trade_time_timestamp_optional: int64;
+    last_trade_time_timestamp_optional: int64 &convert=time_ns($$);
     total_volume_quantity: int64;
     incremental_trade_groups: IncrementalTradeGroups;
 };
@@ -121,7 +121,7 @@ type IncrementalTradeGroup = unit {
 type TradeCorrectMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -136,7 +136,7 @@ type TradeCorrectMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     last_trade_price: int64;
     last_trade_size: int64;
-    last_trade_time_timestamp_optional: int64;
+    last_trade_time_timestamp_optional: int64 &convert=time_ns($$);
     total_volume_quantity: int64;
     trade_correct_groups: TradeCorrectGroups;
 };
@@ -149,7 +149,7 @@ type TradeCorrectGroups = unit {
 type TradeCorrectGroup = unit {
     trade_update_action: uint8 &convert=TradeUpdateAction($$);
     trade_id: int64;
-    time_field: int64;
+    time_field: int64 &convert=time_ns($$);
     price: int64;
     size: int64;
     aggressor_side: uint8 &convert=AggressorSide($$);
@@ -165,7 +165,7 @@ type TradeCorrectGroup = unit {
 type TradeBustMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -180,7 +180,7 @@ type TradeBustMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     last_trade_price: int64;
     last_trade_size: int64;
-    last_trade_time_timestamp_optional: int64;
+    last_trade_time_timestamp_optional: int64 &convert=time_ns($$);
     total_volume_quantity: int64;
     trade_bust_groups: TradeBustGroups;
 };
@@ -192,7 +192,7 @@ type TradeBustGroups = unit {
 
 type TradeBustGroup = unit {
     trade_id: int64;
-    time_field: int64;
+    time_field: int64 &convert=time_ns($$);
     price: int64;
     size: int64;
     aggressor_side: uint8 &convert=AggressorSide($$);
@@ -208,7 +208,7 @@ type TradeBustGroup = unit {
 type OrderBookIncrementalMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -246,7 +246,7 @@ type IncrementalOrdersGroup = unit {
 type MarketSummaryIncrementalMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -272,7 +272,7 @@ type MarketSummaryIncrementalMessage = unit {
 type OrderBookSnapshotMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     snapshot_message_instructions: bitfield(16) {
@@ -307,13 +307,13 @@ type SnapshotOrdersGroup = unit {
         implied: 0;
         reserved_15: 1..15;
     } &byte-order=spicy::ByteOrder::Little;
-    time_field: int64;
+    time_field: int64 &convert=time_ns($$);
 };
 
 type MarketSummarySnapshotMessage = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     snapshot_message_instructions: bitfield(16) {
@@ -332,7 +332,7 @@ type MarketSummarySnapshotMessage = unit {
     last_incremental_message_seq: int64;
     last_trade_price: int64;
     last_trade_size: int64;
-    last_trade_time_timestamp: int64;
+    last_trade_time_timestamp: int64 &convert=time_ns($$);
     total_volume_quantity_optional: int64;
     open_price: int64;
     open_price_type: uint8 &convert=OpenPriceType($$);
@@ -346,7 +346,7 @@ type MarketSummarySnapshotMessage = unit {
 
 type IndexValueSnapshotMessage = unit {
     instrument_id: int32;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     snapshot_message_instructions: bitfield(16) {
         unused_snapshot_message_instructions_0: 0;
         unused_snapshot_message_instructions_1: 1;
@@ -372,7 +372,7 @@ type IndexValueSnapshotMessage = unit {
 type SingleInstrumentDefinitionIncrementalV2Message = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -411,7 +411,7 @@ type SingleInstrumentDefinitionIncrementalV2Message = unit {
 type MultilegDefinitionIncrementalV2Message = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     incremental_message_instructions: bitfield(16) {
@@ -456,7 +456,7 @@ type LegsGroup = unit {
 type SingleInstrumentDefinitionSnapshotV2Message = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     snapshot_message_instructions: bitfield(16) {
@@ -498,7 +498,7 @@ type SingleInstrumentDefinitionSnapshotV2Message = unit {
 type MultilegDefinitionSnapshotV2Message = unit {
     instrument_id: int32;
     instrument_message_no: int64;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     trading_session_date: uint16;
     instrument_trading_status: uint8 &convert=InstrumentTradingStatus($$);
     snapshot_message_instructions: bitfield(16) {

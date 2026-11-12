@@ -52,7 +52,7 @@ type MessageHeader = unit {
 
 type ClassStateChangeMessage = unit {
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     system_id: uint32 &convert=SystemId($$);
     source_time_micro_secs: uint16;
     instrument_group_code: bytes &size=3;
@@ -64,7 +64,7 @@ type ClassStateChangeMessage = unit {
 
 type MailMessage = unit {
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     system_id: uint32 &convert=SystemId($$);
     source_time_micro_secs: uint16;
     scope: bytes &size=1;
@@ -76,7 +76,7 @@ type MailMessage = unit {
 type CollarsMessage = unit {
     symbol_index: uint32;
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     high_collar: uint32;
     low_collar: uint32;
     system_id: uint32 &convert=SystemId($$);
@@ -89,7 +89,7 @@ type CollarsMessage = unit {
 
 type SessionTimetableMessage = unit {
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     system_id: uint32 &convert=SystemId($$);
     source_time_micro_secs: uint16;
     instrument_group_code: bytes &size=3;
@@ -116,7 +116,7 @@ type EndReferentialMessage = unit {
 type ReferentialMessage = unit {
     symbol_index: uint32;
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     last_adj_price: uint32;
     system_id: uint32 &convert=SystemId($$);
     prev_volume_traded: uint32;
@@ -212,7 +212,7 @@ type DepositaryList = unit {
 
 type SessionSummaryMessage = unit {
     symbol_index: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     source_seq_num: uint32;
     date_binary_int_4: uint32;
     multiplier: uint32;
@@ -320,7 +320,7 @@ type SessionSummaryMessage = unit {
 type InstrumentStateChangeMessage = unit {
     symbol_index: uint32;
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     system_id: uint32 &convert=SystemId($$);
     source_time_micro_secs: uint16;
     : skip bytes &size=2;   # padding
@@ -340,7 +340,7 @@ type InstrumentStateChangeMessage = unit {
 type IndicativeMatchingPriceMessage = unit {
     symbol_index: uint32;
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     im_price: uint32;
     variation: uint32;
     system_id: uint32 &convert=SystemId($$);
@@ -353,7 +353,7 @@ type IndicativeMatchingPriceMessage = unit {
 type ShortSaleChangeMessage = unit {
     symbol_index: uint32;
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     system_id: uint32 &convert=SystemId($$);
     source_time_micro_secs: uint16;
     text_ascii_ch_100: bytes &size=100;
@@ -365,7 +365,7 @@ type ShortSaleChangeMessage = unit {
 
 type GenericWseMessage = unit {
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     system_id: uint32 &convert=SystemId($$);
     source_time_micro_secs: uint16;
     source_data: bytes &size=1;
@@ -377,11 +377,11 @@ type GenericWseMessage = unit {
     language_version: uint8 &convert=LanguageVersion($$);
     type_off_recipient: bytes &size=1;
     msg_serial_num: bytes &size=1;
-    switch ( self.internal_msg_type ) {
-        InternalMsgType::TreasuryBondFuturesData -> treasury_bond_futures_data: TreasuryBondFuturesData;
-        InternalMsgType::Kid -> kid: Kid;
-        InternalMsgType::StressedMarketConditions -> market_conditions: MarketConditions;
-        InternalMsgType::ExceptionalMarketConditions -> market_conditions: MarketConditions;
+    switch ( self.internal_msg_type.strip() ) {
+        b"02" -> treasury_bond_futures_data: TreasuryBondFuturesData;
+        b"03" -> kid: Kid;
+        b"04" -> market_conditions: MarketConditions;
+        b"05" -> market_conditions: MarketConditions;
         * -> unknown: bytes &eod;
     };
 };
@@ -425,7 +425,7 @@ type MarketConditions = unit {
 type OpenPositionMessage = unit {
     symbol_index: uint32;
     source_seq_num: uint32;
-    source_time: uint32;
+    source_time: uint32 &convert=interval($$ / 1000.0);
     trading_date: bytes &size=8;
     open_position: uint32;
     transaction_number: uint32;

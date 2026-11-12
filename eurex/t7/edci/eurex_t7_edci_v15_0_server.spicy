@@ -51,7 +51,7 @@ type CrossRequestNotification = unit {
     rbc_header_comp: RbcHeaderComp;
     security_id: int64;
     order_qty: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     party_id_session_id: uint32;
     party_id_executing_trader: uint32;
@@ -59,7 +59,7 @@ type CrossRequestNotification = unit {
 };
 
 type RbcHeaderComp = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     appl_seq_num: uint64;
     party_id_executing_unit: uint32;
     party_id_group: uint32;
@@ -73,7 +73,7 @@ type RbcHeaderComp = unit {
 type DeleteOrderBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     no_affected_orders: uint16;
     : skip bytes &size=2;   # padding
@@ -100,7 +100,7 @@ type EnterClipRequestNotification = unit {
     security_id: int64;
     price: int64;
     order_qty: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     cross_id: int32;
     party_id_session_id: uint32;
@@ -144,7 +144,7 @@ type ForcedLogoutNotification = unit {
 };
 
 type NotifHeaderComp = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type HeartbeatNotification = unit {
@@ -155,7 +155,7 @@ type HeartbeatNotification = unit {
 type LegalNotificationBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     var_text_len: uint16;
     user_status: uint8 &convert=UserStatus($$);
     var_text: bytes &size=self.var_text_len;
@@ -175,8 +175,8 @@ type LogonResponse = unit {
 };
 
 type ResponseHeaderComp = unit {
-    request_time: uint64;
-    sending_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    sending_time: uint64 &convert=time_ns($$);
     msg_seq_num: uint32;
     last_fragment: uint8 &convert=LastFragment($$);
     : skip bytes &size=3;   # padding
@@ -194,7 +194,7 @@ type OrderExecReportBroadcast = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     price: int64;
     stop_px: int64;
     leaves_qty: int64;
@@ -271,7 +271,7 @@ type PartitionGrpComp = unit {
 type PartyActionReport = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     trade_date: uint32;
     requesting_party_id_executing_trader: uint32;
     party_id_executing_unit: uint32;
@@ -288,7 +288,7 @@ type PartyActionReport = unit {
 type PartyEntitlementsUpdateReport = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     trade_date: uint32;
     party_detail_id_executing_unit: uint32;
     requesting_party_id_executing_system: uint32 &convert=RequestingPartyIdExecutingSystem($$);
@@ -324,7 +324,7 @@ type RfqNotification = unit {
     rbc_header_comp: RbcHeaderComp;
     security_id: int64;
     order_qty: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     party_id_session_id: uint32;
     party_id_executing_trader: uint32;
@@ -335,7 +335,7 @@ type RfqNotification = unit {
 type RiskNotificationBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     trade_date: uint32;
     party_detail_id_executing_unit: uint32;
     target_party_id_executing_unit: uint32;

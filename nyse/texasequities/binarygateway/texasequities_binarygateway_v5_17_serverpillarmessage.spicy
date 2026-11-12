@@ -62,7 +62,7 @@ type ServerSeqMsg = unit {
     msg_header: MsgHeader;
     seq_msg_id: SeqMsgId;
     : skip bytes &size=4;   # padding
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     seq_msg_header: SeqMsgHeader;
     switch ( self.seq_msg_header.seq_msg_type ) {
         SeqMsgType::EquitiesSymbolReferenceDataMessage -> equities_symbol_reference_data_message: EquitiesSymbolReferenceDataMessage;
@@ -101,7 +101,7 @@ type SeqMsgHeader = unit {
 };
 
 type EquitiesSymbolReferenceDataMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     nyse_symbol: bytes &size=24;
     listed_mic: bytes &size=4;
@@ -113,7 +113,7 @@ type EquitiesSymbolReferenceDataMessage = unit {
 };
 
 type DmmSymbolReferenceDataMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     nyse_symbol: bytes &size=24;
     book: bytes &size=8;
@@ -132,7 +132,7 @@ type DmmSymbolReferenceDataMessage = unit {
 };
 
 type MinimumPriceVariantClassReferenceDataMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     mpv_class_name: bytes &size=20;
     mpv_class_id: uint16;
     rpimpv: int64;
@@ -140,7 +140,7 @@ type MinimumPriceVariantClassReferenceDataMessage = unit {
 };
 
 type MinimumPriceVariantLevelReferenceDataMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     mpv_level_definition: MpvLevelDefinition[] &eod;
 };
 
@@ -153,7 +153,7 @@ type MpvLevelDefinition = unit {
 };
 
 type MpidConfigurationMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     mpid_status: uint8 &convert=MpidStatus($$);
     mpid: bytes &size=4;
     username: bytes &size=16;
@@ -161,7 +161,7 @@ type MpidConfigurationMessage = unit {
 };
 
 type MmidConfigurationMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     market_maker: bytes &size=10;
     mmid: uint32;
     username: bytes &size=16;
@@ -169,7 +169,7 @@ type MmidConfigurationMessage = unit {
 };
 
 type SessionConfigurationAcknowledgementMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     user_session_type: uint8 &convert=UserSessionType($$);
     user_session_status: uint8 &convert=UserSessionStatus($$);
     username: bytes &size=16;
@@ -188,7 +188,7 @@ type SessionConfigurationAcknowledgementMessage = unit {
 };
 
 type OrderAndCancelReplaceAcknowledgementMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     mpid: bytes &size=4;
     mmid: uint32;
@@ -242,7 +242,7 @@ type OptionalOrderAddOn = unit {
     locate_broker: bytes &size=4;
     : skip bytes &size=8;   # padding
     offset_price: int64;
-    effective_time: uint64;
+    effective_time: uint64 &convert=time_ns($$);
 };
 
 type SubMsgHeader = unit {
@@ -262,7 +262,7 @@ type OptionalSettlementTypeAddOn = unit {
 };
 
 type OrderModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     mpid: bytes &size=4;
     order_id: uint64;
@@ -283,7 +283,7 @@ type OrderModifyCancelRequestAcknowledgmentAndUroutMessage = unit {
 };
 
 type OrderPriorityUpdateAcknowledgmentMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     mpid: bytes &size=4;
     order_id: uint64;
@@ -297,7 +297,7 @@ type OrderPriorityUpdateAcknowledgmentMessage = unit {
 };
 
 type ExecutionReportMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     mpid: bytes &size=4;
     order_id: uint64;
@@ -317,7 +317,7 @@ type ExecutionReportMessage = unit {
 };
 
 type TradeBustCorrectMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     mpid: bytes &size=4;
     order_id: uint64;
@@ -336,7 +336,7 @@ type RefSeqMsgId = unit {
 };
 
 type ApplicationLayerRejectMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     mpid: bytes &size=4;
     cl_ord_id: uint64;
@@ -347,22 +347,22 @@ type ApplicationLayerRejectMessage = unit {
 };
 
 type SymbolSubscriptionAcknowledgementMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     username: bytes &size=16;
     subscription_status: uint8 &convert=SubscriptionStatus($$);
 };
 
 type GtBeginMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
 };
 
 type GtEndMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
 };
 
 type AuctionPriceDataMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     imbalance_side: uint8 &convert=ImbalanceSide($$);
     side_of_unpaired_qty: uint8 &convert=SideOfUnpairedQty($$);
@@ -375,14 +375,14 @@ type AuctionPriceDataMessage = unit {
 };
 
 type AuctionRequestMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     auction_type: uint8 &convert=AuctionType($$);
     ssr_filing_price: int64;
 };
 
 type ManualActionRequestMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     introducing_badge_id: bytes &size=4;
     mpid: bytes &size=4;

@@ -16,7 +16,7 @@ type PacketHeader = unit {
     msg_count: uint8;
     filler: bytes &size=1;
     seq_num: uint32;
-    send_time: uint64;
+    send_time: uint64 &convert=time_ns($$);
 };
 
 type Message = unit {
@@ -43,14 +43,14 @@ type SequenceResetMessage = unit {
 
 type MarketStateProductMessage = unit {
     trading_venue: bytes &size=2;
-    timeof_event: uint64;
+    timeof_event: uint64 &convert=time_ns($$);
     product_code: bytes &size=2;
     trading_state: uint8 &convert=TradingState($$);
     ring_session: bytes &size=2;
 };
 
 type MarketDataOrderMessage = unit {
-    timeof_event: uint64;
+    timeof_event: uint64 &convert=time_ns($$);
     tradable_instrument_id: uint64;
     trading_venue: bytes &size=2;
     ring_session: bytes &size=2;
@@ -72,7 +72,7 @@ type OrderLegs = unit {
 };
 
 type IndicativeTradePriceMessage = unit {
-    timeof_event: uint64;
+    timeof_event: uint64 &convert=time_ns($$);
     tradable_instrument_id: uint64;
     trading_venue: bytes &size=2;
     ring_session: bytes &size=2;
@@ -81,10 +81,10 @@ type IndicativeTradePriceMessage = unit {
 };
 
 type MarketDataTradeMessage = unit {
-    timeof_event: uint64;
+    timeof_event: uint64 &convert=time_ns($$);
     tradable_instrument_id: uint64;
     trading_venue: bytes &size=2;
-    matched_time: uint64;
+    matched_time: uint64 &convert=time_ns($$);
     ring_session: bytes &size=2;
     trade_cancel_flag: uint8 &convert=TradeCancelFlag($$);
     price: int64;

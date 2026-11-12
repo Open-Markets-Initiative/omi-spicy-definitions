@@ -71,7 +71,7 @@ type TradingSessionStatusMessage = unit {
         has_trading_session_status_regulatory_halt_reason: 1;
         reserved_6: 2..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     market_hours_state: int8 &convert=MarketHoursState($$);
     session_trading_state: int8 &convert=SessionTradingState($$);
     trading_session_status_operational_halt_reason: int8 &convert=TradingSessionStatusOperationalHaltReason($$);
@@ -79,7 +79,7 @@ type TradingSessionStatusMessage = unit {
 };
 
 type DefineSymbolMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     symbol: bytes &size=8;
     suffix: bytes &size=8;
@@ -98,7 +98,7 @@ type SymbolStatusMessage = unit {
         has_symbol_status_regulatory_halt_reason: 1;
         reserved_6: 2..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     symbol_trading_state: int8 &convert=SymbolTradingState($$);
     short_sale_restriction_state: int8 &convert=ShortSaleRestrictionState($$);
@@ -125,7 +125,7 @@ type LimitOrderAcceptedMessage = unit {
         has_limit_order_accepted_display_price: 14;
         reserved_17: 15..31;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     cl_ord_id: int64;
     order_qty: int32;
@@ -150,7 +150,7 @@ type LimitOrderAcceptedMessage = unit {
     limit_order_accepted_max_replenish_qty_range: int32;
     limit_order_accepted_max_replenish_time_range: int64;
     limit_order_accepted_reference_price_target: int16;
-    limit_order_accepted_expire_time: int64;
+    limit_order_accepted_expire_time: int64 &convert=time_ns($$);
     limit_order_accepted_user_data: int64;
     limit_order_accepted_mpid: bytes &size=4;
     limit_order_accepted_member_group: bytes &size=2;
@@ -176,7 +176,7 @@ type LimitOrderRejectedMessage = unit {
         has_limit_order_rejected_locate_broker: 12;
         reserved_19: 13..31;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     cl_ord_id: int64;
     order_qty: int32;
     limit_order_rejected_bit_fields: bitfield(32) {
@@ -201,7 +201,7 @@ type LimitOrderRejectedMessage = unit {
     limit_order_rejected_max_replenish_qty_range: int32;
     limit_order_rejected_max_replenish_time_range: int64;
     limit_order_rejected_reference_price_target: int16;
-    limit_order_rejected_expire_time: int64;
+    limit_order_rejected_expire_time: int64 &convert=time_ns($$);
     limit_order_rejected_user_data: int64;
     limit_order_rejected_mpid: bytes &size=4;
     limit_order_rejected_member_group: bytes &size=2;
@@ -218,7 +218,7 @@ type MarketOrderAcceptedMessage = unit {
         has_market_order_accepted_locate_broker: 5;
         reserved_10: 6..15;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     cl_ord_id: int64;
     order_qty: int32;
@@ -248,7 +248,7 @@ type MarketOrderRejectedMessage = unit {
         has_market_order_rejected_locate_broker: 5;
         reserved_10: 6..15;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     cl_ord_id: int64;
     order_qty: int32;
     market_order_rejected_bit_fields: bitfield(16) {
@@ -269,14 +269,14 @@ type MarketOrderRejectedMessage = unit {
 };
 
 type OrderCanceledMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     orig_cl_ord_id: int64;
     cancel_reason: int8 &convert=CancelReason($$);
 };
 
 type CancelRejectedMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     orig_cl_ord_id: int64;
     cancel_rejected_reason: int8 &convert=CancelRejectedReason($$);
 };
@@ -288,7 +288,7 @@ type OrderModifiedMessage = unit {
         has_order_modified_locate_broker: 2;
         reserved_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     cl_ord_id: int64;
     orig_cl_ord_id: int64;
@@ -309,7 +309,7 @@ type ModifyRejectedMessage = unit {
         has_modify_rejected_locate_broker: 2;
         reserved_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     cl_ord_id: int64;
     orig_cl_ord_id: int64;
     modify_rejected_reason: int8 &convert=ModifyRejectedReason($$);
@@ -336,7 +336,7 @@ type OrderReplacedMessage = unit {
         has_order_replaced_display_price: 9;
         reserved_6: 10..15;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     cl_ord_id: int64;
     orig_cl_ord_id: int64;
@@ -373,7 +373,7 @@ type ReplaceRejectedMessage = unit {
         has_replace_rejected_locate_broker: 7;
         reserved_8: 8..15;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     cl_ord_id: int64;
     orig_cl_ord_id: int64;
     replace_rejected_bit_fields: bitfield(16) {
@@ -396,7 +396,7 @@ type ReplaceRejectedMessage = unit {
 };
 
 type OrderExecutedMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     cl_ord_id: int64;
     exec_price: int64;
@@ -413,7 +413,7 @@ type OrderRestatedMessage = unit {
         has_display_qty: 2;
         reserved_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     cl_ord_id: int64;
     restatement_reason: int8 &convert=RestatementReason($$);
@@ -423,7 +423,7 @@ type OrderRestatedMessage = unit {
 };
 
 type SelfMatchPreventedMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     order_id: int64;
     cl_ord_id: int64;
     exec_price: int64;
@@ -442,7 +442,7 @@ type MassCancelAcceptedMessage = unit {
         has_mass_cancel_accepted_cl_ord_id: 3;
         reserved_4: 4..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     mass_cancel_request_id: int64;
     mass_cancel_accepted_scope: int8 &convert=MassCancelAcceptedScope($$);
     mass_cancel_accepted_bit_fields: bitfield(8) {
@@ -464,7 +464,7 @@ type MassCancelRejectedMessage = unit {
         has_mass_cancel_rejected_cl_ord_id: 3;
         reserved_4: 4..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     mass_cancel_request_id: int64;
     mass_cancel_rejected_scope: int8 &convert=MassCancelRejectedScope($$);
     mass_cancel_rejected_bit_fields: bitfield(8) {
@@ -479,7 +479,7 @@ type MassCancelRejectedMessage = unit {
 };
 
 type MassCancelResultMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     mass_cancel_request_id: int64;
     mass_cancel_id: int64;
     canceled_count: int32;

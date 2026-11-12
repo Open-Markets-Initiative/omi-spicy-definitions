@@ -1,0 +1,126 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataProduct14IntraV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataProduct14V11 = unit {
+    intra_multicast_header: IntraMulticastHeader;
+    message_block: MessageBlock[self.intra_multicast_header.total_messages];
+};
+
+type IntraMulticastHeader = unit {
+    length: int16;
+    total_messages: int8;
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    session: int8;
+    sequence_number: int32;
+    datetime: int64 &convert=time($$ / 1000.0);
+};
+
+type MessageBlock = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        0x53 -> events_system_message: EventsSystemMessage;
+        0x47 -> inav_message: InavMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: int16;
+    message_type: uint8;
+};
+
+type EventsSystemMessage = unit {
+    instrument_number: int32;
+    event_code: uint8 &convert=EventCode($$);
+    market: uint8 &convert=Market($$);
+    sending_time: int64 &convert=time($$ / 1000.0);
+    ending_time: int64 &convert=time($$ / 1000.0);
+};
+
+type InavMessage = unit {
+    trac_number: int32;
+    theoretical_current_price: int64;
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type EventCode = enum {
+    StartOfSystemHours = 0x41,
+    CancelationOfOffers = 0x42,
+    StartOfOpeningAuction = 0x43,
+    StartOfContinuousMarket = 0x44,
+    StartOfWapPeriod = 0x45,
+    ContinuousMarketEnds = 0x46,
+    StartOfAfterClosingPhase = 0x47,
+    ItEndsAfterClosing = 0x48,
+    TransmissionOfFinalPricesEnds = 0x4a,
+    EndOfSystemHours = 0x4b,
+    StartOfAdministrativeRecess = 0x4d,
+    EndOfAdministrativeRecess = 0x4e,
+    StartDvmamxMarkets = 0x4f,
+    EndOfDvmaMarkets = 0x50,
+    EndOfMxMarkets = 0x51,
+    StartOfOpcModality = 0x52,
+    EndOfOpcModality = 0x53,
+    StartOfSettlementAuction = 0x54,
+    EndOfSettlementAuction = 0x55,
+    FinalRegisterOfSettlementPrices = 0x56,
+    OpenInterest = 0x57,
+};
+
+type Market = enum {
+    Local = 0x4c,
+    Global = 0x47,
+    LocalDebt = 0x44,
+    GlobalDebt = 0x46,
+    Money = 0x45,
+    DollarOptionMarket = 0x4d,
+    StockMarket = 0x58,
+    ForexAndRatesMarket = 0x56,
+    FixedIncome = 0x4a,
+    VariableIncome = 0x42,
+    Metals = 0x54,
+    MutualFunds = 0x49,
+    Warrants = 0x57,
+    AllMarkets = 0x20,
+};
+

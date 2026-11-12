@@ -1,0 +1,164 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataProduct29IntraV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataProduct29V11 = unit {
+    intra_multicast_header: IntraMulticastHeader;
+    message_block: MessageBlock[self.intra_multicast_header.total_messages];
+};
+
+type IntraMulticastHeader = unit {
+    length: int16;
+    total_messages: int8;
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    session: int8;
+    sequence_number: int32;
+    datetime: int64 &convert=time($$ / 1000.0);
+};
+
+type MessageBlock = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        0x6d -> last_quote_message: LastQuoteMessage;
+        0x3a -> benchmark_trade_message: BenchmarkTradeMessage;
+        0x40 -> price_leaderboard_message: PriceLeaderboardMessage;
+        0x3c -> trading_sniper_message: TradingSniperMessage;
+        0x5e -> depth_at_best_prices_message: DepthAtBestPricesMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: int16;
+    message_type: uint8;
+};
+
+type LastQuoteMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    volume: int64;
+    price_rate: int64;
+    direction_of_the_bid: uint8 &convert=DirectionOfTheBid($$);
+    type_of_trading: uint8 &convert=TypeOfTrading($$);
+};
+
+type BenchmarkTradeMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    average_volume: int64;
+    average_traded_value: int64;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type PriceLeaderboardMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    t_best_bid: int32;
+    t_tie_best_bid: int32;
+    t_without_best_bid: int32;
+    t_best_ask: int32;
+    t_tie_best_ask: int32;
+    t_without_best_ask: int32;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type TradingSniperMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    depth_bid: int64;
+    depth_ask: int64;
+    depth_bid_10_l: int64;
+    depth_ask_10_l: int64;
+    vwp_bid_10_l: int64;
+    vwp_ask_10_l: int64;
+    vwp_bid: int64;
+    vwp_ask: int64;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type DepthAtBestPricesMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    instruments_bb: int16;
+    instruments_gv_bb: int16;
+    ratio_v_at_bb: int32;
+    instruments_ba: int16;
+    instruments_gv_ba: int16;
+    ratio_v_at_ba: int32;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type Origin = enum {
+    Bmv = 0x4d,
+    Biva = 0x49,
+    Both = 0x41,
+};
+
+type DirectionOfTheBid = enum {
+    Purchase = 0x43,
+    Sale = 0x56,
+};
+
+type TypeOfTrading = enum {
+    ContinuousElectronicTrading = 0x45,
+    MarketOnClose = 0x43,
+    BlockTrading = 0x42,
+    DebtTrading = 0x44,
+    WarrantsTrading = 0x57,
+};
+
+type Market = enum {
+    Local = 0x4c,
+    Global = 0x47,
+    EtFs = 0x54,
+    ReiTs = 0x46,
+};
+

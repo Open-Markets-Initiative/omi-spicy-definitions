@@ -21,7 +21,7 @@ type IextpHeader = unit {
     message_count: uint16;
     stream_offset: uint64;
     first_message_sequence_number: uint64;
-    send_time: uint64;
+    send_time: uint64 &convert=time_ns($$);
 };
 
 type Message = unit {
@@ -49,7 +49,7 @@ type MessageHeader = unit {
 
 type SystemEventMessage = unit {
     system_event: uint8 &convert=SystemEvent($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
 };
 
 type SecurityDirectoryMessage = unit {
@@ -59,7 +59,7 @@ type SecurityDirectoryMessage = unit {
         when_issued: 6;
         test_security: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     round_lot_size: uint32;
     adjusted_poc_price: int64;
@@ -68,26 +68,26 @@ type SecurityDirectoryMessage = unit {
 
 type TradingStatusMessage = unit {
     trading_status: uint8 &convert=TradingStatus($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     reason: bytes &size=4;
 };
 
 type RetailLiquidityIndicatorMessage = unit {
     retail_liquidity_indicator: uint8 &convert=RetailLiquidityIndicator($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
 };
 
 type OperationalHaltStatusMessage = unit {
     operational_halt_status: uint8 &convert=OperationalHaltStatus($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
 };
 
 type ShortSalePriceTestStatusMessage = unit {
     short_sale_price_test_status: uint8 &convert=ShortSalePriceTestStatus($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     detail: uint8 &convert=Detail($$);
 };
@@ -98,7 +98,7 @@ type QuoteUpdateMessage = unit {
         market_session: 6;
         symbol_availability: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     bid_size: uint32;
     bid_price: int64;
@@ -115,7 +115,7 @@ type TradeReportMessage = unit {
         extended_hours: 6;
         intermarket_sweep: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     size: uint32;
     price: int64;
@@ -124,7 +124,7 @@ type TradeReportMessage = unit {
 
 type OfficialPriceMessage = unit {
     price_type: uint8 &convert=PriceType($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     official_price: int64;
 };
@@ -138,7 +138,7 @@ type TradeBreakMessage = unit {
         extended_hours: 6;
         intermarket_sweep: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     size: uint32;
     price: int64;
@@ -147,7 +147,7 @@ type TradeBreakMessage = unit {
 
 type AuctionInformationMessage = unit {
     auction_type: uint8 &convert=AuctionType($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     paired_shares: uint32;
     reference_price: int64;
@@ -155,7 +155,7 @@ type AuctionInformationMessage = unit {
     imbalance_shares: uint32;
     imbalance_side: uint8 &convert=ImbalanceSide($$);
     extension_number: uint8;
-    scheduled_auction_time: uint32;
+    scheduled_auction_time: uint32 &convert=time($$);
     auction_book_clearing_price: int64;
     collar_reference_price: int64;
     lower_auction_collar: int64;

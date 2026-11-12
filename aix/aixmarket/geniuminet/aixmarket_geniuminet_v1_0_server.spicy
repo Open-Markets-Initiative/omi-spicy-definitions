@@ -54,11 +54,11 @@ type SequencedDataPacket = unit {
 };
 
 type SecondsMessage = unit {
-    second: uint32;
+    second: uint32 &convert=time($$);
 };
 
 type OrderBookDirectoryMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     order_book_id: uint32;
     symbol: bytes &size=32;
     long_name: bytes &size=32;
@@ -81,7 +81,7 @@ type OrderBookDirectoryMessage = unit {
 };
 
 type TickSizeTableEntryMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     order_book_id: uint32;
     tick_size: uint64;
     price_from: int32;
@@ -89,19 +89,19 @@ type TickSizeTableEntryMessage = unit {
 };
 
 type ShortSellStatusMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     order_book_id: uint32;
     short_sale_restriction: uint8 &convert=ShortSaleRestriction($$);
 };
 
 type OrderBookStateMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     order_book_id: uint32;
     state_name: bytes &size=20;
 };
 
 type AddOrderMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     order_id: uint64;
     order_book_id: uint32;
     side: uint8 &convert=Side($$);
@@ -110,7 +110,7 @@ type AddOrderMessage = unit {
     price: int32;
     order_attributes: uint16 &convert=OrderAttributes($$);
     lot_type: uint8 &convert=LotType($$);
-    ranking_time: uint64;
+    ranking_time: uint64 &convert=time_ns($$);
 };
 
 type EndOfSnapshotMessage = unit {

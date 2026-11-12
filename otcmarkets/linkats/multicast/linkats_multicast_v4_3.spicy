@@ -22,7 +22,7 @@ type PacketHeader = unit {
         test: 7;
     } &byte-order=spicy::ByteOrder::Little;
     message_count: uint8;
-    packet_milli: uint32;
+    packet_milli: uint32 &convert=interval($$ / 1000.0);
 };
 
 type Message = unit {
@@ -68,13 +68,13 @@ type EndOfSpinMessage = unit {
 
 type MarketOpenMessage = unit {
     channel_seq_num: uint32;
-    market_open: uint64;
-    market_close: uint64;
+    market_open: uint64 &convert=time($$ / 1000.0);
+    market_close: uint64 &convert=time($$ / 1000.0);
 };
 
 type MarketCloseMessage = unit {
     channel_seq_num: uint32;
-    market_close_time_milli: uint64;
+    market_close_time_milli: uint64 &convert=time($$ / 1000.0);
     market_msg_ct: uint32;
 };
 

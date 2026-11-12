@@ -64,7 +64,7 @@ type MessageHeader = unit {
 
 type NegotiationResponse = unit {
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     secret_key_secure_id_expiration: uint16;
     fault_tolerance_indicator: uint8 &convert=FaultToleranceIndicator($$);
     split_msg: uint8 &convert=SplitMsg($$);
@@ -82,7 +82,7 @@ type Credentials = unit {
 type NegotiationReject = unit {
     reason: bytes &size=48;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     error_codes: uint16;
     fault_tolerance_indicator: uint8 &convert=FaultToleranceIndicator($$);
     split_msg: uint8 &convert=SplitMsg($$);
@@ -91,7 +91,7 @@ type NegotiationReject = unit {
 
 type EstablishmentAck = unit {
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     next_seq_no: uint32;
     previous_seq_no: uint32;
     previous_uuid: uint64;
@@ -105,7 +105,7 @@ type EstablishmentAck = unit {
 type EstablishmentReject = unit {
     reason: bytes &size=48;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     next_seq_no: uint32;
     error_codes: uint16;
     fault_tolerance_indicator: uint8 &convert=FaultToleranceIndicator($$);
@@ -123,7 +123,7 @@ type Sequence = unit {
 type Terminate = unit {
     reason: bytes &size=48;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     error_codes: uint16;
     split_msg: uint8 &convert=SplitMsg($$);
 };
@@ -131,7 +131,7 @@ type Terminate = unit {
 type Retransmission = unit {
     uuid: uint64;
     last_uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     from_seq_no: uint32;
     msg_count_16: uint16;
     split_msg: uint8 &convert=SplitMsg($$);
@@ -141,7 +141,7 @@ type RetransmitReject = unit {
     reason: bytes &size=48;
     uuid: uint64;
     last_uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     error_codes: uint16;
     split_msg: uint8 &convert=SplitMsg($$);
 };
@@ -159,7 +159,7 @@ type PartyDetailsDefinitionRequestAck = unit {
     memo: bytes &size=75;
     avg_px_group_id: bytes &size=20;
     party_details_list_req_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     self_match_prevention_id: uint64;
     party_detail_request_status: uint8;
     cust_order_capacity: uint8 &convert=CustOrderCapacity($$);
@@ -210,7 +210,7 @@ type BusinessReject = unit {
     text: bytes &size=256;
     sender_id_optional: bytes &size=20;
     party_details_list_req_id_optional: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     business_reject_ref_id: uint64;
     location_optional: bytes &size=5;
     ref_seq_num: uint32;
@@ -232,8 +232,8 @@ type ExecutionReportNew = unit {
     order_id: uint64;
     price: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     cross_id_optional: uint64;
     host_cross_id: uint64;
@@ -282,8 +282,8 @@ type ExecutionReportReject = unit {
     order_id: uint64;
     price_optional: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     cross_id_optional: uint64;
     host_cross_id: uint64;
@@ -331,8 +331,8 @@ type ExecutionReportElimination = unit {
     order_id: uint64;
     price: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     cross_id_optional: uint64;
     host_cross_id: uint64;
@@ -379,8 +379,8 @@ type ExecutionReportTradeOutright = unit {
     order_id: uint64;
     price: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     sec_exec_id: uint64;
     cross_id_optional: uint64;
@@ -493,8 +493,8 @@ type ExecutionReportTradeSpread = unit {
     order_id: uint64;
     price: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     sec_exec_id: uint64;
     cross_id_optional: uint64;
@@ -575,8 +575,8 @@ type ExecutionReportTradeSpreadLeg = unit {
     last_px: int64;
     order_id: uint64;
     underlying_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     sec_exec_id: uint64;
     location: bytes &size=5;
     option_delta: OptionDelta;
@@ -644,8 +644,8 @@ type ExecutionReportModify = unit {
     order_id: uint64;
     price: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     cross_id_optional: uint64;
     host_cross_id: uint64;
@@ -695,8 +695,8 @@ type ExecutionReportStatus = unit {
     order_id: uint64;
     price_optional: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     ord_status_req_id_optional: uint64;
     mass_status_req_id_optional: uint64;
@@ -749,8 +749,8 @@ type ExecutionReportCancel = unit {
     order_id: uint64;
     price: int64;
     stop_px: int64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     cross_id_optional: uint64;
     host_cross_id: uint64;
@@ -801,8 +801,8 @@ type OrderCancelReject = unit {
     clordid: bytes &size=20;
     party_details_list_req_id: uint64;
     order_id: uint64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     location: bytes &size=5;
     cxl_rej_reason: uint16;
@@ -823,8 +823,8 @@ type OrderCancelReplaceReject = unit {
     clordid: bytes &size=20;
     party_details_list_req_id: uint64;
     order_id: uint64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     location: bytes &size=5;
     cxl_rej_reason: uint16;
@@ -842,7 +842,7 @@ type PartyDetailsListReport = unit {
     avg_px_group_id: bytes &size=20;
     party_details_list_req_id: uint64;
     party_details_list_report_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     self_match_prevention_id: uint64;
     tot_num_parties: uint16;
     request_result: uint8 &convert=RequestResult($$);
@@ -869,7 +869,7 @@ type MassQuoteAck = unit {
     sender_id: bytes &size=20;
     party_details_list_req_id: uint64;
     request_time: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     quote_req_id_optional: uint64;
     location: bytes &size=5;
     quote_id: uint32;
@@ -910,7 +910,7 @@ type RequestForQuoteAck = unit {
     exchange_quote_req_id: bytes &size=17;
     party_details_list_req_id: uint64;
     request_time: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     quote_req_id: uint64;
     location: bytes &size=5;
     quote_reject_reason: uint16;
@@ -931,8 +931,8 @@ type ExecutionReportTradeAddendumOutright = unit {
     party_details_list_req_id: uint64;
     last_px: int64;
     order_id: uint64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     sec_exec_id: uint64;
     orig_secondary_execution_id: uint64;
     location: bytes &size=5;
@@ -1000,8 +1000,8 @@ type ExecutionReportTradeAddendumSpread = unit {
     party_details_list_req_id: uint64;
     last_px: int64;
     order_id: uint64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     sec_exec_id: uint64;
     orig_secondary_execution_id: uint64;
     location: bytes &size=5;
@@ -1078,8 +1078,8 @@ type ExecutionReportTradeAddendumSpreadLeg = unit {
     party_details_list_req_id: uint64;
     last_px: int64;
     order_id: uint64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     sec_exec_id: uint64;
     orig_secondary_execution_id: uint64;
     location: bytes &size=5;
@@ -1128,7 +1128,7 @@ type SecurityDefinitionResponse = unit {
     party_details_list_req_id: uint64;
     security_req_id: uint64;
     security_response_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     security_group: bytes &size=6;
     security_type: bytes &size=6;
     location: bytes &size=5;
@@ -1194,8 +1194,8 @@ type OrderMassActionReport = unit {
     uuid: uint64;
     sender_id: bytes &size=20;
     party_details_list_req_id: uint64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     order_request_id: uint64;
     mass_action_report_id: uint64;
     security_group: bytes &size=6;
@@ -1240,7 +1240,7 @@ type QuoteCancelAck = unit {
     sender_id: bytes &size=20;
     party_details_list_req_id: uint64;
     request_time: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     cancelled_symbol: bytes &size=6;
     location: bytes &size=5;
     quote_id: uint32;
@@ -1292,8 +1292,8 @@ type MassQuoteResponse = unit {
     text: bytes &size=256;
     sender_id: bytes &size=20;
     party_details_list_req_id: uint64;
-    transact_time: uint64;
-    sending_time_epoch: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    sending_time_epoch: uint64 &convert=time_ns($$);
     quote_req_id_optional: uint64;
     location: bytes &size=5;
     quote_id: uint32;

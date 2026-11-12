@@ -43,12 +43,12 @@ type Hdr = unit {
 };
 
 type HeaderTime = unit {
-    header_epoch_s: int32;
-    header_ms: uint16;
+    header_epoch_s: int32 &convert=time($$);
+    header_ms: uint16 &convert=interval($$ / 1000.0);
 };
 
 type WakeUpCallMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     start_in_bound_num: uint32;
 };
 
@@ -57,7 +57,7 @@ type WakeUpCallConfirmedMessage = unit {
 };
 
 type LogonNoticeMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     append_no: uint16;
     end_out_bound_num: uint32;
     system_type: uint8 &convert=SystemType($$);
@@ -66,7 +66,7 @@ type LogonNoticeMessage = unit {
 
 type FinalSequentialNumberNotificationForGroupMessage = unit {
     sub_hdr: SubHdr;
-    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
+    wide_status_code: uint16 &convert=WideStatusCode($$);
     part_id: uint8 &convert=PartId($$);
     end_out_bound_num: uint32;
     : skip bytes &size=8;   # padding
@@ -75,11 +75,11 @@ type FinalSequentialNumberNotificationForGroupMessage = unit {
 type SubHdr = unit {
     msg_type_ext: uint8 &convert=MsgTypeExt($$);
     preserve: uint8;
-    msg_time_ns: uint32;
+    msg_time_ns: uint32 &convert=interval_ns($$);
 };
 
 type RequestLogonMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     append_no: uint16;
     fcm_id: uint16;
     session_id: uint16;
@@ -91,29 +91,29 @@ type RequestLogonMessage = unit {
 };
 
 type ActivateApplicationSystemMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     heart_bt_int: uint8;
     max_flow_ctrl_cnt: uint16;
 };
 
 type ActivateApplicationSystemConfirmedMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
 };
 
 type LogoutConfirmedMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
 };
 
 type ConfirmConnectionMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
 };
 
 type ConnectionConfirmedMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
 };
 
 type OrderStatusReportMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     exec_type: uint8 &convert=ExecType($$);
     cm_id: uint16;
     fcm_id: uint16;
@@ -140,9 +140,9 @@ type OrderStatusReportMessage = unit {
     cum_qty: uint16;
     leaves_qty: uint16;
     before_qty: uint16;
-    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    both_leg_sides: uint8 &convert=BothLegSides($$);
     leg_px: int32;
-    leg_qty_uint_1624: uint16;
+    both_leg_qtys: uint16;
     org_trans_time_msg_time: OrgTransTimeMsgTime;
     transact_time_msg_time: TransactTimeMsgTime;
     target_id: uint8 &convert=TargetId($$);
@@ -154,27 +154,27 @@ type OrderStatusReportMessage = unit {
 type SymbolNum = unit {
     pseq_1: uint16;
     pseq_2: uint16;
-    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    both_leg_sides: uint8 &convert=BothLegSides($$);
     comb_op: uint8 &convert=CombOp($$);
     : skip bytes &size=13;   # padding
 };
 
 type SymbolText = unit {
-    symbol_char_2020: bytes &size=20;
+    symbol: bytes &size=20;
 };
 
 type OrgTransTimeMsgTime = unit {
-    epoch_s_int_324: int32;
-    ms: uint16;
+    msg_time_epoch_s: int32 &convert=time($$);
+    ms: uint16 &convert=interval($$ / 1000.0);
 };
 
 type TransactTimeMsgTime = unit {
-    epoch_s_int_324: int32;
-    ms: uint16;
+    msg_time_epoch_s: int32 &convert=time($$);
+    ms: uint16 &convert=interval($$ / 1000.0);
 };
 
 type OrderStatusReportLongFormatMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     exec_type: uint8 &convert=ExecType($$);
     cm_id: uint16;
     fcm_id: uint16;
@@ -201,9 +201,9 @@ type OrderStatusReportLongFormatMessage = unit {
     cum_qty: uint16;
     leaves_qty: uint16;
     before_qty: uint16;
-    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    both_leg_sides: uint8 &convert=BothLegSides($$);
     leg_px: int32;
-    leg_qty_uint_1624: uint16;
+    both_leg_qtys: uint16;
     org_trans_time_msg_time: OrgTransTimeMsgTime;
     transact_time_msg_time: TransactTimeMsgTime;
     target_id: uint8 &convert=TargetId($$);
@@ -215,17 +215,17 @@ type OrderStatusReportLongFormatMessage = unit {
 type LongSymbolNum = unit {
     pseq_1: uint16;
     pseq_2: uint16;
-    leg_side_uint_822: uint8 &convert=LegSideUint822($$);
+    both_leg_sides: uint8 &convert=BothLegSides($$);
     comb_op: uint8 &convert=CombOp($$);
     : skip bytes &size=33;   # padding
 };
 
 type LongSymbolText = unit {
-    symbol_char_4040: bytes &size=40;
+    long_symbol: bytes &size=40;
 };
 
 type ErrorReportMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     exec_type: uint8 &convert=ExecType($$);
     fcm_id: uint16;
     order_no: bytes &size=5;
@@ -239,7 +239,7 @@ type FlexOrderStatusReportMessage = unit {
     sub_hdr: SubHdr;
     part_id: uint8 &convert=PartId($$);
     no_leg: uint8;
-    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
+    wide_status_code: uint16 &convert=WideStatusCode($$);
     exec_type: uint8 &convert=ExecType($$);
     cm_id: uint16;
     fcm_id: uint16;
@@ -293,8 +293,8 @@ type MultiLegNum = unit {
 
 type LegEntryNum = unit {
     leg_sym_symbol_num_x: LegSymSymbolNumX;
-    leg_side_uint_81: uint8 &convert=LegSideUint81($$);
-    leg_qty_uint_162: uint16;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_qty: uint16;
 };
 
 type LegSymSymbolNumX = unit {
@@ -309,8 +309,8 @@ type MultiLegTxt = unit {
 
 type LegEntryTxt = unit {
     leg_sym_symbol_txt_x: LegSymSymbolTxtX;
-    leg_side_uint_81: uint8 &convert=LegSideUint81($$);
-    leg_qty_uint_162: uint16;
+    leg_side: uint8 &convert=LegSide($$);
+    leg_qty: uint16;
 };
 
 type LegSymSymbolTxtX = unit {
@@ -318,20 +318,20 @@ type LegSymSymbolTxtX = unit {
 };
 
 type OrgTransTimeMsgTimeX = unit {
-    epoch_s_uint_324: uint32;
-    nanosecond: uint32;
+    msg_time_x_epoch_s: uint32 &convert=time($$);
+    nanosecond: uint32 &convert=interval_ns($$);
 };
 
 type TransactTimeMsgTimeX = unit {
-    epoch_s_uint_324: uint32;
-    nanosecond: uint32;
+    msg_time_x_epoch_s: uint32 &convert=time($$);
+    nanosecond: uint32 &convert=interval_ns($$);
 };
 
 type FlexErrorReportMessage = unit {
     sub_hdr: SubHdr;
     part_id: uint8 &convert=PartId($$);
     ori_message_type: uint8;
-    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
+    wide_status_code: uint16 &convert=WideStatusCode($$);
     exec_type: uint8 &convert=ExecType($$);
     fcm_id: uint16;
     order_no: bytes &size=5;
@@ -349,7 +349,7 @@ type DropCopyInitiateOperationMessage = unit {
 };
 
 type DropCopyInitiateOperationConfirmedMessage = unit {
-    status_code_uint_81: uint8 &convert=StatusCodeUint81($$);
+    status_code: uint8 &convert=StatusCode($$);
     fcm_id: uint16;
     target_id: uint8 &convert=TargetId($$);
     req_cm_seq: uint32;
@@ -366,7 +366,7 @@ type FlexDropCopyInitiateOperationMessage = unit {
 type FlexDropCopyInitiateOperationConfirmedMessage = unit {
     sub_hdr: SubHdr;
     part_id: uint8 &convert=PartId($$);
-    status_code_uint_162: uint16 &convert=StatusCodeUint162($$);
+    wide_status_code: uint16 &convert=WideStatusCode($$);
     fcm_id: uint16;
     target_id: uint8 &convert=TargetId($$);
     req_cm_seq: uint32;
@@ -400,7 +400,7 @@ type MessageType = enum {
     FlexDropCopyInitiateOperationConfirmedMessage = 216,
 };
 
-type StatusCodeUint81 = enum {
+type StatusCode = enum {
     Succeed = 0,
     TradingTimeOver = 1,
     OrderAcceptanceNotYetStartedOrTradingHalt = 2,
@@ -547,7 +547,7 @@ type MsgTypeExt = enum {
     UnexpectedErrorRecord = 255,
 };
 
-type StatusCodeUint162 = enum {
+type WideStatusCode = enum {
     Succeed = 0,
     TradingTimeOver = 1,
     OrderAcceptanceNotYetStartedOrTradingHalt = 2,
@@ -716,7 +716,7 @@ type SymbolType = enum {
     TextProductIdLongFormat = 4,
 };
 
-type LegSideUint822 = enum {
+type BothLegSides = enum {
     SingleOrder = 0,
     Buy = 1,
     Sell = 2,
@@ -777,7 +777,7 @@ type ProtocolType = enum {
     Fix = 2,
 };
 
-type LegSideUint81 = enum {
+type LegSide = enum {
     SingleOrder = 0,
     Buy = 1,
     Sell = 2,

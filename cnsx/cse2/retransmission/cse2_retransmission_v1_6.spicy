@@ -56,19 +56,19 @@ type MessageHeader = unit {
 };
 
 type TimeMessage = unit {
-    second: uint32;
+    second: uint32 &convert=interval($$);
     millisecond: uint16;
 };
 
 type SystemEventMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     group: uint64;
     event_code: uint8 &convert=EventCode($$);
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type SymbolDirectoryMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     symbol: bytes &size=12;
     cusip: bytes &size=12;
     sec_name: bytes &size=15;
@@ -87,7 +87,7 @@ type SymbolDirectoryMessage = unit {
 };
 
 type SymbolDynamicsMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     symbol: bytes &size=12;
     settlement_term: bytes &size=8;
     gmf_setting: uint8 &convert=GmfSetting($$);
@@ -97,14 +97,14 @@ type SymbolDynamicsMessage = unit {
 };
 
 type TradingActionMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     symbol: bytes &size=12;
     trading_state: uint8 &convert=TradingState($$);
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type AddOrderMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     order_number: bytes &size=18;
     order_verb: uint8 &convert=OrderVerb($$);
     quantity: uint32;
@@ -113,29 +113,29 @@ type AddOrderMessage = unit {
     firm_id: bytes &size=3;
     settlement_term: bytes &size=8;
     odd_lot_flag: uint8 &convert=OddLotFlag($$);
-    exchange_timestamp: uint64;
-    priority_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
+    priority_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type OrderExecutedMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     order_number: bytes &size=18;
     executed_quantity: uint32;
     match_number: bytes &size=18;
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type OrderExecutedWithPriceMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     order_number: bytes &size=18;
     executed_quantity: uint32;
     match_number: bytes &size=18;
     execution_price: uint32;
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type TradeMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     executed_quantity: uint32;
     symbol: bytes &size=12;
     execution_price: uint32;
@@ -147,51 +147,51 @@ type TradeMessage = unit {
     cross_type: uint8 &convert=CrossType($$);
     odd_lot_flag: uint8 &convert=OddLotFlag($$);
     sets_the_last_price: uint8 &convert=SetsTheLastPrice($$);
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
     opening_trade: uint8 &convert=OpeningTrade($$);
     ccp_session_trade: uint8 &convert=CcpSessionTrade($$);
     moc_trade_marker: uint8 &convert=MocTradeMarker($$);
 };
 
 type BrokenTradeMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     match_number: bytes &size=18;
     reason: uint8 &convert=Reason($$);
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type OrderDeleteMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     order_number: bytes &size=18;
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type OrderReplaceMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     order_number: bytes &size=18;
     quantity: uint32;
     price: uint32;
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type BestBidOfferMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     symbol: bytes &size=12;
     best_bid: uint32;
     best_bid_size: uint32;
     best_offer: uint32;
     best_offer_size: uint32;
-    exchange_timestamp: uint64;
+    exchange_timestamp: uint64 &convert=time($$ / 1000.0);
 };
 
 type ClosingPriceMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     symbol: bytes &size=12;
     price: uint32;
 };
 
 type GeneralMessage = unit {
-    time_offset: uint32;
+    time_offset: uint32 &convert=interval_ns($$);
     message_text: bytes &size=128;
 };
 

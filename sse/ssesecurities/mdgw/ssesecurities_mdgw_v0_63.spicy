@@ -12,14 +12,14 @@ public type SsesecuritiesMdgwV063 = unit {
 
 type BinaryMessage = unit {
     standard_header: StandardHeader;
-    switch ( self.standard_header.msgtype ) {
-        0 -> logon_message: LogonMessage;
-        0 -> logout_message: LogoutMessage;
-        0 -> channel_heartbeat: ChannelHeartbeat;
-        0 -> retransmission_message: RetransmissionMessage;
-        0 -> market_status_message: MarketStatusMessage;
-        0 -> market_data_snapshot_message: MarketDataSnapshotMessage;
-        0 -> tickbytick_market_data_message: TickbytickMarketDataMessage;
+    switch ( self.standard_header.msgtype.strip() ) {
+        b"S001" -> logon_message: LogonMessage;
+        b"S002" -> logout_message: LogoutMessage;
+        b"P001" -> channel_heartbeat: ChannelHeartbeat;
+        b"P002" -> retransmission_message: RetransmissionMessage;
+        b"M101" -> market_status_message: MarketStatusMessage;
+        b"M102" -> market_data_snapshot_message: MarketDataSnapshotMessage;
+        b"M201" -> tickbytick_market_data_message: TickbytickMarketDataMessage;
         * -> unknown: bytes &eod;
     };
     standard_trailer: StandardTrailer;
@@ -80,17 +80,17 @@ type MarketDataSnapshotMessage = unit {
     numtrades: uint64;
     market_data_snapshot_message_totalvaluetraded: uint64;
     tradingphasecode: bytes &size=8;
-    switch ( self.mdstreamid ) {
-        0 -> index_market_data_snapshot_extension_fields: IndexMarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
-        0 -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+    switch ( self.mdstreamid.strip() ) {
+        b"MD001" -> index_market_data_snapshot_extension_fields: IndexMarketDataSnapshotExtensionFields;
+        b"MD002" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MD003" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MD004" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MD101" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MD102" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MD301" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MD201" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MDE01" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
+        b"MD210" -> market_data_snapshot_extension_fields: MarketDataSnapshotExtensionFields;
         * -> unknown: bytes &eod;
     };
 };
@@ -127,14 +127,14 @@ type TickbytickMarketDataMessage = unit {
     exectype: uint8 &convert=Exectype($$);
     price: uint64;
     orderqty: uint64;
-    switch ( self.mdstreamid ) {
-        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
-        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
-        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
-        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
-        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
-        0 -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
-        0 -> tickbytick_trade_market_data_extension_fields: TickbytickTradeMarketDataExtensionFields;
+    switch ( self.mdstreamid.strip() ) {
+        b"MD211" -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        b"MD212" -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        b"MD213" -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        b"MD214" -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        b"MD215" -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        b"MD216" -> tickbytick_order_market_data_extension_fields: TickbytickOrderMarketDataExtensionFields;
+        b"MD217" -> tickbytick_trade_market_data_extension_fields: TickbytickTradeMarketDataExtensionFields;
         * -> unknown: bytes &eod;
     };
 };

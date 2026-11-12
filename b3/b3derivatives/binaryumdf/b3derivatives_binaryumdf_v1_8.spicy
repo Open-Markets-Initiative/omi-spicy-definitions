@@ -16,7 +16,7 @@ type PacketHeader = unit {
     packet_reserved: uint8;
     sequence_version: uint16;
     sequence_number: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type Message = unit {
@@ -86,7 +86,7 @@ type EmptyBookMessage = unit {
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=3;   # padding
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
 };
 
 type ChannelReset11Message = unit {
@@ -101,7 +101,7 @@ type ChannelReset11Message = unit {
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=3;   # padding
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
 };
 
 type SecurityStatus3Message = unit {
@@ -121,7 +121,7 @@ type SecurityStatus3Message = unit {
     security_trading_event: uint8 &convert=SecurityTradingEvent($$);
     trade_date: uint16;
     : skip bytes &size=2;   # padding
-    trad_ses_open_time: uint64;
+    trad_ses_open_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
     rpt_seq: uint32;
 };
@@ -144,7 +144,7 @@ type SecurityGroupPhase10Message = unit {
     security_trading_event: uint8 &convert=SecurityTradingEvent($$);
     trade_date: uint16;
     : skip bytes &size=2;   # padding
-    trad_ses_open_time: uint64;
+    trad_ses_open_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
 };
 
@@ -373,7 +373,7 @@ type News5Message = unit {
     part_count: uint16;
     part_number: uint16;
     news_id: uint64;
-    orig_time: uint64;
+    orig_time: uint64 &convert=time_ns($$);
     total_text_length: uint32;
     headline: Headline;
     text: Text;
@@ -413,7 +413,7 @@ type OpeningPrice15Message = unit {
     md_future_price: int64;
     net_chg_prev_day: int64;
     trade_date: uint16;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
     : skip bytes &size=2;   # padding
 };
@@ -434,7 +434,7 @@ type TheoreticalOpeningPrice16Message = unit {
     trade_date: uint16;
     md_corporate_offset_price_optional: int64;
     md_entry_size_quantity_optional: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -455,7 +455,7 @@ type ClosingPrice17Message = unit {
     md_corporate_price: int64;
     last_trade_date: uint16;
     trade_date: uint16;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -486,7 +486,7 @@ type AuctionImbalance19Message = unit {
         reserved_6: 10..15;
     } &byte-order=spicy::ByteOrder::Little;
     md_entry_size_quantity_optional: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -508,7 +508,7 @@ type PriceBand20Message = unit {
     low_limit_price: int64;
     high_limit_price: int64;
     trading_reference_price_legacy: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -527,7 +527,7 @@ type QuantityBand21Message = unit {
     : skip bytes &size=3;   # padding
     avg_daily_traded_qty: int64;
     max_trade_vol: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -549,7 +549,7 @@ type PriceBand22Message = unit {
     low_limit_price: int64;
     high_limit_price: int64;
     trading_reference_price_optional: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -568,7 +568,7 @@ type HighPrice24Message = unit {
     md_update_action: uint8 &convert=MdUpdateAction($$);
     trade_date: uint16;
     md_future_price: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -587,7 +587,7 @@ type LowPrice25Message = unit {
     md_update_action: uint8 &convert=MdUpdateAction($$);
     trade_date: uint16;
     md_future_price: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -628,7 +628,7 @@ type LastTradePrice27Message = unit {
     md_entry_buyer: uint32;
     md_entry_seller: uint32;
     trade_date: uint16;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
     seller_days: uint16;
     md_entry_interest_rate: int64;
@@ -651,7 +651,7 @@ type SettlementPrice28Message = unit {
     : skip bytes &size=1;   # padding
     trade_date: uint16;
     md_future_price: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
     price_type: uint8 &convert=PriceType($$);
     settl_price_type: uint8 &convert=SettlPriceType($$);
@@ -674,7 +674,7 @@ type OpenInterest29Message = unit {
     : skip bytes &size=1;   # padding
     trade_date: uint16;
     md_entry_size_quantity: int64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -708,10 +708,10 @@ type OrderMbO50Message = unit {
     md_entry_size_quantity: int64;
     md_entry_position_no: uint32;
     entering_firm: uint32;
-    md_insert_timestamp: uint64;
+    md_insert_timestamp: uint64 &convert=time_ns($$);
     secondary_order_id: uint64;
     rpt_seq: uint32;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
 };
 
 type DeleteOrderMbO51Message = unit {
@@ -732,7 +732,7 @@ type DeleteOrderMbO51Message = unit {
     md_entry_position_no: uint32;
     md_entry_size_quantity_optional: int64;
     secondary_order_id: uint64;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -752,7 +752,7 @@ type MassDeleteOrdersMbO52Message = unit {
     md_entry_type: uint8 &convert=MdEntryType($$);
     : skip bytes &size=1;   # padding
     md_entry_position_no: uint32;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -795,7 +795,7 @@ type Trade53Message = unit {
     trade_date: uint16;
     trd_sub_type: uint8 &convert=TrdSubType($$);
     : skip bytes &size=1;   # padding
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -836,7 +836,7 @@ type ForwardTrade54Message = unit {
     md_entry_buyer: uint32;
     md_entry_seller: uint32;
     trade_date: uint16;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
     seller_days: uint16;
     md_entry_interest_rate: int64;
@@ -853,9 +853,9 @@ type ExecutionSummary55Message = unit {
     fill_qty: int64;
     traded_hidden_qty: int64;
     cxl_qty: int64;
-    aggressor_time: uint64;
+    aggressor_time: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
 };
 
 type ExecutionStatistics56Message = unit {
@@ -876,7 +876,7 @@ type ExecutionStatistics56Message = unit {
     vwap_px: int64;
     net_chg_prev_day: int64;
     number_of_trades: uint32;
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -899,7 +899,7 @@ type TradeBust57Message = unit {
     trade_id: uint32;
     trade_date: uint16;
     : skip bytes &size=2;   # padding
-    md_entry_timestamp: uint64;
+    md_entry_timestamp: uint64 &convert=time_ns($$);
     rpt_seq: uint32;
 };
 
@@ -918,7 +918,7 @@ type SnapshotFullRefreshOrdersMbO71MessageNoMDEntriesGroup = unit {
     md_entry_size_quantity: int64;
     md_entry_position_no: uint32;
     entering_firm: uint32;
-    md_insert_timestamp: uint64;
+    md_insert_timestamp: uint64 &convert=time_ns($$);
     secondary_order_id: uint64;
     md_entry_type: uint8 &convert=MdEntryType($$);
 };

@@ -49,13 +49,13 @@ type OrderAddMessage = unit {
     quantity: uint64;
     price: uint64;
     order_ref: uint64;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
 };
 
 type OrderCancelMessage = unit {
     security_id: uint32;
     order_ref: uint64;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
 };
 
 type OrderModifyMessage = unit {
@@ -63,7 +63,7 @@ type OrderModifyMessage = unit {
     quantity: uint64;
     price: uint64;
     order_ref: uint64;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
 };
 
 type TradeMessage = unit {
@@ -73,7 +73,7 @@ type TradeMessage = unit {
     price: uint64;
     order_ref: uint64;
     trade_ref: uint64;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     binary_mmt: bitfield(32) {
         market_mechanism: 0..2;
         trading_mode: 3..6;
@@ -98,7 +98,7 @@ type TradeBustMessage = unit {
     quantity: uint64;
     price: uint64;
     trade_ref: uint64;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     binary_mmt: bitfield(32) {
         market_mechanism: 0..2;
         trading_mode: 3..6;
@@ -168,7 +168,7 @@ type SecurityDefinitionFuturesMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     exchange_symbol: bytes &size=20;
     lot_size_composite: LotSizeComposite;
-    maturity_date: uint64;
+    maturity_date: uint64 &convert=time_ns($$);
     settlement_type: uint8 &convert=SettlementType($$);
     contract_size_composite: ContractSizeComposite;
     underlying: bytes &size=20;
@@ -198,7 +198,7 @@ type SecurityDefinitionOptionsMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     exchange_symbol: bytes &size=20;
     lot_size_composite: LotSizeComposite;
-    maturity_date: uint64;
+    maturity_date: uint64 &convert=time_ns($$);
     settlement_type: uint8 &convert=SettlementType($$);
     contract_size_composite: ContractSizeComposite;
     underlying: bytes &size=20;
@@ -216,7 +216,7 @@ type SecurityStatusMessage = unit {
         mac_run: 2;
         unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     trading_phase: uint8 &convert=TradingPhase($$);
 };
 

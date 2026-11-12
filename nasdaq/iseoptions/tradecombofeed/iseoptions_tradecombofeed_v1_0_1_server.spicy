@@ -1,0 +1,176 @@
+# License: MIT No Attribution
+
+module NasdaqIseoptionsTradecombofeedItchV101Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type IseoptionsTradecombofeedV101 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket(self.server_packet_header.packet_length);
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::ComplexStrategyDirectoryMessage -> complex_strategy_directory_message: ComplexStrategyDirectoryMessage;
+        SequencedMessageType::StrategyTradingActionMessage -> strategy_trading_action_message: StrategyTradingActionMessage;
+        SequencedMessageType::StrategyOpenClosedMessage -> strategy_open_closed_message: StrategyOpenClosedMessage;
+        SequencedMessageType::ComplexStrategyTickerMessage -> complex_strategy_ticker_message: ComplexStrategyTickerMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemEventMessage = unit {
+    timestamp: bytes &size=6;
+    event_code: uint8 &convert=EventCode($$);
+    current_year: uint16;
+    current_month: uint8;
+    current_day: uint8;
+    version: uint8;
+    sub_version: uint8;
+};
+
+type ComplexStrategyDirectoryMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    strategy_type: uint8 &convert=StrategyType($$);
+    source: uint8;
+    underlying_symbol: bytes &size=13;
+    number_of_legs: uint8;
+    leg_information: LegInformation[self.number_of_legs];
+};
+
+type LegInformation = unit {
+    option_id: uint32;
+    security_symbol: bytes &size=6;
+    leg_id: uint8;
+    expiration_year: uint8;
+    expiration_month: uint8;
+    expiration_day: uint8;
+    explicit_strike_price: int64;
+    option_type: uint8 &convert=OptionType($$);
+    side: uint8 &convert=Side($$);
+    leg_ratio: uint32;
+};
+
+type StrategyTradingActionMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    current_trading_state: uint8 &convert=CurrentTradingState($$);
+};
+
+type StrategyOpenClosedMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    open_state: uint8 &convert=OpenState($$);
+};
+
+type ComplexStrategyTickerMessage = unit {
+    timestamp: bytes &size=6;
+    strategy_id: uint32;
+    last_price: int64;
+    size: uint32;
+    volume: uint32;
+    high: int64;
+    low: int64;
+    first: int64;
+    trade_condition: bytes &size=1;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    SystemEventMessage = 0x53,
+    ComplexStrategyDirectoryMessage = 0x52,
+    StrategyTradingActionMessage = 0x48,
+    StrategyOpenClosedMessage = 0x4f,
+    ComplexStrategyTickerMessage = 0x74,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    StartOfOpeningProcess = 0x51,
+    StartOfNormalHoursClosingProcess = 0x4e,
+    StartOfLateHoursClosingProcess = 0x4c,
+    EndOfSystemHours = 0x45,
+    EndOfMessages = 0x43,
+    EndOfWcoEarlyClosing = 0x57,
+};
+
+type StrategyType = enum {
+    VerticalSpread = 0x56,
+    TimeSpread = 0x54,
+    DiagonalSpread = 0x44,
+    Straddle = 0x53,
+    Strangle = 0x47,
+    Combo = 0x43,
+    RiskReversal = 0x52,
+    RatioSpread = 0x41,
+    Custom = 0x55,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+    Na = 0x20,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type CurrentTradingState = enum {
+    HaltInEffect = 0x48,
+    TradingResumed = 0x54,
+};
+
+type OpenState = enum {
+    Open = 0x59,
+    Closed = 0x4e,
+};
+

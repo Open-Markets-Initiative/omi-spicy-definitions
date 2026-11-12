@@ -10,41 +10,41 @@ public type MxSolaorderentryV121 = unit {
     message_length: uint32;
     message_type: bytes &size=2;
     switch ( self.message_type ) {
-        0 -> user_connection: UserConnection;
-        0 -> disconnection_instruction: DisconnectionInstruction;
-        0 -> heartbeat_response: HeartbeatResponse;
-        0 -> user_disconnection: UserDisconnection;
-        0 -> order_request: OrderRequest;
-        0 -> bulk_quote_data: BulkQuoteData;
-        0 -> firm_risk_config: FirmRiskConfig;
-        0 -> global_cancellation: GlobalCancellation;
-        0 -> user_global_cancellation: UserGlobalCancellation;
-        0 -> set_group_risk_limits: SetGroupRiskLimits;
-        0 -> set_global_risk_limits: SetGlobalRiskLimits;
-        0 -> order_entry: OrderEntry;
-        0 -> order_modification: OrderModification;
-        0 -> new_strategy_instrument: NewStrategyInstrument;
-        0 -> cross_entry: CrossEntry;
-        0 -> bulk_quote_price_4_quantity_2: BulkQuotePrice4Quantity2;
-        0 -> bulk_quote_price_6_quantity_2: BulkQuotePrice6Quantity2;
-        0 -> bulk_quote_price_8_quantity_2: BulkQuotePrice8Quantity2;
-        0 -> bulk_quote_price_10_quantity_2: BulkQuotePrice10Quantity2;
-        0 -> bulk_quote_price_4_quantity_4: BulkQuotePrice4Quantity4;
-        0 -> bulk_quote_price_6_quantity_4: BulkQuotePrice6Quantity4;
-        0 -> bulk_quote_price_8_quantity_4: BulkQuotePrice8Quantity4;
-        0 -> bulk_quote_price_10_quantity_4: BulkQuotePrice10Quantity4;
-        0 -> bulk_quote_price_4_quantity_6: BulkQuotePrice4Quantity6;
-        0 -> bulk_quote_price_6_quantity_6: BulkQuotePrice6Quantity6;
-        0 -> bulk_quote_price_8_quantity_6: BulkQuotePrice8Quantity6;
-        0 -> bulk_quote_price_10_quantity_6: BulkQuotePrice10Quantity6;
-        0 -> bulk_quote_price_4_quantity_8: BulkQuotePrice4Quantity8;
-        0 -> bulk_quote_price_6_quantity_8: BulkQuotePrice6Quantity8;
-        0 -> bulk_quote_price_8_quantity_8: BulkQuotePrice8Quantity8;
-        0 -> bulk_quote: BulkQuote;
-        0 -> sail_request_for_quote_with_side: SailRequestForQuoteWithSide;
-        0 -> bulk_quote_participant_bqp_protection_subscription: BulkQuoteParticipantBqpProtectionSubscription;
-        0 -> request_for_quote: RequestForQuote;
-        0 -> order_cancellation: OrderCancellation;
+        b"TC" -> user_connection: UserConnection;
+        b"TA" -> disconnection_instruction: DisconnectionInstruction;
+        b"TI" -> heartbeat_response: HeartbeatResponse;
+        b"TD" -> user_disconnection: UserDisconnection;
+        b"AF" -> order_request: OrderRequest;
+        b"BD" -> bulk_quote_data: BulkQuoteData;
+        b"CR" -> firm_risk_config: FirmRiskConfig;
+        b"GC" -> global_cancellation: GlobalCancellation;
+        b"GZ" -> user_global_cancellation: UserGlobalCancellation;
+        b"MK" -> set_group_risk_limits: SetGroupRiskLimits;
+        b"ML" -> set_global_risk_limits: SetGlobalRiskLimits;
+        b"OE" -> order_entry: OrderEntry;
+        b"OM" -> order_modification: OrderModification;
+        b"ON" -> new_strategy_instrument: NewStrategyInstrument;
+        b"OX" -> cross_entry: CrossEntry;
+        b"QA" -> bulk_quote_price_4_quantity_2: BulkQuotePrice4Quantity2;
+        b"QB" -> bulk_quote_price_6_quantity_2: BulkQuotePrice6Quantity2;
+        b"QC" -> bulk_quote_price_8_quantity_2: BulkQuotePrice8Quantity2;
+        b"QD" -> bulk_quote_price_10_quantity_2: BulkQuotePrice10Quantity2;
+        b"QE" -> bulk_quote_price_4_quantity_4: BulkQuotePrice4Quantity4;
+        b"QF" -> bulk_quote_price_6_quantity_4: BulkQuotePrice6Quantity4;
+        b"QG" -> bulk_quote_price_8_quantity_4: BulkQuotePrice8Quantity4;
+        b"QH" -> bulk_quote_price_10_quantity_4: BulkQuotePrice10Quantity4;
+        b"QI" -> bulk_quote_price_4_quantity_6: BulkQuotePrice4Quantity6;
+        b"QJ" -> bulk_quote_price_6_quantity_6: BulkQuotePrice6Quantity6;
+        b"QK" -> bulk_quote_price_8_quantity_6: BulkQuotePrice8Quantity6;
+        b"QL" -> bulk_quote_price_10_quantity_6: BulkQuotePrice10Quantity6;
+        b"QM" -> bulk_quote_price_4_quantity_8: BulkQuotePrice4Quantity8;
+        b"QN" -> bulk_quote_price_6_quantity_8: BulkQuotePrice6Quantity8;
+        b"QO" -> bulk_quote_price_8_quantity_8: BulkQuotePrice8Quantity8;
+        b"QP" -> bulk_quote: BulkQuote;
+        b"QS" -> sail_request_for_quote_with_side: SailRequestForQuoteWithSide;
+        b"RP" -> bulk_quote_participant_bqp_protection_subscription: BulkQuoteParticipantBqpProtectionSubscription;
+        b"RQ" -> request_for_quote: RequestForQuote;
+        b"XE" -> order_cancellation: OrderCancellation;
         * -> unknown: bytes &eod;
     };
     end_of_text: uint8;
@@ -60,7 +60,7 @@ type UserConnection = unit {
     exchange_message_id: bytes &size=6;
     inactivity_interval: bytes &size=2;
     number_of_message_types_to_be_received: bytes &size=2;
-    user_connection_occurrence: UserConnectionOccurrence[self.number_of_message_types_to_be_received];
+    user_connection_occurrence: UserConnectionOccurrence[self.number_of_message_types_to_be_received.to_uint()];
 };
 
 type UserConnectionOccurrence = unit {
@@ -69,7 +69,7 @@ type UserConnectionOccurrence = unit {
 
 type DisconnectionInstruction = unit {
     number_of_instructions_present_in_the_message: bytes &size=2;
-    disconnection_instruction_occurrence: DisconnectionInstructionOccurrence[self.number_of_instructions_present_in_the_message];
+    disconnection_instruction_occurrence: DisconnectionInstructionOccurrence[self.number_of_instructions_present_in_the_message.to_uint()];
 };
 
 type DisconnectionInstructionOccurrence = unit {
@@ -132,13 +132,13 @@ type FirmRiskConfig = unit {
     incoming_messages_header: IncomingMessagesHeader;
     firm_level_risk_option: uint8 &convert=FirmLevelRiskOption($$);
     number_of_trader_teams: bytes &size=3;
-    firm_risk_config_trader_team: FirmRiskConfigTraderTeam[self.number_of_trader_teams];
+    firm_risk_config_trader_team: FirmRiskConfigTraderTeam[self.number_of_trader_teams.to_uint()];
 };
 
 type FirmRiskConfigTraderTeam = unit {
     team_level_risk_option: uint8 &convert=TeamLevelRiskOption($$);
     number_of_traders_in_team: bytes &size=3;
-    firm_risk_config_trader_team_trader: FirmRiskConfigTraderTeamTrader[self.number_of_traders_in_team];
+    firm_risk_config_trader_team_trader: FirmRiskConfigTraderTeamTrader[self.number_of_traders_in_team.to_uint()];
 };
 
 type FirmRiskConfigTraderTeamTrader = unit {
@@ -163,7 +163,7 @@ type SetGroupRiskLimits = unit {
     incoming_messages_header: IncomingMessagesHeader;
     reset_all_groups: uint8 &convert=ResetAllGroups($$);
     number_of_group_limits: bytes &size=3;
-    set_group_risk_limits_occurrence: SetGroupRiskLimitsOccurrence[self.number_of_group_limits];
+    set_group_risk_limits_occurrence: SetGroupRiskLimitsOccurrence[self.number_of_group_limits.to_uint()];
 };
 
 type SetGroupRiskLimitsOccurrence = unit {
@@ -255,7 +255,7 @@ type OrderModification = unit {
 type NewStrategyInstrument = unit {
     incoming_messages_header: IncomingMessagesHeader;
     number_of_legs: bytes &size=2;
-    new_strategy_instrument_leg_definition_repeating_block: NewStrategyInstrumentLegDefinitionRepeatingBlock[self.number_of_legs];
+    new_strategy_instrument_leg_definition_repeating_block: NewStrategyInstrumentLegDefinitionRepeatingBlock[self.number_of_legs.to_uint()];
 };
 
 type NewStrategyInstrumentLegDefinitionRepeatingBlock = unit {
@@ -309,7 +309,7 @@ type BulkQuotePrice4Quantity2 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_4_quantity_2_occurrence: BulkQuotePrice4Quantity2Occurrence[self.number_of_quotes];
+    bulk_quote_price_4_quantity_2_occurrence: BulkQuotePrice4Quantity2Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice4Quantity2Occurrence = unit {
@@ -326,7 +326,7 @@ type BulkQuotePrice6Quantity2 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_6_quantity_2_occurrence: BulkQuotePrice6Quantity2Occurrence[self.number_of_quotes];
+    bulk_quote_price_6_quantity_2_occurrence: BulkQuotePrice6Quantity2Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice6Quantity2Occurrence = unit {
@@ -343,7 +343,7 @@ type BulkQuotePrice8Quantity2 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_8_quantity_2_occurrence: BulkQuotePrice8Quantity2Occurrence[self.number_of_quotes];
+    bulk_quote_price_8_quantity_2_occurrence: BulkQuotePrice8Quantity2Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice8Quantity2Occurrence = unit {
@@ -360,7 +360,7 @@ type BulkQuotePrice10Quantity2 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_10_quantity_2_occurrence: BulkQuotePrice10Quantity2Occurrence[self.number_of_quotes];
+    bulk_quote_price_10_quantity_2_occurrence: BulkQuotePrice10Quantity2Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice10Quantity2Occurrence = unit {
@@ -377,7 +377,7 @@ type BulkQuotePrice4Quantity4 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_4_quantity_4_occurrence: BulkQuotePrice4Quantity4Occurrence[self.number_of_quotes];
+    bulk_quote_price_4_quantity_4_occurrence: BulkQuotePrice4Quantity4Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice4Quantity4Occurrence = unit {
@@ -394,7 +394,7 @@ type BulkQuotePrice6Quantity4 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_6_quantity_4_occurrence: BulkQuotePrice6Quantity4Occurrence[self.number_of_quotes];
+    bulk_quote_price_6_quantity_4_occurrence: BulkQuotePrice6Quantity4Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice6Quantity4Occurrence = unit {
@@ -411,7 +411,7 @@ type BulkQuotePrice8Quantity4 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_8_quantity_4_occurrence: BulkQuotePrice8Quantity4Occurrence[self.number_of_quotes];
+    bulk_quote_price_8_quantity_4_occurrence: BulkQuotePrice8Quantity4Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice8Quantity4Occurrence = unit {
@@ -428,7 +428,7 @@ type BulkQuotePrice10Quantity4 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_10_quantity_4_occurrence: BulkQuotePrice10Quantity4Occurrence[self.number_of_quotes];
+    bulk_quote_price_10_quantity_4_occurrence: BulkQuotePrice10Quantity4Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice10Quantity4Occurrence = unit {
@@ -445,7 +445,7 @@ type BulkQuotePrice4Quantity6 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_4_quantity_6_occurrence: BulkQuotePrice4Quantity6Occurrence[self.number_of_quotes];
+    bulk_quote_price_4_quantity_6_occurrence: BulkQuotePrice4Quantity6Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice4Quantity6Occurrence = unit {
@@ -462,7 +462,7 @@ type BulkQuotePrice6Quantity6 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_6_quantity_6_occurrence: BulkQuotePrice6Quantity6Occurrence[self.number_of_quotes];
+    bulk_quote_price_6_quantity_6_occurrence: BulkQuotePrice6Quantity6Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice6Quantity6Occurrence = unit {
@@ -479,7 +479,7 @@ type BulkQuotePrice8Quantity6 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_8_quantity_6_occurrence: BulkQuotePrice8Quantity6Occurrence[self.number_of_quotes];
+    bulk_quote_price_8_quantity_6_occurrence: BulkQuotePrice8Quantity6Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice8Quantity6Occurrence = unit {
@@ -496,7 +496,7 @@ type BulkQuotePrice10Quantity6 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_10_quantity_6_occurrence: BulkQuotePrice10Quantity6Occurrence[self.number_of_quotes];
+    bulk_quote_price_10_quantity_6_occurrence: BulkQuotePrice10Quantity6Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice10Quantity6Occurrence = unit {
@@ -513,7 +513,7 @@ type BulkQuotePrice4Quantity8 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_4_quantity_8_occurrence: BulkQuotePrice4Quantity8Occurrence[self.number_of_quotes];
+    bulk_quote_price_4_quantity_8_occurrence: BulkQuotePrice4Quantity8Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice4Quantity8Occurrence = unit {
@@ -530,7 +530,7 @@ type BulkQuotePrice6Quantity8 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_6_quantity_8_occurrence: BulkQuotePrice6Quantity8Occurrence[self.number_of_quotes];
+    bulk_quote_price_6_quantity_8_occurrence: BulkQuotePrice6Quantity8Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice6Quantity8Occurrence = unit {
@@ -547,7 +547,7 @@ type BulkQuotePrice8Quantity8 = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_price_8_quantity_8_occurrence: BulkQuotePrice8Quantity8Occurrence[self.number_of_quotes];
+    bulk_quote_price_8_quantity_8_occurrence: BulkQuotePrice8Quantity8Occurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuotePrice8Quantity8Occurrence = unit {
@@ -564,7 +564,7 @@ type BulkQuote = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_occurrence: BulkQuoteOccurrence[self.number_of_quotes];
+    bulk_quote_occurrence: BulkQuoteOccurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuoteOccurrence = unit {

@@ -38,11 +38,11 @@ type ApplicationMessage = unit {
 };
 
 type SystemTimeMessage = unit {
-    seconds: uint32;
+    seconds: uint32 &convert=time($$);
 };
 
 type SymbolUpdateMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     symbol_id: uint32;
     ticker_symbol: bytes &size=11;
     : skip bytes &size=1;   # padding
@@ -55,14 +55,14 @@ type SymbolUpdateMessage = unit {
 };
 
 type SystemStateMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     to_m_version: bytes &size=8;
     session_id: uint8;
     system_status: uint8 &convert=SystemStatus($$);
 };
 
 type SecurityTradingStatusNotificationMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     symbol_id: uint32;
     trading_status: uint8 &convert=TradingStatus($$);
     market_state: uint8 &convert=MarketState($$);
@@ -70,7 +70,7 @@ type SecurityTradingStatusNotificationMessage = unit {
 };
 
 type CompactTopOfMarketBestBidAndOfferMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     symbol_id: uint32;
     bid_price_short: uint16;
     bid_size_short: uint16;
@@ -79,7 +79,7 @@ type CompactTopOfMarketBestBidAndOfferMessage = unit {
 };
 
 type WideTopOfMarketBestBidAndOfferMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     symbol_id: uint32;
     bid_price_long: uint64;
     bid_size_long: uint32;
@@ -88,7 +88,7 @@ type WideTopOfMarketBestBidAndOfferMessage = unit {
 };
 
 type LastSaleMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     symbol_id: uint32;
     trade_id: uint64;
     correction_number: uint8;
@@ -101,7 +101,7 @@ type LastSaleMessage = unit {
 };
 
 type TradeCancelMessage = unit {
-    nanoseconds: uint32;
+    nanoseconds: uint32 &convert=interval_ns($$);
     symbol_id: uint32;
     trade_id: uint64;
     correction_number: uint8;

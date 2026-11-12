@@ -33,24 +33,24 @@ type SequencedDataPacket = unit {
     sequence_number: uint64;
     sequenced_message_type: bytes &size=2;
     switch ( self.sequenced_message_type ) {
-        0 -> new_order_response_message: NewOrderResponseMessage;
-        0 -> modify_order_response: ModifyOrderResponse;
-        0 -> cancel_order_response: CancelOrderResponse;
-        0 -> mass_cancel_response: MassCancelResponse;
-        0 -> strategy_creation_response_message: StrategyCreationResponseMessage;
-        0 -> system_state_notification_message: SystemStateNotificationMessage;
-        0 -> new_order_notification: NewOrderNotification;
-        0 -> modify_order_notification: ModifyOrderNotification;
-        0 -> cancel_reduce_size_order_notification: CancelReduceSizeOrderNotification;
-        0 -> order_status_update_notification: OrderStatusUpdateNotification;
-        0 -> simple_execution_notification: SimpleExecutionNotification;
-        0 -> complex_execution_notification: ComplexExecutionNotification;
+        b"NR" -> new_order_response_message: NewOrderResponseMessage;
+        b"MR" -> modify_order_response: ModifyOrderResponse;
+        b"CR" -> cancel_order_response: CancelOrderResponse;
+        b"XR" -> mass_cancel_response: MassCancelResponse;
+        b"SR" -> strategy_creation_response_message: StrategyCreationResponseMessage;
+        b"SN" -> system_state_notification_message: SystemStateNotificationMessage;
+        b"O1" -> new_order_notification: NewOrderNotification;
+        b"MN" -> modify_order_notification: ModifyOrderNotification;
+        b"XN" -> cancel_reduce_size_order_notification: CancelReduceSizeOrderNotification;
+        b"OS" -> order_status_update_notification: OrderStatusUpdateNotification;
+        b"EN" -> simple_execution_notification: SimpleExecutionNotification;
+        b"CN" -> complex_execution_notification: ComplexExecutionNotification;
         * -> unknown: bytes &eod;
     };
 };
 
 type NewOrderResponseMessage = unit {
-    matching_engine: uint64;
+    matching_engine: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     client_order_id: bytes &size=20;
     instrument_id_binary_u_4: uint32;
@@ -60,7 +60,7 @@ type NewOrderResponseMessage = unit {
 };
 
 type ModifyOrderResponse = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     client_order_id: bytes &size=20;
     original_client_order_id: bytes &size=20;
@@ -72,7 +72,7 @@ type ModifyOrderResponse = unit {
 };
 
 type CancelOrderResponse = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     client_order_id: bytes &size=20;
     original_client_order: bytes &size=20;
@@ -82,7 +82,7 @@ type CancelOrderResponse = unit {
 };
 
 type MassCancelResponse = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     client_order_id: bytes &size=20;
     status: bytes &size=1;
@@ -90,7 +90,7 @@ type MassCancelResponse = unit {
 };
 
 type StrategyCreationResponseMessage = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     client_order_id: bytes &size=20;
     instrument_id_string_20: bytes &size=20;
@@ -99,7 +99,7 @@ type StrategyCreationResponseMessage = unit {
 };
 
 type SystemStateNotificationMessage = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     version: bytes &size=8;
     session_id: uint8;
     system_status: bytes &size=1;
@@ -107,10 +107,10 @@ type SystemStateNotificationMessage = unit {
 };
 
 type NewOrderNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     order_id: uint64;
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
     account: bytes &size=16;
@@ -148,10 +148,10 @@ type NewOrderNotification = unit {
 };
 
 type ModifyOrderNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     order_id: uint64;
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     leaves_qty: uint32;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
@@ -175,14 +175,14 @@ type ModifyOrderNotification = unit {
 };
 
 type CancelReduceSizeOrderNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
     client_order_id: bytes &size=20;
     instrument_id_binary_u_4: uint32;
     order_id: uint64;
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     leaves_qty: uint32;
     cancel_reason: bytes &size=1;
     last_price: int64;
@@ -191,7 +191,7 @@ type CancelReduceSizeOrderNotification = unit {
 };
 
 type OrderStatusUpdateNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     instrument_id_binary_u_4: uint32;
     order_id: uint64;
     update_status: bytes &size=1;
@@ -199,7 +199,7 @@ type OrderStatusUpdateNotification = unit {
 };
 
 type SimpleExecutionNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
@@ -224,7 +224,7 @@ type SimpleExecutionNotification = unit {
 };
 
 type ComplexExecutionNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     instrument_id_binary_u_4: uint32;
     client_order_id: bytes &size=20;
@@ -242,22 +242,22 @@ type ComplexExecutionNotification = unit {
 type UnsequencedDataPacket = unit {
     unsequenced_message_type: bytes &size=2;
     switch ( self.unsequenced_message_type ) {
-        0 -> new_order_request_message: NewOrderRequestMessage;
-        0 -> new_order_response_message: NewOrderResponseMessage;
-        0 -> modify_order_request_message: ModifyOrderRequestMessage;
-        0 -> modify_order_response: ModifyOrderResponse;
-        0 -> cancel_order_request_message: CancelOrderRequestMessage;
-        0 -> cancel_order_response: CancelOrderResponse;
-        0 -> mass_cancel_request: MassCancelRequest;
-        0 -> mass_cancel_response: MassCancelResponse;
-        0 -> strategy_creation_request: StrategyCreationRequest;
-        0 -> strategy_creation_response_message: StrategyCreationResponseMessage;
+        b"N1" -> new_order_request_message: NewOrderRequestMessage;
+        b"NR" -> new_order_response_message: NewOrderResponseMessage;
+        b"M1" -> modify_order_request_message: ModifyOrderRequestMessage;
+        b"MR" -> modify_order_response: ModifyOrderResponse;
+        b"CO" -> cancel_order_request_message: CancelOrderRequestMessage;
+        b"CR" -> cancel_order_response: CancelOrderResponse;
+        b"XQ" -> mass_cancel_request: MassCancelRequest;
+        b"XR" -> mass_cancel_response: MassCancelResponse;
+        b"SD" -> strategy_creation_request: StrategyCreationRequest;
+        b"SR" -> strategy_creation_response_message: StrategyCreationResponseMessage;
         * -> unknown: bytes &eod;
     };
 };
 
 type NewOrderRequestMessage = unit {
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
@@ -296,7 +296,7 @@ type NewOrderRequestMessage = unit {
 };
 
 type ModifyOrderRequestMessage = unit {
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
@@ -320,7 +320,7 @@ type ModifyOrderRequestMessage = unit {
 };
 
 type CancelOrderRequestMessage = unit {
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
@@ -332,7 +332,7 @@ type CancelOrderRequestMessage = unit {
 };
 
 type MassCancelRequest = unit {
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;
@@ -347,7 +347,7 @@ type MassCancelRequest = unit {
 };
 
 type StrategyCreationRequest = unit {
-    client_send_time: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
     mp_id: bytes &size=5;
     operator_id: bytes &size=18;
     operator_location: bytes &size=6;

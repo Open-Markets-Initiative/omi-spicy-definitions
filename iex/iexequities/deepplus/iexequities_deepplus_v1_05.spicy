@@ -21,7 +21,7 @@ type IextpHeader = unit {
     message_count: uint16;
     stream_offset: uint64;
     first_message_sequence_number: uint64;
-    send_time: uint64;
+    send_time: uint64 &convert=time_ns($$);
 };
 
 type Message = unit {
@@ -52,7 +52,7 @@ type MessageHeader = unit {
 
 type SystemEventMessage = unit {
     system_event: uint8 &convert=SystemEvent($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
 };
 
 type SecurityDirectoryMessage = unit {
@@ -62,7 +62,7 @@ type SecurityDirectoryMessage = unit {
         when_issued: 6;
         test_security: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     round_lot_size: uint32;
     adjusted_poc_price: int64;
@@ -71,39 +71,39 @@ type SecurityDirectoryMessage = unit {
 
 type TradingStatusMessage = unit {
     trading_status: uint8 &convert=TradingStatus($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     reason: bytes &size=4;
 };
 
 type RetailLiquidityIndicatorMessage = unit {
     retail_liquidity_indicator: uint8 &convert=RetailLiquidityIndicator($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
 };
 
 type OperationalHaltStatusMessage = unit {
     operational_halt_status: uint8 &convert=OperationalHaltStatus($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
 };
 
 type ShortSalePriceTestStatusMessage = unit {
     short_sale_price_test_status: uint8 &convert=ShortSalePriceTestStatus($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     detail: uint8 &convert=Detail($$);
 };
 
 type SecurityEventMessage = unit {
     security_event: uint8 &convert=SecurityEvent($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
 };
 
 type AddOrderMessage = unit {
     side: uint8 &convert=Side($$);
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     order_id: uint64;
     size: uint32;
@@ -115,7 +115,7 @@ type OrderModifyMessage = unit {
         unused_7: 0..6;
         priority_field: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     order_id_reference: uint64;
     size: uint32;
@@ -124,7 +124,7 @@ type OrderModifyMessage = unit {
 
 type OrderDeleteMessage = unit {
     reserved_1: bytes &size=1;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     order_id_reference: uint64;
 };
@@ -138,7 +138,7 @@ type OrderExecutedMessage = unit {
         extended_hours: 6;
         intermarket_sweep: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     order_id_reference: uint64;
     size: uint32;
@@ -155,7 +155,7 @@ type TradeMessage = unit {
         extended_hours: 6;
         intermarket_sweep: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     size: uint32;
     price: int64;
@@ -171,7 +171,7 @@ type TradeBreakMessage = unit {
         extended_hours: 6;
         intermarket_sweep: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
     size: uint32;
     price: int64;
@@ -180,7 +180,7 @@ type TradeBreakMessage = unit {
 
 type ClearBookMessage = unit {
     reserved_1: bytes &size=1;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     symbol: bytes &size=8;
 };
 

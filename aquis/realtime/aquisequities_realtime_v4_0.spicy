@@ -44,7 +44,7 @@ type OrderAddMessage = unit {
     quantity: uint32;
     price: uint64;
     order_ref: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     md_flags: bitfield(8) {
         unrestricted_liquidity: 0;
         unused_7: 1..7;
@@ -54,7 +54,7 @@ type OrderAddMessage = unit {
 type OrderCancelMessage = unit {
     security_id: uint16;
     order_ref: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     md_flags: bitfield(8) {
         unrestricted_liquidity: 0;
         unused_7: 1..7;
@@ -66,7 +66,7 @@ type OrderModifyMessage = unit {
     remaining_quantity: uint32;
     price: uint64;
     order_ref: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     md_flags: bitfield(8) {
         unrestricted_liquidity: 0;
         unused_7: 1..7;
@@ -80,7 +80,7 @@ type TradeMessage = unit {
     execution_price: uint64;
     order_ref: uint32;
     trade_ref: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     binary_mmt: bitfield(32) {
         market_mechanism: 0..2;
         trading_mode: 3..6;
@@ -109,7 +109,7 @@ type TradeBustMessage = unit {
     traded_quantity: uint32;
     execution_price: uint64;
     trade_ref: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     binary_mmt: bitfield(32) {
         market_mechanism: 0..2;
         trading_mode: 3..6;
@@ -171,7 +171,7 @@ type SecurityStatusMessage = unit {
         mac_run: 2;
         unused_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     trading_phase: uint8 &convert=TradingPhase($$);
 };
 
@@ -179,7 +179,7 @@ type AodUpdateMessage = unit {
     security_id: uint16;
     indicative_price: uint64;
     match_vol: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
 };
 
 type MacUpdateMessage = unit {
@@ -187,7 +187,7 @@ type MacUpdateMessage = unit {
     indicative_price: uint64;
     closing_buy_qty: uint32;
     closing_sell_qty: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
 };
 
 type MsgType = enum {

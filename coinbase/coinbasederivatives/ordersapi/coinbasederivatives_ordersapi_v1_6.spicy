@@ -30,7 +30,7 @@ type MessageHeader = unit {
     sequence_number: uint32;
     last_processed_seq_no: uint32;
     reserved: uint32;
-    send_time_epoch_nanos: int64;
+    send_time_epoch_nanos: int64 &convert=time_ns($$);
     block_length: uint16;
     template_id: uint16 &convert=TemplateId($$);
     schema_id: uint16 &convert=SchemaId($$);
@@ -125,7 +125,7 @@ type OrderMessage = unit(template_id: TemplateId) {
 
 type PingMessage = unit {
     correlation_id: int64;
-    request_time: int64;
+    request_time: int64 &convert=time_ns($$);
     data: Data;
 };
 
@@ -136,8 +136,8 @@ type Data = unit {
 
 type PongMessage = unit {
     correlation_id: int64;
-    request_time: int64;
-    server_time: int64;
+    request_time: int64 &convert=time_ns($$);
+    server_time: int64 &convert=time_ns($$);
     trading_instrument_status: int8 &convert=TradingInstrumentStatus($$);
     data: Data;
 };
@@ -195,12 +195,12 @@ type NewIocOrderMessage = unit {
 };
 
 type OrderEnteredMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     exec_id: int64;
     client_order_id: int64;
     correlation_id: int64;
     order_id: int64;
-    receive_time: int64;
+    receive_time: int64 &convert=time_ns($$);
 };
 
 type ReplaceOrderMessage = unit {
@@ -224,7 +224,7 @@ type ObsoleteStreamOrderMessage = unit {
 };
 
 type OrderRejectMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     client_order_id: int64;
     correlation_id: int64;
     order_id_optional: int64;
@@ -233,12 +233,12 @@ type OrderRejectMessage = unit {
 };
 
 type OrderReplacedMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     exec_id: int64;
     client_order_id: int64;
     correlation_id: int64;
     order_id: int64;
-    receive_time: int64;
+    receive_time: int64 &convert=time_ns($$);
     total_filled: int32;
     available_qty: int32;
     instrument_id: int32;
@@ -251,19 +251,19 @@ type CancelOrderMessage = unit {
 };
 
 type OrderCanceledMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     exec_id: int64;
     client_order_id: int64;
     correlation_id: int64;
     order_id: int64;
-    receive_time: int64;
+    receive_time: int64 &convert=time_ns($$);
     total_filled: int32;
     instrument_id: int32;
     cancel_reason: uint8 &convert=CancelReason($$);
 };
 
 type CancelOrderRejectMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     client_order_id: int64;
     correlation_id: int64;
     order_id_optional: int64;
@@ -281,7 +281,7 @@ type MassCancelOrderMessage = unit {
 };
 
 type MassCancelOrderAckMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     exec_id: int64;
     correlation_id: int64;
     canceled_count: int32;
@@ -290,7 +290,7 @@ type MassCancelOrderAckMessage = unit {
 };
 
 type MassCancelOrderRejectMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     correlation_id: int64;
     error_message: bytes &size=32;
 };
@@ -301,19 +301,19 @@ type UnlockTradingMessage = unit {
 };
 
 type UnlockTradingAckMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     correlation_id: int64;
     num_users_affected: int32;
 };
 
 type UnlockTradingRejectMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     correlation_id: int64;
     error_message: bytes &size=32;
 };
 
 type OrderFilledMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     exec_id: int64;
     match_id: int64;
     client_order_id: int64;
@@ -329,7 +329,7 @@ type OrderFilledMessage = unit {
 };
 
 type SpreadOrderFilledMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     exec_id: int64;
     match_id: int64;
     client_order_id: int64;
@@ -351,7 +351,7 @@ type LastExecIdRequestMessage = unit {
 };
 
 type LastExecIdMessage = unit {
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     last_exec_id: int64;
     correlation_id: int64;
 };

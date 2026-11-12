@@ -130,7 +130,7 @@ type ExecutionReportNewMessage = unit {
     reprice_behavior: uint8 &convert=RepriceBehavior($$);
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
     mtp_group_id: uint16;
     match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
@@ -166,7 +166,7 @@ type ExecutionReportBulkQuotePendingNewMessage = unit {
         reserved_13: 3..15;
     } &byte-order=spicy::ByteOrder::Big;
     trading_capacity: uint8 &convert=TradingCapacity($$);
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
     mtp_group_id: uint16;
     match_trade_prevention: uint8 &convert=MatchTradePrevention($$);
@@ -188,7 +188,7 @@ type ExecutionReportBulkQuoteComponentNewMessage = unit {
     price_optional: uint64;
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
 };
 
@@ -202,7 +202,7 @@ type ExecutionReportRejectedMessage = unit {
     side: uint8 &convert=Side($$);
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type ExecutionReportTradeMessage = unit {
@@ -218,7 +218,7 @@ type ExecutionReportTradeMessage = unit {
     last_px: uint64;
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
     last_liquidity_ind: uint8 &convert=LastLiquidityInd($$);
     last_mkt: bytes &size=4;
@@ -238,7 +238,7 @@ type ExecutionReportPendingCancelMessage = unit {
     side_optional: uint8 &convert=SideOptional($$);
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type ExecutionReportCanceledMessage = unit {
@@ -253,7 +253,7 @@ type ExecutionReportCanceledMessage = unit {
     side_optional: uint8 &convert=SideOptional($$);
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
 };
 
@@ -271,7 +271,7 @@ type ExecutionReportPendingReplaceMessage = unit {
     price_optional: uint64;
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type ExecutionReportReplacedMessage = unit {
@@ -288,7 +288,7 @@ type ExecutionReportReplacedMessage = unit {
     price_optional: uint64;
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
 };
 
@@ -304,7 +304,7 @@ type ExecutionReportTradeCorrectionMessage = unit {
     last_px: uint64;
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type ExecutionReportTradeBreakMessage = unit {
@@ -316,7 +316,7 @@ type ExecutionReportTradeBreakMessage = unit {
     ord_status: uint8 &convert=OrdStatus($$);
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type ExecutionReportRestatementMessage = unit {
@@ -333,7 +333,7 @@ type ExecutionReportRestatementMessage = unit {
     last_qty_optional: uint32;
     leaves_qty: uint32;
     cum_qty: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     transact_time: uint64;
 };
 
@@ -351,7 +351,7 @@ type PendingMassCancelMessage = unit {
     underlier_optional: bytes &size=6;
     options_security_id_optional: bytes &size=8;
     cancel_group_id: uint16;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type MassCancelRejectMessage = unit {
@@ -368,13 +368,13 @@ type MassCancelRejectMessage = unit {
         cancel_orders_from_this_port_only: 2;
         reserved_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type MassCancelDoneMessage = unit {
     clordid: bytes &size=20;
     total_affected_orders: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type OrderCancelRejectMessage = unit {
@@ -384,7 +384,7 @@ type OrderCancelRejectMessage = unit {
     cxl_rej_reason: uint16 &convert=CxlRejReason($$);
     options_security_id_optional: bytes &size=8;
     side_optional: uint8 &convert=SideOptional($$);
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type AllocationInstructionAckMessage = unit {
@@ -392,7 +392,7 @@ type AllocationInstructionAckMessage = unit {
     alloc_id: bytes &size=20;
     alloc_status: uint8 &convert=AllocStatus($$);
     alloc_rej_code: uint16 &convert=AllocRejCode($$);
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type AllocationReportMessage = unit {
@@ -407,7 +407,7 @@ type AllocationReportMessage = unit {
     side: uint8 &convert=Side($$);
     quantity_long: uint32;
     trade_date: bytes &size=8;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     allocation_report_message_allocations_groups: AllocationReportMessageAllocationsGroups;
 };
 
@@ -435,7 +435,7 @@ type AllocationReportMessagePartiesGroup = unit {
 };
 
 type UserNotificationMessage = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     user_status: uint8 &convert=UserStatus($$);
 };
 
@@ -443,13 +443,13 @@ type MassCancelClearLockoutRejectMessage = unit {
     clordid: bytes &size=20;
     lockout_id: uint64;
     rej_reason: uint16 &convert=RejReason($$);
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type MassCancelClearLockoutDoneMessage = unit {
     clordid: bytes &size=20;
     lockout_id: uint64;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type MessageType = enum {

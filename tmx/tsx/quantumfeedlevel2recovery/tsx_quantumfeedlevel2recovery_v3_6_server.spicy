@@ -134,7 +134,7 @@ type OrderBookMessage = unit {
     order_id: uint64;
     order_price: uint64;
     volume: uint32;
-    priority_time_stamp: uint64;
+    priority_time_stamp: uint64 &convert=time($$ / 1000000.0);
 };
 
 type OrderBookTermsMessage = unit {
@@ -147,7 +147,7 @@ type OrderBookTermsMessage = unit {
     non_resident: uint8 &convert=NonResident($$);
     settlement_terms: uint8 &convert=SettlementTerms($$);
     settlement_date: uint32;
-    priority_time_stamp: uint64;
+    priority_time_stamp: uint64 &convert=time($$ / 1000000.0);
 };
 
 type AssignCopOrdersMessage = unit {
@@ -155,7 +155,7 @@ type AssignCopOrdersMessage = unit {
     calculated_opening_price: uint64;
     order_side: uint8 &convert=OrderSide($$);
     cop_order: CopOrder[15];
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type CopOrder = unit {
@@ -166,7 +166,7 @@ type CopOrder = unit {
 type AssignCopNoOrdersMessage = unit {
     symbol: bytes &size=12;
     calculated_opening_price: uint64;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type AssignLimitMessage = unit {
@@ -174,7 +174,7 @@ type AssignLimitMessage = unit {
     calculated_opening_price: uint64;
     order_side: uint8 &convert=OrderSide($$);
     cop_limit: CopLimit[15];
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type CopLimit = unit {
@@ -186,14 +186,14 @@ type CopLimit = unit {
 type MarketStateUpdateMessage = unit {
     market_state: uint8 &convert=MarketState($$);
     stock_group: uint8;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type MocImbalanceMessage = unit {
     symbol: bytes &size=12;
     imbalance_side: uint8 &convert=ImbalanceSide($$);
     imbalance_volume: uint32;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
     imbalance_reference_price: uint64;
     paired_volume: uint32;
     market_order_imbalance_volume: uint32;
@@ -210,8 +210,8 @@ type OrderBookedMessage = unit {
     order_id: uint64;
     order_price: uint64;
     volume: uint32;
-    priority_time_stamp: uint64;
-    trading_system_time_stamp: uint64;
+    priority_time_stamp: uint64 &convert=time($$ / 1000000.0);
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type OrderBookedTermsMessage = unit {
@@ -224,8 +224,8 @@ type OrderBookedTermsMessage = unit {
     non_resident: uint8 &convert=NonResident($$);
     settlement_terms: uint8 &convert=SettlementTerms($$);
     settlement_date: uint32;
-    priority_time_stamp: uint64;
-    trading_system_time_stamp: uint64;
+    priority_time_stamp: uint64 &convert=time($$ / 1000000.0);
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type OrderCancelledMessage = unit {
@@ -233,7 +233,7 @@ type OrderCancelledMessage = unit {
     broker_number: uint16;
     order_side: uint8 &convert=OrderSide($$);
     order_id: uint64;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type OrderCancelledTermsMessage = unit {
@@ -241,7 +241,7 @@ type OrderCancelledTermsMessage = unit {
     broker_number: uint16;
     order_side: uint8 &convert=OrderSide($$);
     order_id: uint64;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type OrderPriceTimeAssignedMessage = unit {
@@ -251,8 +251,8 @@ type OrderPriceTimeAssignedMessage = unit {
     order_id: uint64;
     price: uint64;
     volume: uint32;
-    priority_time_stamp: uint64;
-    trading_system_time_stamp: uint64;
+    priority_time_stamp: uint64 &convert=time($$ / 1000000.0);
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type OrderPriceTimeAssignedTermsMessage = unit {
@@ -262,15 +262,15 @@ type OrderPriceTimeAssignedTermsMessage = unit {
     order_id: uint64;
     price: uint64;
     volume: uint32;
-    priority_time_stamp: uint64;
-    trading_system_time_stamp: uint64;
+    priority_time_stamp: uint64 &convert=time($$ / 1000000.0);
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type StockStatusMessage = unit {
     symbol: bytes &size=12;
     comment: bytes &size=40;
     stock_state: bytes &size=2;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
     listing_market: uint8 &convert=ListingMarket($$);
     product_type: uint8 &convert=ProductType($$);
 };
@@ -289,7 +289,7 @@ type TradeReportMessage = unit {
     bypass: uint8 &convert=Bypass($$);
     trade_time_stamp: uint32;
     cross_type: uint8 &convert=CrossType($$);
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
     listing_market: uint8 &convert=ListingMarket($$);
     product_type: uint8 &convert=ProductType($$);
     trade_date: uint32;
@@ -314,13 +314,13 @@ type TradeReportTermsMessage = unit {
     settlement_terms: uint8 &convert=SettlementTerms($$);
     settlement_date: uint32;
     cross_type: uint8 &convert=CrossType($$);
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type TradeCancelledMessage = unit {
     symbol: bytes &size=12;
     trade_number: uint32;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
     listing_market: uint8 &convert=ListingMarket($$);
     product_type: uint8 &convert=ProductType($$);
     trade_date: uint32;
@@ -329,7 +329,7 @@ type TradeCancelledMessage = unit {
 type TradeCancelledTermsMessage = unit {
     symbol: bytes &size=12;
     trade_number: uint32;
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type TradeCorrectionMessage = unit {
@@ -344,7 +344,7 @@ type TradeCorrectionMessage = unit {
     bypass: uint8 &convert=Bypass($$);
     trade_time_stamp: uint32;
     cross_type: uint8 &convert=CrossType($$);
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
     listing_market: uint8 &convert=ListingMarket($$);
     product_type: uint8 &convert=ProductType($$);
     trade_date: uint32;
@@ -367,7 +367,7 @@ type TradeCorrectionTermsMessage = unit {
     settlement_terms: uint8 &convert=SettlementTerms($$);
     settlement_date: uint32;
     cross_type: uint8 &convert=CrossType($$);
-    trading_system_time_stamp: uint64;
+    trading_system_time_stamp: uint64 &convert=time_ns($$);
 };
 
 type SequenceJump = unit(num_body: uint8) {

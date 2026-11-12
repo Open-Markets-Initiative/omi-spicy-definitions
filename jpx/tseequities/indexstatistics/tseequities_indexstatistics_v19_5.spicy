@@ -20,9 +20,9 @@ type ServiceHeader = unit {
     exchange_code: uint8 &convert=ExchangeCode($$);
     session_distinction: bytes &size=2;
     issue_classification: IssueClassification;
-    switch ( self.issue_classification.issue_classification_large_classification ) {
-        IssueClassificationLargeClassification::Stockrelated -> stock_issue_code: StockIssueCode;
-        IssueClassificationLargeClassification::Cbrelated -> cb_issue_code: CbIssueCode;
+    switch ( self.issue_classification.issue_classification_large_classification.strip() ) {
+        b"01" -> stock_issue_code: StockIssueCode;
+        b"02" -> cb_issue_code: CbIssueCode;
         * -> unknown: bytes &eod;
     };
 };
@@ -57,26 +57,26 @@ type CbIssueCode = unit {
 
 type TagInformation = unit {
     tag_id: bytes &size=2;
-    switch ( self.tag_id ) {
-        0 -> market_value_message: MarketValueMessage;
-        0 -> simple_yield_message: SimpleYieldMessage;
-        0 -> weighted_yield_message: WeightedYieldMessage;
-        0 -> simple_stock_price_average_message: SimpleStockPriceAverageMessage;
-        0 -> weighted_stock_price_average_message: WeightedStockPriceAverageMessage;
-        0 -> simple_stock_price_average_by_industry_message: SimpleStockPriceAverageByIndustryMessage;
-        0 -> japanese_yen_cb_indicator_message: JapaneseYenCbIndicatorMessage;
-        0 -> number_of_gainers_decliners_message: NumberOfGainersDeclinersMessage;
-        0 -> estimated_total_trading_volume_message: EstimatedTotalTradingVolumeMessage;
-        0 -> estimated_total_turnover_message: EstimatedTotalTurnoverMessage;
-        0 -> vwap_by_market_message: VwapByMarketMessage;
-        0 -> ranking_by_trading_volume_message: RankingByTradingVolumeMessage;
-        0 -> ranking_by_turnover_message: RankingByTurnoverMessage;
-        0 -> ranking_by_net_change_message: RankingByNetChangeMessage;
-        0 -> ranking_by_net_change_rate_message: RankingByNetChangeRateMessage;
-        0 -> tostnet_statistics_message: TostnetStatisticsMessage;
-        0 -> index_open_high_low_and_closing_prices_message: IndexOpenHighLowAndClosingPricesMessage;
-        0 -> special_quotation_message: SpecialQuotationMessage;
-        0 -> control_message: ControlMessage;
+    switch ( self.tag_id.strip() ) {
+        b"MV" -> market_value_message: MarketValueMessage;
+        b"YS" -> simple_yield_message: SimpleYieldMessage;
+        b"YW" -> weighted_yield_message: WeightedYieldMessage;
+        b"AP" -> simple_stock_price_average_message: SimpleStockPriceAverageMessage;
+        b"AW" -> weighted_stock_price_average_message: WeightedStockPriceAverageMessage;
+        b"AT" -> simple_stock_price_average_by_industry_message: SimpleStockPriceAverageByIndustryMessage;
+        b"IY" -> japanese_yen_cb_indicator_message: JapaneseYenCbIndicatorMessage;
+        b"NC" -> number_of_gainers_decliners_message: NumberOfGainersDeclinersMessage;
+        b"TV" -> estimated_total_trading_volume_message: EstimatedTotalTradingVolumeMessage;
+        b"TA" -> estimated_total_turnover_message: EstimatedTotalTurnoverMessage;
+        b"VS" -> vwap_by_market_message: VwapByMarketMessage;
+        b"RO" -> ranking_by_trading_volume_message: RankingByTradingVolumeMessage;
+        b"RA" -> ranking_by_turnover_message: RankingByTurnoverMessage;
+        b"RC" -> ranking_by_net_change_message: RankingByNetChangeMessage;
+        b"RP" -> ranking_by_net_change_rate_message: RankingByNetChangeRateMessage;
+        b"TS" -> tostnet_statistics_message: TostnetStatisticsMessage;
+        b"4I" -> index_open_high_low_and_closing_prices_message: IndexOpenHighLowAndClosingPricesMessage;
+        b"SQ" -> special_quotation_message: SpecialQuotationMessage;
+        b"LC" -> control_message: ControlMessage;
         * -> unknown: bytes &eod;
     };
     separation_of_tag: uint8 &convert=SeparationOfTag($$);

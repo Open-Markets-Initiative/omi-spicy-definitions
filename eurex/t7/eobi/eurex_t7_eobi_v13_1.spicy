@@ -20,7 +20,7 @@ type PacketHeader = unit {
     appl_seq_reset_indicator: uint8 &convert=ApplSeqResetIndicator($$);
     dscp: uint8;
     : skip bytes &size=4;   # padding
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
 };
 
 type EobiHeader = unit {
@@ -70,7 +70,7 @@ type MessageHeaderComp = unit {
 
 type AddComplexInstrument = unit {
     security_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     security_desc: bytes &size=40;
     security_sub_type: int32;
     product_complex: uint8 &convert=ProductComplex($$);
@@ -98,7 +98,7 @@ type InstrmtLegGrpComp = unit {
 
 type AddFlexibleInstrument = unit {
     security_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     security_desc: bytes &size=40;
     security_type: uint8 &convert=SecurityType($$);
     put_or_call: uint8 &convert=PutOrCall($$);
@@ -114,7 +114,7 @@ type AddFlexibleInstrument = unit {
 
 type AddScaledSimpleInstrument = unit {
     security_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     security_desc: bytes &size=40;
     security_type: uint8 &convert=SecurityType($$);
     : skip bytes &size=1;   # padding
@@ -128,7 +128,7 @@ type RelatedInstrumentGrpComp = unit {
 };
 
 type AuctionBbo = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     security_id: int64;
     bid_px: int64;
     offer_px: int64;
@@ -141,7 +141,7 @@ type AuctionBbo = unit {
 };
 
 type AuctionClearingPrice = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     security_id: int64;
     last_px: int64;
     last_qty: int64;
@@ -159,13 +159,13 @@ type CrossRequest = unit {
     cross_request_type: uint8 &convert=CrossRequestType($$);
     input_source: uint8 &convert=InputSource($$);
     : skip bytes &size=5;   # padding
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
 };
 
 type ExecutionSummary = unit {
     security_id: int64;
-    request_time: uint64;
-    exec_id: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    exec_id: uint64 &convert=time_ns($$);
     last_qty: int64;
     aggressor_side: uint8 &convert=AggressorSide($$);
     : skip bytes &size=1;   # padding
@@ -176,11 +176,11 @@ type ExecutionSummary = unit {
     remaining_order_details_comp: RemainingOrderDetailsComp;
     resting_hidden_qty: int64;
     resting_cxl_qty: int64;
-    aggressor_time: uint64;
+    aggressor_time: uint64 &convert=time_ns($$);
 };
 
 type RemainingOrderDetailsComp = unit {
-    trd_reg_ts_prev_time_priority: uint64;
+    trd_reg_ts_prev_time_priority: uint64 &convert=time_ns($$);
     display_qty: int64;
     price: int64;
 };
@@ -192,7 +192,7 @@ type FullOrderExecution = unit {
     hhi_indicator: int8;
     trd_match_id: uint32;
     price: int64;
-    trd_reg_ts_time_priority: uint64;
+    trd_reg_ts_time_priority: uint64 &convert=time_ns($$);
     security_id: int64;
     last_qty: int64;
     last_px: int64;
@@ -214,15 +214,15 @@ type InstrumentStateChange = unit {
     : skip bytes &size=2;   # padding
     high_px: int64;
     low_px: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     tes_security_status: uint8 &convert=TesSecurityStatus($$);
     : skip bytes &size=7;   # padding
 };
 
 type InstrumentSummary = unit {
     security_id: int64;
-    last_update_time: uint64;
-    trd_reg_ts_execution_time: uint64;
+    last_update_time: uint64 &convert=time_ns($$);
+    trd_reg_ts_execution_time: uint64 &convert=time_ns($$);
     tot_no_orders: uint16;
     security_status: uint8 &convert=SecurityStatus($$);
     security_trading_status: uint8 &convert=SecurityTradingStatus($$);
@@ -260,7 +260,7 @@ type MassInstrumentStateChange = unit {
     security_mass_trading_event: uint8 &convert=SecurityMassTradingEvent($$);
     mass_sold_out_indicator: uint8 &convert=MassSoldOutIndicator($$);
     tes_security_mass_status: uint8 &convert=TesSecurityMassStatus($$);
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     last_fragment: uint8 &convert=LastFragment($$);
     no_related_sym: uint8;
     : skip bytes &size=6;   # padding
@@ -281,13 +281,13 @@ type SecMassStatGrpComp = unit {
 };
 
 type OrderAdd = unit {
-    request_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
     security_id: int64;
     order_details_comp: OrderDetailsComp;
 };
 
 type OrderDetailsComp = unit {
-    trd_reg_ts_time_priority: uint64;
+    trd_reg_ts_time_priority: uint64 &convert=time_ns($$);
     display_qty: int64;
     side: uint8 &convert=Side($$);
     ord_type: uint8 &convert=OrdType($$);
@@ -297,20 +297,20 @@ type OrderDetailsComp = unit {
 };
 
 type OrderDelete = unit {
-    request_time: uint64;
-    transact_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    transact_time: uint64 &convert=time_ns($$);
     security_id: int64;
     order_details_comp: OrderDetailsComp;
 };
 
 type OrderMassDelete = unit {
     security_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
 };
 
 type OrderModify = unit {
-    request_time: uint64;
-    trd_reg_ts_prev_time_priority: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    trd_reg_ts_prev_time_priority: uint64 &convert=time_ns($$);
     prev_price: int64;
     prev_display_qty: int64;
     security_id: int64;
@@ -320,8 +320,8 @@ type OrderModify = unit {
 };
 
 type OrderModifySamePrio = unit {
-    request_time: uint64;
-    transact_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    transact_time: uint64 &convert=time_ns($$);
     prev_display_qty: int64;
     security_id: int64;
     order_details_comp: OrderDetailsComp;
@@ -334,7 +334,7 @@ type PartialOrderExecution = unit {
     hhi_indicator: int8;
     trd_match_id: uint32;
     price: int64;
-    trd_reg_ts_time_priority: uint64;
+    trd_reg_ts_time_priority: uint64 &convert=time_ns($$);
     security_id: int64;
     last_qty: int64;
     last_px: int64;
@@ -348,7 +348,7 @@ type ProductStateChange = unit {
     fast_market_indicator: uint8 &convert=FastMarketIndicator($$);
     tes_trad_ses_status: uint8 &convert=TesTradSesStatus($$);
     : skip bytes &size=2;   # padding
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
 };
 
 type ProductSummary = unit {
@@ -367,7 +367,7 @@ type QuoteRequest = unit {
     last_qty: int64;
     side: uint8 &convert=Side($$);
     : skip bytes &size=7;   # padding
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
 };
 
 type SnapshotOrder = unit {
@@ -376,7 +376,7 @@ type SnapshotOrder = unit {
 
 type TesTradeReport = unit {
     security_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     last_qty: int64;
     last_px: int64;
     trd_match_id: uint32;
@@ -386,14 +386,14 @@ type TesTradeReport = unit {
     multi_leg_price_model: uint8 &convert=MultiLegPriceModel($$);
     : skip bytes &size=6;   # padding
     non_disclosed_trade_volume: int64;
-    trans_bkd_time: uint64;
+    trans_bkd_time: uint64 &convert=time_ns($$);
     number_of_buy_sides: uint16;
     number_of_sell_sides: uint16;
     : skip bytes &size=4;   # padding
 };
 
 type TopOfBook = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     security_id: int64;
     bid_px: int64;
     offer_px: int64;
@@ -406,7 +406,7 @@ type TopOfBook = unit {
 
 type TradeReport = unit {
     security_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     last_qty: int64;
     last_px: int64;
     trd_match_id: uint32;
@@ -420,10 +420,10 @@ type TradeReport = unit {
 
 type TradeReversal = unit {
     security_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     last_qty: int64;
     last_px: int64;
-    trd_reg_ts_execution_time: uint64;
+    trd_reg_ts_execution_time: uint64 &convert=time_ns($$);
     trd_match_id: uint32;
     trade_condition: uint16 &convert=TradeCondition($$);
     md_origin_type: uint8 &convert=MdOriginType($$);

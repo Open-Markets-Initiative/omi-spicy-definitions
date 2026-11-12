@@ -72,7 +72,7 @@ type MessageHeader = unit {
 type NegotiateMessage = unit {
     session_id: uint32;
     session_ver_id: uint64;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     entering_firm: uint32;
     onbehalf_firm: uint32;
     credentials: Credentials;
@@ -104,14 +104,14 @@ type ClientAppVersion = unit {
 type NegotiateResponseMessage = unit {
     session_id: uint32;
     session_ver_id: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     entering_firm: uint32;
 };
 
 type NegotiateRejectMessage = unit {
     session_id: uint32;
     session_ver_id: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     entering_firm_optional: uint32;
     negotiation_reject_code: uint8 &convert=NegotiationRejectCode($$);
     : skip bytes &size=3;   # padding
@@ -121,7 +121,7 @@ type NegotiateRejectMessage = unit {
 type EstablishMessage = unit {
     session_id: uint32;
     session_ver_id: uint64;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     keep_alive_interval: uint64;
     next_seq_no: uint32;
     cancel_on_disconnect_type: uint8 &convert=CancelOnDisconnectType($$);
@@ -133,7 +133,7 @@ type EstablishMessage = unit {
 type EstablishAckMessage = unit {
     session_id: uint32;
     session_ver_id: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     keep_alive_interval: uint64;
     next_seq_no: uint32;
     last_incoming_seq_no: uint32;
@@ -142,7 +142,7 @@ type EstablishAckMessage = unit {
 type EstablishRejectMessage = unit {
     session_id: uint32;
     session_ver_id: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     establishment_reject_code: uint8 &convert=EstablishmentRejectCode($$);
     : skip bytes &size=1;   # padding
     last_incoming_seq_no_optional: uint32;
@@ -165,21 +165,21 @@ type SequenceMessage = unit {
 
 type RetransmitRequestMessage = unit {
     session_id: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     from_seq_no: uint32;
     count: uint32;
 };
 
 type RetransmissionMessage = unit {
     session_id: uint32;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     next_seq_no: uint32;
     count: uint32;
 };
 
 type RetransmitRejectMessage = unit {
     session_id: uint32;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     retransmit_reject_code: uint8 &convert=RetransmitRejectCode($$);
 };
 
@@ -206,7 +206,7 @@ type SimpleNewOrderMessage = unit {
 type InboundBusinessHeader = unit {
     session_id: uint32;
     msg_seq_num: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     market_segment_id: uint8;
     padding: bytes &size=1;
 };
@@ -378,8 +378,8 @@ type ExecutionReportNewMessage = unit {
     order_id: uint64;
     account: uint32;
     exec_id: uint64;
-    transact_time: uint64;
-    market_segment_received_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    market_segment_received_time: uint64 &convert=time_ns($$);
     protection_price: int64;
     trade_date: uint16;
     working_indicator: uint8 &convert=WorkingIndicator($$);
@@ -393,7 +393,7 @@ type ExecutionReportNewMessage = unit {
     min_qty: uint64;
     max_floor: uint64;
     crossid_optional: uint64;
-    received_time: uint64;
+    received_time: uint64 &convert=time_ns($$);
     : skip bytes &size=3;   # padding
     ordtagid: uint8;
     investor_id: InvestorId;
@@ -409,7 +409,7 @@ type ExecutionReportNewMessage = unit {
 type OutboundBusinessHeader = unit {
     session_id: uint32;
     msg_seq_num: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     poss_resend: uint8;
     padding: bytes &size=1;
 };
@@ -424,9 +424,9 @@ type ExecutionReportModifyMessage = unit {
     leaves_qty: uint64;
     account: uint32;
     exec_id: uint64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     cum_qty: uint64;
-    market_segment_received_time: uint64;
+    market_segment_received_time: uint64 &convert=time_ns($$);
     order_id: uint64;
     origclordid: uint64;
     protection_price: int64;
@@ -441,7 +441,7 @@ type ExecutionReportModifyMessage = unit {
     stop_px: int64;
     min_qty: uint64;
     max_floor: uint64;
-    received_time: uint64;
+    received_time: uint64 &convert=time_ns($$);
     : skip bytes &size=3;   # padding
     ordtagid: uint8;
     investor_id: InvestorId;
@@ -462,8 +462,8 @@ type ExecutionReportCancelMessage = unit {
     cum_qty: uint64;
     account: uint32;
     exec_id: uint64;
-    transact_time: uint64;
-    market_segment_received_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    market_segment_received_time: uint64 &convert=time_ns($$);
     order_id: uint64;
     origclordid: uint64;
     trade_date: uint16;
@@ -479,7 +479,7 @@ type ExecutionReportCancelMessage = unit {
     stop_px: int64;
     min_qty: uint64;
     max_floor: uint64;
-    received_time: uint64;
+    received_time: uint64 &convert=time_ns($$);
     : skip bytes &size=3;   # padding
     ordtagid: uint8;
     investor_id: InvestorId;
@@ -500,7 +500,7 @@ type ExecutionReportTradeMessage = unit {
     last_qty: uint64;
     last_px: int64;
     exec_id: uint64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     leaves_qty: uint64;
     cum_qty: uint64;
     aggressor_indicator: uint8 &convert=AggressorIndicator($$);
@@ -537,7 +537,7 @@ type ExecutionReportRejectMessage = unit {
     secondary_order_id_optional: uint64;
     security_id: uint64;
     ord_rej_reason: uint32 &convert=OrdRejReason($$);
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     exec_id: uint64;
     order_id_optional: uint64;
     origclordid: uint64;
@@ -552,7 +552,7 @@ type ExecutionReportRejectMessage = unit {
     max_floor: uint64;
     crossid_optional: uint64;
     crossed_indicator: uint16 &convert=CrossedIndicator($$);
-    received_time: uint64;
+    received_time: uint64 &convert=time_ns($$);
     : skip bytes &size=3;   # padding
     ordtagid: uint8;
     investor_id: InvestorId;
@@ -578,7 +578,7 @@ type ExecutionReportForwardMessage = unit {
     last_qty: uint64;
     last_px: int64;
     exec_id: uint64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     leaves_qty: uint64;
     cum_qty: uint64;
     trade_id: uint32;
@@ -651,7 +651,7 @@ type QuoteRequestMessage = unit {
     quote_id_optional: uint64;
     trade_id_optional: uint32;
     contra_broker: uint32;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     price_8: int64;
     settl_type: uint8 &convert=SettlType($$);
     execute_underlying_trade: uint8 &convert=ExecuteUnderlyingTrade($$);
@@ -669,7 +669,7 @@ type QuoteRequestMessage = unit {
 type BidirectionalBusinessHeader = unit {
     session_id: uint32;
     msg_seq_num: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     poss_resend: uint8;
     market_segment_id_optional: uint8;
     padding_char_2: bytes &size=2;
@@ -693,7 +693,7 @@ type QuoteStatusReportMessage = unit {
     quote_id: uint64;
     trade_id_optional: uint32;
     contra_broker: uint32;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     quote_status: uint8 &convert=QuoteStatus($$);
     quote_status_response_to: uint8 &convert=QuoteStatusResponseTo($$);
     account: uint32;
@@ -717,7 +717,7 @@ type QuoteMessage = unit {
     security_id: uint64;
     quote_req_id: uint64;
     quote_id: uint64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     price_8_optional: int64;
     order_qty: uint64;
     side: uint8 &convert=Side($$);
@@ -754,7 +754,7 @@ type QuoteRequestRejectMessage = unit {
     quote_id_optional: uint64;
     trade_id_optional: uint32;
     contra_broker: uint32;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     entering_trader: bytes &size=5;
     settl_type_optional: uint8 &convert=SettlTypeOptional($$);
     price_8_optional: int64;
@@ -808,7 +808,7 @@ type PositionMaintenanceReportMessage = unit {
     account_type: uint8 &convert=AccountType($$);
     clearing_business_date: uint16;
     threshold_amount: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     account: uint32;
     sender_location: bytes &size=10;
     pos_maint_result: uint32;
@@ -861,7 +861,7 @@ type AllocationReportMessage = unit {
     quantity: uint64;
     alloc_status: uint8 &convert=AllocStatus($$);
     trade_date_optional: uint16;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     side: uint8 &convert=Side($$);
     sender_location: bytes &size=10;
     entering_trader: bytes &size=5;
@@ -887,7 +887,7 @@ type OrderMassActionReportMessage = unit {
     mass_action_scope: uint8 &convert=MassActionScope($$);
     clordid: uint64;
     mass_action_report_id: uint64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     mass_action_response: uint8 &convert=MassActionResponse($$);
     mass_action_reject_reason: uint8 &convert=MassActionRejectReason($$);
     mass_cancel_restatement_reason: uint8 &convert=MassCancelRestatementReason($$);

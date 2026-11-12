@@ -51,7 +51,7 @@ type Negotiate = unit {
     hmac_signature: bytes &size=32;
     access_key_id: bytes &size=20;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     session: bytes &size=3;
     firm: bytes &size=5;
     credentials: Credentials;
@@ -69,7 +69,7 @@ type Establish = unit {
     trading_system_version: bytes &size=10;
     trading_system_vendor: bytes &size=10;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     next_seq_no: uint32;
     session: bytes &size=3;
     firm: bytes &size=5;
@@ -87,7 +87,7 @@ type Sequence = unit {
 type Terminate = unit {
     reason: bytes &size=48;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     error_codes: uint16;
     split_msg: uint8 &convert=SplitMsg($$);
 };
@@ -95,7 +95,7 @@ type Terminate = unit {
 type RetransmitRequest = unit {
     uuid: uint64;
     last_uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     from_seq_no: uint32;
     msg_count_16: uint16;
 };
@@ -110,7 +110,7 @@ type NewOrderSingle = unit {
     clordid: bytes &size=20;
     party_details_list_req_id: uint64;
     order_request_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     stop_px: int64;
     location: bytes &size=5;
     min_qty: uint32;
@@ -149,7 +149,7 @@ type OrderCancelReplaceRequest = unit {
     order_id_optional: uint64;
     stop_px: int64;
     order_request_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     location: bytes &size=5;
     min_qty: uint32;
     display_qty: uint32;
@@ -183,7 +183,7 @@ type OrderCancelRequest = unit {
     sender_id: bytes &size=20;
     clordid: bytes &size=20;
     order_request_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     location: bytes &size=5;
     security_id: int32;
     side: uint8 &convert=Side($$);
@@ -193,7 +193,7 @@ type OrderCancelRequest = unit {
 
 type PartyDetailsDefinitionRequest = unit {
     party_details_list_req_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     list_update_action: uint8 &convert=ListUpdateAction($$);
     seq_num: uint32;
     memo: bytes &size=75;
@@ -239,7 +239,7 @@ type TrdRegPublicationsGroup = unit {
 
 type QuoteCancel = unit {
     party_details_list_req_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
     seq_num: uint32;
     sender_id: bytes &size=20;
@@ -280,7 +280,7 @@ type OrderMassStatusRequest = unit {
     manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
     seq_num: uint32;
     sender_id: bytes &size=20;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     security_group: bytes &size=6;
     location: bytes &size=5;
     security_id_optional: int32;
@@ -297,13 +297,13 @@ type OrderStatusRequest = unit {
     seq_num: uint32;
     sender_id: bytes &size=20;
     order_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     location: bytes &size=5;
 };
 
 type PartyDetailsListRequest = unit {
     party_details_list_req_id: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     seq_num: uint32;
     requesting_party_ids_groups: RequestingPartyIdsGroups;
     party_ids_groups: PartyIdsGroups;
@@ -344,7 +344,7 @@ type ExecutionAck = unit {
     dk_reason: uint8 &convert=DkReason($$);
     side: uint8 &convert=Side($$);
     sender_id: bytes &size=20;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     location: bytes &size=5;
     manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
 };
@@ -355,7 +355,7 @@ type RequestForQuote = unit {
     manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
     seq_num: uint32;
     sender_id: bytes &size=20;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     location: bytes &size=5;
     quote_type: uint8 &convert=QuoteType($$);
     related_sym_groups: RelatedSymGroups;
@@ -380,7 +380,7 @@ type NewOrderCross = unit {
     sender_id: bytes &size=20;
     price: int64;
     trans_bkd_time: uint64;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     location: bytes &size=5;
     security_id: int32;
     sides_groups: SidesGroups;
@@ -405,7 +405,7 @@ type SecurityDefinitionRequest = unit {
     manual_order_indicator: uint8 &convert=ManualOrderIndicator($$);
     seq_num: uint32;
     sender_id_optional: bytes &size=20;
-    sending_time_epoch: uint64;
+    sending_time_epoch: uint64 &convert=time_ns($$);
     security_sub_type: bytes &size=8;
     location: bytes &size=5;
     start_date: uint16;

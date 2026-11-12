@@ -62,13 +62,13 @@ type SequencedMessage = unit {
 type SystemEventMessage = unit {
     event_code: uint8 &convert=EventCode($$);
     : skip bytes &size=2;   # padding
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
 };
 
 type StockDirectoryMessage = unit {
     market: uint8 &convert=Market($$);
     stock: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     board_lot_size: uint32;
     instrument_id: uint16;
     shortable: uint8 &convert=Shortable($$);
@@ -80,7 +80,7 @@ type StockDirectoryMessage = unit {
 type ExtendedStockDirectoryMessage = unit {
     market: uint8 &convert=Market($$);
     stock: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     board_lot_size: uint32;
     instrument_id: uint16;
     shortable: uint8 &convert=Shortable($$);
@@ -96,14 +96,14 @@ type ExtendedStockDirectoryMessage = unit {
 type StockTradingActionMessage = unit {
     trading_state: uint8 &convert=TradingState($$);
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     reason: bytes &size=4;
 };
 
 type AddOrderMessage = unit {
     buy_sell_indicator: uint8 &convert=BuySellIndicator($$);
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     order_reference_number: uint32;
     shares: uint32;
     price: uint32;
@@ -114,7 +114,7 @@ type AddOrderMessage = unit {
 type OrderExecutedMessage = unit {
     marker: bytes &size=1;
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     order_reference_number: uint32;
     executed_shares: uint32;
     match_number: uint32;
@@ -125,7 +125,7 @@ type OrderExecutedMessage = unit {
 type OrderExecutedWithPriceMessage = unit {
     marker: bytes &size=1;
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     order_reference_number: uint32;
     executed_shares: uint32;
     execution_price: uint32;
@@ -137,14 +137,14 @@ type OrderExecutedWithPriceMessage = unit {
 type OrderDeleteMessage = unit {
     : skip bytes &size=1;   # padding
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     order_reference_number: uint32;
 };
 
 type OrderReplaceMessage = unit {
     : skip bytes &size=1;   # padding
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     original_order_reference_number: uint32;
     new_order_reference_number: uint32;
     shares: uint32;
@@ -154,7 +154,7 @@ type OrderReplaceMessage = unit {
 type OrderCancelMessage = unit {
     : skip bytes &size=1;   # padding
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     order_reference_number: uint32;
     cancelled_shares: uint32;
 };
@@ -162,7 +162,7 @@ type OrderCancelMessage = unit {
 type TradeMessage = unit {
     side: uint8 &convert=Side($$);
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     midpoint_book_trade: uint32 &convert=MidpointBookTrade($$);
     shares: uint32;
     price: uint32;
@@ -174,7 +174,7 @@ type TradeMessage = unit {
 type CrossTradeMessage = unit {
     cross_type: uint8 &convert=CrossType($$);
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     shares: uint32;
     price: uint32;
     match_number: uint32;
@@ -188,14 +188,14 @@ type CrossTradeMessage = unit {
 type TradeBustMessage = unit {
     : skip bytes &size=1;   # padding
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     match_number: uint32;
 };
 
 type TradeAmendMessage = unit {
     : skip bytes &size=1;   # padding
     instrument_id: uint16;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     original_trade_id: uint32;
     original_trade_price: uint64;
     original_trade_size: uint32;

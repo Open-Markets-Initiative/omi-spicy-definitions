@@ -1,0 +1,134 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataProduct37IntraV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataProduct37V11 = unit {
+    intra_multicast_header: IntraMulticastHeader;
+    message_block: MessageBlock[self.intra_multicast_header.total_messages];
+};
+
+type IntraMulticastHeader = unit {
+    length: int16;
+    total_messages: int8;
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    session: int8;
+    sequence_number: int32;
+    datetime: int64 &convert=time($$ / 1000.0);
+};
+
+type MessageBlock = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::OrderAditionMessage -> order_adition_message: OrderAditionMessage;
+        MessageType::ExecutionOfOrdersMessage -> execution_of_orders_message: ExecutionOfOrdersMessage;
+        MessageType::OrderCancellationMessage -> order_cancellation_message: OrderCancellationMessage;
+        MessageType::OrderChangeMessage -> order_change_message: OrderChangeMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: int16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type OrderAditionMessage = unit {
+    id_instrument: int32;
+    date_and_hour: int64 &convert=time($$ / 1000.0);
+    folio: int32;
+    direction: uint8 &convert=Direction($$);
+    volume: int32;
+    price: int64;
+    participant: bytes &size=5;
+    operation_type: uint8 &convert=OperationType($$);
+};
+
+type ExecutionOfOrdersMessage = unit {
+    id_instrument: int32;
+    date: int64 &convert=time($$ / 1000.0);
+    folio: int32;
+    volume: int32;
+    trade_number: int32;
+    execution_price: int64;
+    operation_type: uint8 &convert=OperationType($$);
+};
+
+type OrderCancellationMessage = unit {
+    id_instrument: int32;
+    date: int64 &convert=time($$ / 1000.0);
+    folio: int32;
+    operation_type: uint8 &convert=OperationType($$);
+};
+
+type OrderChangeMessage = unit {
+    id_instrument: int32;
+    original_date: int64 &convert=time($$ / 1000.0);
+    original_folio: int32;
+    new_date: int64 &convert=time($$ / 1000.0);
+    new_folio: int32;
+    direction: uint8 &convert=Direction($$);
+    volume: int32;
+    price: int64;
+    operation_type: uint8 &convert=OperationType($$);
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    OrderAditionMessage = 0x4143,
+    ExecutionOfOrdersMessage = 0x4343,
+    OrderCancellationMessage = 0x4443,
+    OrderChangeMessage = 0x4643,
+};
+
+type Direction = enum {
+    Bid = 0x43,
+    Ask = 0x56,
+};
+
+type OperationType = enum {
+    AtClose = 0x48,
+    AfterClose = 0x44,
+    AveragePrice = 0x50,
+    InavAtClose = 0x28,
+    InavAfterClose = 0x29,
+};
+

@@ -57,7 +57,7 @@ type ClientSeqMsg = unit {
     msg_header: MsgHeader;
     seq_msg_id: SeqMsgId;
     : skip bytes &size=4;   # padding
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     seq_msg_header: SeqMsgHeader;
     switch ( self.seq_msg_header.seq_msg_type ) {
         SeqMsgType::SessionConfigurationRequestMessage -> session_configuration_request_message: SessionConfigurationRequestMessage;
@@ -152,7 +152,7 @@ type NewBulkQuoteType243Message = unit {
     cl_ord_id: uint64;
     self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
-    mm_sent_time: uint64;
+    mm_sent_time: uint64 &convert=time_ns($$);
     quote_request_group: QuoteRequestGroup[] &eod;
 };
 
@@ -174,7 +174,7 @@ type NewBulkQuoteType259Message = unit {
     cl_ord_id: uint64;
     self_trade_type_u_81: uint8 &convert=SelfTradeTypeU81($$);
     group_id: uint32;
-    mm_sent_time: uint64;
+    mm_sent_time: uint64 &convert=time_ns($$);
     quote_request_group: QuoteRequestGroup[] &eod;
 };
 
@@ -233,7 +233,7 @@ type BulkCancelRequestType223Message = unit {
     mpid: bytes &size=4;
     market_maker: bytes &size=10;
     cl_ord_id: uint64;
-    mm_sent_time: uint64;
+    mm_sent_time: uint64 &convert=time_ns($$);
     side_u_81: uint8 &convert=SideU81($$);
     group_id: uint32;
     target_cancel_username: bytes &size=16;

@@ -1,0 +1,136 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataProduct32IntraV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataProduct32V11 = unit {
+    intra_multicast_header: IntraMulticastHeader;
+    message_block: MessageBlock[self.intra_multicast_header.total_messages];
+};
+
+type IntraMulticastHeader = unit {
+    length: int16;
+    total_messages: int8;
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    session: int8;
+    sequence_number: int32;
+    datetime: int64 &convert=time($$ / 1000.0);
+};
+
+type MessageBlock = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        0x3d -> effective_spread_message: EffectiveSpreadMessage;
+        0x7b -> spread_quality_message: SpreadQualityMessage;
+        0x40 -> price_leaderboard_message: PriceLeaderboardMessage;
+        0x7c -> quotes_quality_message: QuotesQualityMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: int16;
+    message_type: uint8;
+};
+
+type EffectiveSpreadMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    es_mxn: int32;
+    es_basis_points: int32;
+    es_mxn_bid: int32;
+    es_basis_points_bid: int32;
+    es_mxn_ask: int32;
+    es_basis_points_ask: int32;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type SpreadQualityMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    time_best_spread: int32;
+    time_tie_best_spread: int32;
+    time_without_best_spread: int32;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type PriceLeaderboardMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    t_best_bid: int32;
+    t_tie_best_bid: int32;
+    t_without_best_bid: int32;
+    t_best_ask: int32;
+    t_tie_best_ask: int32;
+    t_without_best_ask: int32;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type QuotesQualityMessage = unit {
+    origin: uint8 &convert=Origin($$);
+    instruments: int16;
+    time_field: int32;
+    market: uint8 &convert=Market($$);
+    sector: int8;
+    instrument_number: int32;
+    indices: bytes &size=2;
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type Origin = enum {
+    Bmv = 0x4d,
+    Biva = 0x49,
+    Both = 0x41,
+};
+
+type Market = enum {
+    Local = 0x4c,
+    Global = 0x47,
+    EtFs = 0x54,
+    ReiTs = 0x46,
+};
+

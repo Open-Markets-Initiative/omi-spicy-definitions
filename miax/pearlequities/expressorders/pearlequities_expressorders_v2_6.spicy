@@ -37,24 +37,24 @@ type SequencedDataPacket = unit {
     matching_engine_id: uint8;
     sequenced_message_type: bytes &size=2;
     switch ( self.sequenced_message_type ) {
-        0 -> symbol_update: SymbolUpdate;
-        0 -> new_order_response_message: NewOrderResponseMessage;
-        0 -> modify_order_response: ModifyOrderResponse;
-        0 -> cancel_order_response: CancelOrderResponse;
-        0 -> cancel_order_by_exchange_order_id_response_message: CancelOrderByExchangeOrderIdResponseMessage;
-        0 -> system_state_notification: SystemStateNotification;
-        0 -> new_order_notification: NewOrderNotification;
-        0 -> modify_order_notification: ModifyOrderNotification;
-        0 -> cancel_reduce_size_order_notification: CancelReduceSizeOrderNotification;
-        0 -> order_price_update_notification: OrderPriceUpdateNotification;
-        0 -> reserve_order_replenishment_notification: ReserveOrderReplenishmentNotification;
-        0 -> execution_notification: ExecutionNotification;
+        b"SU" -> symbol_update: SymbolUpdate;
+        b"NR" -> new_order_response_message: NewOrderResponseMessage;
+        b"MR" -> modify_order_response: ModifyOrderResponse;
+        b"CR" -> cancel_order_response: CancelOrderResponse;
+        b"CQ" -> cancel_order_by_exchange_order_id_response_message: CancelOrderByExchangeOrderIdResponseMessage;
+        b"SN" -> system_state_notification: SystemStateNotification;
+        b"O1" -> new_order_notification: NewOrderNotification;
+        b"MN" -> modify_order_notification: ModifyOrderNotification;
+        b"XN" -> cancel_reduce_size_order_notification: CancelReduceSizeOrderNotification;
+        b"PU" -> order_price_update_notification: OrderPriceUpdateNotification;
+        b"RA" -> reserve_order_replenishment_notification: ReserveOrderReplenishmentNotification;
+        b"E1" -> execution_notification: ExecutionNotification;
         * -> unknown: bytes &eod;
     };
 };
 
 type SymbolUpdate = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     ticker_symbol: bytes &size=11;
     : skip bytes &size=1;   # padding
@@ -68,7 +68,7 @@ type SymbolUpdate = unit {
 };
 
 type NewOrderResponseMessage = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     symbol_id: uint32;
@@ -80,7 +80,7 @@ type NewOrderResponseMessage = unit {
 };
 
 type ModifyOrderResponse = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     original_client_order_id: bytes &size=20;
@@ -93,7 +93,7 @@ type ModifyOrderResponse = unit {
 };
 
 type CancelOrderResponse = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     original_client_order_id: bytes &size=20;
@@ -105,7 +105,7 @@ type CancelOrderResponse = unit {
 };
 
 type CancelOrderByExchangeOrderIdResponseMessage = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     symbol_id: uint32;
@@ -116,7 +116,7 @@ type CancelOrderByExchangeOrderIdResponseMessage = unit {
 };
 
 type SystemStateNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     meo_version: bytes &size=8;
     session_id: uint8;
     system_status: uint8 &convert=SystemStatus($$);
@@ -124,7 +124,7 @@ type SystemStateNotification = unit {
 };
 
 type NewOrderNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     order_id: uint64;
     client_order_id: bytes &size=20;
@@ -173,7 +173,7 @@ type NewOrderNotification = unit {
 };
 
 type ModifyOrderNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     original_client_order_id: bytes &size=20;
@@ -196,7 +196,7 @@ type ModifyOrderNotification = unit {
 };
 
 type CancelReduceSizeOrderNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     symbol_id: uint32;
@@ -211,7 +211,7 @@ type CancelReduceSizeOrderNotification = unit {
 };
 
 type OrderPriceUpdateNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     order_id: uint64;
     working_price: uint64;
@@ -220,7 +220,7 @@ type OrderPriceUpdateNotification = unit {
 };
 
 type ReserveOrderReplenishmentNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     symbol_id: uint32;
     order_id: uint64;
     secondary_order_id: uint64;
@@ -229,7 +229,7 @@ type ReserveOrderReplenishmentNotification = unit {
 };
 
 type ExecutionNotification = unit {
-    matching_engine_time: uint64;
+    matching_engine_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     symbol_id: uint32;
     client_order_id: bytes &size=20;
@@ -259,18 +259,18 @@ type ExecutionNotification = unit {
 type UnsequencedDataPacket = unit {
     unsequenced_message_type: bytes &size=2;
     switch ( self.unsequenced_message_type ) {
-        0 -> new_order_request_message: NewOrderRequestMessage;
-        0 -> new_order_response_message: NewOrderResponseMessage;
-        0 -> modify_order_request_message: ModifyOrderRequestMessage;
-        0 -> modify_order_response: ModifyOrderResponse;
-        0 -> cancel_order_request: CancelOrderRequest;
-        0 -> cancel_order_response: CancelOrderResponse;
-        0 -> cancel_order_by_exchange_order_id_request: CancelOrderByExchangeOrderIdRequest;
-        0 -> cancel_order_by_exchange_order_id_response_message: CancelOrderByExchangeOrderIdResponseMessage;
-        0 -> mass_cancel_request: MassCancelRequest;
-        0 -> mass_cancel_response: MassCancelResponse;
-        0 -> reserve_order_replenishment_notification: ReserveOrderReplenishmentNotification;
-        0 -> execution_notification: ExecutionNotification;
+        b"N1" -> new_order_request_message: NewOrderRequestMessage;
+        b"NR" -> new_order_response_message: NewOrderResponseMessage;
+        b"M1" -> modify_order_request_message: ModifyOrderRequestMessage;
+        b"MR" -> modify_order_response: ModifyOrderResponse;
+        b"CO" -> cancel_order_request: CancelOrderRequest;
+        b"CR" -> cancel_order_response: CancelOrderResponse;
+        b"CX" -> cancel_order_by_exchange_order_id_request: CancelOrderByExchangeOrderIdRequest;
+        b"CQ" -> cancel_order_by_exchange_order_id_response_message: CancelOrderByExchangeOrderIdResponseMessage;
+        b"XQ" -> mass_cancel_request: MassCancelRequest;
+        b"XR" -> mass_cancel_response: MassCancelResponse;
+        b"RA" -> reserve_order_replenishment_notification: ReserveOrderReplenishmentNotification;
+        b"E1" -> execution_notification: ExecutionNotification;
         * -> unknown: bytes &eod;
     };
 };
@@ -370,7 +370,7 @@ type MassCancelRequest = unit {
 };
 
 type MassCancelResponse = unit {
-    notification_time: uint64;
+    notification_time: uint64 &convert=time_ns($$);
     mpid: bytes &size=4;
     client_order_id: bytes &size=20;
     number_of_matching_engines: uint8;

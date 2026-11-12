@@ -12,7 +12,7 @@ public type EuronextOptiqMarketdatagatewayV410 = unit {
 };
 
 type MarketDataPacketHeader = unit {
-    packet_time: uint64;
+    packet_time: uint64 &convert=time_ns($$);
     packet_sequence_number: uint32;
     packet_flags: bitfield(16) {
         compression: 0;
@@ -81,15 +81,15 @@ type EndOfDayMessage = unit {
 
 type HealthStatusMessage = unit {
     md_seq_num: uint64;
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
 };
 
 type TechnicalNotificationMessage = unit {
     md_seq_num_optional: uint64;
     technical_notification_type: uint8 &convert=TechnicalNotificationType($$);
     rebroadcast_indicator: uint8;
-    retransmission_start_time: uint64;
-    retransmission_end_time: uint64;
+    retransmission_start_time: uint64 &convert=time_ns($$);
+    retransmission_end_time: uint64 &convert=time_ns($$);
     symbol_index_optional: uint32;
 };
 
@@ -97,7 +97,7 @@ type MarketUpdateMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     market_updates_groups: MarketUpdatesGroups;
 };
 
@@ -123,7 +123,7 @@ type OrderUpdateMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     order_updates_groups: OrderUpdatesGroups;
 };
 
@@ -148,7 +148,7 @@ type PriceUpdateMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     price_updates_groups: PriceUpdatesGroups;
 };
 
@@ -170,7 +170,7 @@ type FullTradeInformationMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     symbol_index_optional: uint32;
     trading_date_time: bytes &size=27;
     publication_date_time: bytes &size=27;
@@ -215,7 +215,7 @@ type FullTradeInformationMessage = unit {
     effective_date_indicator: uint8 &convert=EffectiveDateIndicator($$);
     block_trade_code: uint8 &convert=BlockTradeCode($$);
     trade_reference: bytes &size=30;
-    original_report_timestamp: uint64;
+    original_report_timestamp: uint64 &convert=time_ns($$);
     transparency_indicator: uint8 &convert=TransparencyIndicator($$);
     currency_coefficient: uint32;
     price_multiplier: uint32;
@@ -251,7 +251,7 @@ type MarketStatesGroups = unit {
 type MarketStatesGroup = unit {
     change_type: uint8 &convert=ChangeType($$);
     symbol_index: uint32;
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     book_state: uint8 &convert=BookState($$);
     status_reason: uint8 &convert=StatusReason($$);
     phase_qualifier: bitfield(16) {
@@ -272,7 +272,7 @@ type MarketStatesGroup = unit {
     order_entry_qualifier: uint8 &convert=OrderEntryQualifier($$);
     session: uint8 &convert=Session($$);
     scheduled_event: uint8 &convert=ScheduledEvent($$);
-    scheduled_event_time: uint64;
+    scheduled_event_time: uint64 &convert=time_ns($$);
     instrument_state: uint8 &convert=InstrumentState($$);
 };
 
@@ -291,7 +291,7 @@ type TimetablesGroups = unit {
 };
 
 type TimetablesGroup = unit {
-    phase_time: uint64;
+    phase_time: uint64 &convert=time_ns($$);
     phase_id: uint8 &convert=PhaseId($$);
     phase_qualifier: bitfield(16) {
         no_qualifier: 0;
@@ -394,7 +394,7 @@ type RealTimeIndexMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     symbol_index: uint32;
     index_level: int64;
     pctg_of_capitalization: uint64;
@@ -425,19 +425,19 @@ type IndexSummaryMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     symbol_index: uint32;
     opening_level: int64;
-    opening_time: uint64;
+    opening_time: uint64 &convert=time_ns($$);
     confirmed_reference_level: int64;
-    confirmed_reference_time: uint64;
+    confirmed_reference_time: uint64 &convert=time_ns($$);
     closing_reference_level: int64;
     closing_reference_time: uint64;
     prct_varfrom_prev_close: int64;
     high_level: int64;
-    high_time: uint64;
+    high_time: uint64 &convert=time_ns($$);
     low_level: int64;
-    low_time: uint64;
+    low_time: uint64 &convert=time_ns($$);
     liquidation_level: int64;
     liquidation_time: uint64;
 };
@@ -629,7 +629,7 @@ type LongOrderUpdateMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     long_order_updates_groups: LongOrderUpdatesGroups;
 };
 
@@ -656,7 +656,7 @@ type LisPackageStructureMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     contract_symbol_index: uint32;
     mifid_execution_id: bytes &size=52;
     strategy_code: uint8 &convert=StrategyCode($$);
@@ -683,7 +683,7 @@ type ApaQuotesMessage = unit {
     mic: bytes &size=4;
     currency: bytes &size=3;
     lei_code: bytes &size=20;
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     quote_update_type: uint8 &convert=QuoteUpdateType($$);
     mifid_price: bytes &size=20;
     mifid_quantity: bytes &size=20;
@@ -717,7 +717,7 @@ type ApaFullTradeInformationMessage = unit {
     md_seq_num: uint64;
     rebroadcast_indicator: uint8;
     emm: uint8 &convert=Emm($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     trading_date_time: bytes &size=27;
     publication_date_time: bytes &size=27;
     trade_type: uint8 &convert=TradeType($$);
@@ -748,7 +748,7 @@ type ApaFullTradeInformationMessage = unit {
     efficient_mmt_post_trade_deferral: uint8 &convert=EfficientMmtPostTradeDeferral($$);
     efficient_mmt_duplicative_indicator: uint8 &convert=EfficientMmtDuplicativeIndicator($$);
     trade_reference: bytes &size=30;
-    original_report_timestamp: uint64;
+    original_report_timestamp: uint64 &convert=time_ns($$);
     price_multiplier: uint32;
     price_multiplier_decimals: uint8;
     venue: bytes &size=11;
@@ -814,7 +814,7 @@ type BfTradeMessage = unit {
     rebroadcast_indicator: uint8;
     symbol_index: uint32;
     mifid_transaction_id: bytes &size=52;
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     bid_offer_date_time: uint64;
     mmt_modification_indicator: bytes &size=4;
     price: int64;
@@ -848,7 +848,7 @@ type BfInstrumentSuspensionMessage = unit {
     md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     symbol_index: uint32;
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
     security_condition: uint8 &convert=SecurityCondition($$);
 };
 

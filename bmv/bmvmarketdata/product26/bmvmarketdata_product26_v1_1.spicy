@@ -1,0 +1,500 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataProduct26IntraV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataProduct26V11 = unit {
+    intra_multicast_header: IntraMulticastHeader;
+    message_block: MessageBlock[self.intra_multicast_header.total_messages];
+};
+
+type IntraMulticastHeader = unit {
+    length: int16;
+    total_messages: int8;
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    session: int8;
+    sequence_number: int32;
+    datetime: int64 &convert=time($$ / 1000.0);
+};
+
+type MessageBlock = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        0x28 -> mutual_funds_trades_message: MutualFundsTradesMessage;
+        0x29 -> opening_of_continuous_auctions_message: OpeningOfContinuousAuctionsMessage;
+        0x2c -> existence_of_bids_at_mid_price_message: ExistenceOfBidsAtMidPriceMessage;
+        0x2e -> catalogue_of_debt_and_metals_instruments_message: CatalogueOfDebtAndMetalsInstrumentsMessage;
+        0x30 -> catalog_sent_for_instruments_belonging_to_mutual_funds_message: CatalogSentForInstrumentsBelongingToMutualFundsMessage;
+        0x36 -> weighted_average_price_message: WeightedAveragePriceMessage;
+        0x37 -> system_events_message: SystemEventsMessage;
+        0x38 -> reference_price_message: ReferencePriceMessage;
+        0x39 -> changes_in_status_message: ChangesInStatusMessage;
+        0x54 -> catalog_for_instruments_belonging_to_the_capital_warrants_market_message: CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage;
+        0x5b -> catalog_sent_for_instruments_belonging_to_capital_tracs_message: CatalogSentForInstrumentsBelongingToCapitalTracsMessage;
+        0x5d -> consolidated_inav_message: ConsolidatedInavMessage;
+        0x68 -> catalog_for_instruments_belonging_to_the_local_and_global_stock_market_message: CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage;
+        0x69 -> probable_price_of_allocation_message: ProbablePriceOfAllocationMessage;
+        0x6a -> relation_between_bmvbiva_instruments_message: RelationBetweenBmvbivaInstrumentsMessage;
+        0x70 -> equities_market_trades_message: EquitiesMarketTradesMessage;
+        0x71 -> consolidated_trade_cancellation_message: ConsolidatedTradeCancellationMessage;
+        0x6d -> last_quote_message: LastQuoteMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: int16;
+    message_type: uint8;
+};
+
+type MutualFundsTradesMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    date_of_the_trade: int64 &convert=time($$ / 1000.0);
+    price: int64;
+    book_value: int64;
+    number_of_sales_trades: int32;
+    sales_volume: int64;
+    number_of_purchase_trades: int32;
+    purchase_volume: int64;
+};
+
+type OpeningOfContinuousAuctionsMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    auction_session_startup_time: int64 &convert=time($$ / 1000.0);
+    auction_session_end_time: int64 &convert=time($$ / 1000.0);
+};
+
+type ExistenceOfBidsAtMidPriceMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    bids_existing: bytes &size=1;
+};
+
+type CatalogueOfDebtAndMetalsInstrumentsMessage = unit {
+    number_of_the_instrument: int32;
+    origin: uint8 &convert=Origin($$);
+    type_of_value: bytes &size=2;
+    issuing_company: bytes &size=7;
+    issuance: bytes &size=6;
+    date_of_issuance: int64 &convert=time($$ / 1000.0);
+    date_of_maturity: int64 &convert=time($$ / 1000.0);
+    price_rate_of_reference: int64;
+    date_of_reference: int64 &convert=time($$ / 1000.0);
+    reference: uint8 &convert=Reference($$);
+    term_days: int16;
+    coupon_period: int16;
+    isin: bytes &size=12;
+    market: uint8 &convert=Market($$);
+    current_nominal_value: int64;
+    original_nominal_value: int64;
+    outstanding_shares: int64;
+    amount_placed: int64;
+    trades_rate_price: uint8 &convert=TradesRatePrice($$);
+};
+
+type CatalogSentForInstrumentsBelongingToMutualFundsMessage = unit {
+    number_of_the_instrument: int32;
+    origin: uint8 &convert=Origin($$);
+    type_of_value: bytes &size=2;
+    issuing_company: bytes &size=7;
+    series: bytes &size=6;
+    sector: int8;
+    sub_sector: int8;
+    industry: int8;
+    sub_industry: int8;
+    trading_company: bytes &size=10;
+    reference_price: int64;
+    reference_date: int64 &convert=time($$ / 1000.0);
+    reference: uint8 &convert=Reference($$);
+    isin: bytes &size=12;
+    rating: bytes &size=15;
+};
+
+type WeightedAveragePriceMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    weighted_average_price: int64;
+    volatility: int64;
+};
+
+type SystemEventsMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    code_of_event: uint8 &convert=CodeOfEvent($$);
+    market: uint8 &convert=Market($$);
+    send_time: int64 &convert=time($$ / 1000.0);
+    end_time: int64 &convert=time($$ / 1000.0);
+    group: bytes &size=8;
+};
+
+type ReferencePriceMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    price: int64;
+    price_type: uint8 &convert=PriceType($$);
+};
+
+type ChangesInStatusMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    status: uint8 &convert=Status($$);
+    reason: uint8 &convert=Reason($$);
+};
+
+type CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage = unit {
+    number_of_the_instrument: int32;
+    origin: uint8 &convert=Origin($$);
+    type_of_value: bytes &size=2;
+    issuing_company: bytes &size=7;
+    series: bytes &size=6;
+    type_of_warrant: uint8 &convert=TypeOfWarrant($$);
+    date_of_maturity: int64 &convert=time($$ / 1000.0);
+    price_of_exercise: int64;
+    reference_price: int64;
+    reference_date: int64 &convert=time($$ / 1000.0);
+    reference: uint8 &convert=Reference($$);
+    isin: bytes &size=12;
+};
+
+type CatalogSentForInstrumentsBelongingToCapitalTracsMessage = unit {
+    number_of_the_trac: int32;
+    origin: uint8 &convert=Origin($$);
+    name_of_the_trac: bytes &size=8;
+    underlying_issuing_company: bytes &size=7;
+    underlying_series: bytes &size=6;
+    securities: int64;
+    excluded_securities: int64;
+    price: int64;
+    component_in_cash: int64;
+    excluded_value: int64;
+    number_of_certificates: int64;
+    theoretical_price: int64;
+};
+
+type ConsolidatedInavMessage = unit {
+    number_of_the_trac: int32;
+    origin: uint8 &convert=Origin($$);
+    current_theoretical_price: int64;
+};
+
+type CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage = unit {
+    mse_instrument_number: int32;
+    value_of_type: bytes &size=2;
+    issuing_company: bytes &size=7;
+    series: bytes &size=6;
+    last_price: int64;
+    ppp_weighted_average_price: int64;
+    reference_date: int64 &convert=time($$ / 1000.0);
+    reference: uint8 &convert=Reference($$);
+    coupon_in_effect: int16;
+    marketability: uint8 &convert=Marketability($$);
+    numerical_marketability: int32;
+    isin: bytes &size=12;
+    market: uint8 &convert=Market($$);
+    registered_values: int64;
+    exchange: uint8 &convert=Exchange($$);
+};
+
+type ProbablePriceOfAllocationMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    probable_price_of_allocation: int64;
+    volume: int64;
+};
+
+type RelationBetweenBmvbivaInstrumentsMessage = unit {
+    number_of_the_bmv_instrument: int32;
+    biva_instrument: int32;
+    type_of_trading: uint8 &convert=TypeOfTrading($$);
+};
+
+type EquitiesMarketTradesMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    time_of_the_trade: int64 &convert=time($$ / 1000.0);
+    volume: int64;
+    price: int64;
+    type_of_agreement: uint8 &convert=TypeOfAgreement($$);
+    consecutive_number_of_the_trade: int64;
+    sets_price: bytes &size=1;
+    type_of_trading: uint8 &convert=TypeOfTrading($$);
+    amount: int64;
+    purchases: bytes &size=5;
+    sells: bytes &size=5;
+    settlement: uint8 &convert=Settlement($$);
+    auction_indicator: uint8 &convert=AuctionIndicator($$);
+    indicator: uint8 &convert=Indicator($$);
+};
+
+type ConsolidatedTradeCancellationMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    consecutive_number_of_the_trade: int64;
+};
+
+type LastQuoteMessage = unit {
+    instrument_number: int32;
+    origin: uint8 &convert=Origin($$);
+    volume: int64;
+    price_rate: int64;
+    direction_of_the_bid: uint8 &convert=DirectionOfTheBid($$);
+    type_of_trading: uint8 &convert=TypeOfTrading($$);
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type Origin = enum {
+    Bmv = 0x4d,
+    Biva = 0x49,
+    Both = 0x41,
+};
+
+type Reference = enum {
+    Previous = 0x4e,
+    Adjusted = 0x4a,
+    AdjustedNominalValue = 0x56,
+    WithoutPrice = 0x20,
+};
+
+type Market = enum {
+    Local = 0x4c,
+    Global = 0x47,
+    LocalDebt = 0x44,
+    GlobalDebt = 0x46,
+    Money = 0x45,
+    DollarOptionMarket = 0x4d,
+    StockMarket = 0x58,
+    ForexAndRatesMarket = 0x56,
+    FixedIncome = 0x4a,
+    VariableIncome = 0x42,
+    Metals = 0x54,
+    MutualFunds = 0x49,
+    Warrants = 0x57,
+    AllMarkets = 0x20,
+};
+
+type TradesRatePrice = enum {
+    Rate = 0x54,
+    Price = 0x50,
+    ByDefault = 0x20,
+};
+
+type CodeOfEvent = enum {
+    StartOfSystemHours = 0x41,
+    CancelationOfOffers = 0x42,
+    StartOfOpeningAuction = 0x43,
+    StartOfContinuousMarket = 0x44,
+    StartOfWapPeriod = 0x45,
+    ContinuousMarketEnds = 0x46,
+    StartOfAfterClosingPhase = 0x47,
+    ItEndsAfterClosing = 0x48,
+    TransmissionOfFinalPricesEnds = 0x4a,
+    EndOfSystemHours = 0x4b,
+    StartOfAdministrativeRecess = 0x4d,
+    EndOfAdministrativeRecess = 0x4e,
+    StartDvmamxMarkets = 0x4f,
+    EndOfDvmaMarkets = 0x50,
+    EndOfMxMarkets = 0x51,
+    StartOfOpcModality = 0x52,
+    EndOfOpcModality = 0x53,
+    StartOfSettlementAuction = 0x54,
+    EndOfSettlementAuction = 0x55,
+    FinalRegisterOfSettlementPrices = 0x56,
+    OpenInterest = 0x57,
+};
+
+type PriceType = enum {
+    Reference = 0x52,
+    ClosingPrice = 0x43,
+    Inav = 0x49,
+    VolumeWeightedAveragePrice = 0x56,
+};
+
+type Status = enum {
+    BidsCancellation = 0x43,
+    OpeningBiddingSession = 0x41,
+    PreOpening = 0x50,
+    InAllotment = 0x45,
+    AssignedBiddingSession = 0x47,
+    EndedBiddingSession = 0x54,
+    OngoingTrading = 0x4e,
+    BiddingSessionDueToParametersBreaking = 0x4b,
+    OngoingBiddingSessionDueToOperationsCeasingForMoreThan20BusinessDays = 0x4d,
+    DemergerBiddingSession = 0x55,
+    SuspendedSeries = 0x4f,
+    SuspendedListing = 0x56,
+    BiddingSessionDueToBreach = 0x4c,
+    WithdrawalOfOrdersInAnOngoingBiddingSession = 0x49,
+    WithdrawalOfOrdersInIntradayBiddingSession = 0x42,
+    AwaitingNews = 0x57,
+    SettlementBiddingSession = 0x58,
+    ExtraordinarySettlementBiddingSession = 0x59,
+    CkdesTotalBiddingSession = 0x52,
+};
+
+type Reason = enum {
+    NormalOperation = 0x4e,
+    VolatilityBiddingSession = 0x48,
+    StartupOfTheVolatilityBiddingSession = 0x41,
+    EndOfTheVolatilityBiddingSession = 0x42,
+    AwaitingNews = 0x51,
+    StaticPriceBandBreach = 0x53,
+    SuspensionDueToMarketsSurveillance = 0x4d,
+    SuspensionFromTheMarketOfOrigin = 0x4f,
+    WithoutCompliance = 0x43,
+    StartupOfTheInterestNotice = 0x49,
+};
+
+type TypeOfWarrant = enum {
+    Purchase = 0x43,
+    Sale = 0x56,
+};
+
+type Marketability = enum {
+    High = 0x41,
+    Medium = 0x4d,
+    Low = 0x42,
+    Minimum = 0x4e,
+    RecentQuotation = 0x52,
+    NullOrInapplicable = 0x20,
+};
+
+type Exchange = enum {
+    Bmv = 0x4d,
+    Biva = 0x49,
+};
+
+type TypeOfTrading = enum {
+    ContinuousElectronicTrading = 0x45,
+    MarketOnClose = 0x43,
+    BlockTrading = 0x42,
+    DebtTrading = 0x44,
+    WarrantsTrading = 0x57,
+};
+
+type TypeOfAgreement = enum {
+    CrossingOperation = 0x43,
+    OrderClosing = 0x4f,
+    OperationAtClosingPrice = 0x48,
+    OperationAfterClosing = 0x44,
+    OperationAtMediumPrice = 0x4d,
+    OperationAtAveragePriceForTheDay = 0x50,
+    BlockOperationsByException = 0x58,
+    VwapOperationsByException = 0x76,
+    TwapOperationsByException = 0x77,
+    BasketTrading = 0x25,
+    OtcRecentOperations = 0x78,
+    OtcAgreedOperations = 0x79,
+    BuyAutoEntry = 0x41,
+    SellAutoEntry = 0x42,
+    BlockTrade = 0x45,
+    LegOfBlocktradeForChainOfForwards = 0x46,
+    LegOfChainOfForwards = 0x47,
+    LegOfCrossingOfForeignCurrencyStrategy = 0x4a,
+    SellLegAutoEntryOfForeignCurrencyStrategy = 0x4b,
+    BuyLegAutoEntryOfForeignCurrencyStrategy = 0x4c,
+    LegOfForeignCurrencyStrategy = 0x4e,
+    LegOfForeignCurrencyStrategy_x51 = 0x51,
+    LegOfCrossingOfChainOfForwards = 0x52,
+    SellLegAutoEntryOfChainOfForwards = 0x53,
+    BuyLegAutoEntryOfChainOfForwards = 0x54,
+    LegOfAuctionOfChainOfForwards = 0x55,
+    LegOfRoundOfChainOfForwards = 0x56,
+    ChainsOfForwards = 0x57,
+    LegOfRolloverCrossing = 0x59,
+    SellLegAutoEntryOfRollover = 0x5a,
+    BuyLegAutoEntryOfRollover = 0x61,
+    LegOfRoundOfRollover = 0x62,
+    DepthOfRoundOfChainOfForwards = 0x63,
+    TradingOfChainOfForwards = 0x64,
+    DepthOfRound = 0x65,
+    RoundOfChainOfForwards = 0x66,
+    RolloverSentra = 0x67,
+    TypeRound = 0x68,
+    Auctions = 0x69,
+    LegOfBlockTradeOfRollover = 0x6a,
+    LegOfBlockTradeOfForeignCurrencyStrategy = 0x6b,
+    BlockTradeOfForeignCurrencyStrategy = 0x6c,
+    BlockTradeOfChainOfForwards = 0x6d,
+    BlocktradeOfRollover = 0x6e,
+    CrossingOfChainOfForwards = 0x6f,
+    SellAutoEntryOfChainOfForwards = 0x70,
+    BuyAutoEntryOfChainOfForwards = 0x71,
+    SwapBlockTrade = 0x72,
+    SwapBlockTradeWithContinuousCoupon = 0x73,
+    BlockTradeOfUnwind = 0x74,
+    BlockTradeOfSubstitution = 0x75,
+    VoiceOver = 0x7a,
+    FirmOrder = 0x23,
+    IpoCross = 0x49,
+    UnintentionalSelfCross = 0x2b,
+    WithoutConcertation = 0x26,
+    InavToClosingPriceTrading = 0x28,
+    InavAfterClosing = 0x29,
+};
+
+type Settlement = enum {
+    SameDay = 0x4d,
+    TwentyFourHours = 0x32,
+    FortyEightHours = 0x34,
+    SeventyTwoHours = 0x37,
+    NinetySixHours = 0x39,
+    OneHundredTwentyHours = 0x31,
+};
+
+type AuctionIndicator = enum {
+    OpeningAuction = 0x50,
+    OtherAuctions = 0x53,
+    ContinuousMarket = 0x20,
+    NotApplicable = 0x4e,
+};
+
+type Indicator = enum {
+    No = 0x4e,
+    Yes = 0x59,
+};
+
+type DirectionOfTheBid = enum {
+    Purchase = 0x43,
+    Sale = 0x56,
+};
+

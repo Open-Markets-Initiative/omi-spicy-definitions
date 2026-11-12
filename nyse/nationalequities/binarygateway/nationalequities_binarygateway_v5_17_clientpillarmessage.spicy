@@ -57,7 +57,7 @@ type ClientSeqMsg = unit {
     msg_header: MsgHeader;
     seq_msg_id: SeqMsgId;
     : skip bytes &size=4;   # padding
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     seq_msg_header: SeqMsgHeader;
     switch ( self.seq_msg_header.seq_msg_type ) {
         SeqMsgType::SessionConfigurationRequestMessage -> session_configuration_request_message: SessionConfigurationRequestMessage;
@@ -136,7 +136,7 @@ type OptionalOrderAddOn = unit {
     locate_broker: bytes &size=4;
     : skip bytes &size=8;   # padding
     offset_price: int64;
-    effective_time: uint64;
+    effective_time: uint64 &convert=time_ns($$);
 };
 
 type SubMsgHeader = unit {

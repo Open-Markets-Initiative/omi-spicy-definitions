@@ -35,7 +35,7 @@ type MessageHeader = unit {
 type DeleteOrderBroadcast = unit {
     : skip bytes &size=2;   # padding
     rbc_header_comp: RbcHeaderComp;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     market_segment_id: int32;
     no_affected_orders: uint16;
     : skip bytes &size=2;   # padding
@@ -43,7 +43,7 @@ type DeleteOrderBroadcast = unit {
 };
 
 type RbcHeaderComp = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
     party_id_executing_unit: uint32;
     partition_id: uint16;
     appl_id: uint8 &convert=ApplId($$);
@@ -73,7 +73,7 @@ type ForcedLogoutNotification = unit {
 };
 
 type NotifHeaderComp = unit {
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type HeartbeatNotification = unit {
@@ -94,8 +94,8 @@ type LogonResponse = unit {
 };
 
 type ResponseHeaderComp = unit {
-    request_time: uint64;
-    sending_time: uint64;
+    request_time: uint64 &convert=time_ns($$);
+    sending_time: uint64 &convert=time_ns($$);
     msg_seq_num: uint32;
     last_fragment: uint8 &convert=LastFragment($$);
     : skip bytes &size=3;   # padding
@@ -113,7 +113,7 @@ type OrderExecReportBroadcast = unit {
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
     security_id: int64;
-    exec_id: uint64;
+    exec_id: uint64 &convert=time_ns($$);
     price: int64;
     stop_px: int64;
     leaves_qty: int64;

@@ -13,35 +13,35 @@ public type BoxoptionsSolamulticastV21 = unit {
 type SolaFrame = unit {
     sola_message_start: uint8;
     message_header: MessageHeader;
-    switch ( self.message_header.message_type ) {
-        MessageType::EndOfTransmissionMessage -> end_of_transmission_message: EndOfTransmissionMessage;
-        MessageType::CircuitAssuranceMessage -> circuit_assurance_message: CircuitAssuranceMessage;
-        MessageType::SystemTimestampMessage -> system_timestamp_message: SystemTimestampMessage;
-        MessageType::OptionTradeMessage -> option_trade_message: OptionTradeMessage;
-        MessageType::StrategyTradeMessage -> strategy_trade_message: StrategyTradeMessage;
-        MessageType::OptionRequestForQuoteMessage -> option_request_for_quote_message: OptionRequestForQuoteMessage;
-        MessageType::OptionQuoteMessage -> option_quote_message: OptionQuoteMessage;
-        MessageType::ComplexOrderQuoteMessage -> complex_order_quote_message: ComplexOrderQuoteMessage;
-        MessageType::GroupOpeningTimeMessage -> group_opening_time_message: GroupOpeningTimeMessage;
-        MessageType::GroupStatusMessage -> group_status_message: GroupStatusMessage;
-        MessageType::StrategiesGroupStatusMessage -> strategies_group_status_message: StrategiesGroupStatusMessage;
-        MessageType::OptionMarketDepthMessage -> option_market_depth_message: OptionMarketDepthMessage;
-        MessageType::ComplexOrderMarketDepthMessage -> complex_order_market_depth_message: ComplexOrderMarketDepthMessage;
-        MessageType::OptionTradeCancellationMessage -> option_trade_cancellation_message: OptionTradeCancellationMessage;
-        MessageType::ComplexOrderTradeCancellationMessage -> complex_order_trade_cancellation_message: ComplexOrderTradeCancellationMessage;
-        MessageType::OptionInstrumentKeysMessage -> option_instrument_keys_message: OptionInstrumentKeysMessage;
-        MessageType::ComplexOrderInstrumentKeysMessage -> complex_order_instrument_keys_message: ComplexOrderInstrumentKeysMessage;
-        MessageType::OptionSummaryMessage -> option_summary_message: OptionSummaryMessage;
-        MessageType::ComplexOrderSummaryMessage -> complex_order_summary_message: ComplexOrderSummaryMessage;
-        MessageType::BeginningOfOptionsSummaryMessage -> beginning_of_options_summary_message: BeginningOfOptionsSummaryMessage;
-        MessageType::BeginningOfComplexOrderSummaryMessage -> beginning_of_complex_order_summary_message: BeginningOfComplexOrderSummaryMessage;
-        MessageType::EndOfSalesMessage -> end_of_sales_message: EndOfSalesMessage;
-        MessageType::StartOfAuctionOnOptionMessage -> start_of_auction_on_option_message: StartOfAuctionOnOptionMessage;
-        MessageType::StartOfAuctionOnComplexOrderMessage -> start_of_auction_on_complex_order_message: StartOfAuctionOnComplexOrderMessage;
-        MessageType::StartOfExpositionOnOptionMessage -> start_of_exposition_on_option_message: StartOfExpositionOnOptionMessage;
-        MessageType::StartOfExpositionOnComplexOrderMessage -> start_of_exposition_on_complex_order_message: StartOfExpositionOnComplexOrderMessage;
-        MessageType::EndOfAuctionOrExpositionOnOptionMessage -> end_of_auction_or_exposition_on_option_message: EndOfAuctionOrExpositionOnOptionMessage;
-        MessageType::EndOfAuctionOrExpositionOnComplexInstrumentsMessage -> end_of_auction_or_exposition_on_complex_instruments_message: EndOfAuctionOrExpositionOnComplexInstrumentsMessage;
+    switch ( self.message_header.message_type.strip() ) {
+        b"U" -> end_of_transmission_message: EndOfTransmissionMessage;
+        b"V" -> circuit_assurance_message: CircuitAssuranceMessage;
+        b"Z" -> system_timestamp_message: SystemTimestampMessage;
+        b"C" -> option_trade_message: OptionTradeMessage;
+        b"CS" -> strategy_trade_message: StrategyTradeMessage;
+        b"D" -> option_request_for_quote_message: OptionRequestForQuoteMessage;
+        b"F" -> option_quote_message: OptionQuoteMessage;
+        b"FS" -> complex_order_quote_message: ComplexOrderQuoteMessage;
+        b"GC" -> group_opening_time_message: GroupOpeningTimeMessage;
+        b"GR" -> group_status_message: GroupStatusMessage;
+        b"GS" -> strategies_group_status_message: StrategiesGroupStatusMessage;
+        b"H" -> option_market_depth_message: OptionMarketDepthMessage;
+        b"HS" -> complex_order_market_depth_message: ComplexOrderMarketDepthMessage;
+        b"I" -> option_trade_cancellation_message: OptionTradeCancellationMessage;
+        b"IS" -> complex_order_trade_cancellation_message: ComplexOrderTradeCancellationMessage;
+        b"J" -> option_instrument_keys_message: OptionInstrumentKeysMessage;
+        b"JS" -> complex_order_instrument_keys_message: ComplexOrderInstrumentKeysMessage;
+        b"N" -> option_summary_message: OptionSummaryMessage;
+        b"NS" -> complex_order_summary_message: ComplexOrderSummaryMessage;
+        b"Q" -> beginning_of_options_summary_message: BeginningOfOptionsSummaryMessage;
+        b"QS" -> beginning_of_complex_order_summary_message: BeginningOfComplexOrderSummaryMessage;
+        b"S" -> end_of_sales_message: EndOfSalesMessage;
+        b"M" -> start_of_auction_on_option_message: StartOfAuctionOnOptionMessage;
+        b"MS" -> start_of_auction_on_complex_order_message: StartOfAuctionOnComplexOrderMessage;
+        b"O" -> start_of_exposition_on_option_message: StartOfExpositionOnOptionMessage;
+        b"OS" -> start_of_exposition_on_complex_order_message: StartOfExpositionOnComplexOrderMessage;
+        b"T" -> end_of_auction_or_exposition_on_option_message: EndOfAuctionOrExpositionOnOptionMessage;
+        b"TS" -> end_of_auction_or_exposition_on_complex_instruments_message: EndOfAuctionOrExpositionOnComplexInstrumentsMessage;
         * -> unknown: bytes &eod;
     };
     sola_message_end: uint8;
@@ -168,7 +168,7 @@ type OptionMarketDepthMessage = unit {
     instrument_description: InstrumentDescription;
     instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
     number_of_levels: bytes &size=1;
-    market_depth_level: MarketDepthLevel[self.number_of_levels];
+    market_depth_level: MarketDepthLevel[self.number_of_levels.to_uint()];
 };
 
 type MarketDepthLevel = unit {
@@ -188,7 +188,7 @@ type ComplexOrderMarketDepthMessage = unit {
     complex_order_instrument_symbol: bytes &size=30;
     instrument_status_marker: uint8 &convert=InstrumentStatusMarker($$);
     number_of_levels: bytes &size=1;
-    complex_market_depth_level: ComplexMarketDepthLevel[self.number_of_levels];
+    complex_market_depth_level: ComplexMarketDepthLevel[self.number_of_levels.to_uint()];
 };
 
 type ComplexMarketDepthLevel = unit {
@@ -284,7 +284,7 @@ type ComplexOrderInstrumentKeysMessage = unit {
     instrument_external_code: bytes &size=30;
     complex_order_instrument_allow_implied: uint8 &convert=ComplexOrderInstrumentAllowImplied($$);
     number_of_legs: bytes &size=2;
-    instrument_leg: InstrumentLeg[self.number_of_legs];
+    instrument_leg: InstrumentLeg[self.number_of_legs.to_uint()];
 };
 
 type InstrumentLeg = unit {

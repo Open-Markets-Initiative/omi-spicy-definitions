@@ -10,36 +10,36 @@ public type MxSolaorderentryV121 = unit {
     message_length: uint32;
     message_type: bytes &size=2;
     switch ( self.message_type ) {
-        0 -> connection_acknowledgement: ConnectionAcknowledgement;
-        0 -> disconnection_instruction_acknowledgement: DisconnectionInstructionAcknowledgement;
-        0 -> heartbeat_question: HeartbeatQuestion;
-        0 -> out_of_sequence: OutOfSequence;
-        0 -> technical_error_notice: TechnicalErrorNotice;
-        0 -> disconnection_acknowledgement: DisconnectionAcknowledgement;
-        0 -> end_of_transmission: EndOfTransmission;
-        0 -> order_reply: OrderReply;
-        0 -> error_notice: ErrorNotice;
-        0 -> bulk_quote_data_acknowledgement: BulkQuoteDataAcknowledgement;
-        0 -> order_acknowledgement: OrderAcknowledgement;
-        0 -> global_cancellation_confirmation: GlobalCancellationConfirmation;
-        0 -> order_modification_acknowledgement: OrderModificationAcknowledgement;
-        0 -> new_strategy_instrument_acknowledgement: NewStrategyInstrumentAcknowledgement;
-        0 -> standard_acknowledgement: StandardAcknowledgement;
-        0 -> order_cancellation_acknowledgement: OrderCancellationAcknowledgement;
-        0 -> bulk_quote_acknowledgement: BulkQuoteAcknowledgement;
-        0 -> bulk_command_acknowledgement: BulkCommandAcknowledgement;
-        0 -> risk_limits_usage: RiskLimitsUsage;
-        0 -> excluded_instrument_notice: ExcludedInstrumentNotice;
-        0 -> group_state_change: GroupStateChange;
-        0 -> instrument_state_change: InstrumentStateChange;
-        0 -> leg_execution_notice: LegExecutionNotice;
-        0 -> overstepped_order_or_quote_notice: OversteppedOrderOrQuoteNotice;
-        0 -> cancellation_of_all_quotes_notice: CancellationOfAllQuotesNotice;
-        0 -> execution_notice: ExecutionNotice;
-        0 -> execution_cancellation_notice: ExecutionCancellationNotice;
-        0 -> leg_execution_cancellation_notice: LegExecutionCancellationNotice;
-        0 -> order_cancellation_notice_by_mod_or_system: OrderCancellationNoticeByModOrSystem;
-        0 -> request_for_quote_with_side_acknowledgement: RequestForQuoteWithSideAcknowledgement;
+        b"TK" -> connection_acknowledgement: ConnectionAcknowledgement;
+        b"TM" -> disconnection_instruction_acknowledgement: DisconnectionInstructionAcknowledgement;
+        b"TH" -> heartbeat_question: HeartbeatQuestion;
+        b"TO" -> out_of_sequence: OutOfSequence;
+        b"TE" -> technical_error_notice: TechnicalErrorNotice;
+        b"TL" -> disconnection_acknowledgement: DisconnectionAcknowledgement;
+        b"TT" -> end_of_transmission: EndOfTransmission;
+        b"AE" -> order_reply: OrderReply;
+        b"ER" -> error_notice: ErrorNotice;
+        b"KD" -> bulk_quote_data_acknowledgement: BulkQuoteDataAcknowledgement;
+        b"KE" -> order_acknowledgement: OrderAcknowledgement;
+        b"KG" -> global_cancellation_confirmation: GlobalCancellationConfirmation;
+        b"KM" -> order_modification_acknowledgement: OrderModificationAcknowledgement;
+        b"KN" -> new_strategy_instrument_acknowledgement: NewStrategyInstrumentAcknowledgement;
+        b"KO" -> standard_acknowledgement: StandardAcknowledgement;
+        b"KZ" -> order_cancellation_acknowledgement: OrderCancellationAcknowledgement;
+        b"LA" -> bulk_quote_acknowledgement: BulkQuoteAcknowledgement;
+        b"LB" -> bulk_command_acknowledgement: BulkCommandAcknowledgement;
+        b"MN" -> risk_limits_usage: RiskLimitsUsage;
+        b"NE" -> excluded_instrument_notice: ExcludedInstrumentNotice;
+        b"NG" -> group_state_change: GroupStateChange;
+        b"NI" -> instrument_state_change: InstrumentStateChange;
+        b"NL" -> leg_execution_notice: LegExecutionNotice;
+        b"NO" -> overstepped_order_or_quote_notice: OversteppedOrderOrQuoteNotice;
+        b"NP" -> cancellation_of_all_quotes_notice: CancellationOfAllQuotesNotice;
+        b"NT" -> execution_notice: ExecutionNotice;
+        b"NX" -> execution_cancellation_notice: ExecutionCancellationNotice;
+        b"NY" -> leg_execution_cancellation_notice: LegExecutionCancellationNotice;
+        b"NZ" -> order_cancellation_notice_by_mod_or_system: OrderCancellationNoticeByModOrSystem;
+        b"QW" -> request_for_quote_with_side_acknowledgement: RequestForQuoteWithSideAcknowledgement;
         * -> unknown: bytes &eod;
     };
     end_of_text: uint8;
@@ -179,7 +179,7 @@ type NewStrategyInstrumentAcknowledgement = unit {
     strategy_instrument: bytes &size=4;
     creation_status: uint8 &convert=CreationStatus($$);
     number_of_legs: bytes &size=2;
-    new_strategy_instrument_acknowledgement_leg_definition_repeating_block: NewStrategyInstrumentAcknowledgementLegDefinitionRepeatingBlock[self.number_of_legs];
+    new_strategy_instrument_acknowledgement_leg_definition_repeating_block: NewStrategyInstrumentAcknowledgementLegDefinitionRepeatingBlock[self.number_of_legs.to_uint()];
 };
 
 type NewStrategyInstrumentAcknowledgementLegDefinitionRepeatingBlock = unit {
@@ -217,7 +217,7 @@ type BulkQuoteAcknowledgement = unit {
     group: bytes &size=2;
     quote_identifier_on_this_group: bytes &size=8;
     number_of_quotes_in_error: bytes &size=3;
-    bulk_quote_acknowledgement_occurrence: BulkQuoteAcknowledgementOccurrence[self.number_of_quotes_in_error];
+    bulk_quote_acknowledgement_occurrence: BulkQuoteAcknowledgementOccurrence[self.number_of_quotes_in_error.to_uint()];
 };
 
 type BulkQuoteAcknowledgementOccurrence = unit {
@@ -228,7 +228,7 @@ type BulkQuoteAcknowledgementOccurrence = unit {
 type BulkCommandAcknowledgement = unit {
     outgoing_messages_header: OutgoingMessagesHeader;
     number_of_commands: bytes &size=4;
-    bulk_command_acknowledgement_occurrence: BulkCommandAcknowledgementOccurrence[self.number_of_commands];
+    bulk_command_acknowledgement_occurrence: BulkCommandAcknowledgementOccurrence[self.number_of_commands.to_uint()];
 };
 
 type BulkCommandAcknowledgementOccurrence = unit {
@@ -239,7 +239,7 @@ type BulkCommandAcknowledgementOccurrence = unit {
 type RiskLimitsUsage = unit {
     outgoing_messages_header: OutgoingMessagesHeader;
     number_of_usage_blocks: bytes &size=4;
-    risk_limits_usage_occurrence: RiskLimitsUsageOccurrence[self.number_of_usage_blocks];
+    risk_limits_usage_occurrence: RiskLimitsUsageOccurrence[self.number_of_usage_blocks.to_uint()];
 };
 
 type RiskLimitsUsageOccurrence = unit {
@@ -258,7 +258,7 @@ type ExcludedInstrumentNotice = unit {
     trader_id: bytes &size=8;
     : skip bytes &size=4;   # padding
     nb_of_instruments: bytes &size=4;
-    excluded_instrument_notice_occurrence: ExcludedInstrumentNoticeOccurrence[self.nb_of_instruments];
+    excluded_instrument_notice_occurrence: ExcludedInstrumentNoticeOccurrence[self.nb_of_instruments.to_uint()];
 };
 
 type ExcludedInstrumentNoticeOccurrence = unit {

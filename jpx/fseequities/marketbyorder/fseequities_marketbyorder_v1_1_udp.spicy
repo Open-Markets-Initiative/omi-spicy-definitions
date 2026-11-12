@@ -45,11 +45,11 @@ type MessageHeader = unit {
 };
 
 type SecondsTimestampMessage = unit {
-    time_seconds: uint32;
+    time_seconds: uint32 &convert=time($$);
 };
 
 type TradingStatusMessage = unit {
-    time_microseconds: uint32;
+    time_microseconds: uint32 &convert=interval($$ / 1000000.0);
     market_status: uint8 &convert=MarketStatus($$);
     status_flag: bytes &size=2;
     short_selling_status: uint8 &convert=ShortSellingStatus($$);
@@ -58,7 +58,7 @@ type TradingStatusMessage = unit {
 };
 
 type ExecutionSummaryMessage = unit {
-    time_microseconds: uint32;
+    time_microseconds: uint32 &convert=interval($$ / 1000000.0);
     triggered_side: uint8 &convert=TriggeredSide($$);
     total_volume: bytes &size=6;
     total_invalidation: bytes &size=6;
@@ -69,7 +69,7 @@ type ExecutionSummaryMessage = unit {
 };
 
 type AddOrderMessage = unit {
-    time_microseconds: uint32;
+    time_microseconds: uint32 &convert=interval($$ / 1000000.0);
     order_id: uint32;
     side: uint8 &convert=Side($$);
     quantity: bytes &size=6;
@@ -79,7 +79,7 @@ type AddOrderMessage = unit {
 };
 
 type OrderExecutedMessage = unit {
-    time_microseconds: uint32;
+    time_microseconds: uint32 &convert=interval($$ / 1000000.0);
     order_id: uint32;
     side: uint8 &convert=Side($$);
     volume: bytes &size=6;
@@ -87,7 +87,7 @@ type OrderExecutedMessage = unit {
 };
 
 type OrderExecutedWithPriceMessage = unit {
-    time_microseconds: uint32;
+    time_microseconds: uint32 &convert=interval($$ / 1000000.0);
     order_id: uint32;
     side: uint8 &convert=Side($$);
     volume: bytes &size=6;
@@ -97,7 +97,7 @@ type OrderExecutedWithPriceMessage = unit {
 };
 
 type OrderDeleteMessage = unit {
-    time_microseconds: uint32;
+    time_microseconds: uint32 &convert=interval($$ / 1000000.0);
     order_id: uint32;
     side: uint8 &convert=Side($$);
     modification_flag: uint8 &convert=ModificationFlag($$);

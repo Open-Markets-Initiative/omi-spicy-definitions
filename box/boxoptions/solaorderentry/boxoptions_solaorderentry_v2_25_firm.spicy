@@ -10,26 +10,26 @@ public type BoxoptionsSolaorderentryV225 = unit {
     message_length: uint32;
     incoming_header: IncomingHeader;
     switch ( self.incoming_header.message_type ) {
-        0 -> user_connection: UserConnection;
-        0 -> user_disconnection: UserDisconnection;
-        0 -> disconnection_instruction: DisconnectionInstruction;
-        0 -> heartbeat_response: HeartbeatResponse;
-        0 -> bulk_quote_data: BulkQuoteData;
-        0 -> global_cancellation: GlobalCancellation;
-        0 -> user_global_cancellation: UserGlobalCancellation;
-        0 -> directed_routed_order_rejection_and_quote: DirectedRoutedOrderRejectionAndQuote;
-        0 -> auction_entry: AuctionEntry;
-        0 -> directed_order_acceptation: DirectedOrderAcceptation;
-        0 -> order_entry: OrderEntry;
-        0 -> improvement_order_entry: ImprovementOrderEntry;
-        0 -> order_modification: OrderModification;
-        0 -> new_complex_order_instrument: NewComplexOrderInstrument;
-        0 -> complex_order_auction_entry: ComplexOrderAuctionEntry;
-        0 -> bulk_quote: BulkQuote;
-        0 -> market_maker_protection_subscription: MarketMakerProtectionSubscription;
-        0 -> request_for_quote: RequestForQuote;
-        0 -> order_cancellation: OrderCancellation;
-        0 -> improvement_order_cancellation: ImprovementOrderCancellation;
+        b"TC" -> user_connection: UserConnection;
+        b"TD" -> user_disconnection: UserDisconnection;
+        b"TA" -> disconnection_instruction: DisconnectionInstruction;
+        b"TI" -> heartbeat_response: HeartbeatResponse;
+        b"BD" -> bulk_quote_data: BulkQuoteData;
+        b"GC" -> global_cancellation: GlobalCancellation;
+        b"GZ" -> user_global_cancellation: UserGlobalCancellation;
+        b"KQ" -> directed_routed_order_rejection_and_quote: DirectedRoutedOrderRejectionAndQuote;
+        b"OA" -> auction_entry: AuctionEntry;
+        b"OD" -> directed_order_acceptation: DirectedOrderAcceptation;
+        b"OE" -> order_entry: OrderEntry;
+        b"OI" -> improvement_order_entry: ImprovementOrderEntry;
+        b"OM" -> order_modification: OrderModification;
+        b"ON" -> new_complex_order_instrument: NewComplexOrderInstrument;
+        b"OT" -> complex_order_auction_entry: ComplexOrderAuctionEntry;
+        b"QP" -> bulk_quote: BulkQuote;
+        b"RP" -> market_maker_protection_subscription: MarketMakerProtectionSubscription;
+        b"RQ" -> request_for_quote: RequestForQuote;
+        b"XE" -> order_cancellation: OrderCancellation;
+        b"XI" -> improvement_order_cancellation: ImprovementOrderCancellation;
         * -> unknown: bytes &eod;
     };
     end_of_text: uint8;
@@ -51,7 +51,7 @@ type UserConnection = unit {
     exchange_message_id: bytes &size=6;
     inactivity_interval: bytes &size=2;
     number_of_message_types_to_be_received: bytes &size=2;
-    user_connection_occurrence: UserConnectionOccurrence[self.number_of_message_types_to_be_received];
+    user_connection_occurrence: UserConnectionOccurrence[self.number_of_message_types_to_be_received.to_uint()];
 };
 
 type UserConnectionOccurrence = unit {
@@ -65,7 +65,7 @@ type UserDisconnection = unit {
 
 type DisconnectionInstruction = unit {
     number_of_instructions_present_in_the_message: bytes &size=2;
-    disconnection_instruction_occurrence: DisconnectionInstructionOccurrence[self.number_of_instructions_present_in_the_message];
+    disconnection_instruction_occurrence: DisconnectionInstructionOccurrence[self.number_of_instructions_present_in_the_message.to_uint()];
 };
 
 type DisconnectionInstructionOccurrence = unit {
@@ -281,7 +281,7 @@ type OrderModification = unit {
 type NewComplexOrderInstrument = unit {
     enabled_y_yes_n_no: uint8 &convert=EnabledYYesNNo($$);
     number_of_legs: bytes &size=2;
-    new_complex_order_instrument_occurrence: NewComplexOrderInstrumentOccurrence[self.number_of_legs];
+    new_complex_order_instrument_occurrence: NewComplexOrderInstrumentOccurrence[self.number_of_legs.to_uint()];
 };
 
 type NewComplexOrderInstrumentOccurrence = unit {
@@ -313,7 +313,7 @@ type ComplexOrderAuctionEntry = unit {
     selling_additional_client_memo: bytes &size=16;
     : skip bytes &size=4;   # padding
     nb_legs: bytes &size=2;
-    complex_order_auction_entry_occurrence: ComplexOrderAuctionEntryOccurrence[self.nb_legs];
+    complex_order_auction_entry_occurrence: ComplexOrderAuctionEntryOccurrence[self.nb_legs.to_uint()];
 };
 
 type ComplexOrderAuctionEntryOccurrence = unit {
@@ -327,7 +327,7 @@ type BulkQuote = unit {
     quote_id: bytes &size=8;
     mm_cat_user_time: bytes &size=8;
     number_of_quotes: bytes &size=3;
-    bulk_quote_occurrence: BulkQuoteOccurrence[self.number_of_quotes];
+    bulk_quote_occurrence: BulkQuoteOccurrence[self.number_of_quotes.to_uint()];
 };
 
 type BulkQuoteOccurrence = unit {

@@ -1,0 +1,651 @@
+# License: MIT No Attribution
+
+module NairobiNairobiequitiesRealtimeMitchV122;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NairobiequitiesRealtimeV122 = unit {
+    unit_header: UnitHeader;
+    message: Message[self.unit_header.message_count];
+};
+
+type UnitHeader = unit {
+    length: uint16;
+    message_count: uint8;
+    market_data_group: bytes &size=1;
+    sequence_number: uint32;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TimeMessage -> time_message: TimeMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::SymbolDirectoryMessage -> symbol_directory_message: SymbolDirectoryMessage;
+        MessageType::SymbolStatusMessage -> symbol_status_message: SymbolStatusMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::AddAttributedOrderMessage -> add_attributed_order_message: AddAttributedOrderMessage;
+        MessageType::OrderDeletedMessage -> order_deleted_message: OrderDeletedMessage;
+        MessageType::OrderModifiedMessage -> order_modified_message: OrderModifiedMessage;
+        MessageType::OrderBookClearMessage -> order_book_clear_message: OrderBookClearMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithPriceSizeMessage -> order_executed_with_price_size_message: OrderExecutedWithPriceSizeMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::AuctionTradeMessage -> auction_trade_message: AuctionTradeMessage;
+        MessageType::OffBookTradeMessage -> off_book_trade_message: OffBookTradeMessage;
+        MessageType::TradeBreakMessage -> trade_break_message: TradeBreakMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        MessageType::RecoveryTradeMessage -> recovery_trade_message: RecoveryTradeMessage;
+        MessageType::AuctionInfoMessage -> auction_info_message: AuctionInfoMessage;
+        MessageType::StatisticsMessage -> statistics_message: StatisticsMessage;
+        MessageType::ExtendedStatisticsMessage -> extended_statistics_message: ExtendedStatisticsMessage;
+        MessageType::ConsolidatedStatisticsMessage -> consolidated_statistics_message: ConsolidatedStatisticsMessage;
+        MessageType::IndexMessage -> index_message: IndexMessage;
+        MessageType::AonInfoMessage -> aon_info_message: AonInfoMessage;
+        MessageType::NewsMessage -> news_message: NewsMessage;
+        MessageType::UpdatePricePointMessage -> update_price_point_message: UpdatePricePointMessage;
+        MessageType::DeletePricePointMessage -> delete_price_point_message: DeletePricePointMessage;
+        MessageType::TopOfBookMessage -> top_of_book_message: TopOfBookMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type TimeMessage = unit {
+    seconds: uint32 &convert=interval($$);
+};
+
+type SystemEventMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type SymbolDirectoryMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    symbol_status: uint8 &convert=SymbolStatus($$);
+    identification_number: bytes &size=12;
+    segment: bytes &size=6;
+    expiration_date: bytes &size=8;
+    underlying: bytes &size=6;
+    strike_price: int32;
+    option_type: uint8 &convert=OptionType($$);
+    issuer: bytes &size=6;
+    issue_date: bytes &size=8;
+    coupon: int32;
+    symbol_directory_flags: bitfield(8) {
+        inverse_order_book: 0;
+        reserved_17: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    sub_book_flags: bitfield(8) {
+        regular: 0;
+        off_book: 1;
+        block_trade: 2;
+        odd_lot: 3;
+        early_settlement: 4;
+        bulletin_board: 5;
+        auction: 6;
+        all_or_none: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    corporate_action: bytes &size=5;
+    issued_quantity: int64;
+};
+
+type SymbolStatusMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    trading_status: uint8 &convert=TradingStatus($$);
+    symbol_status_flags: bitfield(8) {
+        reserved_07: 0..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    halt_reason: bytes &size=4;
+    session_change_reason: uint8 &convert=SessionChangeReason($$);
+    new_end_time: bytes &size=8;
+    sub_book: uint8 &convert=SubBook($$);
+};
+
+type AddOrderMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    symbol: bytes &size=12;
+    price: int32;
+    add_order_flags: bitfield(8) {
+        reserved_03: 0..3;
+        market_order: 4;
+        bulletin_board: 5;
+        reserved_67: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    sub_book: uint8 &convert=SubBook($$);
+    settlement_type: uint8 &convert=SettlementType($$);
+    interest_rate: int32;
+    term: uint8;
+};
+
+type AddAttributedOrderMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    order_id: uint64;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    symbol: bytes &size=12;
+    price: int32;
+    attribution: bytes &size=6;
+    add_attributed_order_flags: bitfield(8) {
+        reserved_04: 0..4;
+        bulletin_board: 5;
+        reserved_67: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    sub_book: uint8 &convert=SubBook($$);
+};
+
+type OrderDeletedMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    order_id: uint64;
+};
+
+type OrderModifiedMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    order_id: uint64;
+    new_quantity: uint32;
+    new_price: int32;
+    order_modified_flags: bitfield(8) {
+        priority_flag: 0;
+        reserved_17: 1..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    settlement_type: uint8 &convert=SettlementType($$);
+    interest_rate: int32;
+    term: uint8;
+};
+
+type OrderBookClearMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    sub_book: uint8 &convert=SubBook($$);
+    book_type: uint8 &convert=BookType($$);
+};
+
+type OrderExecutedMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    order_id: uint64;
+    executed_quantity: uint32;
+    trade_id: uint64;
+    buy_firm: bytes &size=6;
+    sell_firm: bytes &size=6;
+    last_opt_px: int64;
+    volatility: int64;
+    underlying_reference_price: int64;
+};
+
+type OrderExecutedWithPriceSizeMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    order_id: uint64;
+    executed_quantity: uint32;
+    display_quantity: uint32;
+    trade_id: uint64;
+    printable: uint8 &convert=Printable($$);
+    price: int32;
+    buy_firm: bytes &size=6;
+    sell_firm: bytes &size=6;
+    last_opt_px: int64;
+    volatility: int64;
+    underlying_reference_price: int64;
+};
+
+type TradeMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    executed_quantity: uint32;
+    symbol: bytes &size=12;
+    price: int32;
+    trade_id: uint64;
+    sub_book: uint8 &convert=SubBook($$);
+    buy_firm: bytes &size=6;
+    sell_firm: bytes &size=6;
+    last_opt_px: int64;
+    volatility: int64;
+    underlying_reference_price: int64;
+};
+
+type AuctionTradeMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    executed_quantity: uint32;
+    symbol: bytes &size=12;
+    price: int32;
+    trade_id: uint64;
+    auction_type: uint8 &convert=AuctionType($$);
+    last_opt_px: int64;
+    volatility: int64;
+    underlying_reference_price: int64;
+};
+
+type OffBookTradeMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    executed_quantity: uint32;
+    symbol: bytes &size=12;
+    price: int32;
+    trade_id: uint64;
+    off_book_trade_type: bytes &size=4;
+    trade_time: bytes &size=8;
+    trade_date: bytes &size=8;
+    last_opt_px: int64;
+    volatility: int64;
+    underlying_reference_price: int64;
+};
+
+type TradeBreakMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    trade_id: uint64;
+    trade_type: uint8 &convert=TradeType($$);
+};
+
+type TradeCorrectionMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    trade_id: uint64;
+    symbol: bytes &size=12;
+    price: int32;
+    quantity: uint32;
+    sub_book: uint8 &convert=SubBook($$);
+    buy_firm: bytes &size=6;
+    sell_firm: bytes &size=6;
+};
+
+type RecoveryTradeMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    executed_quantity: uint32;
+    symbol: bytes &size=12;
+    price: int32;
+    trade_id: uint64;
+    auction_type: uint8 &convert=AuctionType($$);
+    off_book_trade_type: bytes &size=4;
+    trade_time: bytes &size=8;
+    trade_date: bytes &size=8;
+    action_type: uint8 &convert=ActionType($$);
+    sub_book: uint8 &convert=SubBook($$);
+    buy_firm: bytes &size=6;
+    sell_firm: bytes &size=6;
+    last_opt_px: int64;
+    volatility: int64;
+    underlying_reference_price: int64;
+    auction_trade_type: uint8 &convert=AuctionTradeType($$);
+};
+
+type AuctionInfoMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    paired_quantity: uint32;
+    imbalance_quantity: uint32;
+    imbalance_direction: uint8 &convert=ImbalanceDirection($$);
+    symbol: bytes &size=12;
+    price: int32;
+    auction_type: uint8 &convert=AuctionType($$);
+};
+
+type StatisticsMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    statistic_type: uint8 &convert=StatisticType($$);
+    price: int32;
+    open_close_indicator: uint8 &convert=OpenCloseIndicator($$);
+    sub_book: uint8 &convert=SubBook($$);
+};
+
+type ExtendedStatisticsMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    high_price: int32;
+    low_price: int32;
+    vwap: int32;
+    volume: uint32;
+    turnover: int64;
+    trades: uint32;
+    : skip bytes &size=8;   # padding
+    sub_book: uint8 &convert=SubBook($$);
+    notional_exposure: int64;
+    notional_delta_exposure: int64;
+    daily_foreign_buy_value: int64;
+    daily_foreign_sell_value: int64;
+    market_capitalization: int64;
+};
+
+type ConsolidatedStatisticsMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    statistics_type: uint8 &convert=StatisticsType($$);
+    symbol: bytes &size=12;
+    volume: uint32;
+    turnover: int64;
+    trades: uint32;
+    daily_foreign_buy_value: int64;
+    daily_foreign_sell_value: int64;
+    market_capitalization: int64;
+};
+
+type IndexMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    index_value: int32;
+    update_type: uint8 &convert=UpdateType($$);
+    perctg_diff_from_closing: int32;
+};
+
+type AonInfoMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    price: int32;
+    side: uint8 &convert=Side($$);
+    quantity: uint32;
+    aon_status: uint8 &convert=AonStatus($$);
+    date: bytes &size=8;
+};
+
+type NewsMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    time_field: bytes &size=8;
+    urgency: uint8 &convert=Urgency($$);
+    headline: bytes &size=100;
+    text: bytes &size=750;
+    instruments: bytes &size=100;
+    underlyings: bytes &size=100;
+};
+
+type UpdatePricePointMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    price_point_sub_book_flags: bitfield(8) {
+        regular: 0;
+        reserved_11: 1;
+        block_trade: 2;
+        odd_lot: 3;
+        early_settlement: 4;
+        bulletin_board: 5;
+        default_auction: 6;
+        reserved_7: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    price_point_action: uint8 &convert=PricePointAction($$);
+    side: uint8 &convert=Side($$);
+    price_level: uint8;
+    price: int32;
+    quantity: uint32;
+    splits: uint32;
+    update_price_point_flags: bitfield(8) {
+        reserved_03: 0..3;
+        market_order: 4;
+        reserved_57: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+};
+
+type DeletePricePointMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    price_point_sub_book_flags: bitfield(8) {
+        regular: 0;
+        reserved_11: 1;
+        block_trade: 2;
+        odd_lot: 3;
+        early_settlement: 4;
+        bulletin_board: 5;
+        default_auction: 6;
+        reserved_7: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    side: uint8 &convert=Side($$);
+    price_level: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type TopOfBookMessage = unit {
+    nanosecond: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=12;
+    price_point_sub_book_flags: bitfield(8) {
+        regular: 0;
+        reserved_11: 1;
+        block_trade: 2;
+        odd_lot: 3;
+        early_settlement: 4;
+        bulletin_board: 5;
+        default_auction: 6;
+        reserved_7: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    top_of_book_action: uint8 &convert=TopOfBookAction($$);
+    side: uint8 &convert=Side($$);
+    price: int32;
+    quantity: uint32;
+    market_order_quantity: uint32;
+    : skip bytes &size=2;   # padding
+};
+
+type MessageType = enum {
+    TimeMessage = 0x54,
+    SystemEventMessage = 0x53,
+    SymbolDirectoryMessage = 0x52,
+    SymbolStatusMessage = 0x48,
+    AddOrderMessage = 0x41,
+    AddAttributedOrderMessage = 0x46,
+    OrderDeletedMessage = 0x44,
+    OrderModifiedMessage = 0x55,
+    OrderBookClearMessage = 0x79,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithPriceSizeMessage = 0x43,
+    TradeMessage = 0x50,
+    AuctionTradeMessage = 0x51,
+    OffBookTradeMessage = 0x78,
+    TradeBreakMessage = 0x42,
+    TradeCorrectionMessage = 0x60,
+    RecoveryTradeMessage = 0x76,
+    AuctionInfoMessage = 0x49,
+    StatisticsMessage = 0x77,
+    ExtendedStatisticsMessage = 0x80,
+    ConsolidatedStatisticsMessage = 0x64,
+    IndexMessage = 0x62,
+    AonInfoMessage = 0x65,
+    NewsMessage = 0x75,
+    UpdatePricePointMessage = 0x73,
+    DeletePricePointMessage = 0x72,
+    TopOfBookMessage = 0x71,
+};
+
+type EventCode = enum {
+    EndOfDay = 0x43,
+    StartOfDay = 0x4f,
+};
+
+type SymbolStatus = enum {
+    Halted = 0x48,
+    Suspended = 0x53,
+    Inactive = 0x61,
+    Active = 0x20,
+};
+
+type OptionType = enum {
+    CallOption = 0x43,
+    PutOption = 0x50,
+    NotAnOption = 0x20,
+};
+
+type TradingStatus = enum {
+    Halt = 0x48,
+    RegularTrading = 0x54,
+    OpeningAuctionCall = 0x61,
+    PostClose = 0x62,
+    MarketClose = 0x63,
+    ClosingAuctionCall = 0x64,
+    ReOpeningAuctionCall = 0x65,
+    Pause = 0x6c,
+    OrderEntry = 0x6e,
+    AuctionInitiation = 0x70,
+    StartOfAuctionCall = 0x71,
+    EndOfAuctionCall = 0x72,
+    StartOfAonOrderEntry = 0x73,
+    EndOfAonOrderEntry = 0x74,
+    ClosingPriceCross = 0x75,
+    ReservedForBackwardCompatibility = 0x76,
+    NoActiveSession = 0x77,
+    EndOfPostClose = 0x78,
+    PreTrading = 0x79,
+    ClosingPricePublication = 0x7a,
+    IntradayAuctionCall = 0x6f,
+    AuctionExecution = 0x30,
+};
+
+type HaltReason = enum {
+    InstrumentLevelCircuitBreakerTripped = 101,
+    InstrumentStatusIsHalted = 102,
+    MatchingPartitionSuspended = 9998,
+    SystemSuspended = 9999,
+    ReasonNotAvailable = 0,
+};
+
+type SessionChangeReason = enum {
+    ScheduledTransition = 0,
+    ExtendedByMarketOps = 1,
+    ShortenedByMarketOps = 2,
+    MarketOrderExtension = 3,
+    PriceMonitoringExtension = 4,
+    CircuitBreakerTripped = 5,
+    Unavailable = 9,
+};
+
+type SubBook = enum {
+    Regular = 1,
+    OffBook = 2,
+    OddLot = 3,
+    BlockTrade = 4,
+    AllOrNone = 5,
+    EarlySettlement = 6,
+    Auction = 7,
+    BulletinBoard = 9,
+};
+
+type Side = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type SettlementType = enum {
+    CashTPlus0 = 0x31,
+    EarlySettleTPlus1 = 0x32,
+    TPlus2 = 0x33,
+    RegularTPlus3 = 0x34,
+};
+
+type PriorityFlag = enum {
+    PriorityLost = 0,
+    PriorityRetained = 1,
+};
+
+type BookType = enum {
+    MbpMboStatistics = 0x30,
+    TopOfBook = 0x31,
+};
+
+type Printable = enum {
+    NonPrintable = 0x4e,
+    Printable_x59 = 0x59,
+};
+
+type AuctionType = enum {
+    ReOpeningAuction = 0x41,
+    ClosingAuction = 0x43,
+    OpeningAuction = 0x4f,
+    IntraDayAuction = 0x4b,
+    NotAnAuctionTrade = 0x20,
+};
+
+type OffBookTradeType = enum {
+    BlockTrade = 16,
+    NotToMark = 20,
+    CrossedTrade = 37,
+    LargeInScale = 39,
+    TradeTypeNotAvailable = 0,
+};
+
+type TradeType = enum {
+    OnBookTrade = 0x54,
+    OffBookTrade = 0x4e,
+};
+
+type ActionType = enum {
+    CancelledTrade = 0x43,
+    Trade = 0x4e,
+    AmendTrade = 0x41,
+};
+
+type AuctionTradeType = enum {
+    BulkTrade = 0x42,
+    SupplementaryTrade = 0x53,
+};
+
+type ImbalanceDirection = enum {
+    BuyImbalance = 0x42,
+    NoImbalance = 0x4e,
+    InsufficientOrdersForAuction = 0x4f,
+    SellImbalance = 0x53,
+};
+
+type StatisticType = enum {
+    ClosingPrice = 0x43,
+    OpeningPrice = 0x4f,
+    PreviousClose = 0x50,
+};
+
+type OpenCloseIndicator = enum {
+    AuctionTrade = 0x41,
+    RegularTrade = 0x42,
+    MidPoint = 0x43,
+    LastRegularTrade = 0x44,
+    LastAuction = 0x45,
+    Manual = 0x46,
+    Vwap = 0x48,
+    PreviousClose = 0x49,
+    TheoreticalPrice = 0x54,
+    BestBid = 0x55,
+    BestOffer = 0x56,
+    None_x57 = 0x57,
+    VwapOfLastNTrades = 0x58,
+    ReferencePrice = 0x59,
+    PriceUnavailable = 0x5a,
+};
+
+type StatisticsType = enum {
+    Market = 0,
+    Sector = 1,
+    InstrumentType = 2,
+};
+
+type UpdateType = enum {
+    IntraDay = 0,
+    Closing = 1,
+    PreviousClose = 2,
+    Indicative = 3,
+    High = 4,
+    Low = 5,
+};
+
+type AonStatus = enum {
+    Active = 0x41,
+    Completed = 0x43,
+    Halted = 0x48,
+    Inactive = 0x49,
+    Cancelled = 0x58,
+};
+
+type Urgency = enum {
+    Regular = 0x30,
+    HighPriority = 0x31,
+    LowPriority = 0x32,
+};
+
+type PricePointAction = enum {
+    Add = 0x30,
+    Change = 0x31,
+};
+
+type TopOfBookAction = enum {
+    Update = 0x31,
+    Delete = 0x32,
+};
+

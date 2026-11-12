@@ -1,0 +1,284 @@
+# License: MIT No Attribution
+
+module BmvBmvmarketdataProduct40IntraV11;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type BmvmarketdataProduct40V11 = unit {
+    intra_multicast_header: IntraMulticastHeader;
+    message_block: MessageBlock[self.intra_multicast_header.total_messages];
+};
+
+type IntraMulticastHeader = unit {
+    length: int16;
+    total_messages: int8;
+    market_data_group: int8 &convert=MarketDataGroup($$);
+    session: int8;
+    sequence_number: int32;
+    datetime: int64 &convert=time($$ / 1000.0);
+};
+
+type MessageBlock = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage -> catalog_for_instruments_belonging_to_the_local_and_global_stock_market_message: CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage;
+        MessageType::CatalogOfInstrumentsThatBelongToTheDebtMetalsAndMoneyMarketMessage -> catalog_of_instruments_that_belong_to_the_debt_metals_and_money_market_message: CatalogOfInstrumentsThatBelongToTheDebtMetalsAndMoneyMarketMessage;
+        MessageType::CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage -> catalog_for_instruments_belonging_to_the_capital_warrants_market_message: CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage;
+        MessageType::OptionsFuturesAndSwapsDerivativesMarketInstrumentsCatalogMessage -> options_futures_and_swaps_derivatives_market_instruments_catalog_message: OptionsFuturesAndSwapsDerivativesMarketInstrumentsCatalogMessage;
+        MessageType::CatalogSentForInstrumentsBelongingToCapitalTracsMessage -> catalog_sent_for_instruments_belonging_to_capital_tracs_message: CatalogSentForInstrumentsBelongingToCapitalTracsMessage;
+        MessageType::CatalogSentForInstrumentsBelongingToMutualFundsMessage -> catalog_sent_for_instruments_belonging_to_mutual_funds_message: CatalogSentForInstrumentsBelongingToMutualFundsMessage;
+        MessageType::CatalogSentForInstrumentsBelongingToTheStrategyDerivativeMarketMessage -> catalog_sent_for_instruments_belonging_to_the_strategy_derivative_market_message: CatalogSentForInstrumentsBelongingToTheStrategyDerivativeMarketMessage;
+        MessageType::UnderlyingValueOnWarrantsCatalogMessage -> underlying_value_on_warrants_catalog_message: UnderlyingValueOnWarrantsCatalogMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: int16;
+    message_type: uint16 &convert=MessageType($$);
+};
+
+type CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage = unit {
+    instrument_number: int32;
+    value_type: bytes &size=2;
+    issuer: bytes &size=7;
+    series: bytes &size=6;
+    last_price: int64;
+    wap: int64;
+    closing_price: int64;
+    reference_date: int64 &convert=time($$ / 1000.0);
+    reference: bytes &size=2;
+    current_coupon: int16;
+    marketability: bytes &size=2;
+    numeric_marketability: int32;
+    isin: bytes &size=12;
+    market: uint8 &convert=Market($$);
+    shares_outstanding: int64;
+    blocks_amount: int64;
+    exchange: uint8 &convert=Exchange($$);
+    : skip bytes &size=20;   # padding
+};
+
+type CatalogOfInstrumentsThatBelongToTheDebtMetalsAndMoneyMarketMessage = unit {
+    instrument_number: int32;
+    value_type: bytes &size=2;
+    issuer: bytes &size=7;
+    issue: bytes &size=6;
+    issue_date: int64 &convert=time($$ / 1000.0);
+    maturity_date: int64 &convert=time($$ / 1000.0);
+    reference_pricerate: int64;
+    reference_date: int64 &convert=time($$ / 1000.0);
+    reference: bytes &size=2;
+    term_days: int16;
+    current_coupon: int16;
+    isin: bytes &size=12;
+    market: uint8 &convert=Market($$);
+    current_nominal_value: int64;
+    original_nominal_value: int64;
+    outstanding_shares: int64;
+    amount_placed: int64;
+    operate_price_rate: uint8 &convert=OperatePriceRate($$);
+    exchange: uint8 &convert=Exchange($$);
+    : skip bytes &size=20;   # padding
+};
+
+type CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage = unit {
+    instrument_number: int32;
+    value_type: bytes &size=2;
+    issuer: bytes &size=7;
+    series: bytes &size=6;
+    warrant_type: uint8 &convert=WarrantType($$);
+    maturity_date: int64 &convert=time($$ / 1000.0);
+    exercise_price: int64;
+    reference_price: int64;
+    reference_date: int64 &convert=time($$ / 1000.0);
+    reference: bytes &size=2;
+    isin: bytes &size=12;
+    exchange: uint8 &convert=Exchange($$);
+    : skip bytes &size=20;   # padding
+};
+
+type OptionsFuturesAndSwapsDerivativesMarketInstrumentsCatalogMessage = unit {
+    instrument_number: int32;
+    value_type: bytes &size=2;
+    class: bytes &size=7;
+    maturity: bytes &size=6;
+    option_type: uint8 &convert=OptionType($$);
+    exercise_price: int64;
+    bid: int64;
+    prior_day_settlement_price: int64;
+    last_day_of_operation: int64 &convert=time($$ / 1000.0);
+    maturity_date: int64 &convert=time($$ / 1000.0);
+    open_contracts: int32;
+    contract_size: int32;
+    product_code: bytes &size=12;
+    daily_maturity: uint8 &convert=DailyMaturity($$);
+    key_exercise_price: bytes &size=6;
+    cfi_code: bytes &size=6;
+    : skip bytes &size=20;   # padding
+};
+
+type CatalogSentForInstrumentsBelongingToCapitalTracsMessage = unit {
+    trac_number: int32;
+    trac_name: bytes &size=8;
+    underlying_issuer: bytes &size=7;
+    underlying_series: bytes &size=6;
+    securities: int64;
+    excluded_securities: int64;
+    price: int64;
+    cash_component: int64;
+    excluded_value: int64;
+    number_of_certificates: int64;
+    theoretical_price: int64;
+    : skip bytes &size=20;   # padding
+};
+
+type CatalogSentForInstrumentsBelongingToMutualFundsMessage = unit {
+    instrument_number: int32;
+    value_type: bytes &size=2;
+    issuer: bytes &size=7;
+    series: bytes &size=6;
+    sector: int8;
+    subsector: int8;
+    business_line: int8;
+    sub_line: int8;
+    operating_company: bytes &size=10;
+    reference_price: int64;
+    reference_date: int64 &convert=time($$ / 1000.0);
+    reference: bytes &size=2;
+    isin: bytes &size=12;
+    rating: bytes &size=15;
+    : skip bytes &size=20;   # padding
+};
+
+type CatalogSentForInstrumentsBelongingToTheStrategyDerivativeMarketMessage = unit {
+    instrument_number: int32;
+    value_type: bytes &size=2;
+    class: bytes &size=7;
+    maturity: bytes &size=6;
+    type_of_strategy: uint8 &convert=TypeOfStrategy($$);
+    bid: int64;
+    last_date_operation: int64 &convert=time($$ / 1000.0);
+    maturity_date: int64 &convert=time($$ / 1000.0);
+    short_leg_instrument_identifier: int32;
+    long_leg_instruments_id: int32;
+    frequency: int8;
+    number_of_maturities: int8;
+    : skip bytes &size=20;   # padding
+};
+
+type UnderlyingValueOnWarrantsCatalogMessage = unit {
+    instrument_number: int32;
+    issuer: bytes &size=7;
+    series: bytes &size=6;
+    value_type: bytes &size=2;
+    underlying_issuer: bytes &size=7;
+    underlying_series: bytes &size=6;
+    underlying_value_type: bytes &size=2;
+    number_of_registered_values: int64;
+    exchange: uint8 &convert=Exchange($$);
+    : skip bytes &size=20;   # padding
+};
+
+type MarketDataGroup = enum {
+    IndepthLocalMarket = 1,
+    IndepthGlobalMarket = 2,
+    TwentyPriceLevelsOfLocalMarket = 3,
+    TwentyPriceLevelsOfGlobalMarket = 4,
+    BestOffersOfLocalMarket = 5,
+    BestOffersOfGlobalMarket = 6,
+    TenPriceLevelsOfDerivativeFutures = 7,
+    TenPriceLevelsOfDerivativeOptions = 8,
+    BestOffersForDerivativeFutures = 9,
+    BestOffersForDerivativeOptions = 10,
+    MoneyMarket = 11,
+    IndicesComponents = 12,
+    LevelOfIndices = 13,
+    LevelsOfInavs = 14,
+    IndepthLocalAndGlobalMarket = 15,
+    TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
+    BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
+    TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
+    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
+    AddedValueWithBenchmark = 21,
+    AddedValueWithCapitalizationRules = 22,
+    IndicesLevelsWithDelay = 23,
+    LocalAndGlobalMarketWithMoneyMarketBestPositionsWithDelay = 24,
+    EquitiesMarketTradesConsolidatedFeed = 25,
+    BestBidOfTheEquitiesMarketConsolidatedFeed = 26,
+    FullDepthConsolidatedFeed = 27,
+    ClosingPriceOrigin = 28,
+    AnalyticsPriceAndMarketDepth = 29,
+    AnalyticsMarketQuality = 32,
+    AnalyticsSpeadPerformance = 33,
+    AnalyticsNegotiation = 34,
+    ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage = 0x6361,
+    CatalogOfInstrumentsThatBelongToTheDebtMetalsAndMoneyMarketMessage = 0x6362,
+    CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage = 0x6363,
+    OptionsFuturesAndSwapsDerivativesMarketInstrumentsCatalogMessage = 0x6364,
+    CatalogSentForInstrumentsBelongingToCapitalTracsMessage = 0x6365,
+    CatalogSentForInstrumentsBelongingToMutualFundsMessage = 0x6366,
+    CatalogSentForInstrumentsBelongingToTheStrategyDerivativeMarketMessage = 0x6367,
+    UnderlyingValueOnWarrantsCatalogMessage = 0x6379,
+};
+
+type Reference = enum {
+    WithoutPrice = 0,
+};
+
+type Market = enum {
+    Local = 0x4c,
+    Global = 0x47,
+    LocalDebt = 0x44,
+    GlobalDebt = 0x46,
+    Money = 0x45,
+    DollarOptionMarket = 0x4d,
+    StockMarket = 0x58,
+    ForexAndRatesMarket = 0x56,
+    FixedIncome = 0x4a,
+    VariableIncome = 0x42,
+    Metals = 0x54,
+    MutualFunds = 0x49,
+    Warrants = 0x57,
+    AllMarkets = 0x20,
+};
+
+type Exchange = enum {
+    Bmv = 0x4d,
+    Biva = 0x49,
+};
+
+type OperatePriceRate = enum {
+    Rate = 0x54,
+    Price = 0x50,
+    Default = 0x20,
+};
+
+type WarrantType = enum {
+    Buy = 0x43,
+    Sell = 0x56,
+};
+
+type OptionType = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type DailyMaturity = enum {
+    ForDailyMaturity = 0x31,
+    NotDailyMaturity = 0x30,
+};
+
+type TypeOfStrategy = enum {
+    Rollover = 0x52,
+    Engrapado = 0x45,
+    Forward = 0x46,
+};
+

@@ -47,8 +47,8 @@ type MessageHeader = unit {
     message_length: uint16;
     message_type: uint16 &convert=MessageType($$);
     sequence_number: uint32;
-    timestamp: uint64;
-    source_timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    source_timestamp: uint64 &convert=time_ns($$);
 };
 
 type Login = unit {
@@ -76,7 +76,7 @@ type Reject = unit {
 };
 
 type Test = unit {
-    target_timestamp: uint64;
+    target_timestamp: uint64 &convert=time_ns($$);
 };
 
 type TestEvent = unit {
@@ -110,7 +110,7 @@ type OrderAdd = unit {
         reserved_3_to_7: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
     mifid_fields: MifidFields;
-    expire: uint64;
+    expire: uint64 &convert=time_ns($$);
     memo: bytes &size=18;
     client_order_id: bytes &size=20;
     clearing_member_code: bytes &size=20;
@@ -195,7 +195,7 @@ type OrderModify = unit {
     trigger_price: int64;
     quantity: uint64;
     display_qty: uint64;
-    expire: uint64;
+    expire: uint64 &convert=time_ns($$);
     mifid_fields: MifidFields;
     client_order_id: bytes &size=20;
 };

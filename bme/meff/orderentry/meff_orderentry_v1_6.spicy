@@ -110,7 +110,7 @@ type TradingSessionStatusMessage = unit {
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trading_session_sub_id: uint8 &convert=TradingSessionSubId($$);
     trad_ses_status: uint8 &convert=TradSesStatus($$);
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
 };
 
 type NewsMessage = unit {
@@ -130,7 +130,7 @@ type SecurityListCancellationReportMessage = unit {
 type StatisticsMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     data_count: uint8;
     statistics_repeating_group: StatisticsRepeatingGroup[self.data_count];
 };
@@ -325,7 +325,7 @@ type SecurityListUpdateReportMessage = unit {
 type SecurityStatusMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     security_trading_status: uint8 &convert=SecurityTradingStatus($$);
     non_availability_reason: uint8 &convert=NonAvailabilityReason($$);
     high_limit_price: int64;
@@ -336,7 +336,7 @@ type FamilyStatusMessage = unit {
     sequence_number: uint32;
     security_group: bytes &size=2;
     family_code: bytes &size=5;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     security_trading_status: uint8 &convert=SecurityTradingStatus($$);
     non_availability_reason: uint8 &convert=NonAvailabilityReason($$);
 };
@@ -344,7 +344,7 @@ type FamilyStatusMessage = unit {
 type OrderCancellationMarketMemberMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     entry_date: int32;
 };
@@ -352,7 +352,7 @@ type OrderCancellationMarketMemberMessage = unit {
 type QuoteCancellationMarketMemberMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     secondary_order_id_2: uint32;
 };
@@ -360,7 +360,7 @@ type QuoteCancellationMarketMemberMessage = unit {
 type IndicationOfInterestMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     ioiid: uint32;
     ioi_trans_type: uint8 &convert=IoiTransType($$);
     side: uint8 &convert=Side($$);
@@ -543,7 +543,7 @@ type DeltaProtectionParametersAckNackMessage = unit {
 type SimpleOrderStatusMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     entry_date: int32;
     side: uint8 &convert=Side($$);
@@ -563,7 +563,7 @@ type SimpleOrderStatusMessage = unit {
 type QuoteStatusMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     secondary_order_id: uint32;
     secondary_order_id_2: uint32;
     priority_field: uint32;
@@ -590,7 +590,7 @@ type QuoteStatusMessage = unit {
 
 type OrderCancelRejectMessage = unit {
     sequence_number: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     order_id: uint32;
     ord_status: uint8 &convert=OrdStatus($$);
     cxl_rej_response_to: uint8 &convert=CxlRejResponseTo($$);
@@ -600,7 +600,7 @@ type OrderCancelRejectMessage = unit {
 
 type MassOrderquoteCancellationCompletionMessage = unit {
     sequence_number: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     trading_unit: uint8;
     order_or_quote_cancel: uint8 &convert=OrderOrQuoteCancel($$);
     request_id: uint32;
@@ -608,14 +608,14 @@ type MassOrderquoteCancellationCompletionMessage = unit {
 
 type MassOrderquoteCancellationRejectMessage = unit {
     sequence_number: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     trading_unit: uint8;
     mass_cancel_reject_reason: uint8 &convert=MassCancelRejectReason($$);
 };
 
 type BusinessMessageRejectMessage = unit {
     sequence_number: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     ref_msg_type: uint8;
     business_reject_reason: uint8 &convert=BusinessRejectReason($$);
     text_c_65: bytes &size=65;
@@ -625,7 +625,7 @@ type BusinessMessageRejectMessage = unit {
 type ExecutionPrivateInformation2LegsMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -669,7 +669,7 @@ type ExecutionPrivateInformation2LegsMessage = unit {
 type TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -688,8 +688,8 @@ type TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage = unit {
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
     deferral_waiver: uint8 &convert=DeferralWaiver($$);
     post_deferral_publication_type: uint8 &convert=PostDeferralPublicationType($$);
-    publish_date_and_time: int64;
-    trade_date: int64;
+    publish_date_and_time: int64 &convert=time_ns($$);
+    trade_date: int64 &convert=time_ns($$);
     trade_session_date: int32;
     amended_trade_type: uint8 &convert=AmendedTradeType($$);
     exec_ref_id: uint32;
@@ -738,7 +738,7 @@ type TradeTradeAmendmentOrCancellation1LegBuyPrivateInformationMessage = unit {
 type TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -757,8 +757,8 @@ type TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage = unit {
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
     deferral_waiver: uint8 &convert=DeferralWaiver($$);
     post_deferral_publication_type: uint8 &convert=PostDeferralPublicationType($$);
-    publish_date_and_time: int64;
-    trade_date: int64;
+    publish_date_and_time: int64 &convert=time_ns($$);
+    trade_date: int64 &convert=time_ns($$);
     trade_session_date: int32;
     amended_trade_type: uint8 &convert=AmendedTradeType($$);
     exec_ref_id: uint32;
@@ -807,7 +807,7 @@ type TradeTradeAmendmentOrCancellation1LegSellPrivateInformationMessage = unit {
 type TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -826,8 +826,8 @@ type TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage = unit {
     pre_trade_transparency_waiver: uint8 &convert=PreTradeTransparencyWaiver($$);
     deferral_waiver: uint8 &convert=DeferralWaiver($$);
     post_deferral_publication_type: uint8 &convert=PostDeferralPublicationType($$);
-    publish_date_and_time: int64;
-    trade_date: int64;
+    publish_date_and_time: int64 &convert=time_ns($$);
+    trade_date: int64 &convert=time_ns($$);
     trade_session_date: int32;
     amended_trade_type: uint8 &convert=AmendedTradeType($$);
     exec_ref_id: uint32;
@@ -911,7 +911,7 @@ type TradeTradeAmendmentOrCancellation2LegsPrivateInformationMessage = unit {
 type ExecutionPrivateInformation1LegBuyOrderEntryMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;
@@ -942,7 +942,7 @@ type ExecutionPrivateInformation1LegBuyOrderEntryMessage = unit {
 type ExecutionPrivateInformation1LegSellOrderEntryMessage = unit {
     sequence_number: uint32;
     security_code: uint32;
-    transaction_date_and_time: int64;
+    transaction_date_and_time: int64 &convert=time_ns($$);
     market_segment_id: bytes &size=4;
     trading_session_id: uint8 &convert=TradingSessionId($$);
     trd_match_id: uint32;

@@ -41,7 +41,7 @@ type TradingSessionStatusMessage = unit {
         has_trading_session_status_regulatory_halt_reason: 1;
         reserved_6: 2..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     market_hours_state: int8 &convert=MarketHoursState($$);
     session_trading_state: int8 &convert=SessionTradingState($$);
     trading_session_status_operational_halt_reason: int8 &convert=TradingSessionStatusOperationalHaltReason($$);
@@ -49,7 +49,7 @@ type TradingSessionStatusMessage = unit {
 };
 
 type DefineSymbolMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     symbol: bytes &size=8;
     suffix: bytes &size=8;
@@ -68,7 +68,7 @@ type SymbolStatusMessage = unit {
         has_symbol_status_regulatory_halt_reason: 1;
         reserved_6: 2..7;
     } &byte-order=spicy::ByteOrder::Little;
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     symbol_trading_state: int8 &convert=SymbolTradingState($$);
     short_sale_restriction_state: int8 &convert=ShortSaleRestrictionState($$);
@@ -77,7 +77,7 @@ type SymbolStatusMessage = unit {
 };
 
 type TradeMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     price: int64;
     qty: int32;
@@ -85,7 +85,7 @@ type TradeMessage = unit {
 };
 
 type TopOfBookMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     bid_price: int64;
     bid_qty: int32;
@@ -94,20 +94,20 @@ type TopOfBookMessage = unit {
 };
 
 type AuctionPreambleMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     auction_type: int8 &convert=AuctionType($$);
-    auction_start: int64;
+    auction_start: int64 &convert=time_ns($$);
     matched_shares: int32;
     excess_auction_side: int8 &convert=ExcessAuctionSide($$);
     reserved_8: int64;
 };
 
 type AuctionBandWindowMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     auction_type: int8 &convert=AuctionType($$);
-    auction_start: int64;
+    auction_start: int64 &convert=time_ns($$);
     extension_cycle_count: int8;
     lower_participation_band: int64;
     buy_shares_at_lower: int32;
@@ -119,7 +119,7 @@ type AuctionBandWindowMessage = unit {
 };
 
 type AuctionPrintMessage = unit {
-    transact_time: int64;
+    transact_time: int64 &convert=time_ns($$);
     symbol_id: int16;
     auction_type: int8 &convert=AuctionType($$);
     auction_price: int64;

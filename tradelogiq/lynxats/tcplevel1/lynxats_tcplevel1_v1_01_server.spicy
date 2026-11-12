@@ -56,7 +56,7 @@ type SequencedMessage = unit {
 type QuoteMessage = unit {
     : skip bytes &size=1;   # padding
     stock_symbol: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     best_bid_price: uint64;
     best_bid_size: uint32;
     best_ask_price: uint64;
@@ -66,7 +66,7 @@ type QuoteMessage = unit {
 type TradeReportMessage = unit {
     conditions: bytes &size=5;
     stock_symbol: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     trade_id: uint32;
     trade_price: uint64;
     trade_size: uint32;
@@ -77,14 +77,14 @@ type TradeReportMessage = unit {
 type TradeBustMessage = unit {
     : skip bytes &size=1;   # padding
     stock_symbol: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     trade_id: uint32;
 };
 
 type TradeCorrectionMessage = unit {
     : skip bytes &size=1;   # padding
     stock_symbol: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     original_trade_id: uint32;
     original_trade_price: uint64;
     original_trade_size: uint32;
@@ -95,13 +95,13 @@ type TradeCorrectionMessage = unit {
 type SystemEventMessage = unit {
     event_code: uint8 &convert=EventCode($$);
     : skip bytes &size=2;   # padding
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
 };
 
 type StockDirectoryMessage = unit {
     market: uint8 &convert=Market($$);
     stock: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     board_lot_size: uint32;
     instrument_id: uint16;
     shortable: uint8 &convert=Shortable($$);
@@ -113,7 +113,7 @@ type StockDirectoryMessage = unit {
 type ExtendedStockDirectoryMessage = unit {
     market: uint8 &convert=Market($$);
     stock: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     board_lot_size: uint32;
     instrument_id: uint16;
     shortable: uint8 &convert=Shortable($$);
@@ -129,7 +129,7 @@ type ExtendedStockDirectoryMessage = unit {
 type StockStatusMessage = unit {
     trading_state: uint8 &convert=TradingState($$);
     stock: bytes &size=10;
-    timestamp: uint64;
+    timestamp: uint64 &convert=interval_ns($$);
     reason: bytes &size=4;
 };
 

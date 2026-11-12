@@ -159,12 +159,12 @@ type OrderCancelMessage = unit {
 type OrderCancelResponseMessage = unit {
     order_ref: uint32;
     request_ref: uint32;
-    switch ( self.order_cancel_response_status.status_cancel_reason.order_status ) {
-        OrderStatus::Cancelled -> status_cancel_reason: StatusCancelReason;
-        OrderStatus::Rejected -> status_reject_reason: StatusRejectReason;
-        * -> status: Status;
-    };
-    cancellation_timestamp: uint64;
+    # Order Cancel Response Status is 1 byte whichever arm the model names: the arms are bit field sets of that width differing only in what the bits beside Order Status are called — a value of Order Status of 3 names Status Cancel Reason; 4 names Status Reject Reason; any other value names Status. Which naming applies is left to what is built on the definition, as a set's members always are.
+    order_cancel_response_status: bitfield(8) {
+        cancel_reason: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    cancellation_timestamp: uint64 &convert=time_ns($$);
     user_tag: uint64;
 };
 
@@ -231,13 +231,13 @@ type OrderModifyExtendedMessage = unit {
 type OrderAddResponseMessage = unit {
     order_ref: uint32;
     market_data_id: uint32;
-    switch ( self.order_add_response_status.status_cancel_reason.order_status ) {
-        OrderStatus::Cancelled -> status_cancel_reason: StatusCancelReason;
-        OrderStatus::Rejected -> status_reject_reason: StatusRejectReason;
-        * -> status: Status;
-    };
+    # Order Add Response Status is 1 byte whichever arm the model names: the arms are bit field sets of that width differing only in what the bits beside Order Status are called — a value of Order Status of 3 names Status Cancel Reason; 4 names Status Reject Reason; any other value names Status. Which naming applies is left to what is built on the definition, as a set's members always are.
+    order_add_response_status: bitfield(8) {
+        cancel_reason: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
     traded_quantity: uint32;
-    timestamp: uint64;
+    timestamp: uint64 &convert=time_ns($$);
     user_tag: uint64;
     order_add_response_flags: bitfield(8) {
         unused_8: 0..7;
@@ -247,11 +247,12 @@ type OrderAddResponseMessage = unit {
 type OrderModifyResponseMessage = unit {
     order_ref: uint32;
     request_ref: uint32;
-    switch ( self.order_modify_response_status.status_reject_reason.order_status ) {
-        OrderStatus::Rejected -> status_reject_reason: StatusRejectReason;
-        * -> status_modification_reason: StatusModificationReason;
-    };
-    modification_timestamp: uint64;
+    # Order Modify Response Status is 1 byte whichever arm the model names: the arms are bit field sets of that width differing only in what the bits beside Order Status are called — a value of Order Status of 4 names Status Reject Reason; any other value names Status Modification Reason. Which naming applies is left to what is built on the definition, as a set's members always are.
+    order_modify_response_status: bitfield(8) {
+        reject_reason: 0..4;
+        order_status: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    modification_timestamp: uint64 &convert=time_ns($$);
     user_tag: uint64;
     order_modify_response_flags: bitfield(8) {
         unused_8: 0..7;
@@ -298,7 +299,7 @@ type TradeMessage = unit {
     ccp_code: uint8;
     liq_indicator: uint8 &convert=LiqIndicator($$);
     security_id_short: uint16;
-    trade_timestamp: uint64;
+    trade_timestamp: uint64 &convert=time_ns($$);
     user_tag: uint64;
     trade_flags: bitfield(8) {
         unused_8: 0..7;
@@ -311,7 +312,7 @@ type TradeBustMessage = unit {
     price: uint64;
     side: uint8 &convert=Side($$);
     trade_ref: uint32;
-    bust_timestamp: uint64;
+    bust_timestamp: uint64 &convert=time_ns($$);
 };
 
 type MsgType = enum {

@@ -13,7 +13,7 @@ public type CmeGlobexMdp3V16 = unit {
 
 type BinaryPacketHeader = unit {
     packet_sequence_number: uint32;
-    sending_time: uint64;
+    sending_time: uint64 &convert=time_ns($$);
 };
 
 type Message = unit {
@@ -60,7 +60,7 @@ type MktdataMessage = unit(template_id: TemplateId) {
 };
 
 type ChannelReset = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -109,7 +109,7 @@ type MdInstrumentDefinitionFuture = unit {
     } &byte-order=spicy::ByteOrder::Little;
     tot_num_reports_optional: uint32;
     security_update_action: uint8 &convert=SecurityUpdateAction($$);
-    last_update_time: uint64;
+    last_update_time: uint64 &convert=time_ns($$);
     md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
     appl_id: int16;
     market_segment_id: uint8;
@@ -179,7 +179,7 @@ type EventsGroups = unit {
 
 type EventsGroup = unit {
     event_type: uint8 &convert=EventType($$);
-    event_time: uint64;
+    event_time: uint64 &convert=time_ns($$);
 };
 
 type FeedTypesGroups = unit {
@@ -246,7 +246,7 @@ type MdInstrumentDefinitionSpread = unit {
     } &byte-order=spicy::ByteOrder::Little;
     tot_num_reports_optional: uint32;
     security_update_action: uint8 &convert=SecurityUpdateAction($$);
-    last_update_time: uint64;
+    last_update_time: uint64 &convert=time_ns($$);
     md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
     appl_id: int16;
     market_segment_id: uint8;
@@ -311,7 +311,7 @@ type LegacyLegsGroup = unit {
 };
 
 type SecurityStatus = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     security_group: bytes &size=6;
     asset: bytes &size=6;
     security_id_optional: int32;
@@ -332,7 +332,7 @@ type SecurityStatus = unit {
 };
 
 type MdIncrementalRefreshBook = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -365,7 +365,7 @@ type IncrementalRefreshBookGroup = unit {
 };
 
 type MdIncrementalRefreshDailyStatistics = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -407,7 +407,7 @@ type IncrementalRefreshDailyStatisticsGroup = unit {
 };
 
 type MdIncrementalRefreshLimitsBanding = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -436,7 +436,7 @@ type IncrementalRefreshLimitsBandingGroup = unit {
 };
 
 type MdIncrementalRefreshSessionStatistics = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -467,7 +467,7 @@ type IncrementalRefreshSessionStatisticsGroup = unit {
 };
 
 type MdIncrementalRefreshTrade = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -500,7 +500,7 @@ type IncrementalRefreshTradeGroup = unit {
 };
 
 type MdIncrementalRefreshVolume = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -533,8 +533,8 @@ type SnapshotFullRefresh = unit {
     tot_num_reports: uint32;
     security_id: int32;
     rpt_seq: uint32;
-    transact_time: uint64;
-    last_update_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
+    last_update_time: uint64 &convert=time_ns($$);
     trade_date: uint16;
     md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
     high_limit_price: int64;
@@ -569,7 +569,7 @@ type SnapshotFullRefreshGroup = unit {
 };
 
 type QuoteRequest = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     quote_req_id: bytes &size=23;
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
@@ -612,7 +612,7 @@ type MdInstrumentDefinitionOption = unit {
     } &byte-order=spicy::ByteOrder::Little;
     tot_num_reports_optional: uint32;
     security_update_action: uint8 &convert=SecurityUpdateAction($$);
-    last_update_time: uint64;
+    last_update_time: uint64 &convert=time_ns($$);
     md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
     appl_id: int16;
     market_segment_id: uint8;
@@ -678,7 +678,7 @@ type OptionUnderlyingsGroup = unit {
 };
 
 type MdIncrementalRefreshTradeSummary = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
         last_volume_msg: 1;
@@ -746,7 +746,7 @@ type Negotiate = unit {
     hmac_signature: bytes &size=32;
     access_key_id: bytes &size=20;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     session: bytes &size=5;
     firm: bytes &size=5;
 };
@@ -754,14 +754,14 @@ type Negotiate = unit {
 type NegotiationReject = unit {
     reason: bytes &size=48;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     error_codes: uint8 &convert=ErrorCodes($$);
     : skip bytes &size=5;   # padding
 };
 
 type NegotiationResponse = unit {
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     secret_key_secure_id_expiration: uint16;
     : skip bytes &size=4;   # padding
 };
@@ -769,7 +769,7 @@ type NegotiationResponse = unit {
 type Terminate = unit {
     reason: bytes &size=48;
     uuid: uint64;
-    request_timestamp: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
     error_codes: uint8 &convert=ErrorCodes($$);
     : skip bytes &size=5;   # padding
 };
