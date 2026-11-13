@@ -23,15 +23,15 @@ type IntraMulticastHeader = unit {
 type MessageBlock = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
-        0x53 -> events_system_message: EventsSystemMessage;
-        0x55 -> general_indices_message: GeneralIndicesMessage;
+        MessageType::EventsSystemMessage -> events_system_message: EventsSystemMessage;
+        MessageType::GeneralIndicesMessage -> general_indices_message: GeneralIndicesMessage;
         * -> unknown: bytes &eod;
     };
 };
 
 type MessageHeader = unit {
     message_length: int16;
-    message_type: uint8;
+    message_type: uint8 &convert=MessageType($$);
 };
 
 type EventsSystemMessage = unit {
@@ -88,6 +88,11 @@ type MarketDataGroup = enum {
     AnalyticsSpeadPerformance = 33,
     AnalyticsNegotiation = 34,
     ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    EventsSystemMessage = 0x53,
+    GeneralIndicesMessage = 0x55,
 };
 
 type EventCode = enum {

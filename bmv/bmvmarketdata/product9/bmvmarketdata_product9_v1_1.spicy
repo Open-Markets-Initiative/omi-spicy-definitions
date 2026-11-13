@@ -23,20 +23,20 @@ type IntraMulticastHeader = unit {
 type MessageBlock = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
-        0x53 -> events_system_message: EventsSystemMessage;
-        0x48 -> trade_cancellation_message: TradeCancellationMessage;
-        0x34 -> status_changes_message: StatusChangesMessage;
-        0x4d -> weighted_average_price_settlement_prices_message: WeightedAveragePriceSettlementPricesMessage;
-        0x4f -> best_offer_message: BestOfferMessage;
-        0x49 -> open_interest_message: OpenInterestMessage;
-        0x51 -> derivatives_market_trades_message: DerivativesMarketTradesMessage;
+        MessageType::EventsSystemMessage -> events_system_message: EventsSystemMessage;
+        MessageType::TradeCancellationMessage -> trade_cancellation_message: TradeCancellationMessage;
+        MessageType::StatusChangesMessage -> status_changes_message: StatusChangesMessage;
+        MessageType::WeightedAveragePriceSettlementPricesMessage -> weighted_average_price_settlement_prices_message: WeightedAveragePriceSettlementPricesMessage;
+        MessageType::BestOfferMessage -> best_offer_message: BestOfferMessage;
+        MessageType::OpenInterestMessage -> open_interest_message: OpenInterestMessage;
+        MessageType::DerivativesMarketTradesMessage -> derivatives_market_trades_message: DerivativesMarketTradesMessage;
         * -> unknown: bytes &eod;
     };
 };
 
 type MessageHeader = unit {
     message_length: int16;
-    message_type: uint8;
+    message_type: uint8 &convert=MessageType($$);
 };
 
 type EventsSystemMessage = unit {
@@ -123,6 +123,16 @@ type MarketDataGroup = enum {
     AnalyticsSpeadPerformance = 33,
     AnalyticsNegotiation = 34,
     ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    EventsSystemMessage = 0x53,
+    TradeCancellationMessage = 0x48,
+    StatusChangesMessage = 0x34,
+    WeightedAveragePriceSettlementPricesMessage = 0x4d,
+    BestOfferMessage = 0x4f,
+    OpenInterestMessage = 0x49,
+    DerivativesMarketTradesMessage = 0x51,
 };
 
 type EventCode = enum {

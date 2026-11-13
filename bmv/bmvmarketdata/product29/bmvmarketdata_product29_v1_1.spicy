@@ -23,18 +23,18 @@ type IntraMulticastHeader = unit {
 type MessageBlock = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
-        0x6d -> last_quote_message: LastQuoteMessage;
-        0x3a -> benchmark_trade_message: BenchmarkTradeMessage;
-        0x40 -> price_leaderboard_message: PriceLeaderboardMessage;
-        0x3c -> trading_sniper_message: TradingSniperMessage;
-        0x5e -> depth_at_best_prices_message: DepthAtBestPricesMessage;
+        MessageType::LastQuoteMessage -> last_quote_message: LastQuoteMessage;
+        MessageType::BenchmarkTradeMessage -> benchmark_trade_message: BenchmarkTradeMessage;
+        MessageType::PriceLeaderboardMessage -> price_leaderboard_message: PriceLeaderboardMessage;
+        MessageType::TradingSniperMessage -> trading_sniper_message: TradingSniperMessage;
+        MessageType::DepthAtBestPricesMessage -> depth_at_best_prices_message: DepthAtBestPricesMessage;
         * -> unknown: bytes &eod;
     };
 };
 
 type MessageHeader = unit {
     message_length: int16;
-    message_type: uint8;
+    message_type: uint8 &convert=MessageType($$);
 };
 
 type LastQuoteMessage = unit {
@@ -134,6 +134,14 @@ type MarketDataGroup = enum {
     AnalyticsSpeadPerformance = 33,
     AnalyticsNegotiation = 34,
     ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    LastQuoteMessage = 0x6d,
+    BenchmarkTradeMessage = 0x3a,
+    PriceLeaderboardMessage = 0x40,
+    TradingSniperMessage = 0x3c,
+    DepthAtBestPricesMessage = 0x5e,
 };
 
 type Origin = enum {

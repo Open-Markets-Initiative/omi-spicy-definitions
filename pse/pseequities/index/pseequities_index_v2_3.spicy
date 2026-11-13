@@ -1,0 +1,122 @@
+# License: MIT No Attribution
+
+module PsePseequitiesIndexItchV23;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PseequitiesIndexV23 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TimeStampSecondsMessage -> time_stamp_seconds_message: TimeStampSecondsMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::OrderbookDirectoryMessage -> orderbook_directory_message: OrderbookDirectoryMessage;
+        MessageType::IndexMemberDirectoryMessage -> index_member_directory_message: IndexMemberDirectoryMessage;
+        MessageType::IndexValueMessage -> index_value_message: IndexValueMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type TimeStampSecondsMessage = unit {
+    second: uint32 &convert=interval($$);
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    group: bytes &size=8;
+    event_code: uint8 &convert=EventCode($$);
+    orderbook: uint32;
+};
+
+type OrderbookDirectoryMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    orderbook: uint32;
+    price_type: uint8 &convert=PriceType($$);
+    isin: bytes &size=12;
+    sec_code: bytes &size=12;
+    currency: bytes &size=3;
+    group: bytes &size=8;
+    lot_size: uint64;
+    quantity_tick_size_table_id: uint32;
+    price_tick_size_table_id: uint32;
+    price_decimals: uint32;
+    delisting_date: uint32;
+    delisting_time: uint32;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    shares: uint64;
+    product_code: bytes &size=8;
+};
+
+type IndexMemberDirectoryMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    index_orderbook: uint32;
+    member_orderbook: uint32;
+    index_member_weight: uint64;
+};
+
+type IndexValueMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    index_orderbook: uint32;
+    value: uint64;
+};
+
+type MessageType = enum {
+    TimeStampSecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    OrderbookDirectoryMessage = 0x52,
+    IndexMemberDirectoryMessage = 0x59,
+    IndexValueMessage = 0x5a,
+};
+
+type Group = enum {
+    Normal = 0x4e,
+    Oddlot = 0x4f,
+    Index = 0x49,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    PreOpenNoCancellationPeriod = 0x52,
+    StartOfMarketHours = 0x51,
+    ScheduledBreakBegins = 0x41,
+    ScheduledBreakEnds = 0x42,
+    PreCloseCommences = 0x4c,
+    PreCloseNoCancellationPeriod = 0x4a,
+    TradingAtLast = 0x50,
+    EndOfMarketHours = 0x4d,
+    EndOfTrading = 0x45,
+    EndOfSystemMessages = 0x43,
+};
+
+type PriceType = enum {
+    PerUnit = 0x55,
+    Percentage = 0x50,
+};
+
+type InstrumentType = enum {
+    CommonStock = 0x43,
+    PreferredStock = 0x50,
+    Warrant = 0x57,
+    Etf = 0x45,
+    Pdr = 0x44,
+    Index = 0x49,
+};
+

@@ -23,18 +23,18 @@ type IntraMulticastHeader = unit {
 type MessageBlock = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
-        0x53 -> events_system_message: EventsSystemMessage;
-        0x72 -> dollar_buy_sell_message: DollarBuySellMessage;
-        0x73 -> short_sales_balances_per_instrument_message: ShortSalesBalancesPerInstrumentMessage;
-        0x74 -> capital_market_multiples_message: CapitalMarketMultiplesMessage;
-        0x78 -> benchmark_message: BenchmarkMessage;
+        MessageType::EventsSystemMessage -> events_system_message: EventsSystemMessage;
+        MessageType::DollarBuySellMessage -> dollar_buy_sell_message: DollarBuySellMessage;
+        MessageType::ShortSalesBalancesPerInstrumentMessage -> short_sales_balances_per_instrument_message: ShortSalesBalancesPerInstrumentMessage;
+        MessageType::CapitalMarketMultiplesMessage -> capital_market_multiples_message: CapitalMarketMultiplesMessage;
+        MessageType::BenchmarkMessage -> benchmark_message: BenchmarkMessage;
         * -> unknown: bytes &eod;
     };
 };
 
 type MessageHeader = unit {
     message_length: int16;
-    message_type: uint8;
+    message_type: uint8 &convert=MessageType($$);
 };
 
 type EventsSystemMessage = unit {
@@ -141,6 +141,14 @@ type MarketDataGroup = enum {
     AnalyticsSpeadPerformance = 33,
     AnalyticsNegotiation = 34,
     ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    EventsSystemMessage = 0x53,
+    DollarBuySellMessage = 0x72,
+    ShortSalesBalancesPerInstrumentMessage = 0x73,
+    CapitalMarketMultiplesMessage = 0x74,
+    BenchmarkMessage = 0x78,
 };
 
 type EventCode = enum {

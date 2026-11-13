@@ -23,18 +23,18 @@ type IntraMulticastHeader = unit {
 type MessageBlock = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
-        0x53 -> events_system_message: EventsSystemMessage;
-        0x48 -> trade_cancellation_message: TradeCancellationMessage;
-        0x50 -> capital_trades_message: CapitalTradesMessage;
-        0x5a -> registry_operations_message: RegistryOperationsMessage;
-        0x42 -> public_offerings_message: PublicOfferingsMessage;
+        MessageType::EventsSystemMessage -> events_system_message: EventsSystemMessage;
+        MessageType::TradeCancellationMessage -> trade_cancellation_message: TradeCancellationMessage;
+        MessageType::CapitalTradesMessage -> capital_trades_message: CapitalTradesMessage;
+        MessageType::RegistryOperationsMessage -> registry_operations_message: RegistryOperationsMessage;
+        MessageType::PublicOfferingsMessage -> public_offerings_message: PublicOfferingsMessage;
         * -> unknown: bytes &eod;
     };
 };
 
 type MessageHeader = unit {
     message_length: int16;
-    message_type: uint8;
+    message_type: uint8 &convert=MessageType($$);
 };
 
 type EventsSystemMessage = unit {
@@ -131,6 +131,14 @@ type MarketDataGroup = enum {
     AnalyticsSpeadPerformance = 33,
     AnalyticsNegotiation = 34,
     ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    EventsSystemMessage = 0x53,
+    TradeCancellationMessage = 0x48,
+    CapitalTradesMessage = 0x50,
+    RegistryOperationsMessage = 0x5a,
+    PublicOfferingsMessage = 0x42,
 };
 
 type EventCode = enum {

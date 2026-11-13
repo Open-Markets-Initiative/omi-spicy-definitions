@@ -295,7 +295,7 @@ type TimetablesGroups = unit {
 };
 
 type TimetablesGroup = unit {
-    phase_time: uint64 &convert=time_ns($$);
+    phase_time: uint64;
     phase_id: uint8 &convert=PhaseId($$);
     phase_qualifier: bitfield(16) {
         no_qualifier: 0;
@@ -444,14 +444,14 @@ type IndexSummaryMessage = unit {
     confirmed_reference_level: int64;
     confirmed_reference_time: uint64 &convert=time_ns($$);
     closing_reference_level: int64;
-    closing_reference_time: uint64;
+    closing_reference_time: uint64 &convert=time_ns($$);
     prct_varfrom_prev_close: int64;
     high_level: int64;
     high_time: uint64 &convert=time_ns($$);
     low_level: int64;
     low_time: uint64 &convert=time_ns($$);
     liquidation_level: int64;
-    liquidation_time: uint64;
+    liquidation_time: uint64 &convert=time_ns($$);
 };
 
 type StrategyStandingDataMessage = unit {
@@ -828,7 +828,7 @@ type BfTradeMessage = unit {
     symbol_index: uint32;
     mifid_transaction_id: bytes &size=52;
     event_time: uint64 &convert=time_ns($$);
-    bid_offer_date_time: uint64;
+    bid_offer_date_time: uint64 &convert=time_ns($$);
     mmt_modification_indicator: bytes &size=4;
     price: int64;
     bid_price: int64;
@@ -848,7 +848,7 @@ type BfnavMessage = unit {
     md_seq_num_optional: uint64;
     rebroadcast_indicator: uint8;
     symbol_index: uint32;
-    bid_offer_date_time: uint64;
+    bid_offer_date_time: uint64 &convert=time_ns($$);
     mifid_transaction_id: bytes &size=52;
     mmt_modification_indicator: bytes &size=4;
     nav_price: int64;
@@ -867,12 +867,12 @@ type BfInstrumentSuspensionMessage = unit {
 
 type StartOfSnapshotMessage = unit {
     last_md_seq_num: uint64;
-    snapshot_time: uint64;
+    snapshot_time: uint64 &convert=time_ns($$);
 };
 
 type EndOfSnapshotMessage = unit {
     last_md_seq_num: uint64;
-    snapshot_time: uint64;
+    snapshot_time: uint64 &convert=time_ns($$);
 };
 
 type TemplateId = enum {

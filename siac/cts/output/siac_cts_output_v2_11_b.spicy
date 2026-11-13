@@ -113,9 +113,9 @@ type SymbolReferenceDataMessage = unit {
     short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
     halt_reason: uint8 &convert=HaltReason($$);
     instrument_type: uint8 &convert=InstrumentType($$);
-    reserved: bytes &size=1;
-    second_reserved: bytes &size=1;
-    reserved_128: bytes &size=128;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=128;   # padding
 };
 
 type ControlMessage = unit {
@@ -222,7 +222,7 @@ type MarketWideCircuitBreakerDeclineLevelStatusMessage = unit {
     mwcb_level_1: int64;
     mwcb_level_2: int64;
     mwcb_level_3: int64;
-    reserved: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type MarketWideCircuitBreakerStatusMessage = unit {
@@ -232,7 +232,7 @@ type MarketWideCircuitBreakerStatusMessage = unit {
     transaction_id: uint32;
     participant_reference_number: int64;
     market_wide_circuit_breaker_level_indicator: uint8 &convert=MarketWideCircuitBreakerLevelIndicator($$);
-    reserved: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type ApproximateAdjustedVolumeMarketCenterMessage = unit {
@@ -596,7 +596,7 @@ type AuctionStatusMessage = unit {
     short_sale_restriction_indicator: uint8 &convert=ShortSaleRestrictionIndicator($$);
     primary_listing_market_participant_id: uint8 &convert=PrimaryListingMarketParticipantId($$);
     financial_status_indicator: uint8 &convert=FinancialStatusIndicator($$);
-    reserved_62: bytes &size=62;
+    : skip bytes &size=62;   # padding
 };
 
 type TradeCorrectionMessage = unit {
@@ -1071,6 +1071,7 @@ type Category1 = enum {
 type Category2 = enum {
     NoTradeThroughExemptReason = 0x20,
     InterMarketSweepOrder = 0x46,
+    MarketCenterOpeningTrade = 0x4f,
     DerivativelyPriced = 0x34,
     MarketCenterReopeningTrade = 0x35,
     MarketCenterClosingTrade = 0x36,
@@ -1082,7 +1083,6 @@ type Category2 = enum {
 type Category3 = enum {
     NotExtendedHoursOrSoldOutOfSequence = 0x20,
     SoldLastLateReporting = 0x4c,
-    MarketCenterOpeningTrade = 0x4f,
     ExtendedHoursTrade = 0x54,
     ExtendedHoursSoldOutOfSequence = 0x55,
     SoldOutOfSequence = 0x5a,

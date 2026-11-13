@@ -1,0 +1,346 @@
+# License: MIT No Attribution
+
+module PsePseequitiesTotalviewItchV23;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type PseequitiesTotalviewV23 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TimeStampSecondsMessage -> time_stamp_seconds_message: TimeStampSecondsMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::TradingScheduleMessage -> trading_schedule_message: TradingScheduleMessage;
+        MessageType::PriceTickSizeMessage -> price_tick_size_message: PriceTickSizeMessage;
+        MessageType::QuantityTickSizeMessage -> quantity_tick_size_message: QuantityTickSizeMessage;
+        MessageType::OrderbookDirectoryMessage -> orderbook_directory_message: OrderbookDirectoryMessage;
+        MessageType::OrderbookRestrictionsMessage -> orderbook_restrictions_message: OrderbookRestrictionsMessage;
+        MessageType::OrderbookTradingActionMessage -> orderbook_trading_action_message: OrderbookTradingActionMessage;
+        MessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        MessageType::OrderExecutedMessage -> order_executed_message: OrderExecutedMessage;
+        MessageType::OrderExecutedWithBrokerIdMessage -> order_executed_with_broker_id_message: OrderExecutedWithBrokerIdMessage;
+        MessageType::OrderExecutedWithPriceMessage -> order_executed_with_price_message: OrderExecutedWithPriceMessage;
+        MessageType::OrderExecutedWithPriceAndBrokerIdMessage -> order_executed_with_price_and_broker_id_message: OrderExecutedWithPriceAndBrokerIdMessage;
+        MessageType::BrokenTradeMessage -> broken_trade_message: BrokenTradeMessage;
+        MessageType::OrderDeleteMessage -> order_delete_message: OrderDeleteMessage;
+        MessageType::OrderReplaceMessage -> order_replace_message: OrderReplaceMessage;
+        MessageType::IndicativePriceQuantityMessage -> indicative_price_quantity_message: IndicativePriceQuantityMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::TradeWithBrokerIdMessage -> trade_with_broker_id_message: TradeWithBrokerIdMessage;
+        MessageType::ForeignSharesAvailableMessage -> foreign_shares_available_message: ForeignSharesAvailableMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type TimeStampSecondsMessage = unit {
+    second: uint32 &convert=interval($$);
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    group: bytes &size=8;
+    event_code: uint8 &convert=EventCode($$);
+    orderbook: uint32;
+};
+
+type TradingScheduleMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    group: bytes &size=8;
+    event_code: uint8 &convert=EventCode($$);
+    orderbook: uint32;
+    scheduled_time: uint32 &convert=interval($$);
+};
+
+type PriceTickSizeMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    tick_size_table_id: uint32;
+    tick_size_integer_4: uint32;
+    price_start: uint32;
+};
+
+type QuantityTickSizeMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    tick_size_table_id: uint32;
+    tick_size_integer_8: uint64;
+    quantity_start: uint64;
+};
+
+type OrderbookDirectoryMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    orderbook: uint32;
+    price_type: uint8 &convert=PriceType($$);
+    isin: bytes &size=12;
+    sec_code: bytes &size=12;
+    currency: bytes &size=3;
+    group: bytes &size=8;
+    lot_size: uint64;
+    quantity_tick_size_table_id: uint32;
+    price_tick_size_table_id: uint32;
+    price_decimals: uint32;
+    delisting_date: uint32;
+    delisting_time: uint32;
+    instrument_type: uint8 &convert=InstrumentType($$);
+    shares: uint64;
+    product_code: bytes &size=8;
+};
+
+type OrderbookRestrictionsMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    orderbook: uint32;
+    short_sell_eligible: uint8 &convert=ShortSellEligible($$);
+    high_collar: uint32;
+    low_collar: uint32;
+    cb_limit_up: uint32;
+    cb_limit_down: uint32;
+    cb_limit_decimals: uint32 &convert=CbLimitDecimals($$);
+};
+
+type OrderbookTradingActionMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    orderbook: uint32;
+    trading_state: uint8 &convert=TradingState($$);
+    reason: uint8 &convert=Reason($$);
+};
+
+type AddOrderMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    order_number: uint64;
+    order_verb: uint8 &convert=OrderVerb($$);
+    quantity: uint64;
+    orderbook: uint32;
+    price: uint32;
+};
+
+type OrderExecutedMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    order_number: uint64;
+    executed_quantity: uint64;
+    match_number: uint64;
+};
+
+type OrderExecutedWithBrokerIdMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    order_number: uint64;
+    executed_quantity: uint64;
+    match_number: uint64;
+    passive_broker_id: bytes &size=4;
+    active_broker_id: bytes &size=4;
+};
+
+type OrderExecutedWithPriceMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    order_number: uint64;
+    executed_quantity: uint64;
+    match_number: uint64;
+    printable: uint8 &convert=Printable($$);
+    order_execution_price: uint32;
+};
+
+type OrderExecutedWithPriceAndBrokerIdMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    order_number: uint64;
+    executed_quantity: uint64;
+    match_number: uint64;
+    printable: uint8 &convert=Printable($$);
+    order_execution_price: uint32;
+    passive_broker_id: bytes &size=4;
+    active_broker_id: bytes &size=4;
+};
+
+type BrokenTradeMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    match_number: uint64;
+    broken_trade_reason: uint8 &convert=BrokenTradeReason($$);
+};
+
+type OrderDeleteMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    order_number: uint64;
+};
+
+type OrderReplaceMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    original_order_number: uint64;
+    new_order_number: uint64;
+    quantity: uint64;
+    replace_price: uint32;
+};
+
+type IndicativePriceQuantityMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    theoretical_auction_quantity: uint64;
+    orderbook: uint32;
+    best_bid: uint32;
+    best_offer: uint32;
+    theoretical_auction_price: uint32;
+    auction_type: uint8 &convert=AuctionType($$);
+};
+
+type TradeMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    executed_quantity: uint64;
+    orderbook: uint32;
+    printable: uint8 &convert=Printable($$);
+    execution_price: uint32;
+    match_number: uint64;
+    trade_indicator: uint8 &convert=TradeIndicator($$);
+};
+
+type TradeWithBrokerIdMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    executed_quantity: uint64;
+    orderbook: uint32;
+    printable: uint8 &convert=Printable($$);
+    execution_price: uint32;
+    match_number: uint64;
+    trade_indicator: uint8 &convert=TradeIndicator($$);
+    buy_broker_id: bytes &size=4;
+    sell_broker_id: bytes &size=4;
+};
+
+type ForeignSharesAvailableMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    product_code: bytes &size=8;
+    ownership_rule_id: bytes &size=2;
+    sign: uint8 &convert=Sign($$);
+    foreign_shares_available: uint64;
+};
+
+type MessageType = enum {
+    TimeStampSecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    TradingScheduleMessage = 0x73,
+    PriceTickSizeMessage = 0x4c,
+    QuantityTickSizeMessage = 0x4d,
+    OrderbookDirectoryMessage = 0x52,
+    OrderbookRestrictionsMessage = 0x6b,
+    OrderbookTradingActionMessage = 0x48,
+    AddOrderMessage = 0x41,
+    OrderExecutedMessage = 0x45,
+    OrderExecutedWithBrokerIdMessage = 0x65,
+    OrderExecutedWithPriceMessage = 0x43,
+    OrderExecutedWithPriceAndBrokerIdMessage = 0x63,
+    BrokenTradeMessage = 0x42,
+    OrderDeleteMessage = 0x44,
+    OrderReplaceMessage = 0x55,
+    IndicativePriceQuantityMessage = 0x49,
+    TradeMessage = 0x50,
+    TradeWithBrokerIdMessage = 0x70,
+    ForeignSharesAvailableMessage = 0x66,
+};
+
+type Group = enum {
+    Normal = 0x4e,
+    Oddlot = 0x4f,
+    Index = 0x49,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfSystemHours = 0x53,
+    PreOpenNoCancellationPeriod = 0x52,
+    StartOfMarketHours = 0x51,
+    ScheduledBreakBegins = 0x41,
+    ScheduledBreakEnds = 0x42,
+    PreCloseCommences = 0x4c,
+    PreCloseNoCancellationPeriod = 0x4a,
+    TradingAtLast = 0x50,
+    EndOfMarketHours = 0x4d,
+    EndOfTrading = 0x45,
+    EndOfSystemMessages = 0x43,
+};
+
+type PriceType = enum {
+    PerUnit = 0x55,
+    Percentage = 0x50,
+};
+
+type InstrumentType = enum {
+    CommonStock = 0x43,
+    PreferredStock = 0x50,
+    Warrant = 0x57,
+    Etf = 0x45,
+    Pdr = 0x44,
+    Index = 0x49,
+};
+
+type ShortSellEligible = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type CbLimitDecimals = enum {
+    ZeroDecimals = 0,
+    OneDecimals = 1,
+    TwoDecimals = 2,
+    ThreeDecimals = 3,
+    FourDecimals = 4,
+    FiveDecimals = 5,
+    SixDecimals = 6,
+    SevenDecimals = 7,
+    EightDecimals = 8,
+    NineDecimals = 9,
+};
+
+type TradingState = enum {
+    Trading = 0x54,
+    Suspended = 0x56,
+};
+
+type Reason = enum {
+    NormalTrading = 0x4e,
+    SuspendedByMarketControl = 0x53,
+    FrozenDueToCircuitBreaker = 0x46,
+    Halted = 0x48,
+};
+
+type OrderVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    ReferencePriceUpdate = 0x20,
+};
+
+type Printable = enum {
+    NonPrintable = 0x4e,
+    Printable_x59 = 0x59,
+};
+
+type BrokenTradeReason = enum {
+    Supervisory = 0x53,
+};
+
+type AuctionType = enum {
+    OpeningAuction = 0x4f,
+    IntraDayAuction = 0x49,
+    ClosingAuction = 0x43,
+};
+
+type TradeIndicator = enum {
+    RegularTrade = 0x20,
+    IntentionalCrossTrade = 0x43,
+    BlockSale = 0x42,
+    ManualTrade = 0x4d,
+};
+
+type Sign = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+};
+

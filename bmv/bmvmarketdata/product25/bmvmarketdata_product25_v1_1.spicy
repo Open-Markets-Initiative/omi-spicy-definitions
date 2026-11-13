@@ -23,30 +23,30 @@ type IntraMulticastHeader = unit {
 type MessageBlock = unit {
     message_header: MessageHeader;
     switch ( self.message_header.message_type ) {
-        0x28 -> mutual_funds_trades_message: MutualFundsTradesMessage;
-        0x29 -> opening_of_continuous_auctions_message: OpeningOfContinuousAuctionsMessage;
-        0x2c -> existence_of_bids_at_mid_price_message: ExistenceOfBidsAtMidPriceMessage;
-        0x2e -> catalogue_of_debt_and_metals_instruments_message: CatalogueOfDebtAndMetalsInstrumentsMessage;
-        0x30 -> catalog_sent_for_instruments_belonging_to_mutual_funds_message: CatalogSentForInstrumentsBelongingToMutualFundsMessage;
-        0x36 -> weighted_average_price_message: WeightedAveragePriceMessage;
-        0x37 -> system_events_message: SystemEventsMessage;
-        0x38 -> reference_price_message: ReferencePriceMessage;
-        0x39 -> changes_in_status_message: ChangesInStatusMessage;
-        0x54 -> catalog_for_instruments_belonging_to_the_capital_warrants_market_message: CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage;
-        0x5b -> catalog_sent_for_instruments_belonging_to_capital_tracs_message: CatalogSentForInstrumentsBelongingToCapitalTracsMessage;
-        0x5d -> consolidated_inav_message: ConsolidatedInavMessage;
-        0x68 -> catalog_for_instruments_belonging_to_the_local_and_global_stock_market_message: CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage;
-        0x69 -> probable_price_of_allocation_message: ProbablePriceOfAllocationMessage;
-        0x6a -> relation_between_bmvbiva_instruments_message: RelationBetweenBmvbivaInstrumentsMessage;
-        0x70 -> equities_market_trades_message: EquitiesMarketTradesMessage;
-        0x71 -> consolidated_trade_cancellation_message: ConsolidatedTradeCancellationMessage;
+        MessageType::MutualFundsTradesMessage -> mutual_funds_trades_message: MutualFundsTradesMessage;
+        MessageType::OpeningOfContinuousAuctionsMessage -> opening_of_continuous_auctions_message: OpeningOfContinuousAuctionsMessage;
+        MessageType::ExistenceOfBidsAtMidPriceMessage -> existence_of_bids_at_mid_price_message: ExistenceOfBidsAtMidPriceMessage;
+        MessageType::CatalogueOfDebtAndMetalsInstrumentsMessage -> catalogue_of_debt_and_metals_instruments_message: CatalogueOfDebtAndMetalsInstrumentsMessage;
+        MessageType::CatalogSentForInstrumentsBelongingToMutualFundsMessage -> catalog_sent_for_instruments_belonging_to_mutual_funds_message: CatalogSentForInstrumentsBelongingToMutualFundsMessage;
+        MessageType::WeightedAveragePriceMessage -> weighted_average_price_message: WeightedAveragePriceMessage;
+        MessageType::SystemEventsMessage -> system_events_message: SystemEventsMessage;
+        MessageType::ReferencePriceMessage -> reference_price_message: ReferencePriceMessage;
+        MessageType::ChangesInStatusMessage -> changes_in_status_message: ChangesInStatusMessage;
+        MessageType::CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage -> catalog_for_instruments_belonging_to_the_capital_warrants_market_message: CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage;
+        MessageType::CatalogSentForInstrumentsBelongingToCapitalTracsMessage -> catalog_sent_for_instruments_belonging_to_capital_tracs_message: CatalogSentForInstrumentsBelongingToCapitalTracsMessage;
+        MessageType::ConsolidatedInavMessage -> consolidated_inav_message: ConsolidatedInavMessage;
+        MessageType::CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage -> catalog_for_instruments_belonging_to_the_local_and_global_stock_market_message: CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage;
+        MessageType::ProbablePriceOfAllocationMessage -> probable_price_of_allocation_message: ProbablePriceOfAllocationMessage;
+        MessageType::RelationBetweenBmvbivaInstrumentsMessage -> relation_between_bmvbiva_instruments_message: RelationBetweenBmvbivaInstrumentsMessage;
+        MessageType::EquitiesMarketTradesMessage -> equities_market_trades_message: EquitiesMarketTradesMessage;
+        MessageType::ConsolidatedTradeCancellationMessage -> consolidated_trade_cancellation_message: ConsolidatedTradeCancellationMessage;
         * -> unknown: bytes &eod;
     };
 };
 
 type MessageHeader = unit {
     message_length: int16;
-    message_type: uint8;
+    message_type: uint8 &convert=MessageType($$);
 };
 
 type MutualFundsTradesMessage = unit {
@@ -270,6 +270,26 @@ type MarketDataGroup = enum {
     AnalyticsSpeadPerformance = 33,
     AnalyticsNegotiation = 34,
     ChannelZeroCatalogs = 40,
+};
+
+type MessageType = enum {
+    MutualFundsTradesMessage = 0x28,
+    OpeningOfContinuousAuctionsMessage = 0x29,
+    ExistenceOfBidsAtMidPriceMessage = 0x2c,
+    CatalogueOfDebtAndMetalsInstrumentsMessage = 0x2e,
+    CatalogSentForInstrumentsBelongingToMutualFundsMessage = 0x30,
+    WeightedAveragePriceMessage = 0x36,
+    SystemEventsMessage = 0x37,
+    ReferencePriceMessage = 0x38,
+    ChangesInStatusMessage = 0x39,
+    CatalogForInstrumentsBelongingToTheCapitalWarrantsMarketMessage = 0x54,
+    CatalogSentForInstrumentsBelongingToCapitalTracsMessage = 0x5b,
+    ConsolidatedInavMessage = 0x5d,
+    CatalogForInstrumentsBelongingToTheLocalAndGlobalStockMarketMessage = 0x68,
+    ProbablePriceOfAllocationMessage = 0x69,
+    RelationBetweenBmvbivaInstrumentsMessage = 0x6a,
+    EquitiesMarketTradesMessage = 0x70,
+    ConsolidatedTradeCancellationMessage = 0x71,
 };
 
 type Origin = enum {

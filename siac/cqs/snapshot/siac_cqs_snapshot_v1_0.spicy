@@ -17,9 +17,9 @@ type BlockHeader = unit {
     block_size: uint16;
     block_sequence_number: uint32;
     messages_in_block: uint8;
-    delivery_flag: uint8 &convert=DeliveryFlag($$);
-    last_seq_num: bytes &size=1;
-    tot_pub_seq_rollover: uint8;
+    deliveryflag: uint8 &convert=Deliveryflag($$);
+    lastseqnum: uint32;
+    totpubseqrollover: uint8;
     sip_block_timestamp: SipBlockTimestamp;
     block_checksum: uint16;
 };
@@ -56,7 +56,7 @@ type MarketWideCircuitBreakerDeclineLevelStatusSnapshotMessage = unit {
     mwcb_level_1: int64;
     mwcb_level_2: int64;
     mwcb_level_3: int64;
-    reserved: uint8;
+    : skip bytes &size=1;   # padding
 };
 
 type ConsolidatedSnapshotMessage = unit {
@@ -121,7 +121,7 @@ type FinraSnapshotMessage = unit {
     halt_reason: uint8 &convert=HaltReason($$);
 };
 
-type DeliveryFlag = enum {
+type Deliveryflag = enum {
     FirstBlock = 1,
     IntermediateBlock = 2,
     LastBlock = 3,
