@@ -53,6 +53,7 @@ type SbeMessage = unit {
         TemplateId::OrdersMmpTriggeredMessage -> orders_mmp_triggered_message: OrdersMmpTriggeredMessage;
         TemplateId::MassQuoteMmpUnfrozenMessage -> mass_quote_mmp_unfrozen_message: MassQuoteMmpUnfrozenMessage;
         TemplateId::OrdersMmpUnfrozenMessage -> orders_mmp_unfrozen_message: OrdersMmpUnfrozenMessage;
+        TemplateId::PositionMovedMessage -> position_moved_message: PositionMovedMessage;
         * -> unknown: bytes &eod;
     };
     : skip bytes &size=0;   # padding
@@ -78,6 +79,7 @@ type LogonMessage = unit {
     reset_seq_num: int8 &convert=ResetSeqNum($$);
     schema_version: uint16;
     session_cancel_on_disconnect: int8 &convert=SessionCancelOnDisconnect($$);
+    liquidation_notifications: int8 &convert=LiquidationNotifications($$);
 };
 
 type LogonConfMessage = unit {
@@ -154,7 +156,7 @@ type Quantity = unit {
 };
 
 type ShowQty = unit {
-    mantissa: int64;
+    mantissa_optional: int64;
     exponent: int8;
 };
 
@@ -532,7 +534,7 @@ type GetMassQuoteMmpStatusResponseMessage = unit {
     timestamp: int64 &convert=time_ns($$);
     correlation_id: int64;
     mmp_group_id: int64;
-    frozen_until_time: int64;
+    frozen_until_time: int64 &convert=time_ns($$);
 };
 
 type GetMassQuoteMmpStatusRejectMessage = unit {
@@ -545,7 +547,7 @@ type GetOrdersMmpStatusResponseMessage = unit {
     timestamp: int64 &convert=time_ns($$);
     correlation_id: int64;
     currency_pair_id: int64;
-    frozen_until_time: int64;
+    frozen_until_time: int64 &convert=time_ns($$);
 };
 
 type GetOrdersMmpStatusRejectMessage = unit {
@@ -578,7 +580,8 @@ type OrderFilledMessageFillsGroup = unit {
     flags_fill_flags: bitfield(8) {
         is_quote: 0;
         is_fully_filled: 1;
-        reserved_6: 2..7;
+        is_liquidation: 2;
+        reserved_5: 3..7;
     } &byte-order=spicy::ByteOrder::Little;
 };
 
@@ -721,9 +724,9 @@ type MassQuoteMmpTriggeredMessage = unit {
     exec_id: int64;
     mmp_group_id: int64;
     frozen_until: int64 &convert=time_ns($$);
-    quantity_level: bytes &size=8;
-    vega_level: bytes &size=8;
-    delta_level: bytes &size=8;
+    quantity_level: real &type=spicy::RealType::IEEE754_Double;
+    vega_level: real &type=spicy::RealType::IEEE754_Double;
+    delta_level: real &type=spicy::RealType::IEEE754_Double;
     trigger: int8 &convert=Trigger($$);
 };
 
@@ -732,9 +735,9 @@ type OrdersMmpTriggeredMessage = unit {
     exec_id: int64;
     currency_pair_id: int64;
     frozen_until: int64 &convert=time_ns($$);
-    quantity_level: bytes &size=8;
-    vega_level: bytes &size=8;
-    delta_level: bytes &size=8;
+    quantity_level: real &type=spicy::RealType::IEEE754_Double;
+    vega_level: real &type=spicy::RealType::IEEE754_Double;
+    delta_level: real &type=spicy::RealType::IEEE754_Double;
     trigger: int8 &convert=Trigger($$);
 };
 
@@ -750,6 +753,18 @@ type OrdersMmpUnfrozenMessage = unit {
     exec_id: int64;
     currency_pair_id: int64;
     correlation_id_optional: int64;
+};
+
+type PositionMovedMessage = unit {
+    timestamp: int64 &convert=time_ns($$);
+    exec_id: int64;
+    instrument_id: int64;
+    match_id: int64;
+    price: int64;
+    quantity: Quantity;
+    side: int8 &convert=Side($$);
+    role: int8 &convert=Role($$);
+    reason_position_move_reason: int8 &convert=ReasonPositionMoveReason($$);
 };
 
 type TemplateId = enum {
@@ -793,6 +808,7 @@ type TemplateId = enum {
     OrdersMmpTriggeredMessage = 322,
     MassQuoteMmpUnfrozenMessage = 324,
     OrdersMmpUnfrozenMessage = 326,
+    PositionMovedMessage = 330,
 };
 
 type ResetSeqNum = enum {
@@ -805,6 +821,11 @@ type SessionCancelOnDisconnect = enum {
     True_1 = 1,
 };
 
+type LiquidationNotifications = enum {
+    False_0 = 0,
+    True_1 = 1,
+};
+
 type ReasonRejectReason = enum {
     InvalidSchemaId = 1,
     InvalidTemplateId = 2,
@@ -812,6 +833,7 @@ type ReasonRejectReason = enum {
     InvalidFieldValue = 4,
     MessageDisabled = 5,
     GatewayNotActive = 6,
+    MessageNotPermitted = 7,
 };
 
 type Side = enum {
@@ -899,6 +921,8 @@ type ReasonOrderRejectReason = enum {
     MemberSpeedBumpLimitExceeded = 29,
     MmpMinFreezeTimeNotElapsed = 30,
     CancelOnly = 31,
+    PortfolioInstrumentNotAllowed = 32,
+    MmpRequired = 33,
 };
 
 type ReasonCancelOrderRejectReason = enum {
@@ -970,6 +994,8 @@ type BidRejectReason = enum {
     MemberSpeedBumpLimitExceeded = 29,
     MmpMinFreezeTimeNotElapsed = 30,
     CancelOnly = 31,
+    PortfolioInstrumentNotAllowed = 32,
+    MmpRequired = 33,
 };
 
 type AskRejectReason = enum {
@@ -1005,6 +1031,8 @@ type AskRejectReason = enum {
     MemberSpeedBumpLimitExceeded = 29,
     MmpMinFreezeTimeNotElapsed = 30,
     CancelOnly = 31,
+    PortfolioInstrumentNotAllowed = 32,
+    MmpRequired = 33,
 };
 
 type ReasonMassQuoteRejectReason = enum {
@@ -1018,6 +1046,7 @@ type ReasonMassQuoteRejectReason = enum {
     PortfolioLocked = 7,
     DuplicateInstrument = 8,
     MmpMinFreezeTimeNotElapsed = 9,
+    PortfolioInstrumentNotAllowed = 10,
 };
 
 type ReasonMassCancelRejectReason = enum {
@@ -1036,5 +1065,15 @@ type Trigger = enum {
     Quantity = 0,
     Delta = 1,
     Vega = 2,
+};
+
+type Role = enum {
+    Taker = 1,
+    Maker = 2,
+};
+
+type ReasonPositionMoveReason = enum {
+    Lsp = 1,
+    Adl = 2,
 };
 

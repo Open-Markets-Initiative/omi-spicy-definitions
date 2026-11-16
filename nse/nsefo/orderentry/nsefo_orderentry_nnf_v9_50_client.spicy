@@ -75,7 +75,7 @@ type ClientMessage = unit {
 
 type MessageHeader = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     alpha_char: bytes &size=2;
     trader_id: int32;
     error_code: int16 &convert=ErrorCode($$);
@@ -92,17 +92,17 @@ type SignOnRequestInMessage = unit {
     : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
-    last_password_change_date: int32;
+    last_password_change_date: int32 &convert=time($$ + 315532800);
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
-    batch_2_start_time: int32;
+    batch_2_start_time: int32 &convert=time($$ + 315532800);
     host_switch_context: bytes &size=1;
     colour: bytes &size=50;
     : skip bytes &size=1;   # padding
     user_type: int16;
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
     ws_class_name: bytes &size=14;
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
@@ -123,7 +123,7 @@ type SignOnRequestInMessage = unit {
 };
 
 type SystemInformationInMessage = unit {
-    last_update_portfolio_t_ime: int32;
+    last_update_portfolio_t_ime: int32 &convert=time($$ + 315532800);
 };
 
 type GatewayRouterRequestMessage = unit {
@@ -133,10 +133,10 @@ type GatewayRouterRequestMessage = unit {
 };
 
 type UpdateLocalDatabaseInMessage = unit {
-    last_update_security_time: int32;
-    last_update_participant_time: int32;
-    last_update_instrument_time: int32;
-    last_update_index_time: int32;
+    last_update_security_time: int32 &convert=time($$ + 315532800);
+    last_update_participant_time: int32 &convert=time($$ + 315532800);
+    last_update_instrument_time: int32 &convert=time($$ + 315532800);
+    last_update_index_time: int32 &convert=time($$ + 315532800);
     request_for_open_orders: bytes &size=1;
     : skip bytes &size=1;   # padding
     st_market_status: StMarketStatus;
@@ -166,7 +166,7 @@ type StPlMarketStatus = unit {
 };
 
 type DownloadRequestMessage = unit {
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type OrderEntryRequestMessage = unit {
@@ -190,7 +190,7 @@ type OrderEntryBody = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type: int16 &convert=BookType($$);
     buy_sell_indicator: int16 &convert=BuySellIndicator($$);
@@ -202,7 +202,7 @@ type OrderEntryBody = unit {
     price: int32;
     trigger_price: int32;
     good_till_date: int32;
-    entry_date_time: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -241,7 +241,7 @@ type OrderEntryBody = unit {
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -253,7 +253,7 @@ type OrderEntryBody = unit {
 type ContractDesc = unit {
     instrument_name: bytes &size=6;
     symbol: bytes &size=10;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
@@ -282,7 +282,7 @@ type OrderEntryMessage = unit {
 type PriceModificationMessage = unit {
     token_no: int32;
     trader_id: int32;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     buy_sell: int16 &convert=BuySell($$);
     price: int32;
     volume: int32;
@@ -337,7 +337,7 @@ type SpreadOrderBody = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16 &convert=BookType1($$);
     buy_sell_1: int16;
@@ -349,7 +349,7 @@ type SpreadOrderBody = unit {
     price_1: int32;
     trigger_price_1: int32;
     good_till_date_1: int32;
-    entry_date_time_1: int32;
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -388,7 +388,7 @@ type SpreadOrderBody = unit {
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -466,8 +466,8 @@ type BranchOrderValueLimitUpdateMessage = unit {
 };
 
 type BranchLimits = unit {
-    branch_buy_value_limit: bytes &size=8;
-    branch_sell_value_limit: bytes &size=8;
+    branch_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=16;   # padding
 };
 
@@ -483,8 +483,8 @@ type UserOrderValueLimitUpdateMessage = unit {
 
 type UserLimits = unit {
     : skip bytes &size=32;   # padding
-    user_order_buy_value_limit: bytes &size=8;
-    user_order_sell_value_limit: bytes &size=8;
+    user_order_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=16;   # padding
 };
 
@@ -492,8 +492,8 @@ type NormalOrderLimitUpdateMessage = unit {
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     user_id: int32;
-    order_qty_limit: bytes &size=8;
-    order_val_limit: bytes &size=8;
+    order_qty_limit: real &type=spicy::RealType::IEEE754_Double;
+    order_val_limit: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type ResetUserPasswordMessage = unit {

@@ -63,7 +63,7 @@ type ServerMessage = unit {
 
 type MessageHeader = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     alpha_char: bytes &size=2;
     trader_id: int32;
     error_code: int16;
@@ -100,9 +100,9 @@ type BranchOrderValueLimitUpdateOutMessage = unit {
 };
 
 type BranchLimit = unit {
-    branch_buy_value_limit: bytes &size=8;
+    branch_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=8;   # padding
-    branch_sell_value_limit: bytes &size=8;
+    branch_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=8;   # padding
 };
 
@@ -169,7 +169,7 @@ type ControlMessageToTraderMessage = unit {
 };
 
 type TradeConfirmationMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_num: int32;
@@ -204,8 +204,8 @@ type TradeConfirmationMessage = unit {
     fill_price: int32;
     vol_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    op_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    op_order_number: real &type=spicy::RealType::IEEE754_Double;
     op_broker_id: bytes &size=5;
     sec_info: SecInfo;
     : skip bytes &size=1;   # padding
@@ -232,7 +232,7 @@ type OrderEntryOutMessage = unit {
     auction_number: int16;
     op_broker_id: bytes &size=5;
     suspended: bytes &size=1;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type: int16 &convert=BookType($$);
     buy_sell: int16;
@@ -244,9 +244,9 @@ type OrderEntryOutMessage = unit {
     price: int32;
     trigger_price: int32;
     good_till_date: int32;
-    entry_date_time: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
     min_fill_aon: int32;
-    last_modified: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
     st_order_flags: bitfield(16) {
         order_flags_reserved_one: 0;
         stpc: 1;
@@ -272,8 +272,8 @@ type OrderEntryOutMessage = unit {
     settlor: bytes &size=12;
     pro_client: int16;
     settlement_type: int16;
-    nnf_field: bytes &size=8;
-    exec_time_stamp: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=4;   # padding
     pan: bytes &size=10;
     algo_id: int32;
@@ -295,7 +295,7 @@ type OrderEntryShortMessage = unit {
     auction_number: int16;
     op_broker_id: bytes &size=5;
     suspended: bytes &size=1;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type: int16 &convert=BookType($$);
     buy_sell: int16;
@@ -307,9 +307,9 @@ type OrderEntryShortMessage = unit {
     price: int32;
     trigger_price: int32;
     good_till_date: int32;
-    entry_date_time: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
     min_fill_aon: int32;
-    last_modified: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
     st_order_flags: bitfield(16) {
         order_flags_reserved_one: 0;
         stpc: 1;
@@ -335,8 +335,8 @@ type OrderEntryShortMessage = unit {
     settlor: bytes &size=12;
     pro_client: int16;
     settlement_type: int16;
-    nnf_field: bytes &size=8;
-    exec_time_stamp: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=4;   # padding
 };
 
@@ -344,8 +344,8 @@ type OrderLimitUpdateOutMessage = unit {
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     user_id: int32;
-    order_qty_limit: bytes &size=8;
-    order_val_limit: bytes &size=8;
+    order_qty_limit: real &type=spicy::RealType::IEEE754_Double;
+    order_val_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=2;   # padding
 };
 
@@ -373,32 +373,32 @@ type SecurityMasterChangeMessage = unit {
     sec_info: SecInfo;
     instrument_type: int16;
     permitted_to_trade: int16;
-    issued_capital: bytes &size=8;
+    issued_capital: real &type=spicy::RealType::IEEE754_Double;
     settlement_type: int16;
     freeze_percent: int16;
     credit_rating: bytes &size=19;
     : skip bytes &size=1;   # padding
     secuirity_eligibility_per_market: SecuirityEligibilityPerMarket[6];
     surv_ind: int16;
-    issue_start_date: int32;
-    interest_payment_date: int32;
-    issue_maturity_date: int32;
+    issue_start_date: int32 &convert=time($$ + 315532800);
+    interest_payment_date: int32 &convert=time($$ + 315532800);
+    issue_maturity_date: int32 &convert=time($$ + 315532800);
     board_lot_quantity: int32;
     tick_size: int32;
     name: bytes &size=25;
     : skip bytes &size=1;   # padding
-    listing_date: int32;
-    expulsion_date: int32;
-    re_admission_date: int32;
-    record_date: int32;
-    expiry_date: int32;
-    no_delivery_start_date: int32;
-    no_delivery_end_date: int32;
+    listing_date: int32 &convert=time($$ + 315532800);
+    expulsion_date: int32 &convert=time($$ + 315532800);
+    re_admission_date: int32 &convert=time($$ + 315532800);
+    record_date: int32 &convert=time($$ + 315532800);
+    expiry_date: int32 &convert=time($$ + 315532800);
+    no_delivery_start_date: int32 &convert=time($$ + 315532800);
+    no_delivery_end_date: int32 &convert=time($$ + 315532800);
     eligiblity_indicators: EligiblityIndicators;
-    book_closure_start_date: int32;
-    book_closure_end_date: int32;
+    book_closure_start_date: int32 &convert=time($$ + 315532800);
+    book_closure_end_date: int32 &convert=time($$ + 315532800);
     purpose: Purpose;
-    local_update_date_time: int32;
+    local_update_date_time: int32 &convert=time($$ + 315532800);
     delete_flag: bytes &size=1;
     remark: bytes &size=25;
     face_value: int32;
@@ -447,14 +447,14 @@ type SignOnRequestOutMessage = unit {
     : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
-    last_password_change_date_time: int32;
+    last_password_change_date_time: int32 &convert=time($$ + 315532800);
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
     : skip bytes &size=56;   # padding
     user_type: int16;
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
     workstation_number: bytes &size=14;
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
@@ -482,15 +482,15 @@ type SignOnResponseMessage = unit {
     : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
-    last_password_change_date: int32;
+    last_password_change_date: int32 &convert=time($$ + 315532800);
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
-    end_time: int32;
+    end_time: int32 &convert=time($$ + 315532800);
     : skip bytes &size=52;   # padding
     user_type: int16;
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=14;   # padding
     broker_status: bytes &size=1;
     : skip bytes &size=1;   # padding
@@ -592,9 +592,9 @@ type UserOrderValueLimitUpdateOutMessage = unit {
 
 type UserLimits = unit {
     : skip bytes &size=16;   # padding
-    user_order_buy_value_limit: bytes &size=8;
+    user_order_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=24;   # padding
-    user_order_sell_value_limit: bytes &size=8;
+    user_order_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=8;   # padding
 };
 
@@ -611,11 +611,11 @@ type UpdateLocalDatabaseDataMessage = unit {
 
 type InnerHeader = unit {
     inner_trader_id: int32;
-    inner_log_time: int32;
+    inner_log_time: int32 &convert=time($$ + 315532800);
     inner_alpha_char: bytes &size=2;
     inner_transaction_code: int16;
     inner_error_code: int16;
-    inner_timestamp: int64;
+    inner_timestamp: int64 &convert=time_ns($$ + 315532800000000000);
     inner_time_stamp_1: bytes &size=8;
     inner_time_stamp_2: bytes &size=8;
     inner_message_length: int16;

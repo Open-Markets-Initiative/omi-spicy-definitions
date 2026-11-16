@@ -1,0 +1,550 @@
+# License: MIT No Attribution
+
+module MiaxMiaxoptionsClearingtradedropCtdV21;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MiaxoptionsClearingtradedropV21 = unit {
+    sesm_tcp_packet: SesmTcpPacket[] &eod;
+};
+
+type SesmTcpPacket = unit {
+    sesm_packet_header: SesmPacketHeader;
+    switch ( self.sesm_packet_header.sesm_packet_type ) {
+        SesmPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        SesmPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        SesmPacketType::LoginRequest -> login_request: LoginRequest;
+        SesmPacketType::LoginResponse -> login_response: LoginResponse;
+        SesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
+        SesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::TestPacket -> test_packet: TestPacket(self.sesm_packet_header.sesm_packet_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SesmPacketHeader = unit {
+    sesm_packet_length: uint16;
+    sesm_packet_type: uint8 &convert=SesmPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    sequence_number: uint64;
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::SystemState -> system_state: SystemState;
+        SequencedMessageType::TradeMessage -> trade_message: TradeMessage;
+        SequencedMessageType::RiskNotificationMessage -> risk_notification_message: RiskNotificationMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemState = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    ctd_version: bytes &size=8;
+    session_id: uint32;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type TradeMessage = unit {
+    processing_time: uint64 &convert=interval_ns($$);
+    trade_time: uint64 &convert=interval_ns($$);
+    trade_as_of_date: uint32;
+    trade_action: uint8 &convert=TradeAction($$);
+    trade_type: uint8 &convert=TradeType($$);
+    trade_id: uint32;
+    execution_id: uint64;
+    correction_number: uint8;
+    transaction_id: uint32;
+    reference_trade_time: uint64 &convert=interval_ns($$);
+    reference_trade_id: uint32;
+    reference_correction_number: uint8;
+    correction_type: uint8 &convert=CorrectionType($$);
+    event_id_binary_u_4: uint32;
+    strategy_id: uint32;
+    : skip bytes &size=12;   # padding
+    product_id: uint32;
+    underlying_symbol: bytes &size=11;
+    underlying_type: uint8 &convert=UnderlyingType($$);
+    security_symbol: bytes &size=6;
+    expiration_date: uint32;
+    strike_price: uint32;
+    call_or_put: uint8 &convert=CallOrPut($$);
+    : skip bytes &size=8;   # padding
+    side: uint8 &convert=Side($$);
+    price: uint32;
+    size: uint32;
+    trade_condition: uint8 &convert=TradeCondition($$);
+    : skip bytes &size=8;   # padding
+    class_fee_type: uint8 &convert=ClassFeeType($$);
+    miax_bbo_posting_increment_indicator: uint8 &convert=MiaxBboPostingIncrementIndicator($$);
+    execution_exchange: uint8 &convert=ExecutionExchange($$);
+    routed_order_quantity: uint32;
+    market_maker_role: uint8 &convert=MarketMakerRole($$);
+    traded_with_directed_mm: uint8 &convert=TradedWithDirectedMm($$);
+    market_state: uint8 &convert=MarketState($$);
+    auction_type: uint8 &convert=AuctionType($$);
+    directed_status: uint8 &convert=DirectedStatus($$);
+    strategy_state: uint8 &convert=StrategyState($$);
+    strategy_auction_type: uint8 &convert=StrategyAuctionType($$);
+    : skip bytes &size=14;   # padding
+    executing_mpid: bytes &size=4;
+    order_date: uint32;
+    fix_order_id: bytes &size=30;
+    client_message_id: uint32;
+    bulk_quote_index: uint8;
+    open_close_indicator: uint8 &convert=OpenCloseIndicator($$);
+    liquidity_type: uint8 &convert=LiquidityType($$);
+    mm_priority_indicator: uint8 &convert=MmPriorityIndicator($$);
+    liquidity_indicator: uint8 &convert=LiquidityIndicator($$);
+    liquidity_timer_role: uint8 &convert=LiquidityTimerRole($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    billing_mpid: bytes &size=4;
+    leg_reference_id: bytes &size=5;
+    strategy_timer_role: uint8 &convert=StrategyTimerRole($$);
+    : skip bytes &size=5;   # padding
+    clearing_mpid: bytes &size=4;
+    member_type: uint8 &convert=MemberType($$);
+    origin: uint8 &convert=Origin($$);
+    clearing_number: uint32;
+    cmta: uint32;
+    multi_account: bytes &size=5;
+    account_id: bytes &size=10;
+    supplementary_id: bytes &size=13;
+    allocation_id: bytes &size=4;
+    billing_clearing_number: uint32;
+    : skip bytes &size=8;   # padding
+    mpid: bytes &size=4;
+    contra_member_type: uint8 &convert=ContraMemberType($$);
+    contra_origin: uint8 &convert=ContraOrigin($$);
+    contra_clearing_number: uint32;
+    contra_cmta: uint32;
+    contra_time_in_force: uint8 &convert=ContraTimeInForce($$);
+    contra_liquidity_timer_role: uint8 &convert=ContraLiquidityTimerRole($$);
+    contra_strategy_timer_role: uint8 &convert=ContraStrategyTimerRole($$);
+    : skip bytes &size=13;   # padding
+};
+
+type RiskNotificationMessage = unit {
+    processing_time: uint64 &convert=interval_ns($$);
+    mpid_group_id: bytes &size=32;
+    metric_id: bytes &size=32;
+    route_id: bytes &size=32;
+    metric_type: uint8 &convert=MetricType($$);
+    protection_type: uint8 &convert=ProtectionType($$);
+    event_type: uint8 &convert=EventType($$);
+    event_id_binary_4u_4: uint32;
+    configured_counting_time_period: uint32;
+    configured_max_quantity: uint32;
+    current_quantity: uint32;
+    max_peak_quantity: uint32;
+    percentage_level: uint8;
+    : skip bytes &size=32;   # padding
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: uint8 &convert=UnsequencedMessageType($$);
+    unsequenced_message: RiskNotificationMessage;
+};
+
+type LoginRequest = unit {
+    sesm_version: bytes &size=5;
+    username: bytes &size=5;
+    computer_id: bytes &size=8;
+    application_protocol: bytes &size=8;
+    requested_session: uint8;
+    requested_sequence_number: uint64;
+};
+
+type LoginResponse = unit {
+    login_status: uint8 &convert=LoginStatus($$);
+    session_id: uint8;
+    highest_sequence_number: uint64;
+};
+
+type RetransmissionRequest = unit {
+    start_sequence_number: uint64;
+    end_sequence_number: uint64;
+};
+
+type LogoutRequest = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type GoodbyePacket = unit(sesm_packet_length: uint16) {
+    goodbye_reason: uint8 &convert=GoodbyeReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type TestPacket = unit(sesm_packet_length: uint16) {
+    test_text: bytes &size=sesm_packet_length - 1;
+};
+
+type SesmPacketType = enum {
+    SequencedDataPacket = 0x53,
+    UnsequencedDataPacket = 0x55,
+    LoginRequest = 0x4c,
+    LoginResponse = 0x52,
+    SynchronizationComplete = 0x43,
+    RetransmissionRequest = 0x41,
+    LogoutRequest = 0x58,
+    GoodbyePacket = 0x47,
+    EndOfSession = 0x45,
+    ServerHeartbeat = 0x30,
+    ClientHeartbeat = 0x31,
+    TestPacket = 0x54,
+};
+
+type SequencedMessageType = enum {
+    SystemState = 0x53,
+    TradeMessage = 0x54,
+    RiskNotificationMessage = 0x52,
+};
+
+type SystemStatus = enum {
+    EndOfApplicationMessages = 0x43,
+    StartOfTestSession = 0x31,
+    EndOfTestSession = 0x32,
+};
+
+type TradeAction = enum {
+    NewTrade = 0x4e,
+    TradeCorrection = 0x43,
+    TradeCancel = 0x58,
+};
+
+type TradeType = enum {
+    Automatic = 0x41,
+    Manual = 0x4d,
+};
+
+type CorrectionType = enum {
+    NotApplicable = 0x31,
+    PriceAndorSizeChange = 0x32,
+    ThisSideClearingChange = 0x33,
+    ContraSideClearingChange = 0x34,
+    BothSideClearingChange = 0x35,
+};
+
+type UnderlyingType = enum {
+    Etf = 0x46,
+    Index = 0x49,
+    Equity = 0x45,
+};
+
+type CallOrPut = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type Side = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+
+type TradeCondition = enum {
+    Regular = 0x20,
+    CancelOfTradePreviouslyReportedOtherThanAsTheLastOrOpening = 0x41,
+    LateAndIsOutOfSequence = 0x42,
+    CancelOfTheLastReportedTrade = 0x43,
+    LateAndIsInCorrectSequence = 0x44,
+    CancelOfTheFirstReportedTrade = 0x45,
+    LateReportOfTheOpeningTradeAndIsOutOfSequence = 0x46,
+    CancelOfTheOnlyReportedTrade = 0x47,
+    LateReportOfTheOpeningTradeAndIsInCorrectSequence = 0x48,
+    Reserved = 0x49,
+    ReopeningOfAnOption = 0x4a,
+    Reserved_x4b = 0x4b,
+    TwoOptionsInTheSameClass = 0x4c,
+    ABuyAndASellInAPutAndACall = 0x4d,
+    Reserved_x4e = 0x4e,
+    Reserved_x4f = 0x4f,
+    Reserved_x50 = 0x50,
+    BuyOfACallAndSellOfAPut = 0x51,
+    ExecutionOfAStoppedOrder = 0x52,
+    ExecutionOfAnIsoOrder = 0x53,
+    Reserved_x54 = 0x54,
+    TradeThroughExempt = 0x58,
+};
+
+type ClassFeeType = enum {
+    ConventionalFeeBased = 0x43,
+    MakerTakerFeeBased = 0x4d,
+};
+
+type MiaxBboPostingIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyNickel = 0x4e,
+    NickelDime = 0x44,
+};
+
+type ExecutionExchange = enum {
+    NyseAmex = 0x41,
+    NyseArca = 0x4e,
+    Box = 0x42,
+    Cboe = 0x43,
+    C2 = 0x57,
+    Ise = 0x49,
+    IseGemini = 0x48,
+    IseMercury = 0x4a,
+    NasdaqOmxOptionsMarket = 0x51,
+    NasdaqOmxPhlxOptionsMarket = 0x58,
+    NasdaqBx = 0x54,
+    Bats = 0x5a,
+    EdgxOptionsMarket = 0x45,
+    MiaxPearl = 0x50,
+    TradedAtMiax = 0x20,
+};
+
+type MarketMakerRole = enum {
+    Plmm = 0x50,
+    Lmm = 0x4c,
+    Rmm = 0x52,
+    Umm = 0x55,
+    Other = 0x20,
+};
+
+type TradedWithDirectedMm = enum {
+    Yes = 0x59,
+    No = 0x4e,
+    NotApplicable = 0x20,
+};
+
+type MarketState = enum {
+    FreeTrading = 0x54,
+    Auction = 0x41,
+    Halted = 0x48,
+    NonTradable = 0x4e,
+    NotApplicable = 0x20,
+};
+
+type AuctionType = enum {
+    NotApplicable = 0x20,
+    Opening = 0x31,
+    Reopening = 0x32,
+    Closing = 0x33,
+    Routing = 0x34,
+    LiquidityRefresh = 0x35,
+    PrimePairedOrder = 0x36,
+    PrimeCustomerCross = 0x37,
+    PrimeQualifiedContingentCross = 0x38,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type DirectedStatus = enum {
+    DirectedToDlmmAssignedToUnderlying = 0x45,
+    DirectedToDlmmNotAssignedToUnderlying = 0x55,
+    NonDirectedOrder = 0x4e,
+    DfcInvalid = 0x58,
+    NotDirectedDueToOrderOrigin = 0x49,
+};
+
+type StrategyState = enum {
+    NotApplicable = 0x20,
+    StandardAuction = 0x41,
+    FreeTrading = 0x46,
+    CPrime = 0x50,
+    CC2C = 0x58,
+    CQcc = 0x51,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type StrategyAuctionType = enum {
+    NotApplicable = 0x20,
+    InitialImprovementOpening = 0x49,
+    InitialImprovementOpeningBookCrossed = 0x59,
+    UponReceiptImprovement = 0x55,
+    ReevaluationImprovement = 0x52,
+    ReevaluationImprovementBookCrossed = 0x50,
+    ImmediateBookUncrossing = 0x43,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type OpenCloseIndicator = enum {
+    OpeningPosition = 0x4f,
+    ClosingPosition = 0x43,
+};
+
+type LiquidityType = enum {
+    Order = 0x4f,
+    Quote = 0x51,
+    EQuote = 0x45,
+    ComplexOrder = 0x43,
+    ComplexEQuote = 0x44,
+    NotApplicable = 0x20,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type MmPriorityIndicator = enum {
+    Yes = 0x59,
+    No = 0x4e,
+    NotApplicable = 0x20,
+};
+
+type LiquidityIndicator = enum {
+    Add = 0x41,
+    Remove = 0x52,
+    NotApplicable = 0x20,
+};
+
+type LiquidityTimerRole = enum {
+    TimerInitiator = 0x49,
+    TimerJoiner = 0x4a,
+    ReceivedBeforeOnSameSide = 0x54,
+    ReceivedOnOppositeSideBefore = 0x42,
+    ReceivedOnOppositeSideAfter = 0x41,
+    Response = 0x52,
+    ManagedInterest = 0x45,
+    PrimeContra = 0x4b,
+    PrimeCustomerCross = 0x50,
+    NotApplicable = 0x20,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type TimeInForce = enum {
+    Day = 0x30,
+    Gtc = 0x31,
+    Opg = 0x32,
+    Ioc = 0x33,
+    Fok = 0x34,
+    AtCrossing = 0x39,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type StrategyTimerRole = enum {
+    Initiator = 0x49,
+    Joiner = 0x4a,
+    PreExistingOnSameSide = 0x54,
+    PreExistingOnOppositeSide = 0x42,
+    UnRelatedOnOppositeSide = 0x41,
+    ResponseOnOppositeSide = 0x52,
+    ResponseOnSameSide = 0x47,
+    CPrimeContra = 0x4b,
+    CC2COrder = 0x50,
+    NotApplicable = 0x20,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type MemberType = enum {
+    ElectronicExchangeMember = 0x45,
+    MarketMaker = 0x4d,
+    RoutingBroker = 0x52,
+};
+
+type Origin = enum {
+    PriorityCustomer = 0x43,
+    NonPriorityCustomer = 0x4e,
+    Firm = 0x46,
+    BrokerDealer = 0x42,
+    MemberMarketMaker = 0x4d,
+    AwayExchangeMarketMaker = 0x41,
+};
+
+type ContraMemberType = enum {
+    ElectronicExchangeMember = 0x45,
+    MarketMaker = 0x4d,
+    RoutingBroker = 0x52,
+};
+
+type ContraOrigin = enum {
+    PriorityCustomer = 0x43,
+    NonPriorityCustomer = 0x4e,
+    Firm = 0x46,
+    BrokerDealer = 0x42,
+    MemberMarketMaker = 0x4d,
+    AwayExchangeMarketMaker = 0x41,
+};
+
+type ContraTimeInForce = enum {
+    Day = 0x30,
+    Gtc = 0x31,
+    Opg = 0x32,
+    Ioc = 0x33,
+    Fok = 0x34,
+    AtCrossing = 0x39,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type ContraLiquidityTimerRole = enum {
+    TimerInitiator = 0x49,
+    TimerJoiner = 0x4a,
+    ReceivedBeforeOnSameSide = 0x54,
+    ReceivedOnOppositeSideBefore = 0x42,
+    ReceivedOnOppositeSideAfter = 0x41,
+    Response = 0x52,
+    ManagedInterest = 0x45,
+    PrimeContra = 0x4b,
+    PrimeCustomerCross = 0x50,
+    NotApplicable = 0x20,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type ContraStrategyTimerRole = enum {
+    Initiator = 0x49,
+    Joiner = 0x4a,
+    PreExistingOnSameSide = 0x54,
+    PreExistingOnOppositeSide = 0x42,
+    UnRelatedOnOppositeSide = 0x41,
+    ResponseOnOppositeSide = 0x52,
+    ResponseOnSameSide = 0x47,
+    CPrimeContra = 0x4b,
+    CC2COrder = 0x50,
+    NotApplicable = 0x20,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type MetricType = enum {
+    RateOfExecutedOrderContracts = 0x43,
+    RateOfNewReplaceOrdersReceived = 0x4f,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type ProtectionType = enum {
+    Block = 0x42,
+    BlockAndMassCancel = 0x4d,
+    WarningOnly = 0x57,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type EventType = enum {
+    PeriodStatusPulseNotification = 0x53,
+    SafeguardTrigger = 0x54,
+    ResetRiskMetric = 0x52,
+    WarningOnly = 0x57,
+    MetricDeleted = 0x44,
+    MetricAdded = 0x41,
+    MetricPaused = 0x50,
+    MetricUnPaused = 0x55,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type UnsequencedMessageType = enum {
+    RiskNotificationMessage = 0x52,
+};
+
+type LoginStatus = enum {
+    LoginSuccessful = 0x20,
+    Rejected = 0x58,
+    RequestedSessionIsNotAvailable = 0x53,
+    InvalidStartSequenceNumberRequested = 0x4e,
+    IncompatibleSessionProtocolVersion = 0x49,
+    IncompatibleApplicationProtocolVersion = 0x41,
+    RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
+};
+
+type LogoutReason = enum {
+    GracefulLogout = 0x20,
+    BadSesmPacket = 0x42,
+    TimedOutWaitingForLoginPacket = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+
+type GoodbyeReason = enum {
+    BadSesmPacket = 0x42,
+    TimedOutWaitingForLoginPacket = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+

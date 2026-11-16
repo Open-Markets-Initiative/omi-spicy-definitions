@@ -1,0 +1,141 @@
+# License: MIT No Attribution
+
+module MoexSpectraFutinfoincrementalSimbaV104;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SpectraFutinfoincrementalV104 = unit {
+    market_data_packet_header: MarketDataPacketHeader;
+    incremental_packet_header: IncrementalPacketHeader;
+    message: Message[] &eod;
+};
+
+type MarketDataPacketHeader = unit {
+    msg_seq_num: uint32;
+    msg_size: uint16;
+    msg_flags: bitfield(16) {
+        last_fragment: 0;
+        start_of_snapshot: 1;
+        end_of_snapshot: 2;
+        incremental_packet: 3;
+        poss_dup_flag: 4;
+        reserved_bits: 5..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    sending_time: uint64 &convert=time_ns($$);
+};
+
+type IncrementalPacketHeader = unit {
+    transact_time: uint64 &convert=time_ns($$);
+    exchange_trading_session_id_optional: uint32;
+};
+
+type Message = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::SequenceResetMessage -> sequence_reset_message: SequenceResetMessage;
+        TemplateId::SecurityStatusMessage -> security_status_message: SecurityStatusMessage;
+        TemplateId::TradingSessionStatusMessage -> trading_session_status_message: TradingSessionStatusMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type SequenceResetMessage = unit {
+    new_seq_no: uint32;
+};
+
+type SecurityStatusMessage = unit {
+    security_id: int32;
+    symbol: bytes &size=25;
+    security_trading_status: uint8 &convert=SecurityTradingStatus($$);
+    high_limit_px: int64;
+    low_limit_px: int64;
+    initial_margin_on_buy: int64;
+    initial_margin_on_sell: int64;
+    initial_margin_syntetic: int64;
+};
+
+type TradingSessionStatusMessage = unit {
+    trad_ses_open_time: uint64;
+    trad_ses_close_time: uint64;
+    trad_ses_interm_clearing_start_time: uint64;
+    trad_ses_interm_clearing_end_time: uint64;
+    trading_session_id: uint8 &convert=TradingSessionId($$);
+    exchange_trading_session_id_int_32_null_optional: int32;
+    trad_ses_status: uint8 &convert=TradSesStatus($$);
+    market_segment_id: uint8 &convert=MarketSegmentId($$);
+    trad_ses_event: uint8 &convert=TradSesEvent($$);
+};
+
+type LastFragment = enum {
+    Fragment = 0,
+    LastFragment_1 = 1,
+};
+
+type IncrementalPacket = enum {
+    SnapshotPacket = 0,
+    IncrementalPacket_1 = 1,
+};
+
+type PossDupFlag = enum {
+    OnlineUpdates = 0,
+    FullOrderBooks = 1,
+};
+
+type TemplateId = enum {
+    HeartbeatMessage = 1,
+    SequenceResetMessage = 2,
+    BestPricesMessage = 3,
+    EmptyBookMessage = 4,
+    OrderUpdateMessage = 5,
+    OrderExecutionMessage = 6,
+    OrderBookSnapshotMessage = 7,
+    SecurityDefinitionMessage = 8,
+    SecurityStatusMessage = 9,
+    SecurityDefinitionUpdateReportMessage = 10,
+    TradingSessionStatusMessage = 11,
+    LogonMessage = 1000,
+    LogoutMessage = 1001,
+    MarketDataRequestMessage = 1002,
+    MarketDataDummyMessage = 1003,
+};
+
+type SecurityTradingStatus = enum {
+    TradingHalt = 2,
+    ReadyToTrade = 17,
+    NotAvailableForTrading = 18,
+    NotTradedOnThisMarket = 19,
+    PreOpen = 21,
+};
+
+type TradingSessionId = enum {
+    Day = 1,
+    Morning = 3,
+    Evening = 5,
+};
+
+type TradSesStatus = enum {
+    Halted = 1,
+    Open = 2,
+    Closed = 3,
+    PreOpen = 4,
+};
+
+type MarketSegmentId = enum {
+    Derivatives = 0x44,
+};
+
+type TradSesEvent = enum {
+    TradingResumes = 0,
+    ChangeOfTradingSession = 1,
+    ChangeOfTradingStatus = 3,
+};
+

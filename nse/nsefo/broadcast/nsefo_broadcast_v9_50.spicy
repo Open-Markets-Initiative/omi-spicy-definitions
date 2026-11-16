@@ -13,7 +13,7 @@ public type NsefoBroadcastV950 = unit {
 type BcastPackData = unit {
     net_id: bytes &size=2;
     number_of_packets: int16;
-    packed_packet: PackedPacket[self.number_of_packets];
+    packed_packet: PackedPacket[cast<uint64>(self.number_of_packets)];
 };
 
 type PackedPacket = unit {
@@ -95,7 +95,7 @@ type SecurityMasterChangeMessage = unit {
     token: int32;
     sec_info: SecInfo;
     permitted_to_trade: int16 &convert=PermittedToTrade($$);
-    issued_capital: bytes &size=8;
+    issued_capital: real &type=spicy::RealType::IEEE754_Double;
     warning_quantity: int32;
     freeze_quantity: int32;
     credit_rating: bytes &size=12;
@@ -116,7 +116,7 @@ type SecurityMasterChangeMessage = unit {
     record_date: int32;
     low_price_range: int32;
     high_price_range: int32;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     no_delivery_start_date: int32;
     no_delivery_end_date: int32;
     st_eligibility_indicators: bitfield(16) {
@@ -161,7 +161,7 @@ type SecInfo = unit {
     instrument_name: bytes &size=6;
     symbol: bytes &size=10;
     series: bytes &size=2;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
@@ -209,8 +209,8 @@ type StSecStatusPerMarket = unit {
 type MarketByOrderAndMarketByPriceMessage = unit {
     st_interactive_mbo_data: StInteractiveMboData;
     st_mbp_info: StMbpInfo[10];
-    total_buy_quantity_double: bytes &size=8;
-    total_sell_quantity_double: bytes &size=8;
+    total_buy_quantity_double: real &type=spicy::RealType::IEEE754_Double;
+    total_sell_quantity_double: real &type=spicy::RealType::IEEE754_Double;
     st_indicator: bitfield(16) {
         reserved_112: 0..11;
         sell: 12;
@@ -290,8 +290,8 @@ type InteractiveOnlyMbpData = unit {
     mbp_information: MbpInformation[10];
     bb_total_buy_flag: int16;
     bb_total_sell_flag: int16;
-    total_buy_quantity_double: bytes &size=8;
-    total_sell_quantity_double: bytes &size=8;
+    total_buy_quantity_double: real &type=spicy::RealType::IEEE754_Double;
+    total_sell_quantity_double: real &type=spicy::RealType::IEEE754_Double;
     st_indicator: bitfield(16) {
         reserved_112: 0..11;
         sell: 12;
@@ -457,7 +457,7 @@ type MsIndices = unit {
     yearly_low: int32;
     no_of_upmoves: int32;
     no_of_downmoves: int32;
-    market_capitalisation: bytes &size=8;
+    market_capitalisation: real &type=spicy::RealType::IEEE754_Double;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
     : skip bytes &size=1;   # padding
 };
@@ -479,7 +479,7 @@ type SpreadMarketByPriceDeltaMessage = unit {
     mbp_sell: int16;
     last_active_time: int32;
     traded_volume_short: uint32;
-    total_traded_value: bytes &size=8;
+    total_traded_value: real &type=spicy::RealType::IEEE754_Double;
     mbp_buys: MbpBuys[5];
     mbp_sells: MbpSells[5];
     total_order_volume: TotalOrderVolume;
@@ -503,8 +503,8 @@ type MbpSells = unit {
 };
 
 type TotalOrderVolume = unit {
-    total_order_volume_buy: bytes &size=8;
-    total_order_volume_sell: bytes &size=8;
+    total_order_volume_buy: real &type=spicy::RealType::IEEE754_Double;
+    total_order_volume_sell: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type EnhancedSpreadMarketByPriceDeltaMessage = unit {
@@ -514,7 +514,7 @@ type EnhancedSpreadMarketByPriceDeltaMessage = unit {
     mbp_sell: int16;
     last_active_time: int32;
     traded_volume_long: int64;
-    total_traded_value: bytes &size=8;
+    total_traded_value: real &type=spicy::RealType::IEEE754_Double;
     enhncd_mbp_buys: EnhncdMbpBuys[5];
     enhncd_mbp_sells: EnhncdMbpSells[5];
     total_order_volume: TotalOrderVolume;
@@ -600,7 +600,7 @@ type TurnoverLimitExceededBody = unit {
     token: int32;
     instrument_name: bytes &size=6;
     symbol: bytes &size=10;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;

@@ -76,7 +76,7 @@ type InstrumentMessage = unit {
     large_tick_size_1: int64;
     large_tick_threshold_1: int64;
     creation_time: int64 &convert=time_ns($$);
-    expiry_time: int64;
+    expiry_time: int64 &convert=time_ns($$);
     logical_expiry: LogicalExpiry;
     flags: bitfield(32) {
         is_reversed: 0;
@@ -111,8 +111,8 @@ type InstrumentInfoMessage = unit {
 
 type InstrumentRefMessage = unit {
     instrument_id: int64;
-    current_funding: bytes &size=8;
-    funding_8h: bytes &size=8;
+    current_funding: real &type=spicy::RealType::IEEE754_Double;
+    funding_8h: real &type=spicy::RealType::IEEE754_Double;
     estimated_delivery_price: int64;
     delivery_price: int64;
     settlement_price: int64;
@@ -161,7 +161,7 @@ type TradeSummaryMessage = unit {
     deepest_price: int64;
     mark_price: int64;
     index_price: int64;
-    implied_volatility: bytes &size=8;
+    implied_volatility: real &type=spicy::RealType::IEEE754_Double;
     taker_flags: bitfield(32) {
         is_sell: 0;
         is_liquidation: 1;
@@ -191,7 +191,7 @@ type BlockTradeMessage = unit {
     fill_price: int64;
     mark_price: int64;
     index_price: int64;
-    implied_volatility: bytes &size=8;
+    implied_volatility: real &type=spicy::RealType::IEEE754_Double;
     taker_flags: bitfield(32) {
         is_sell: 0;
         is_liquidation: 1;
@@ -202,13 +202,13 @@ type BlockTradeMessage = unit {
 
 type SnapshotHeaderMessage = unit {
     instrument_id: int64;
-    incremental_timestamp: int64;
+    incremental_timestamp: int64 &convert=time_ns($$);
     incremental_seq_num: int64;
 };
 
 type SnapshotTrailerMessage = unit {
     instrument_id: int64;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     increment_seq_num: int64;
 };
 

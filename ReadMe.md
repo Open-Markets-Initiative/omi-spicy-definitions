@@ -22,7 +22,7 @@ Updates are greatly appreciated; however, this entire repository is source gener
 
 | Protocol Count | Generated Lines |
 | --- | --- |
-| 1,230 | 1,036,492 |
+| 1,429 | 1,140,747 |
 
 ## Testing
 
@@ -113,6 +113,8 @@ Enjoy.
 [Omi.Encoding.Flex]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Flex.md "Flex Encoding"
 [Omi.Encoding.LmeSource]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/LmeSource.md "LmeSource Encoding"
 [Omi.Encoding.Mach]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Mach.md "Mach Encoding"
+[Omi.Encoding.Ctd]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Ctd.md "Ctd Encoding"
+[Omi.Encoding.Mei]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Mei.md "Mei Encoding"
 [Omi.Encoding.SesM]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/SesM.md "SesM Encoding"
 [Omi.Encoding.Fei]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Fei.md "Fei Encoding"
 [Omi.Encoding.Meo]: https://github.com/Open-Markets-Initiative/Directory/blob/main/Protocols/Meo.md "Meo Encoding"
@@ -381,14 +383,18 @@ Enjoy.
 [Memx.MemxOptions.MemoirTop]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Memx/Protocols/MemxOptions/MemoirTop.md "Member Order Information Record Top"
 [Memx.MemxOptions.RiskControl]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Memx/Protocols/MemxOptions/RiskControl.md "Risk Control"
 [Miax.EmeraldOptions.Ais]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/EmeraldOptions/Ais.md "Administrative Information Subscriber"
+[Miax.EmeraldOptions.ClearingTradeDrop]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/EmeraldOptions/ClearingTradeDrop.md "Clearing Trade Drop"
 [Miax.EmeraldOptions.ComplexTopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/EmeraldOptions/ComplexTopOfMarket.md "Complex Top of Market"
+[Miax.EmeraldOptions.ExpressInterface]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/EmeraldOptions/ExpressInterface.md "Express Interface"
 [Miax.EmeraldOptions.OrderFeed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/EmeraldOptions/OrderFeed.md "Order Feed"
 [Miax.EmeraldOptions.TopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/EmeraldOptions/TopOfMarket.md "Top of Market"
 [Miax.MiaxOptions.Ais]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/Ais.md "Administrative Information Subscriber"
+[Miax.MiaxOptions.ClearingTradeDrop]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/ClearingTradeDrop.md "Clearing Trade Drop"
 [Miax.MiaxOptions.ComplexTopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/ComplexTopOfMarket.md "Complex Top Of Market"
+[Miax.MiaxOptions.ExpressInterface]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/ExpressInterface.md "Express Interface"
 [Miax.MiaxOptions.Mpf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/Mpf.md "MIAX Product Feed"
 [Miax.MiaxOptions.OrderFeed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/OrderFeed.md "Order Feed"
-[Miax.MiaxOptions.TopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/TopOfMarket.md "Top of Market"
+[Miax.MiaxOptions.TopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/MiaxOptions/TopOfMarket.md "Top Of Market"
 [Miax.OnyxFutures.DepthOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/OnyxFutures/DepthOfMarket.md "Depth Of Market"
 [Miax.OnyxFutures.DepthOfMarketRetransmission]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/OnyxFutures/DepthOfMarketRetransmission.md "Depth Of Market Retransmission"
 [Miax.OnyxFutures.ExpressInterface]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/OnyxFutures/ExpressInterface.md "Express Interface"
@@ -399,9 +405,13 @@ Enjoy.
 [Miax.PearlEquities.ExpressOrders]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/PearlEquities/ExpressOrders.md "Express Orders"
 [Miax.PearlEquities.HeaderOnly]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/PearlEquities/HeaderOnly.md "Headers Only"
 [Miax.PearlEquities.TopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/PearlEquities/TopOfMarket.md "Top Of Market"
+[Miax.PearlOptions.ClearingTradeDrop]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/PearlOptions/ClearingTradeDrop.md "Clearing Trade Drop"
+[Miax.PearlOptions.ExpressOrders]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/PearlOptions/ExpressOrders.md "Express Orders"
 [Miax.PearlOptions.LiquidityFeed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/PearlOptions/LiquidityFeed.md "Liquidity Feed"
 [Miax.PearlOptions.TopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/PearlOptions/TopOfMarket.md "Top Of Market"
+[Miax.SapphireOptions.ClearingTradeDrop]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/SapphireOptions/ClearingTradeDrop.md "Clearing Trade Drop"
 [Miax.SapphireOptions.ComplexTopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/SapphireOptions/ComplexTopOfMarket.md "Complex Top of Market"
+[Miax.SapphireOptions.ExpressOrders]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/SapphireOptions/ExpressOrders.md "Express Orders"
 [Miax.SapphireOptions.LiquidityFeed]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/SapphireOptions/LiquidityFeed.md "Liquidity Feed"
 [Miax.SapphireOptions.TopOfMarket]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Miax/Protocols/SapphireOptions/TopOfMarket.md "Top of Market"
 [Moex.Spectra.FutInfoIncremental]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Moex/Protocols/Spectra/FutInfoIncremental.md "SIMBA Spectra Futures Instrument Incremental"

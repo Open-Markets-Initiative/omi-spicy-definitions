@@ -61,7 +61,7 @@ type PacketHeader = unit {
 
 type MessageHeader = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     alpha_char: bytes &size=2;
     trader_id: int32;
     error_code: int16 &convert=ErrorCode($$);
@@ -78,17 +78,17 @@ type SignOnRequestOutMessage = unit {
     : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
-    last_password_change_date: int32;
+    last_password_change_date: int32 &convert=time($$ + 315532800);
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
-    end_time: int32;
+    end_time: int32 &convert=time($$ + 315532800);
     : skip bytes &size=1;   # padding
     colour: bytes &size=50;
     : skip bytes &size=1;   # padding
     user_type: int16;
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=14;   # padding
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
@@ -206,7 +206,7 @@ type UpdateLocalDatabaseDataMessage = unit {
 
 type InnerHeader = unit {
     inner_trader_id: int32;
-    inner_log_time: int32;
+    inner_log_time: int32 &convert=time($$ + 315532800);
     inner_alpha_char: bytes &size=2;
     inner_transaction_code: int16;
     inner_error_code: int16;
@@ -230,7 +230,7 @@ type MessageDownloadData = unit {
 };
 
 type TradeConfirmationMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_number: int32;
@@ -264,8 +264,8 @@ type TradeConfirmationMessage = unit {
     fill_price: int32;
     volume_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    counter_trader_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    counter_trader_order_number: real &type=spicy::RealType::IEEE754_Double;
     counter_broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     token: int32;
@@ -299,7 +299,7 @@ type TradeConfirmationMessage = unit {
 type ContractDesc = unit {
     instrument_name: bytes &size=6;
     symbol: bytes &size=10;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
@@ -315,28 +315,28 @@ type UserOrderLimitUpdateMessage = unit {
 };
 
 type InstrumentUser = unit {
-    branch_buy_value_limit: bytes &size=8;
-    branch_sell_value_limit: bytes &size=8;
-    branch_used_buy_value_limit: bytes &size=8;
-    branch_used_sell_value_limit: bytes &size=8;
-    user_order_buy_value_limit: bytes &size=8;
-    user_order_sell_value_limit: bytes &size=8;
-    user_order_used_buy_value_limit: bytes &size=8;
-    user_order_used_sell_value_limit: bytes &size=8;
+    branch_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_used_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_used_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_used_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_used_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type DealerLimitUpdateMessage = unit {
     broker_id: bytes &size=5;
     user_id: int32;
-    ord_qty_buff: bytes &size=8;
-    ord_val_buff: bytes &size=8;
+    ord_qty_buff: real &type=spicy::RealType::IEEE754_Double;
+    ord_val_buff: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type SpreadOrderLimitUpdateMessage = unit {
     broker_id: bytes &size=5;
     user_id: int32;
-    spd_ord_qty_buff: bytes &size=8;
-    spd_ord_val_buff: bytes &size=8;
+    spd_ord_qty_buff: real &type=spicy::RealType::IEEE754_Double;
+    spd_ord_val_buff: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type ControlMessageToTraderMessage = unit {
@@ -365,7 +365,7 @@ type MarketStatisticsReportMessage = unit {
 
 type ReportHeaderBody = unit {
     org_scope: bytes &size=1;
-    report_date: int32;
+    report_date: int32 &convert=time($$ + 315532800);
     user_type: int16;
     broker_id: bytes &size=5;
     firm_name: bytes &size=25;
@@ -387,7 +387,7 @@ type MktStatsData = unit {
     low_price: int32;
     closing_price: int32;
     total_quantity_traded_long: int64;
-    total_value_traded: bytes &size=8;
+    total_value_traded: real &type=spicy::RealType::IEEE754_Double;
     previous_close_price: int32;
     open_interest_long: int64;
     chg_open_interest: int64;
@@ -414,7 +414,7 @@ type EnhncdMktStatsData = unit {
     low_price: int32;
     closing_price: int32;
     total_quantity_traded_short: uint32;
-    total_value_traded: bytes &size=8;
+    total_value_traded: real &type=spicy::RealType::IEEE754_Double;
     previous_close_price: int32;
     open_interest_long: int64;
     chg_open_interest: int64;
@@ -481,7 +481,7 @@ type SpreadBhavcopyMessage = unit {
 
 type SpreadReportHeaderBody = unit {
     org_scope: bytes &size=1;
-    report_date: int32;
+    report_date: int32 &convert=time($$ + 315532800);
     user_type: int16;
     broker_number: bytes &size=5;
     broker_name: bytes &size=25;
@@ -499,13 +499,13 @@ type SpdStatsData = unit {
     market_type: int16;
     instrumentname_1: bytes &size=6;
     symbol_1: bytes &size=10;
-    expirydate_1: int32;
+    expirydate_1: int32 &convert=time($$ + 315532800);
     strikeprice_1: int32;
     optiontype_1: bytes &size=2;
     calevel_1: int16;
     instrumentname_2: bytes &size=6;
     symbol_2: bytes &size=10;
-    expirydate_2: int32;
+    expirydate_2: int32 &convert=time($$ + 315532800);
     strikeprice_2: int32;
     optiontype_2: bytes &size=2;
     calevel_2: int16;
@@ -551,8 +551,8 @@ type ContractsDetails = unit {
     strike_price: int32;
     bid_price: int32;
     ask_price: int32;
-    bid_size: bytes &size=8;
-    ask_size: bytes &size=8;
+    bid_size: real &type=spicy::RealType::IEEE754_Double;
+    ask_size: real &type=spicy::RealType::IEEE754_Double;
     open: int32;
     high: int32;
     low: int32;
@@ -561,8 +561,8 @@ type ContractsDetails = unit {
     prev_close: int32;
     limit_high: int32;
     limit_low: int32;
-    total_trades: bytes &size=8;
-    open_interest_double: bytes &size=8;
+    total_trades: real &type=spicy::RealType::IEEE754_Double;
+    open_interest_double: real &type=spicy::RealType::IEEE754_Double;
     filler_4: int32;
     filler_2: int32;
     filler_3: int32;
@@ -607,11 +607,11 @@ type GiveupConfirmationMessage = unit {
 };
 
 type Giveup = unit {
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     fill_number: int32;
     instrument_name: bytes &size=6;
     symbol: bytes &size=10;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
@@ -621,7 +621,7 @@ type Giveup = unit {
     filler: bytes &size=1;
     buy_sell: int16 &convert=BuySell($$);
     book_type: int16 &convert=BookType($$);
-    last_modified_date_time: int32;
+    last_modified_date_time: int32 &convert=time($$ + 315532800);
     initiated_by_control: bytes &size=1;
     open_close: bytes &size=1;
     : skip bytes &size=1;   # padding
@@ -655,7 +655,7 @@ type OrderEntryBody = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type: int16 &convert=BookType($$);
     buy_sell_indicator: int16 &convert=BuySellIndicator($$);
@@ -667,7 +667,7 @@ type OrderEntryBody = unit {
     price: int32;
     trigger_price: int32;
     good_till_date: int32;
-    entry_date_time: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -706,7 +706,7 @@ type OrderEntryBody = unit {
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -732,7 +732,7 @@ type SpreadOrderBody = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16 &convert=BookType1($$);
     buy_sell_1: int16;
@@ -744,7 +744,7 @@ type SpreadOrderBody = unit {
     price_1: int32;
     trigger_price_1: int32;
     good_till_date_1: int32;
-    entry_date_time_1: int32;
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -783,7 +783,7 @@ type SpreadOrderBody = unit {
     filler_116: bytes &size=2;
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;

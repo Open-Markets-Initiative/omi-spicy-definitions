@@ -1,0 +1,909 @@
+# License: MIT No Attribution
+
+module MiaxEmeraldoptionsExpressinterfaceMeiV22B;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type EmeraldoptionsExpressinterfaceV22B = unit {
+    sesm_tcp_packet: SesmTcpPacket[] &eod;
+};
+
+type SesmTcpPacket = unit {
+    sesm_packet_header: SesmPacketHeader;
+    switch ( self.sesm_packet_header.sesm_packet_type ) {
+        SesmPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        SesmPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        SesmPacketType::LoginRequest -> login_request: LoginRequest;
+        SesmPacketType::LoginResponse -> login_response: LoginResponse;
+        SesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
+        SesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::TestPacket -> test_packet: TestPacket(self.sesm_packet_header.sesm_packet_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SesmPacketHeader = unit {
+    sesm_packet_length: uint16;
+    sesm_packet_type: uint8 &convert=SesmPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    sequence_number: uint64;
+    sequenced_message_type: bytes &size=2;
+    switch ( self.sequenced_message_type ) {
+        b"SU" -> simple_series_update: SimpleSeriesUpdate;
+        b"QW" -> valid_quote_width_for_opening: ValidQuoteWidthForOpening;
+        b"ER" -> simple_enhanced_quote_e_quote_response: SimpleEnhancedQuoteEQuoteResponse;
+        b"CR" -> complex_enhanced_quote_e_quote_response: ComplexEnhancedQuoteEQuoteResponse;
+        b"SN" -> system_state_notification: SystemStateNotification;
+        b"TN" -> product_trading_status_notification: ProductTradingStatusNotification;
+        b"UN" -> underlying_trading_status_notification: UnderlyingTradingStatusNotification;
+        b"QN" -> quote_width_relief_notification: QuoteWidthReliefNotification;
+        b"AN" -> simple_arm_protection_settings_notification: SimpleArmProtectionSettingsNotification;
+        b"A2" -> arm_2_underlying_level_protection_settings_notification: Arm2UnderlyingLevelProtectionSettingsNotification;
+        b"QX" -> single_side_liquidity_protection_trigger_notification: SingleSideLiquidityProtectionTriggerNotification;
+        b"UP" -> arm_2_underlying_level_protection_notification: Arm2UnderlyingLevelProtectionNotification;
+        b"FP" -> arm_2_firm_level_protection_notification: Arm2FirmLevelProtectionNotification;
+        b"SC" -> complex_strategy_definition_notification: ComplexStrategyDefinitionNotification;
+        b"XN" -> cancel_notification: CancelNotification;
+        b"EN" -> option_execution_notification: OptionExecutionNotification;
+        b"ST" -> stock_leg_execution_notification: StockLegExecutionNotification;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SimpleSeriesUpdate = unit {
+    product_add_update_time: uint64 &convert=interval_ns($$);
+    product_id: uint32;
+    underlying_symbol: bytes &size=11;
+    security_symbol: bytes &size=6;
+    expiration_date: bytes &size=8;
+    strike_price: uint32;
+    call_or_put: uint8 &convert=CallOrPut($$);
+    opening_time: bytes &size=8;
+    closing_time: bytes &size=8;
+    restricted_option: uint8 &convert=RestrictedOption($$);
+    long_term_option: uint8 &convert=LongTermOption($$);
+    active_on_emerald: uint8 &convert=ActiveOnEmerald($$);
+    emerald_bbo_posting_increment_indicator: uint8 &convert=EmeraldBboPostingIncrementIndicator($$);
+    quote_acceptance_increment_indicator: uint8 &convert=QuoteAcceptanceIncrementIndicator($$);
+    opening_underlying_market_code: uint8 &convert=OpeningUnderlyingMarketCode($$);
+    priority_quote_width: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type ValidQuoteWidthForOpening = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpv_class: uint8 &convert=MpvClass($$);
+    low_end_of_applicable_range: uint32;
+    maximum_quote_width: uint32;
+    long_term_option_multiplier: uint32;
+};
+
+type SimpleEnhancedQuoteEQuoteResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    e_quote_id: uint64;
+    e_quote_request_status: uint8 &convert=EQuoteRequestStatus($$);
+};
+
+type ComplexEnhancedQuoteEQuoteResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    e_quote_id: uint64;
+    e_quote_request_status: uint8 &convert=EQuoteRequestStatus($$);
+};
+
+type SystemStateNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mei_version: bytes &size=8;
+    session_id: uint8;
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type ProductTradingStatusNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    product_id: uint32;
+    trading_status: uint8 &convert=TradingStatus($$);
+    expected_event_time: uint64 &convert=interval_ns($$);
+};
+
+type UnderlyingTradingStatusNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    underlying_symbol: bytes &size=11;
+    trading_status: uint8 &convert=TradingStatus($$);
+    event_reason: uint8 &convert=EventReason($$);
+    expected_event_time: uint64 &convert=interval_ns($$);
+};
+
+type QuoteWidthReliefNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    underlying_symbol: bytes &size=11;
+    relief_multiplier: uint32;
+};
+
+type SimpleArmProtectionSettingsNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    allowable_engagement_percentage: uint32;
+    counting_period_binary_u_2: uint16;
+    action: uint8 &convert=Action($$);
+    source: uint8 &convert=Source($$);
+};
+
+type Arm2UnderlyingLevelProtectionSettingsNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    action: uint8 &convert=Action($$);
+    underlying_symbol: bytes &size=11;
+    arm_threshold_count_binary_u_4: uint32;
+    counting_period_binary_u_4: uint32;
+    : skip bytes &size=16;   # padding
+};
+
+type SingleSideLiquidityProtectionTriggerNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    security_id_scope: uint8 &convert=SecurityIdScope($$);
+    security_id: uint32;
+    side: uint8 &convert=Side($$);
+    triggering_client_message_id: uint32;
+    triggering_bulk_quote_index: uint8;
+    : skip bytes &size=4;   # padding
+};
+
+type Arm2UnderlyingLevelProtectionNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    notification_type: uint8 &convert=NotificationType($$);
+    arm_threshold_count_binary_u_4: uint32;
+    counting_period_binary_u_4: uint32;
+    : skip bytes &size=16;   # padding
+};
+
+type Arm2FirmLevelProtectionNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    arm_threshold_count_binary_4u_4: uint32;
+    counting_period_binary_4u_4: uint32;
+    notification_type: uint8 &convert=NotificationType($$);
+    : skip bytes &size=16;   # padding
+};
+
+type ComplexStrategyDefinitionNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    strategy_id: uint32;
+    underlying_symbol: bytes &size=11;
+    active_on_emerald: uint8 &convert=ActiveOnEmerald($$);
+    : skip bytes &size=1;   # padding
+    update_reason: uint8 &convert=UpdateReason($$);
+    : skip bytes &size=10;   # padding
+    number_of_legs: uint8;
+    leg: Leg[self.number_of_legs];
+};
+
+type Leg = unit {
+    product_id: uint32;
+    leg_ratio_qty: uint16;
+    leg_side: uint8 &convert=LegSide($$);
+    : skip bytes &size=8;   # padding
+};
+
+type CancelNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    product_id_or_strategy_id: uint32;
+    liquidity_type: uint8 &convert=LiquidityType($$);
+    client_message_id: uint32;
+    bulk_quote_index: uint8;
+    quotee_quote_side: uint8 &convert=QuoteeQuoteSide($$);
+    size: uint32;
+    engine_sequence_number: uint64;
+    cancel_reason: uint8 &convert=CancelReason($$);
+};
+
+type OptionExecutionNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    product_id: uint32;
+    liquidity_type: uint8 &convert=LiquidityType($$);
+    client_message_id: uint32;
+    bulk_quote_index: uint8;
+    event_id: uint32;
+    trade_id: uint32;
+    execution_id: uint64;
+    : skip bytes &size=1;   # padding
+    trade_status: uint8 &convert=TradeStatus($$);
+    last_price: uint32;
+    side: uint8 &convert=Side($$);
+    last_size: uint32;
+};
+
+type StockLegExecutionNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    liquidity_type: uint8 &convert=LiquidityType($$);
+    client_message_id: uint32;
+    event_id: uint32;
+    trade_id: uint32;
+    execution_id: uint64;
+    trade_status: uint8 &convert=TradeStatus($$);
+    last_price: uint32;
+    side: uint8 &convert=Side($$);
+    stock_sell_short_indicator: uint8 &convert=StockSellShortIndicator($$);
+    last_size: uint32;
+    : skip bytes &size=16;   # padding
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: bytes &size=2;
+    switch ( self.unsequenced_message_type ) {
+        b"AS" -> simple_arm_settings_update_request: SimpleArmSettingsUpdateRequest;
+        b"AA" -> simple_arm_settings_update_response: SimpleArmSettingsUpdateResponse;
+        b"2S" -> arm_2_underlying_level_protection_settings_update_request: Arm2UnderlyingLevelProtectionSettingsUpdateRequest;
+        b"2R" -> arm_2_underlying_level_protection_settings_update_response: Arm2UnderlyingLevelProtectionSettingsUpdateResponse;
+        b"qq" -> simple_bulk_quote_message: SimpleBulkQuoteMessage;
+        b"QR" -> simple_bulk_quote_response: SimpleBulkQuoteResponse;
+        b"eq" -> simple_enhanced_quote_e_quote_message: SimpleEnhancedQuoteEQuoteMessage;
+        b"ce" -> complex_enhanced_quote_e_quote_message: ComplexEnhancedQuoteEQuoteMessage;
+        b"xq" -> simple_mass_quote_cancel_request: SimpleMassQuoteCancelRequest;
+        b"XR" -> simple_mass_quote_cancel_response: SimpleMassQuoteCancelResponse;
+        b"xk" -> mass_liquidity_cancel_request_simple_and_complex: MassLiquidityCancelRequestSimpleAndComplex;
+        b"XP" -> mass_liquidity_cancel_response: MassLiquidityCancelResponse;
+        b"PX" -> simple_quote_protection_reset_request: SimpleQuoteProtectionResetRequest;
+        b"PR" -> simple_quote_protection_reset_response: SimpleQuoteProtectionResetResponse;
+        b"PC" -> liquidity_protection_reset_request: LiquidityProtectionResetRequest;
+        b"PK" -> liquidity_protection_reset_response: LiquidityProtectionResetResponse;
+        b"SS" -> single_side_liquidity_protection_reset_request: SingleSideLiquidityProtectionResetRequest;
+        b"SR" -> single_side_liquidity_protection_reset_response: SingleSideLiquidityProtectionResetResponse;
+        b"QP" -> simple_quote_protection_trigger_notification: SimpleQuoteProtectionTriggerNotification;
+        b"QC" -> complex_liquidity_protection_trigger_notification: ComplexLiquidityProtectionTriggerNotification;
+        b"XN" -> cancel_notification: CancelNotification;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SimpleArmSettingsUpdateRequest = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    action: uint8 &convert=Action($$);
+    underlying_symbol: bytes &size=11;
+    allowable_engagement_percentage: uint32;
+    counting_period_binary_u_2: uint16;
+};
+
+type SimpleArmSettingsUpdateResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    arm_settings_update_status: uint8 &convert=ArmSettingsUpdateStatus($$);
+};
+
+type Arm2UnderlyingLevelProtectionSettingsUpdateRequest = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    action: uint8 &convert=Action($$);
+    underlying_symbol: bytes &size=11;
+    arm_threshold_count_binary_u_4: uint32;
+    counting_period_binary_u_4: uint32;
+};
+
+type Arm2UnderlyingLevelProtectionSettingsUpdateResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    arm_settings_update_status: uint8 &convert=ArmSettingsUpdateStatus($$);
+};
+
+type SimpleBulkQuoteMessage = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    client_send_time: uint64 &convert=time_ns($$);
+    quote_count: uint8;
+    : skip bytes &size=32;   # padding
+    single_side_quote: SingleSideQuote[self.quote_count];
+};
+
+type SingleSideQuote = unit {
+    product_id: uint32;
+    quote_parameters: uint8;
+    price_binary_prc_4u_4: uint32;
+    size: uint32;
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=2;   # padding
+};
+
+type SimpleBulkQuoteResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    bulk_quote_status: uint8 &convert=BulkQuoteStatus($$);
+    quote_count: uint8;
+    invalid_quote_count: uint8;
+    quote_ack_time: uint64 &convert=interval_ns($$);
+    single_side_quote_response: SingleSideQuoteResponse[self.invalid_quote_count];
+};
+
+type SingleSideQuoteResponse = unit {
+    quote_status: uint8 &convert=QuoteStatus($$);
+    engine_sequence_number: uint64;
+};
+
+type SimpleEnhancedQuoteEQuoteMessage = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    client_send_time: uint64 &convert=time_ns($$);
+    product_id: uint32;
+    e_quote_action: uint8 &convert=EQuoteAction($$);
+    e_quote_type: uint8 &convert=EQuoteType($$);
+    event_id: uint32;
+    target_message_id: uint32;
+    price_binary_prc_4u_4: uint32;
+    size: uint32;
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=4;   # padding
+};
+
+type ComplexEnhancedQuoteEQuoteMessage = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    client_send_time: uint64 &convert=time_ns($$);
+    strategy_id: uint32;
+    e_quote_action: uint8 &convert=EQuoteAction($$);
+    e_quote_type: uint8 &convert=EQuoteType($$);
+    complex_event_id: uint32;
+    target_message_id: uint32;
+    price_binary_prc_4s_8: int64;
+    size: uint32;
+    side: uint8 &convert=Side($$);
+    stock_sell_short_indicator: uint8 &convert=StockSellShortIndicator($$);
+    : skip bytes &size=15;   # padding
+};
+
+type SimpleMassQuoteCancelRequest = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    client_send_time: uint64 &convert=time_ns($$);
+    underlying_symbol: bytes &size=11;
+    : skip bytes &size=4;   # padding
+};
+
+type SimpleMassQuoteCancelResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    simple_mass_quote_cancel_status: uint8 &convert=SimpleMassQuoteCancelStatus($$);
+};
+
+type MassLiquidityCancelRequestSimpleAndComplex = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    client_send_time: uint64 &convert=time_ns($$);
+    underlying_symbol: bytes &size=11;
+    simple_mass_cancel: uint8 &convert=SimpleMassCancel($$);
+    complex_mass_cancel: uint8 &convert=ComplexMassCancel($$);
+    : skip bytes &size=8;   # padding
+};
+
+type MassLiquidityCancelResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    simple_mass_liquidity_cancel_status: uint8 &convert=SimpleMassLiquidityCancelStatus($$);
+    complex_mass_liquidity_cancel_status: uint8 &convert=ComplexMassLiquidityCancelStatus($$);
+};
+
+type SimpleQuoteProtectionResetRequest = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+};
+
+type SimpleQuoteProtectionResetResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    quote_protection_reset_status: uint8 &convert=QuoteProtectionResetStatus($$);
+};
+
+type LiquidityProtectionResetRequest = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    simple_liquidity_reset: uint8 &convert=SimpleLiquidityReset($$);
+    complex_liquidity_reset: uint8 &convert=ComplexLiquidityReset($$);
+    : skip bytes &size=8;   # padding
+};
+
+type LiquidityProtectionResetResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    simple_liquidity_protection_reset_status: uint8 &convert=SimpleLiquidityProtectionResetStatus($$);
+    complex_liquidity_protection_reset_status: uint8 &convert=ComplexLiquidityProtectionResetStatus($$);
+};
+
+type SingleSideLiquidityProtectionResetRequest = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    security_id_scope: uint8 &convert=SecurityIdScope($$);
+    security_id: uint32;
+    side: uint8 &convert=Side($$);
+    : skip bytes &size=4;   # padding
+};
+
+type SingleSideLiquidityProtectionResetResponse = unit {
+    client_message_id: uint32;
+    mpid: bytes &size=4;
+    : skip bytes &size=4;   # padding
+    status: uint8 &convert=Status($$);
+};
+
+type SimpleQuoteProtectionTriggerNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    trigger_reason: uint8 &convert=TriggerReason($$);
+};
+
+type ComplexLiquidityProtectionTriggerNotification = unit {
+    notification_time: uint64 &convert=interval_ns($$);
+    mpid: bytes &size=4;
+    underlying_symbol: bytes &size=11;
+    trigger_reason: uint8 &convert=TriggerReason($$);
+};
+
+type LoginRequest = unit {
+    sesm_version: bytes &size=5;
+    username: bytes &size=5;
+    computer_id: bytes &size=8;
+    application_protocol: bytes &size=8;
+    requested_session: uint8;
+    requested_sequence_number: uint64;
+};
+
+type LoginResponse = unit {
+    login_status: uint8 &convert=LoginStatus($$);
+    session_id: uint8;
+    highest_sequence_number: uint64;
+};
+
+type RetransmissionRequest = unit {
+    start_sequence_number: uint64;
+    end_sequence_number: uint64;
+};
+
+type LogoutRequest = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type GoodbyePacket = unit(sesm_packet_length: uint16) {
+    goodbye_reason: uint8 &convert=GoodbyeReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type TestPacket = unit(sesm_packet_length: uint16) {
+    test_text: bytes &size=sesm_packet_length - 1;
+};
+
+type SesmPacketType = enum {
+    SequencedDataPacket = 0x53,
+    UnsequencedDataPacket = 0x55,
+    LoginRequest = 0x4c,
+    LoginResponse = 0x52,
+    SynchronizationComplete = 0x43,
+    RetransmissionRequest = 0x41,
+    LogoutRequest = 0x58,
+    GoodbyePacket = 0x47,
+    EndOfSession = 0x45,
+    ServerHeartbeat = 0x30,
+    ClientHeartbeat = 0x31,
+    TestPacket = 0x54,
+};
+
+type CallOrPut = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type RestrictedOption = enum {
+    EmeraldWillAcceptPositionClosingOrdersOnly = 0x59,
+    EmeraldWillAcceptOpenAndClosePositions = 0x4e,
+};
+
+type LongTermOption = enum {
+    FarMonthExpirationAsDefinedByEmeraldRules = 0x59,
+    NearMonthExpirationAsDefinedByEmeraldRules = 0x4e,
+};
+
+type ActiveOnEmerald = enum {
+    ActiveTradableOnEmerald = 0x41,
+    InactiveNotTradableOnEmerald = 0x49,
+};
+
+type EmeraldBboPostingIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyNickel = 0x4e,
+    NickelDime = 0x44,
+};
+
+type QuoteAcceptanceIncrementIndicator = enum {
+    Penny = 0x50,
+    PennyNickel = 0x4e,
+    NickelDime = 0x44,
+};
+
+type OpeningUnderlyingMarketCode = enum {
+    NyseAmex = 0x41,
+    NasdaqOmxBx = 0x42,
+    NationalStockExchange = 0x43,
+    FinraAdf = 0x44,
+    MarketIndependentAnyMarketThatOpensFirst = 0x45,
+    MiaxPearlEquities = 0x48,
+    InternationalSecuritiesExchange = 0x49,
+    EdgaExchangeInc = 0x4a,
+    EdgxExchangeInc = 0x4b,
+    Ltse = 0x4c,
+    ChicagoStockExchange = 0x4d,
+    NyseEuronext = 0x4e,
+    NyseArcaExchange = 0x50,
+    NasdaqOmxViaUtpFeed = 0x51,
+    NasdaqOmxViaCtaFeed = 0x54,
+    Memx = 0x55,
+    Iex = 0x56,
+    CboeStockExchangeCbsx = 0x57,
+    NasdaqOmxPhlx = 0x58,
+    BatsYExchangeInc = 0x59,
+    BatsExchangeInc = 0x5a,
+};
+
+type MpvClass = enum {
+    Penny = 0x50,
+    PennyNickel = 0x4e,
+    NickelDime = 0x44,
+};
+
+type EQuoteRequestStatus = enum {
+    RequestAcceptedSuccessfully = 0x20,
+    InvalidProductId = 0x49,
+    NoEventWithSuchEventId = 0x41,
+    InvalidEQuoteAction = 0x42,
+    InvalidSize = 0x56,
+    EQuoteSizeMinimumRequiredSize = 0x4d,
+    InvalidPrice = 0x50,
+    InvalidEQuoteType = 0x54,
+    InvalidSide = 0x53,
+    EQuoteNotPermittedForThisPrice = 0x31,
+    EQuoteNotPermittedForThisSide = 0x32,
+    EQuoteRepresentedByTargetMessageIdWasNotFound = 0x33,
+    ClientMessageIdNotUnique = 0x34,
+    UnknownMpid = 0x55,
+    RejectedDueToQuoteProtection = 0x35,
+    NotPermitted = 0x58,
+    TestEQuoteSuccessfullyAcceptedPriorToLqwButNotPlacedOnEmeraldBook = 0x4b,
+    EmeraldClosedForTradingOfThisProductRequestCannotBeCompleted = 0x43,
+    RejectedDueToSelfCrossingPrimeAgencyOrder = 0x44,
+    RejectedDueToSingleSideLiquidityProtectionInEffect = 0x59,
+    UndefinedError = 0x5a,
+    DowngradedFromOlderVersion = 0x2a,
+    OutsidePriceRangeForStrategy = 0x4a,
+    ComplexFeatureIsDisabled = 0x47,
+    RejectedDueToStockClearingAccountUnderlyingMpidOrDtcAccountNumberNotConfigured = 0x37,
+    InvalidSellShortIndicator = 0x38,
+};
+
+type SystemStatus = enum {
+    FirmInterfaceStartUpTimeReadyToAcceptApplicationMessages = 0x53,
+    LqwReadyToAcceptOfficialQuotes = 0x50,
+    EndOfSystemHours = 0x43,
+    PreLqwNotReadyToAcceptOfficialQuotes = 0x4c,
+    SystemCurrentlyNotAcceptingMessages = 0x58,
+    StartOfTestSessionSentBeforeTests = 0x31,
+    EndOfTestSession = 0x32,
+};
+
+type TradingStatus = enum {
+    Halted = 0x48,
+    Closing = 0x43,
+    Resume = 0x52,
+    Open = 0x4f,
+};
+
+type EventReason = enum {
+    ThisEventResultedFromAutomaticmarketDrivenEvent = 0x41,
+    EmeraldManuallyInitiatedThisEvent = 0x4d,
+};
+
+type Action = enum {
+    SetAddOrUpdateArmSettings = 0x53,
+    DeleteArmSettings = 0x44,
+};
+
+type Source = enum {
+    ChangesCarriedOutByTheFirmViaMei = 0x54,
+    ChangesCarriedOutByTheExchangeGlobalDefaultChangesOrFirmRequestedSettingsAppliedManually = 0x45,
+};
+
+type SecurityIdScope = enum {
+    SecurityIdSpecifiesOptionProductId = 0x50,
+    SecurityIdSpecifiesComplexStrategyId = 0x53,
+};
+
+type Side = enum {
+    Bid = 0x42,
+    Ask = 0x41,
+    NotApplicable = 0x4e,
+    Sold = 0x53,
+};
+
+type NotificationType = enum {
+    Arm2UnderlyingLevelProtectionTriggered = 0x54,
+    Arm2UnderlyingLevelProtectionReset = 0x52,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type UpdateReason = enum {
+    NewStrategyCreated = 0x4e,
+    StrategyDefinitionUpdated = 0x55,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type LegSide = enum {
+    Bid = 0x42,
+    Ask = 0x41,
+};
+
+type LiquidityType = enum {
+    SimpleQuote = 0x51,
+    SimpleEQuote = 0x45,
+    ComplexEQuote = 0x43,
+    ReservedForFutureUse = 0x58,
+};
+
+type QuoteeQuoteSide = enum {
+    Bid = 0x42,
+    Ask = 0x41,
+};
+
+type CancelReason = enum {
+    CancelForUnexecutedPartOfSimplecomplexEQuote = 0x53,
+    CancelForQuoteUnusedInOpeningReopeningOrClosing = 0x57,
+    CancelOfRestingSimpleQuoteCrossedByOppositeSideQuoteOfSameMpid = 0x43,
+    ComplexStrategyLegHasWideMbboOnlyApplicableToComplexEQuotes = 0x4b,
+    ComplexStrategyLegHasPrimeAuction = 0x4c,
+    ComplexStrategyLegHasRouteTimer = 0x4d,
+    ComplexStrategyLegHasLiquidityRefreshTimer = 0x4e,
+    ComplexStrategyAuctionInProgress = 0x4a,
+    ComplexStrategyLegHasLiquidityExposureTimer = 0x52,
+    StrategyIsNotOpenForTrading = 0x51,
+    CanceledDueToSingleSideLiquidityProtectionTrigger = 0x42,
+    PostOnlyCanceledDueToLockingOrCrossingManagedInterestOnTheOppositeSide = 0x50,
+    RestingQuoteCanceledDueToReplacementQuoteReject = 0x41,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type TradeStatus = enum {
+    NewExecution = 0x45,
+};
+
+type StockSellShortIndicator = enum {
+    NotShort = 0x4e,
+    Short = 0x59,
+    ShortExempt = 0x45,
+    NotApplicable = 0x20,
+};
+
+type ArmSettingsUpdateStatus = enum {
+    SettingsAppliedSuccessfully = 0x20,
+    InvalidAction = 0x41,
+    InvalidAllowableEngagementPercentage = 0x50,
+    InvalidCountingPeriod = 0x44,
+    UnknownMpid = 0x4d,
+    InvalidUnderlying = 0x55,
+    NotPermitted = 0x58,
+    NoSuchArmSettings = 0x4e,
+    UndefinedError = 0x5a,
+    FeatureNotSupported = 0x45,
+};
+
+type BulkQuoteStatus = enum {
+    BulkQuoteBlockIsValid = 0x20,
+    InvalidBulkQuoteBlock = 0x52,
+    UndefinedError = 0x5a,
+};
+
+type QuoteStatus = enum {
+    QuoteSuccessfullyAccepted = 0x20,
+    TestQuoteSuccessfullyAcceptedPriorToLqwButNotPlacedOnEmeraldBook = 0x54,
+    EmeraldClosedForTradingOfThisProductRequestCannotBeCompleted = 0x43,
+    InvalidProductId = 0x4f,
+    InvalidPrice = 0x50,
+    InvalidSize = 0x51,
+    InvalidSide = 0x53,
+    UnknownMpid = 0x55,
+    NotPermitted = 0x58,
+    QuoteSizeMinimumRequiredSize = 0x4d,
+    RejectedDueToQuoteProtection = 0x52,
+    RejectedDueToSelfCrossingPrimeAgencyOrder = 0x44,
+    RejectedDueToSingleSideLiquidityProtectionInEffect = 0x59,
+    InvalidToChange = 0x41,
+    InvalidQuoteHandlingInstruction = 0x42,
+    UndefinedError = 0x5a,
+};
+
+type EQuoteAction = enum {
+    NewEQuote = 0x4e,
+    CancelEQuote = 0x43,
+    ReplaceEQuote = 0x52,
+};
+
+type EQuoteType = enum {
+    Opg = 0x4f,
+    Aoc = 0x41,
+    Ioc = 0x49,
+    Iso = 0x53,
+    FutureUse = 0x50,
+};
+
+type SimpleMassQuoteCancelStatus = enum {
+    CancelSuccessful = 0x20,
+    InvalidUnderlying = 0x55,
+    MassQuoteCancelStillInProgress = 0x49,
+    HaltTriggeredCleanupOfQuotesStillInProgress = 0x48,
+    AllQuoteHaveAlreadyBeenCanceled = 0x4e,
+    NotPermitted = 0x58,
+    UnknownMpid = 0x4d,
+    EmeraldClosedRequestCannotBeCompleted = 0x43,
+    UndefinedError = 0x5a,
+};
+
+type SimpleMassCancel = enum {
+    MassCancelSimpleQuotesAndEQuotes = 0x59,
+    DoNotMassCancelSimpleQuotesAndEQuotes = 0x4e,
+    MassCancelSimpleQuotesOnlyUnderlyingSymbolMustBeFilledWithValidUnderlyingForThisOption = 0x51,
+};
+
+type ComplexMassCancel = enum {
+    MassCancelComplexEQuotesOnly = 0x59,
+    DoNotMassCancelComplexLiquidities = 0x4e,
+};
+
+type SimpleMassLiquidityCancelStatus = enum {
+    SimpleMassLiquidityCancelSuccessful = 0x20,
+    InvalidUnderlying = 0x55,
+    SimpleMassLiquidityCancelStillInProgress = 0x49,
+    HaltTriggeredCleanupOfLiquiditiesStillInProgress = 0x48,
+    AllLiquiditiesHaveAlreadyBeenCanceled = 0x4e,
+    NotPermitted = 0x58,
+    UnknownMpid = 0x4d,
+    EmeraldClosedRequestCannotBeCompleted = 0x43,
+    InvalidRequest = 0x4a,
+    FeatureNotSupported = 0x45,
+    UndefinedError = 0x5a,
+    NotRequested = 0x51,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type ComplexMassLiquidityCancelStatus = enum {
+    ComplexMassLiquidityCancelSuccessful = 0x20,
+    InvalidUnderlying = 0x55,
+    ComplexMassLiquidityCancelStillInProgress = 0x49,
+    HaltTriggeredCleanupOfLiquiditiesStillInProgress = 0x48,
+    AllLiquiditiesHaveAlreadyBeenCanceled = 0x4e,
+    NotPermitted = 0x58,
+    UnknownMpid = 0x4d,
+    EmeraldClosedRequestCannotBeCompleted = 0x43,
+    InvalidRequest = 0x4a,
+    FeatureNotSupported = 0x45,
+    UndefinedError = 0x5a,
+    NotRequested = 0x51,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type QuoteProtectionResetStatus = enum {
+    QuoteProtectionResetSuccessful = 0x20,
+    InvalidUnderlying = 0x55,
+    MassQuoteCancelStillInProgress = 0x49,
+    HaltTriggeredCleanupOfQuotesStillInProgress = 0x48,
+    UnknownMpid = 0x4d,
+    NotPermitted = 0x58,
+    EmeraldClosedRequestCannotBeCompleted = 0x43,
+    Arm2UnderlyingLevelProtectionIsInEffect = 0x41,
+    Arm2FirmLevelProtectionIsInEffect = 0x46,
+    KillSwitchProtectionIsInEffect = 0x4b,
+    UndefinedError = 0x5a,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type SimpleLiquidityReset = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type ComplexLiquidityReset = enum {
+    Yes = 0x59,
+    No = 0x4e,
+};
+
+type SimpleLiquidityProtectionResetStatus = enum {
+    SimpleLiquidityProtectionResetSuccessful = 0x20,
+    InvalidUnderlying = 0x55,
+    SimpleMassLiquidityCancelStillInProgress = 0x49,
+    HaltTriggeredCleanupOfLiquidatesStillInProgress = 0x48,
+    UnknownMpid = 0x4d,
+    NotPermitted = 0x58,
+    EmeraldClosedRequestCannotBeCompleted = 0x43,
+    Arm2UnderlyingLevelProtectionIsInEffect = 0x41,
+    Arm2FirmLevelProtectionIsInEffect = 0x46,
+    KillSwitchProtectionIsInEffect = 0x4b,
+    FeatureNotSupported = 0x45,
+    UndefinedError = 0x5a,
+    InvalidRequest = 0x4a,
+    NotRequested = 0x51,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type ComplexLiquidityProtectionResetStatus = enum {
+    ComplexLiquidityProtectionResetSuccessful = 0x20,
+    InvalidUnderlying = 0x55,
+    ComplexMassLiquidityCancelStillInProgress = 0x49,
+    HaltTriggeredCleanupOfLiquiditiesStillInProgress = 0x48,
+    UnknownMpid = 0x4d,
+    NotPermitted = 0x58,
+    EmeraldClosedRequestCannotBeCompleted = 0x43,
+    Arm2UnderlyingLevelProtectionIsInEffect = 0x41,
+    Arm2FirmLevelProtectionIsInEffect = 0x46,
+    KillSwitchProtectionIsInEffect = 0x4b,
+    FeatureNotSupported = 0x45,
+    UndefinedError = 0x5a,
+    InvalidRequest = 0x4a,
+    NotRequested = 0x51,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type Status = enum {
+    SingleSideProtectionResetRequestSuccessful = 0x20,
+    InvalidMpid = 0x4d,
+    InvalidSecurityIdScope = 0x43,
+    InvalidSecurityId = 0x49,
+    InvalidSide = 0x53,
+    FeatureNotEnabled = 0x45,
+    UndefinedError = 0x5a,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type TriggerReason = enum {
+    ExchangeInitiatedMassQuoteCancel = 0x45,
+    FirmInitiatedMassQuoteCancel = 0x55,
+    ArmTriggeredProtection = 0x52,
+    TradingHalt = 0x54,
+    KillSwitchProtectionIsInEffectFutureUse = 0x4b,
+    Arm2FirmLevelProtectionInitiatedMassQuoteCancel = 0x46,
+    ReservedForFutureUse = 0x4a,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type LoginStatus = enum {
+    LoginSuccessful = 0x20,
+    Rejected = 0x58,
+    RequestedSessionIsNotAvailable = 0x53,
+    InvalidStartSequenceNumberRequested = 0x4e,
+    IncompatibleSessionProtocolVersion = 0x49,
+    IncompatibleApplicationProtocolVersion = 0x41,
+    RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
+};
+
+type LogoutReason = enum {
+    GracefulLogout = 0x20,
+    BadSesmPacket = 0x42,
+    TimedOutWaitingForLoginPacket = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+
+type GoodbyeReason = enum {
+    BadSesmPacket = 0x42,
+    TimedOutWaitingForLoginPacket = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+

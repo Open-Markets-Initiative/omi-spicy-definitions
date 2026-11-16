@@ -1,0 +1,750 @@
+# License: MIT No Attribution
+
+module MiaxOnyxfuturesExpressinterfaceFeiV13A;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type OnyxfuturesExpressinterfaceV13A = unit {
+    sesm_tcp_packet: SesmTcpPacket[] &eod;
+};
+
+type SesmTcpPacket = unit {
+    sesm_packet_header: SesmPacketHeader;
+    switch ( self.sesm_packet_header.sesm_packet_type ) {
+        SesmPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        SesmPacketType::UnsequencedDataPacket -> unsequenced_data_packet: UnsequencedDataPacket;
+        SesmPacketType::LoginRequest -> login_request: LoginRequest;
+        SesmPacketType::LoginResponse -> login_response: LoginResponse;
+        SesmPacketType::RetransmissionRequest -> retransmission_request: RetransmissionRequest;
+        SesmPacketType::LogoutRequest -> logout_request: LogoutRequest(self.sesm_packet_header.sesm_packet_length);
+        SesmPacketType::GoodbyePacket -> goodbye_packet: GoodbyePacket(self.sesm_packet_header.sesm_packet_length);
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SesmPacketHeader = unit {
+    sesm_packet_length: uint16;
+    sesm_packet_type: uint8 &convert=SesmPacketType($$);
+};
+
+type SequencedDataPacket = unit {
+    sequence_number: uint64;
+    sequenced_message_type: bytes &size=2;
+    switch ( self.sequenced_message_type ) {
+        b"NR" -> new_order_response_message: NewOrderResponseMessage;
+        b"MR" -> modify_order_response: ModifyOrderResponse;
+        b"CR" -> cancel_order_response: CancelOrderResponse;
+        b"XR" -> mass_cancel_response: MassCancelResponse;
+        b"SR" -> strategy_creation_response_message: StrategyCreationResponseMessage;
+        b"SN" -> system_state_notification_message: SystemStateNotificationMessage;
+        b"O1" -> new_order_notification: NewOrderNotification;
+        b"MN" -> modify_order_notification: ModifyOrderNotification;
+        b"RP" -> reserve_order_replenishment_notification: ReserveOrderReplenishmentNotification;
+        b"XN" -> cancel_reduce_size_order_notification: CancelReduceSizeOrderNotification;
+        b"OS" -> order_status_update_notification: OrderStatusUpdateNotification;
+        b"EN" -> simple_execution_notification: SimpleExecutionNotification;
+        b"CN" -> complex_execution_notification: ComplexExecutionNotification;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NewOrderResponseMessage = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    order_id: uint64;
+    order_status: uint8 &convert=OrderStatus($$);
+    : skip bytes &size=10;   # padding
+};
+
+type ModifyOrderResponse = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    order_id: uint64;
+    leaves_qty: uint32;
+    modify_status: uint8 &convert=ModifyStatus($$);
+    : skip bytes &size=10;   # padding
+};
+
+type CancelOrderResponse = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    order_id: uint64;
+    cancel_status: uint8 &convert=CancelStatus($$);
+    : skip bytes &size=10;   # padding
+};
+
+type MassCancelResponse = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    mass_cancel_status: uint8 &convert=MassCancelStatus($$);
+    : skip bytes &size=10;   # padding
+};
+
+type StrategyCreationResponseMessage = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    strategy_creation_status: uint8 &convert=StrategyCreationStatus($$);
+    : skip bytes &size=16;   # padding
+};
+
+type SystemStateNotificationMessage = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    version: bytes &size=8;
+    session_id: uint8;
+    system_status: uint8 &convert=SystemStatus($$);
+    : skip bytes &size=8;   # padding
+};
+
+type NewOrderNotification = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    order_id: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    account: bytes &size=16;
+    client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size: uint32;
+    order_instructions: bitfield(16) {
+        side: 0;
+        reserve_order_replenishment_timing_instruction: 1;
+        unused_14: 2..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_type: uint8 &convert=OrderType($$);
+    self_trade_protection: bitfield(8) {
+        self_trade_protection_level: 0..2;
+        self_trade_protection_instruction: 3..5;
+        unused_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: uint8 &convert=CustomerOrderHandlingInstruction($$);
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        side_clearing_trade_price_type: 3;
+        unused_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    min_qty: uint32;
+    order_expiry_date: uint16;
+    trading_collar_dollar_value: int64;
+    cti_code: uint8 &convert=CtiCode($$);
+    text_memo: bytes &size=20;
+    max_floor_qty: uint32;
+    display_range_qty: uint32;
+    : skip bytes &size=24;   # padding
+};
+
+type ModifyOrderNotification = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    order_id: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
+    leaves_qty: uint32;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size: uint32;
+    order_expiry_date: uint16;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: uint8 &convert=CustomerOrderHandlingInstruction($$);
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        side_clearing_trade_price_type: 3;
+        unused_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    max_floor_qty: uint32;
+    : skip bytes &size=28;   # padding
+};
+
+type ReserveOrderReplenishmentNotification = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    instrument_id: uint32;
+    order_id: uint64;
+    secondary_order_id: uint64;
+    display_qty: uint32;
+    : skip bytes &size=16;   # padding
+};
+
+type CancelReduceSizeOrderNotification = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    order_id: uint64;
+    client_send_time: uint64 &convert=time_ns($$);
+    leaves_qty: uint32;
+    cancel_reason: uint8 &convert=CancelReason($$);
+    last_price: int64;
+    last_size: uint32;
+    : skip bytes &size=8;   # padding
+};
+
+type OrderStatusUpdateNotification = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    instrument_id: uint32;
+    order_id: uint64;
+    update_status: uint8 &convert=UpdateStatus($$);
+    order_type: uint8 &convert=OrderType($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    : skip bytes &size=30;   # padding
+};
+
+type SimpleExecutionNotification = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    instrument_id: uint32;
+    client_order_id: bytes &size=20;
+    simple_trade_id: uint64;
+    complex_trade_id: uint64;
+    execution_id: uint64;
+    trade_date: uint16;
+    correction_number: uint8;
+    trade_status: uint8 &convert=TradeStatus($$);
+    last_price: int64;
+    last_size: uint32;
+    execution_order_instructions: bitfield(16) {
+        side: 0;
+        unused_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    cti_code: uint8 &convert=CtiCode($$);
+    text_memo: bytes &size=20;
+    liquidity_indicator: bytes &size=3;
+    secondary_order_id: uint64;
+    last_price_restatement: uint8 &convert=LastPriceRestatement($$);
+    : skip bytes &size=23;   # padding
+};
+
+type ComplexExecutionNotification = unit {
+    matching_engine_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    instrument_id: uint32;
+    client_order_id: bytes &size=20;
+    complex_trade_id: uint64;
+    trade_date: uint16;
+    last_net_price: int64;
+    last_size: uint32;
+    execution_order_instructions: bitfield(16) {
+        side: 0;
+        unused_15: 1..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    secondary_order_id: uint64;
+    last_price_restatement: uint8 &convert=LastPriceRestatement($$);
+    : skip bytes &size=23;   # padding
+};
+
+type UnsequencedDataPacket = unit {
+    unsequenced_message_type: bytes &size=2;
+    switch ( self.unsequenced_message_type ) {
+        b"N1" -> new_order_request_message: NewOrderRequestMessage;
+        b"NR" -> new_order_response_message: NewOrderResponseMessage;
+        b"M1" -> modify_order_request_message: ModifyOrderRequestMessage;
+        b"MR" -> modify_order_response: ModifyOrderResponse;
+        b"CO" -> cancel_order_request_message: CancelOrderRequestMessage;
+        b"CR" -> cancel_order_response: CancelOrderResponse;
+        b"X1" -> mass_cancel_request: MassCancelRequest;
+        b"XR" -> mass_cancel_response: MassCancelResponse;
+        b"SD" -> strategy_creation_request: StrategyCreationRequest;
+        b"SR" -> strategy_creation_response_message: StrategyCreationResponseMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type NewOrderRequestMessage = unit {
+    client_send_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    account: bytes &size=16;
+    client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size: uint32;
+    order_instructions: bitfield(16) {
+        side: 0;
+        reserve_order_replenishment_timing_instruction: 1;
+        unused_14: 2..15;
+    } &byte-order=spicy::ByteOrder::Little;
+    time_in_force: uint8 &convert=TimeInForce($$);
+    order_type: uint8 &convert=OrderType($$);
+    self_trade_protection: bitfield(8) {
+        self_trade_protection_level: 0..2;
+        self_trade_protection_instruction: 3..5;
+        unused_2: 6..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: uint8 &convert=CustomerOrderHandlingInstruction($$);
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        side_clearing_trade_price_type: 3;
+        unused_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    min_qty: uint32;
+    order_expiry_date: uint16;
+    trading_collar_dollar_value: int64;
+    cti_code: uint8 &convert=CtiCode($$);
+    text_memo: bytes &size=20;
+    max_floor_qty: uint32;
+    display_range_qty: uint32;
+    : skip bytes &size=24;   # padding
+};
+
+type ModifyOrderRequestMessage = unit {
+    client_send_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    price: int64;
+    stop_order_trigger_price: int64;
+    size: uint32;
+    order_expiry_date: uint16;
+    self_trade_protection_group: bytes &size=2;
+    purge_group: bytes &size=1;
+    customer_order_handling_instruction: uint8 &convert=CustomerOrderHandlingInstruction($$);
+    additional_order_indicators: bitfield(8) {
+        customer_of_firm_designation: 0;
+        manual_order_indicator: 1;
+        open_close_position_indicator: 2;
+        side_clearing_trade_price_type: 3;
+        unused_4: 4..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    max_floor_qty: uint32;
+    : skip bytes &size=28;   # padding
+};
+
+type CancelOrderRequestMessage = unit {
+    client_send_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    order_id: uint64;
+    client_order_id: bytes &size=20;
+    original_client_order_id: bytes &size=20;
+    instrument_id: uint32;
+    : skip bytes &size=10;   # padding
+};
+
+type MassCancelRequest = unit {
+    client_send_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    : skip bytes &size=10;   # padding
+    client_order_id: bytes &size=20;
+    scope: uint8 &convert=Scope($$);
+    action: uint8 &convert=Action($$);
+    product_group_code: bytes &size=13;
+    product_type: uint8 &convert=ProductType($$);
+    purge_group: bytes &size=1;
+    : skip bytes &size=9;   # padding
+};
+
+type StrategyCreationRequest = unit {
+    client_send_time: uint64 &convert=time_ns($$);
+    mp_id: bytes &size=5;
+    operator_id: bytes &size=18;
+    operator_location: bytes &size=6;
+    client_order_id: bytes &size=20;
+    : skip bytes &size=16;   # padding
+    number_of_legs: uint8;
+    strategy_leg: StrategyLeg[self.number_of_legs];
+};
+
+type StrategyLeg = unit {
+    instrument_id: uint32;
+    leg_ratio: int32;
+    : skip bytes &size=8;   # padding
+};
+
+type LoginRequest = unit {
+    sesm_version: bytes &size=5;
+    username: bytes &size=5;
+    computer_id: bytes &size=8;
+    application_protocol: bytes &size=8;
+    requested_session: uint8;
+    requested_sequence_number: uint64;
+};
+
+type LoginResponse = unit {
+    login_status: uint8 &convert=LoginStatus($$);
+    session_id: uint8;
+    highest_sequence_number: uint64;
+};
+
+type RetransmissionRequest = unit {
+    start_sequence_number: uint64;
+    end_sequence_number: uint64;
+};
+
+type LogoutRequest = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type GoodbyePacket = unit(sesm_packet_length: uint16) {
+    logout_reason: uint8 &convert=LogoutReason($$);
+    logout_text: bytes &size=sesm_packet_length - 2;
+};
+
+type SesmPacketType = enum {
+    SequencedDataPacket = 0x53,
+    UnsequencedDataPacket = 0x55,
+    LoginRequest = 0x4c,
+    LoginResponse = 0x52,
+    SynchronizationComplete = 0x43,
+    RetransmissionRequest = 0x41,
+    LogoutRequest = 0x58,
+    GoodbyePacket = 0x47,
+    EndOfSession = 0x45,
+    ServerHeartbeat = 0x30,
+    ClientHeartbeat = 0x31,
+};
+
+type OrderStatus = enum {
+    Successful = 0x20,
+    DuplicateClientOrderId = 0x41,
+    NotInLiveOrderWindow = 0x42,
+    InvalidOrderType = 0x43,
+    InvalidCustomerOrderHandlingInstruction = 0x45,
+    InvalidTimeInForceOrItsUse = 0x46,
+    InvalidSelfTradeProtectionLevel = 0x47,
+    InvalidSelfTradeProtectionInstruction = 0x48,
+    InvalidMpid = 0x49,
+    InvalidUseSelfTradeProtectionInstruction = 0x4b,
+    InvalidSelfTradeProtectionGroup = 0x4c,
+    InvalidUseSelfTradeProtectionGroup = 0x4d,
+    InvalidForCurrentTradingStatus = 0x4e,
+    InvalidClientOrderId = 0x4f,
+    InvalidPrice = 0x50,
+    InvalidSize = 0x51,
+    InvalidUseMinimumQty = 0x52,
+    InvalidInstrumentId = 0x53,
+    InvalidUseOrderType = 0x55,
+    InvalidPurgeGroup = 0x56,
+    InvalidOrderExpiryDateOrItsUse = 0x57,
+    BlockedByUserMassCancel = 0x59,
+    BlockedByMfpHelpDeskMassCancel = 0x61,
+    BlockedByCrm = 0x62,
+    InvalidAccount = 0x63,
+    InvalidTradingCollar = 0x64,
+    InvalidOperatorId = 0x67,
+    InvalidOperatorLocation = 0x68,
+    InvalidCtiCode = 0x69,
+    InvalidTextMemo = 0x6a,
+    BlockedByDropCopyAcodacosfEvent = 0x6b,
+    DailyTradingLimitBreach = 0x6c,
+    TradingCollarProtection = 0x6d,
+    DuplicateOrderProtection = 0x6e,
+    OrderTypeRestriction = 0x6f,
+    RestrictionForCurrentTradingSession = 0x70,
+    ProductRestriction = 0x71,
+    CustomerOrderForRegulatedAccount = 0x72,
+    FirmOrderForSegregatedAccount = 0x73,
+    OrderNotAllowedWhenEthClearingNotEnabled = 0x74,
+    NoMbboForMarketOrderWithProtectionOrMarketLimitOrder = 0x75,
+    InvalidDisplayRangeQty = 0x76,
+    InvalidMaxFloorQty = 0x77,
+    InvalidUseOfReserveOrderReplenishmentTimingInstruction = 0x78,
+    InvalidOrderTypeForReserveOrder = 0x79,
+    UndefinedReason = 0x5a,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type ModifyStatus = enum {
+    Successful = 0x20,
+    DuplicateClientOrderId = 0x41,
+    NotInLiveOrderWindow = 0x42,
+    CannotFindOrderWithTargetClientOrderId = 0x44,
+    InvalidCustomerOrderHandlingInstruction = 0x45,
+    InvalidForTimeInForce = 0x46,
+    InvalidMpid = 0x49,
+    MpidDoesNotMatchTargetOrder = 0x4a,
+    InvalidSelfTradeProtectionGroup = 0x4c,
+    InvalidUseSelfTradeProtectionGroup = 0x4d,
+    InvalidForCurrentTradingStatus = 0x4e,
+    InvalidClientOrderId = 0x4f,
+    InvalidPrice = 0x50,
+    InvalidSize = 0x51,
+    InvalidInstrumentId = 0x53,
+    InvalidTargetClientOrderId = 0x54,
+    InvalidPurgeGroup = 0x56,
+    InvalidOrderExpiryDateOrItsUse = 0x57,
+    BlockedByUserMassCancel = 0x59,
+    BlockedByMfpHelpDeskMassCancel = 0x61,
+    BlockedByCrm = 0x62,
+    InvalidOperatorId = 0x67,
+    InvalidOperatorLocation = 0x68,
+    BlockedByDropCopyAcodacosfEvent = 0x6b,
+    DailyTradingLimitBreach = 0x6c,
+    TradingCollarProtection = 0x6d,
+    RestrictionForCurrentTradingSession = 0x70,
+    ProductRestriction = 0x71,
+    CustomerOrderForRegulatedAccount = 0x72,
+    FirmOrderForSegregatedAccount = 0x73,
+    InvalidToChangeOrUseOfMaxFloorQty = 0x77,
+    UndefinedReason = 0x5a,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type CancelStatus = enum {
+    Successful = 0x20,
+    DuplicateClientOrderId = 0x41,
+    NotInLiveOrderWindow = 0x42,
+    CannotFindOrderWithTargetClientOrderId = 0x44,
+    InvalidMpid = 0x49,
+    MpidDoesNotMatchTargetOrder = 0x4a,
+    InvalidForCurrentTradingStatus = 0x4e,
+    InvalidClientOrderId = 0x4f,
+    InvalidInstrumentId = 0x53,
+    InvalidTargetOrderId = 0x54,
+    InvalidOrderIdOrItsUse = 0x65,
+    RequestNotPermitted = 0x66,
+    InvalidOperatorId = 0x67,
+    InvalidOperatorLocation = 0x68,
+    UndefinedReason = 0x5a,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type MassCancelStatus = enum {
+    Successful = 0x20,
+    InvalidAction = 0x41,
+    InvalidScope = 0x42,
+    InvalidPurgeGroup = 0x43,
+    NotInLiveOrderWindow = 0x44,
+    InvalidProductGroupCode = 0x45,
+    InvalidProductType = 0x46,
+    InvalidMpid = 0x49,
+    InvalidClientOrderId = 0x4f,
+    InvalidOperatorId = 0x67,
+    InvalidOperatorLocation = 0x68,
+    DowngradedFromOlderVersion = 0x2a,
+    Undefined = 0x5a,
+};
+
+type StrategyCreationStatus = enum {
+    Successful = 0x20,
+    InvalidNumberOfLegs = 0x41,
+    InvalidNotAllowedStrategy = 0x42,
+    InvalidLegRatio = 0x43,
+    ReservedForFutureUse = 0x44,
+    RepeatingInstrument = 0x45,
+    NoMoreStrategiesCanBeCreated = 0x46,
+    NotInLiveOrderWindow = 0x47,
+    InvalidLegInstrument = 0x48,
+    InvalidMpid = 0x49,
+    InvalidClientOrderId = 0x4f,
+    Undefined = 0x5a,
+    InvalidOperatorId = 0x67,
+    InvalidOperatorLocation = 0x68,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type SystemStatus = enum {
+    StartOfSystemHours = 0x53,
+    EndOfSystemHours = 0x43,
+    StartOfTestSession = 0x31,
+    EndOfTestSession = 0x32,
+    DowngradedForOlderVersion = 0x2a,
+};
+
+type Side = enum {
+    Buy = 0,
+    Sell = 1,
+};
+
+type ReserveOrderReplenishmentTimingInstruction = enum {
+    ReplenishedAfterDisplayQtyExhaust = 0,
+    ReplenishImmediatelyAfterPartialFill = 1,
+};
+
+type TimeInForce = enum {
+    Ioc = 0x49,
+    Day = 0x44,
+    Fok = 0x46,
+    Gtc = 0x43,
+    Gtd = 0x58,
+};
+
+type OrderType = enum {
+    LimitOrder = 0x31,
+    StopLimitOrder = 0x32,
+    MarketOrder = 0x33,
+    StopMarketOrder = 0x34,
+    MarketOrderWithProtection = 0x35,
+    MarketLimitOrder = 0x36,
+    StopMarketOrderWithProtection = 0x37,
+};
+
+type SelfTradeProtectionLevel = enum {
+    SelfTradeProtectionDisabled = 0,
+    Firm = 1,
+    Mpid = 2,
+    ParentGroup = 3,
+};
+
+type SelfTradeProtectionInstruction = enum {
+    NotApplicable = 0,
+    CancelNewest = 1,
+    CancelOldest = 2,
+    CancelBoth = 3,
+    DecrementAndCancel = 4,
+};
+
+type CustomerOrderHandlingInstruction = enum {
+    Desk = 0x57,
+    Electronic = 0x59,
+    VendorProvidedPlatformBilledByExecutingBroker = 0x43,
+    SponsoredAccessViaExchangeApiOrFixProvidedByExecutingBroker = 0x47,
+    PremiumAlgorithmicTradingProviderBilledByExecutingBroker = 0x48,
+    Other = 0x44,
+};
+
+type CustomerOfFirmDesignation = enum {
+    Customer = 0,
+    Firm = 1,
+};
+
+type ManualOrderIndicator = enum {
+    Automated = 0,
+    Manual = 1,
+};
+
+type OpenClosePositionIndicator = enum {
+    Open = 0,
+    Close = 1,
+};
+
+type SideClearingTradePriceType = enum {
+    TradeClearsAtExecutionPrice = 0,
+    TradeClearsAtAlternatePrice = 1,
+};
+
+type CtiCode = enum {
+    Cti1 = 0x31,
+    Cti2 = 0x32,
+    Cti3 = 0x33,
+    Cti4 = 0x34,
+};
+
+type CancelReason = enum {
+    MinQuantityNotSatisfiedOrFokMinQuantityNotSatisfied = 0x41,
+    ReservedForFutureUse = 0x42,
+    TimeInForceCanceled = 0x43,
+    AutoCancelOnDisconnectAcod = 0x44,
+    BreachedDailyTradingPriceRange = 0x45,
+    AutoCancelOnSystemFailureAcosf = 0x46,
+    TradingCollarProtection = 0x47,
+    CanceledByHelpdeskOrOverMiaxMemberFirmPortal = 0x48,
+    GtcgtdCustomerOrderIntroductionForRegulatedAccount = 0x49,
+    MassCancelMpidOrProductGroupProductTypeByUser = 0x4a,
+    MassCancelMpidOrProductGroupProductTypeByHelpdeskOrOverMiaxMemberFirmPortal = 0x4b,
+    MassCancelSessionByUser = 0x4c,
+    MassCancelSessionByHelpdeskOrOverMiaxMemberFirmPortal = 0x4d,
+    CrossingStrategyMatchPriceRangeSmpr = 0x4e,
+    CrmProtection = 0x4f,
+    DropCopyAcodacosfEvent = 0x50,
+    MarketableOrderOutsideStrategyMatchPriceRangeSmpr = 0x51,
+    GtcgtdOrderIntroductionBreachedPerOrderRiskMetrics = 0x52,
+    GtcgtdFirmOrderIntroductionForSegregatedAccount = 0x53,
+    OrderNotAllowedWhenEthClearingNotEnabled = 0x54,
+    CanceledByUserThroughOrderEntrySession = 0x55,
+    CanceledByUserThroughASessionOtherThanTheOrderEntrySession = 0x56,
+    StopOrderNoLongerValid = 0x57,
+    CancelNewestInstruction = 0x31,
+    CancelOldestInstruction = 0x32,
+    CancelBothInstruction = 0x33,
+    DecrementAndCancelInstruction = 0x34,
+    UndefinedReason = 0x5a,
+    DowngradedFromOlderVersion = 0x2a,
+};
+
+type UpdateStatus = enum {
+    StopOrderTriggered = 0x53,
+};
+
+type TradeStatus = enum {
+    NewExecution = 0x45,
+    PriceSizeCorrection = 0x43,
+    TradeCancellation = 0x58,
+};
+
+type LastPriceRestatement = enum {
+    FinalTradePriceForTasbticTrade = 0x59,
+    NotApplicable = 0x4e,
+};
+
+type Scope = enum {
+    Mpid = 0x4d,
+    MpidProductGroup = 0x50,
+    MpidProductGroupProductType = 0x54,
+    Session = 0x53,
+};
+
+type Action = enum {
+    BlockOnly = 0x42,
+    MassCancelOnly = 0x4d,
+    BlockAndMassCancel = 0x58,
+    RemoveBlockingForTheSpecifiedScope = 0x52,
+};
+
+type ProductType = enum {
+    OutrightFutures = 0x4f,
+    StandardCalendarSpread = 0x53,
+    EquityCalendarSpread = 0x45,
+    ButterflySpread = 0x42,
+    CrossProductSpread = 0x43,
+};
+
+type LoginStatus = enum {
+    Successful = 0x20,
+    Rejected = 0x58,
+    RequestedSessionIsNotAvailable = 0x53,
+    InvalidStartSequenceNumberRequested = 0x4e,
+    IncompatibleSessionProtocolVersion = 0x49,
+    IncompatibleApplicationProtocolVersion = 0x41,
+    RequestRejectedBecauseClientAlreadyLoggedIn = 0x4c,
+};
+
+type LogoutReason = enum {
+    GracefulLogout = 0x20,
+    BadPacket = 0x42,
+    TimedOut = 0x4c,
+    ApplicationTerminatingConnection = 0x41,
+};
+

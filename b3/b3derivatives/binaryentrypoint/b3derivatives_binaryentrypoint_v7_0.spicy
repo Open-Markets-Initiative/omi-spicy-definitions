@@ -187,7 +187,7 @@ type SimpleNewOrderMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
     mm_protection_reset: uint8 &convert=MmProtectionReset($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     account: uint32;
     sender_location: bytes &size=10;
     entering_trader: bytes &size=5;
@@ -225,7 +225,7 @@ type SimpleModifyOrderMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
     mm_protection_reset: uint8 &convert=MmProtectionReset($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     account: uint32;
     sender_location: bytes &size=10;
     entering_trader: bytes &size=5;
@@ -247,7 +247,7 @@ type NewOrderSingleMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
     mm_protection_reset: uint8 &convert=MmProtectionReset($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     account: uint32;
     sender_location: bytes &size=10;
     entering_trader: bytes &size=5;
@@ -286,7 +286,7 @@ type OrderCancelReplaceRequestMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     ordtagid: uint8;
     mm_protection_reset: uint8 &convert=MmProtectionReset($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     account: uint32;
     sender_location: bytes &size=10;
     entering_trader: bytes &size=5;
@@ -315,7 +315,7 @@ type OrderCancelReplaceRequestMessage = unit {
 type OrderCancelRequestMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     : skip bytes &size=2;   # padding
-    clordid: uint64;
+    cl_ord_id: uint64;
     security_id: uint64;
     order_id_optional: uint64;
     origclordid: uint64;
@@ -332,7 +332,7 @@ type OrderCancelRequestMessage = unit {
 type NewOrderCrossMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     : skip bytes &size=2;   # padding
-    crossid: uint64;
+    cross_id: uint64;
     sender_location: bytes &size=10;
     entering_trader: bytes &size=5;
     executing_trader_optional: bytes &size=5;
@@ -360,14 +360,14 @@ type CrossSidesGroup = unit {
     : skip bytes &size=1;   # padding
     account: uint32;
     entering_firm_optional: uint32;
-    clordid: uint64;
+    cl_ord_id: uint64;
 };
 
 type ExecutionReportNewMessage = unit {
     outbound_business_header: OutboundBusinessHeader;
     side: uint8 &convert=Side($$);
     ord_status: uint8 &convert=OrdStatus($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     secondary_order_id: uint64;
     security_id: uint64;
     order_id: uint64;
@@ -387,7 +387,7 @@ type ExecutionReportNewMessage = unit {
     stop_px: int64;
     min_qty: uint64;
     max_floor: uint64;
-    crossid_optional: uint64;
+    cross_id_optional: uint64;
     desk_id: DeskId;
     memo: Memo;
 };
@@ -404,7 +404,7 @@ type ExecutionReportModifyMessage = unit {
     outbound_business_header: OutboundBusinessHeader;
     side: uint8 &convert=Side($$);
     ord_status: uint8 &convert=OrdStatus($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     secondary_order_id: uint64;
     security_id: uint64;
     leaves_qty: uint64;
@@ -435,7 +435,7 @@ type ExecutionReportCancelMessage = unit {
     outbound_business_header: OutboundBusinessHeader;
     side: uint8 &convert=Side($$);
     ord_status: uint8 &convert=OrdStatus($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     secondary_order_id: uint64;
     security_id: uint64;
     cum_qty: uint64;
@@ -466,7 +466,7 @@ type ExecutionReportTradeMessage = unit {
     outbound_business_header: OutboundBusinessHeader;
     side: uint8 &convert=Side($$);
     ord_status: uint8 &convert=OrdStatus($$);
-    clordid_optional: uint64;
+    cl_ord_id_optional: uint64;
     secondary_order_id: uint64;
     security_id: uint64;
     account: uint32;
@@ -488,7 +488,7 @@ type ExecutionReportTradeMessage = unit {
     : skip bytes &size=1;   # padding
     secondary_exec_id: uint64;
     exec_ref_id: uint64;
-    crossid_optional: uint64;
+    cross_id_optional: uint64;
     crossed_indicator: uint16 &convert=CrossedIndicator($$);
     order_qty: uint64;
     desk_id: DeskId;
@@ -499,7 +499,7 @@ type ExecutionReportRejectMessage = unit {
     outbound_business_header: OutboundBusinessHeader;
     side: uint8 &convert=Side($$);
     cxl_rej_response_to: uint8 &convert=CxlRejResponseTo($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     secondary_order_id_optional: uint64;
     security_id: uint64;
     ord_rej_reason: uint32 &convert=OrdRejReason($$);
@@ -516,7 +516,7 @@ type ExecutionReportRejectMessage = unit {
     stop_px: int64;
     min_qty: uint64;
     max_floor: uint64;
-    crossid_optional: uint64;
+    cross_id_optional: uint64;
     crossed_indicator: uint16 &convert=CrossedIndicator($$);
     desk_id: DeskId;
     memo: Memo;
@@ -532,7 +532,7 @@ type ExecutionReportForwardMessage = unit {
     outbound_business_header: OutboundBusinessHeader;
     side: uint8 &convert=Side($$);
     ord_status: uint8 &convert=OrdStatus($$);
-    clordid_optional: uint64;
+    cl_ord_id_optional: uint64;
     secondary_order_id: uint64;
     security_id: uint64;
     account: uint32;
@@ -834,7 +834,7 @@ type OrderMassActionRequestMessage = unit {
     inbound_business_header: InboundBusinessHeader;
     mass_action_type: uint8 &convert=MassActionType($$);
     mass_action_scope: uint8 &convert=MassActionScope($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     mass_cancel_restatement_reason: uint8 &convert=MassCancelRestatementReason($$);
     ordtagid: uint8;
     side_optional: uint8 &convert=SideOptional($$);
@@ -849,7 +849,7 @@ type OrderMassActionReportMessage = unit {
     outbound_business_header: OutboundBusinessHeader;
     mass_action_type: uint8 &convert=MassActionType($$);
     mass_action_scope: uint8 &convert=MassActionScope($$);
-    clordid: uint64;
+    cl_ord_id: uint64;
     mass_action_report_id: uint64;
     transact_time: uint64 &convert=time_ns($$);
     mass_action_response: uint8 &convert=MassActionResponse($$);

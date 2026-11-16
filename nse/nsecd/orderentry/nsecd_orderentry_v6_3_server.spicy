@@ -83,7 +83,7 @@ type ServerMessage = unit {
 
 type MessageHeader = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     alpha_char: bytes &size=2;
     trader_id: int32;
     error_code: int16;
@@ -174,7 +174,7 @@ type PartialSystemInformationMessage = unit {
 
 type OpenOrderReportMessage = unit {
     message_type: bytes &size=1;
-    report_date: int32;
+    report_date: int32 &convert=time($$ + 315532800);
     user_type: int16;
     broker_id: bytes &size=5;
     firm_name: bytes &size=25;
@@ -185,7 +185,7 @@ type OpenOrderReportMessage = unit {
 
 type SpreadOrderLogReportMessage = unit {
     message_type: bytes &size=1;
-    report_date: int32;
+    report_date: int32 &convert=time($$ + 315532800);
     user_type: int16;
     broker_id: bytes &size=5;
     firm_name: bytes &size=25;
@@ -196,7 +196,7 @@ type SpreadOrderLogReportMessage = unit {
 
 type SpreadTradeReportMessage = unit {
     message_type: bytes &size=1;
-    report_date: int32;
+    report_date: int32 &convert=time($$ + 315532800);
     user_type: int16;
     broker_id: bytes &size=5;
     firm_name: bytes &size=25;
@@ -222,7 +222,7 @@ type BoardLotOutMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -233,8 +233,8 @@ type BoardLotOutMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -271,7 +271,7 @@ type BoardLotOutMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -283,7 +283,7 @@ type BoardLotOutMessage = unit {
 type ContractDesc = unit {
     instrument_name: bytes &size=6;
     symbol: bytes &size=10;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
@@ -306,7 +306,7 @@ type NegOrderToBlMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -317,8 +317,8 @@ type NegOrderToBlMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -355,7 +355,7 @@ type NegOrderToBlMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -381,7 +381,7 @@ type OrderModOutMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -392,8 +392,8 @@ type OrderModOutMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -430,7 +430,7 @@ type OrderModOutMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -456,7 +456,7 @@ type OrderModRejectMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -467,8 +467,8 @@ type OrderModRejectMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -505,7 +505,7 @@ type OrderModRejectMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -531,7 +531,7 @@ type OrderCancelOutMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -542,8 +542,8 @@ type OrderCancelOutMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -580,7 +580,7 @@ type OrderCancelOutMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -606,7 +606,7 @@ type OrderCancelRejectMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -617,8 +617,8 @@ type OrderCancelRejectMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -655,7 +655,7 @@ type OrderCancelRejectMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -681,7 +681,7 @@ type OrderConfirmationMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -692,8 +692,8 @@ type OrderConfirmationMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -730,7 +730,7 @@ type OrderConfirmationMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -756,7 +756,7 @@ type OrderModConfirmationMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -767,8 +767,8 @@ type OrderModConfirmationMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -805,7 +805,7 @@ type OrderModConfirmationMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -831,7 +831,7 @@ type OrderCancelConfirmationMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -842,8 +842,8 @@ type OrderCancelConfirmationMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -880,7 +880,7 @@ type OrderCancelConfirmationMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -906,7 +906,7 @@ type CancelNegOrderMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -917,8 +917,8 @@ type CancelNegOrderMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -955,7 +955,7 @@ type CancelNegOrderMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -981,7 +981,7 @@ type FreezeToControlMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -992,8 +992,8 @@ type FreezeToControlMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -1030,7 +1030,7 @@ type FreezeToControlMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1056,7 +1056,7 @@ type OrderErrorMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -1067,8 +1067,8 @@ type OrderErrorMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -1105,7 +1105,7 @@ type OrderErrorMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1131,7 +1131,7 @@ type BatchOrderCancelMessage = unit {
     closeout_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
     order_type: int16;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type_short_2: int16;
     buy_sell_indicator: int16;
@@ -1142,8 +1142,8 @@ type BatchOrderCancelMessage = unit {
     volume_filled_today: int32;
     price: int32;
     trigger_price: int32;
-    good_till_date: int32;
-    entry_date_time: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
     minimum_fill_aon_volume: int32;
     last_modified: int32;
     st_order_flags: bitfield(16) {
@@ -1180,7 +1180,7 @@ type BatchOrderCancelMessage = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     reference: bytes &size=4;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1206,7 +1206,7 @@ type SpBoardLotOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1217,8 +1217,8 @@ type SpBoardLotOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1257,7 +1257,7 @@ type SpBoardLotOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1374,7 +1374,7 @@ type TwolBoardLotOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1385,8 +1385,8 @@ type TwolBoardLotOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1425,7 +1425,7 @@ type TwolBoardLotOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1454,7 +1454,7 @@ type ThrlBoardLotOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1465,8 +1465,8 @@ type ThrlBoardLotOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1505,7 +1505,7 @@ type ThrlBoardLotOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1534,7 +1534,7 @@ type SpOrderCancelOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1545,8 +1545,8 @@ type SpOrderCancelOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1585,7 +1585,7 @@ type SpOrderCancelOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1614,7 +1614,7 @@ type SpOrderModOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1625,8 +1625,8 @@ type SpOrderModOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1665,7 +1665,7 @@ type SpOrderModOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1694,7 +1694,7 @@ type SpOrderConfirmationMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1705,8 +1705,8 @@ type SpOrderConfirmationMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1745,7 +1745,7 @@ type SpOrderConfirmationMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1774,7 +1774,7 @@ type TwolOrderConfirmationMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1785,8 +1785,8 @@ type TwolOrderConfirmationMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1825,7 +1825,7 @@ type TwolOrderConfirmationMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1854,7 +1854,7 @@ type ThrlOrderConfirmationMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1865,8 +1865,8 @@ type ThrlOrderConfirmationMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1905,7 +1905,7 @@ type ThrlOrderConfirmationMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -1934,7 +1934,7 @@ type SpOrderCxlRejOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -1945,8 +1945,8 @@ type SpOrderCxlRejOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -1985,7 +1985,7 @@ type SpOrderCxlRejOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2014,7 +2014,7 @@ type SpOrderCxlConfirmationMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -2025,8 +2025,8 @@ type SpOrderCxlConfirmationMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -2065,7 +2065,7 @@ type SpOrderCxlConfirmationMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2094,7 +2094,7 @@ type TwolOrderCxlConfirmatiMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -2105,8 +2105,8 @@ type TwolOrderCxlConfirmatiMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -2145,7 +2145,7 @@ type TwolOrderCxlConfirmatiMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2174,7 +2174,7 @@ type ThrlOrderCxlConfirmatiMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -2185,8 +2185,8 @@ type ThrlOrderCxlConfirmatiMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -2225,7 +2225,7 @@ type ThrlOrderCxlConfirmatiMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2254,7 +2254,7 @@ type SpOrderModRejOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -2265,8 +2265,8 @@ type SpOrderModRejOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -2305,7 +2305,7 @@ type SpOrderModRejOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2334,7 +2334,7 @@ type SpOrderModConOutMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -2345,8 +2345,8 @@ type SpOrderModConOutMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -2385,7 +2385,7 @@ type SpOrderModConOutMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2414,7 +2414,7 @@ type TwolOrderErrorMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -2425,8 +2425,8 @@ type TwolOrderErrorMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -2465,7 +2465,7 @@ type TwolOrderErrorMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2494,7 +2494,7 @@ type ThrlOrderErrorMessage = unit {
     filler_options_1: bytes &size=3;
     fillery_1: bytes &size=1;
     order_type_1: int16;
-    order_number_1: bytes &size=8;
+    order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
     book_type_1: int16;
     buy_sell_1: int16;
@@ -2505,8 +2505,8 @@ type ThrlOrderErrorMessage = unit {
     volume_filled_today_1: int32;
     price_1: int32;
     trigger_price_1: int32;
-    good_till_date_1: int32;
-    entry_date_time_1: int32;
+    good_till_date_1: int32 &convert=time($$ + 315532800);
+    entry_date_time_1: int32 &convert=time($$ + 315532800);
     min_fill_aon_1: int32;
     last_modified_1: int32;
     st_order_flags: bitfield(16) {
@@ -2545,7 +2545,7 @@ type ThrlOrderErrorMessage = unit {
     : skip bytes &size=2;   # padding
     filler_17: bytes &size=1;
     filler_18: bytes &size=1;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
     algo_id: int32;
@@ -2558,7 +2558,7 @@ type ThrlOrderErrorMessage = unit {
 };
 
 type OnStopNotificationMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_number: int32;
@@ -2585,14 +2585,14 @@ type OnStopNotificationMessage = unit {
         market: 14;
         ato: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    good_till_date: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
     fill_number: int32;
     fill_quantity: int32;
     fill_price: int32;
     volume_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    counter_trader_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    counter_trader_order_number: real &type=spicy::RealType::IEEE754_Double;
     counter_broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     token: int32;
@@ -2625,7 +2625,7 @@ type OnStopNotificationMessage = unit {
 };
 
 type TradeConfirmationMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_number: int32;
@@ -2652,14 +2652,14 @@ type TradeConfirmationMessage = unit {
         market: 14;
         ato: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    good_till_date: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
     fill_number: int32;
     fill_quantity: int32;
     fill_price: int32;
     volume_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    counter_trader_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    counter_trader_order_number: real &type=spicy::RealType::IEEE754_Double;
     counter_broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     token: int32;
@@ -2692,7 +2692,7 @@ type TradeConfirmationMessage = unit {
 };
 
 type TradeCancelConfirmMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_number: int32;
@@ -2719,14 +2719,14 @@ type TradeCancelConfirmMessage = unit {
         market: 14;
         ato: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    good_till_date: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
     fill_number: int32;
     fill_quantity: int32;
     fill_price: int32;
     volume_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    counter_trader_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    counter_trader_order_number: real &type=spicy::RealType::IEEE754_Double;
     counter_broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     token: int32;
@@ -2759,7 +2759,7 @@ type TradeCancelConfirmMessage = unit {
 };
 
 type TradeCancelRejectMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_number: int32;
@@ -2786,14 +2786,14 @@ type TradeCancelRejectMessage = unit {
         market: 14;
         ato: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    good_till_date: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
     fill_number: int32;
     fill_quantity: int32;
     fill_price: int32;
     volume_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    counter_trader_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    counter_trader_order_number: real &type=spicy::RealType::IEEE754_Double;
     counter_broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     token: int32;
@@ -2826,7 +2826,7 @@ type TradeCancelRejectMessage = unit {
 };
 
 type TradeModifyRejectMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_number: int32;
@@ -2853,14 +2853,14 @@ type TradeModifyRejectMessage = unit {
         market: 14;
         ato: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    good_till_date: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
     fill_number: int32;
     fill_quantity: int32;
     fill_price: int32;
     volume_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    counter_trader_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    counter_trader_order_number: real &type=spicy::RealType::IEEE754_Double;
     counter_broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     token: int32;
@@ -2941,7 +2941,7 @@ type TradeCancelOutMessage = unit {
 };
 
 type TradeModifyConfirmMessage = unit {
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     trader_number: int32;
@@ -2968,14 +2968,14 @@ type TradeModifyConfirmMessage = unit {
         market: 14;
         ato: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    good_till_date: int32;
+    good_till_date: int32 &convert=time($$ + 315532800);
     fill_number: int32;
     fill_quantity: int32;
     fill_price: int32;
     volume_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
-    counter_trader_order_number: bytes &size=8;
+    activity_time: int32 &convert=time($$ + 315532800);
+    counter_trader_order_number: real &type=spicy::RealType::IEEE754_Double;
     counter_broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     token: int32;
@@ -3014,17 +3014,17 @@ type SignOnRequestOutMessage = unit {
     : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
-    last_password_change_date: int32;
+    last_password_change_date: int32 &convert=time($$ + 315532800);
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
-    batch_2_start_time: int32;
+    batch_2_start_time: int32 &convert=time($$ + 315532800);
     host_switch_context: bytes &size=1;
     colour: bytes &size=50;
     : skip bytes &size=1;   # padding
     user_type: int16;
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
     ws_class_name: bytes &size=14;
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
@@ -3050,17 +3050,17 @@ type SignOffTraderOutMessage = unit {
     : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
-    last_password_change_date: int32;
+    last_password_change_date: int32 &convert=time($$ + 315532800);
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
-    batch_2_start_time: int32;
+    batch_2_start_time: int32 &convert=time($$ + 315532800);
     host_switch_context: bytes &size=1;
     colour: bytes &size=50;
     : skip bytes &size=1;   # padding
     user_type: int16;
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
     ws_class_name: bytes &size=14;
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
@@ -3102,11 +3102,11 @@ type GiveupAppConfirmTmMessage = unit {
 };
 
 type Giveup = unit {
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     fill_number: int32;
     instrument_name: bytes &size=6;
     symbol: bytes &size=10;
-    expiry_date: int32;
+    expiry_date: int32 &convert=time($$ + 315532800);
     strike_price: int32;
     option_type: bytes &size=2;
     ca_level: int16;
@@ -3116,7 +3116,7 @@ type Giveup = unit {
     filler: bytes &size=1;
     buy_sell: int16;
     book_type_short_2: int16;
-    last_modified_date_time: int32;
+    last_modified_date_time: int32 &convert=time($$ + 315532800);
     initiated_by_control: bytes &size=1;
     open_close: bytes &size=1;
     : skip bytes &size=1;   # padding
@@ -3155,14 +3155,14 @@ type BranchOrdValLimitUpdaMessage = unit {
 };
 
 type BranchLimits1 = unit {
-    branch_buy_value_limit: bytes &size=8;
-    branch_sell_value_limit: bytes &size=8;
+    branch_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=16;   # padding
 };
 
 type BranchLimits2 = unit {
-    branch_buy_value_limit: bytes &size=8;
-    branch_sell_value_limit: bytes &size=8;
+    branch_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=16;   # padding
 };
 
@@ -3177,21 +3177,21 @@ type UserOrderLimitUpdateOutMessage = unit {
 };
 
 type InstrumentUser = unit {
-    branch_buy_value_limit: bytes &size=8;
-    branch_sell_value_limit: bytes &size=8;
-    branch_used_buy_value_limit: bytes &size=8;
-    branch_used_sell_value_limit: bytes &size=8;
-    user_order_buy_value_limit: bytes &size=8;
-    user_order_sell_value_limit: bytes &size=8;
-    user_order_used_buy_value_limit: bytes &size=8;
-    user_order_used_sell_value_limit: bytes &size=8;
+    branch_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_used_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    branch_used_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_used_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
+    user_order_used_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type DealerLimitUpdateOutMessage = unit {
     broker_id: bytes &size=5;
     user_id: int32;
-    ord_qty_buff: bytes &size=8;
-    ord_val_buff: bytes &size=8;
+    ord_qty_buff: real &type=spicy::RealType::IEEE754_Double;
+    ord_val_buff: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=1;   # padding
 };
 
@@ -3209,8 +3209,8 @@ type ColUserStatusChangeOutMessage = unit {
 type SpdOrdLimitUpdateOutMessage = unit {
     broker_id: bytes &size=5;
     user_id: int32;
-    spd_ord_qty_buff: bytes &size=8;
-    spd_ord_val_buff: bytes &size=8;
+    spd_ord_qty_buff: real &type=spicy::RealType::IEEE754_Double;
+    spd_ord_val_buff: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=1;   # padding
 };
 

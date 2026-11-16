@@ -7,7 +7,9 @@ import spicy;
 %byte-order = spicy::ByteOrder::Little;
 
 public type ArcaoptionsBinarygatewayV327 = unit {
-    switch ( self.client_message.login_message.msg_header.msg_type ) {
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_msg_type: uint16 &parse-at=(self.input() + self.offset()) &convert=MsgType($$);
+    switch ( self.next_msg_type ) {
         MsgType::Login -> login_message: LoginMessage;
         MsgType::Heartbeat -> heartbeat: Heartbeat;
         MsgType::Open -> open: Open;
@@ -103,29 +105,7 @@ type NewOrderMessage = unit {
     mp_sub_id: bytes &size=4;
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
-    bitfield_order_instructions: bitfield(128) {
-        unused_34: 0..33;
-        security_type: 34..38;
-        customer_or_firm: 39..43;
-        open_close_bits: 44..45;
-        sub_id_indicator: 46..50;
-        special_ord_type: 51..55;
-        locate_reqd_bits: 56..57;
-        retail_indicator: 58..62;
-        attributed_quote: 63..67;
-        order_capacity: 68..72;
-        interest_type: 73..77;
-        trading_session_id: 78..82;
-        time_in_force: 83..87;
-        proactive_if_locked: 88..92;
-        self_trade_type_bits: 93..97;
-        cancel_instead_of_reprice: 98..102;
-        routing_inst: 103..107;
-        extended_exec_inst: 108..112;
-        exec_inst: 113..117;
-        ord_type: 118..122;
-        side_bits: 123..127;
-    } &byte-order=spicy::ByteOrder::Little;
+    bitfield_order_instructions: bytes &size=16;
     price: int64;
     order_qty: uint32;
     min_qty: uint32;
@@ -222,29 +202,7 @@ type Exposed = unit {
     mp_sub_id: bytes &size=4;
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
-    bitfield_order_instructions: bitfield(128) {
-        unused_34: 0..33;
-        security_type: 34..38;
-        customer_or_firm: 39..43;
-        open_close_bits: 44..45;
-        sub_id_indicator: 46..50;
-        special_ord_type: 51..55;
-        locate_reqd_bits: 56..57;
-        retail_indicator: 58..62;
-        attributed_quote: 63..67;
-        order_capacity: 68..72;
-        interest_type: 73..77;
-        trading_session_id: 78..82;
-        time_in_force: 83..87;
-        proactive_if_locked: 88..92;
-        self_trade_type_bits: 93..97;
-        cancel_instead_of_reprice: 98..102;
-        routing_inst: 103..107;
-        extended_exec_inst: 108..112;
-        exec_inst: 113..117;
-        ord_type: 118..122;
-        side_bits: 123..127;
-    } &byte-order=spicy::ByteOrder::Little;
+    bitfield_order_instructions: bytes &size=16;
     price: int64;
     order_qty: uint32;
     min_qty: uint32;
@@ -262,29 +220,7 @@ type Covered = unit {
     mp_sub_id: bytes &size=4;
     cl_ord_id: uint64;
     orig_cl_ord_id: uint64;
-    bitfield_order_instructions: bitfield(128) {
-        unused_34: 0..33;
-        security_type: 34..38;
-        customer_or_firm: 39..43;
-        open_close_bits: 44..45;
-        sub_id_indicator: 46..50;
-        special_ord_type: 51..55;
-        locate_reqd_bits: 56..57;
-        retail_indicator: 58..62;
-        attributed_quote: 63..67;
-        order_capacity: 68..72;
-        interest_type: 73..77;
-        trading_session_id: 78..82;
-        time_in_force: 83..87;
-        proactive_if_locked: 88..92;
-        self_trade_type_bits: 93..97;
-        cancel_instead_of_reprice: 98..102;
-        routing_inst: 103..107;
-        extended_exec_inst: 108..112;
-        exec_inst: 113..117;
-        ord_type: 118..122;
-        side_bits: 123..127;
-    } &byte-order=spicy::ByteOrder::Little;
+    bitfield_order_instructions: bytes &size=16;
     price: int64;
     order_qty: uint32;
     min_qty: uint32;

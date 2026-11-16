@@ -13,7 +13,7 @@ public type NsecmBroadcastV66 = unit {
 type BcastPackData = unit {
     net_id: bytes &size=2;
     number_of_packets: int16;
-    packed_packet: PackedPacket[self.number_of_packets];
+    packed_packet: PackedPacket[cast<uint64>(self.number_of_packets)];
 };
 
 type PackedPacket = unit {
@@ -99,35 +99,35 @@ type SecurityMasterChangeMessage = unit {
     sec_info: SecInfo;
     instrument_type: int16 &convert=InstrumentType($$);
     permitted_to_trade: int16 &convert=PermittedToTrade($$);
-    issued_capital: bytes &size=8;
+    issued_capital: real &type=spicy::RealType::IEEE754_Double;
     settlement_type: int16 &convert=SettlementType($$);
     freeze_percent: int16;
     credit_rating: bytes &size=19;
     : skip bytes &size=1;   # padding
     security_eligibility_per_market: SecurityEligibilityPerMarket[6];
     surv_ind: int16;
-    issue_start_date: int32;
-    interest_payment_date: int32;
-    issue_maturity_date: int32;
+    issue_start_date: int32 &convert=time($$ + 315532800);
+    interest_payment_date: int32 &convert=time($$ + 315532800);
+    issue_maturity_date: int32 &convert=time($$ + 315532800);
     board_lot_quantity: int32;
     tick_size: int32;
     name: bytes &size=25;
     : skip bytes &size=1;   # padding
-    listing_date: int32;
-    expulsion_date: int32;
-    re_admission_date: int32;
-    record_date: int32;
-    expiry_date: int32;
-    no_delivery_start_date: int32;
-    no_delivery_end_date: int32;
+    listing_date: int32 &convert=time($$ + 315532800);
+    expulsion_date: int32 &convert=time($$ + 315532800);
+    re_admission_date: int32 &convert=time($$ + 315532800);
+    record_date: int32 &convert=time($$ + 315532800);
+    expiry_date: int32 &convert=time($$ + 315532800);
+    no_delivery_start_date: int32 &convert=time($$ + 315532800);
+    no_delivery_end_date: int32 &convert=time($$ + 315532800);
     eligiblity_indicators: bitfield(16) {
         reserved_113: 0..12;
         minimum_fill: 13;
         aon: 14;
         participate_in_market_index: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    book_closure_start_date: int32;
-    book_closure_end_date: int32;
+    book_closure_start_date: int32 &convert=time($$ + 315532800);
+    book_closure_end_date: int32 &convert=time($$ + 315532800);
     purpose: bitfield(16) {
         reserved_110: 0..9;
         egm: 10;
@@ -137,7 +137,7 @@ type SecurityMasterChangeMessage = unit {
         rights: 14;
         dividend: 15;
     } &byte-order=spicy::ByteOrder::Big;
-    local_update_date_time: int32;
+    local_update_date_time: int32 &convert=time($$ + 315532800);
     delete_flag: bytes &size=1;
     remark: bytes &size=25;
     face_value: int32;
@@ -165,7 +165,7 @@ type ParticipantMasterChangeMessage = unit {
     participant_id: bytes &size=12;
     participant_name: bytes &size=25;
     participant_status: uint8 &convert=ParticipantStatus($$);
-    participant_update_date_time: int32;
+    participant_update_date_time: int32 &convert=time($$ + 315532800);
     delete_flag: bytes &size=1;
     : skip bytes &size=1;   # padding
 };
@@ -425,7 +425,7 @@ type InteractiveMboData = unit {
     filler_1: bytes &size=1;
     net_price_change_from_closing_price: int32;
     last_trade_quantity: int32;
-    last_trade_time: int32;
+    last_trade_time: int32 &convert=time($$ + 315532800);
     average_trade_price: int32;
     auction_number: int16;
     auction_status_short_2: int16;
@@ -471,7 +471,7 @@ type InteractiveOnlyMbpData = unit {
     filler_1: bytes &size=1;
     net_price_change_from_closing_price: int32;
     last_trade_quantity: int32;
-    last_trade_time: int32;
+    last_trade_time: int32 &convert=time($$ + 315532800);
     average_trade_price: int32;
     : skip bytes &size=14;   # padding
     indicative_imbalance_qty: int64;
@@ -517,7 +517,7 @@ type MarketWiseInformation = unit {
     sell_volume: int64;
     sell_price: int32;
     last_trade_price: int32;
-    last_trade_time: int32;
+    last_trade_time: int32 &convert=time($$ + 315532800);
 };
 
 type CallAuctionMarketByPriceMessage = unit {
@@ -536,7 +536,7 @@ type InteractiveCallAuctionMbpData = unit {
     filler_1: bytes &size=1;
     net_price_change_from_closing_price: int32;
     last_trade_quantity: int32;
-    last_trade_time: int32;
+    last_trade_time: int32 &convert=time($$ + 315532800);
     average_trade_price: int32;
     first_open_price: int32;
     mbp_information: MbpInformation[10];
@@ -577,7 +577,7 @@ type CaMarketwatchbroadcast = unit {
     sell_volume: int64;
     sell_price: int32;
     last_trade_price: int32;
-    last_trade_time: int32;
+    last_trade_time: int32 &convert=time($$ + 315532800);
 };
 
 type SecurityOpenPriceMessage = unit {
@@ -603,7 +603,7 @@ type Indices = unit {
     yearly_low: int32;
     no_of_upmoves: int32;
     no_of_downmoves: int32;
-    market_capitalisation: bytes &size=8;
+    market_capitalisation: real &type=spicy::RealType::IEEE754_Double;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
     filler_1: bytes &size=1;
 };
@@ -625,7 +625,7 @@ type IndicativeIndices = unit {
     : skip bytes &size=4;   # padding
     change: int32;
     : skip bytes &size=4;   # padding
-    market_capitalization: bytes &size=8;
+    market_capitalization: real &type=spicy::RealType::IEEE754_Double;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
     filler_1: bytes &size=1;
 };
@@ -654,16 +654,16 @@ type Buybackdata = unit {
     token_long_4: int32;
     symbol: bytes &size=10;
     series: bytes &size=2;
-    pday_cum_vol: bytes &size=8;
+    pday_cum_vol: real &type=spicy::RealType::IEEE754_Double;
     pday_high_price: int32;
     pday_low_price: int32;
     pday_wt_avg: int32;
-    cday_cum_vol: bytes &size=8;
+    cday_cum_vol: real &type=spicy::RealType::IEEE754_Double;
     cday_high_price: int32;
     cday_low_price: int32;
     cday_wt_avg: int32;
-    start_date: int32;
-    end_date: int32;
+    start_date: int32 &convert=time($$ + 315532800);
+    end_date: int32 &convert=time($$ + 315532800);
 };
 
 type CallAuctionOrderCancelUpdateMessage = unit {

@@ -148,7 +148,7 @@ type SecurityDefinitionReportStrategyMessage = unit {
     security_trading_status: uint8 &convert=SecurityTradingStatus($$);
     security_sub_type: int16;
     exchange_silo: uint8 &convert=ExchangeSilo($$);
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     leg_deals_suppressed: uint8 &convert=LegDealsSuppressed($$);
     increment_price: int64;
     increment_qty: int64;
@@ -637,7 +637,7 @@ type NewOrderCrossRequestMessage = unit {
     bench_mark_price_type: uint8 &convert=BenchMarkPriceType($$);
     time_in_force: uint8 &convert=TimeInForce($$);
     transact_details: bytes &size=100;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     new_order_cross_request_message_no_sides_groups: NewOrderCrossRequestMessageNoSidesGroups;
     new_order_cross_request_message_no_legs_groups: NewOrderCrossRequestMessageNoLegsGroups;
 };
@@ -803,8 +803,8 @@ type ExecutionReportNewMessage = unit {
     orig_order_id: OrigOrderId;
     leaves_qty: int64;
     price_optional: int64;
-    me_acceptance_time: uint64;
-    time_priority: uint64;
+    me_acceptance_time: uint64 &convert=time_ns($$);
+    time_priority: uint64 &convert=time_ns($$);
     order_status: uint8 &convert=OrderStatus($$);
     memo: bytes &size=30;
 };
@@ -812,7 +812,7 @@ type ExecutionReportNewMessage = unit {
 type ExecIDOrderExecId = unit {
     system_id: int64;
     system_sequence_id: int32;
-    transact_time_utc_timestamp: uint64;
+    transact_time_utc_timestamp: uint64 &convert=time_ns($$);
 };
 
 type OrigOrderId = unit {
@@ -832,8 +832,8 @@ type ExecutionReportModifyMessage = unit {
     leaves_qty: int64;
     cum_qty: int64;
     price_optional: int64;
-    me_acceptance_time: uint64;
-    time_priority: uint64;
+    me_acceptance_time: uint64 &convert=time_ns($$);
+    time_priority: uint64 &convert=time_ns($$);
     exec_type: uint8 &convert=ExecType($$);
     order_status: uint8 &convert=OrderStatus($$);
     order_state: uint8 &convert=OrderState($$);
@@ -860,7 +860,7 @@ type ExecutionReportCancelMessage = unit {
     side: uint8 &convert=Side($$);
     orig_order_id: OrigOrderId;
     orig_cl_ord_i_d_optional: int64;
-    me_acceptance_time: uint64;
+    me_acceptance_time: uint64 &convert=time_ns($$);
     exchange_code: int32;
     cancel_reason: uint8 &convert=CancelReason($$);
     cross_i_d_optional: int64;
@@ -898,7 +898,7 @@ type ExecutionReportSnapshotMessage = unit {
     price_optional: int64;
     stop_px: int64;
     expire_date: uint16;
-    time_priority: uint64;
+    time_priority: uint64 &convert=time_ns($$);
     time_in_force: uint8 &convert=TimeInForce($$);
     order_status: uint8 &convert=OrderStatus($$);
     order_state: uint8 &convert=OrderState($$);
@@ -941,7 +941,7 @@ type ExecutionReportTradeMessage = unit {
     cum_qty: int64;
     last_px: int64;
     last_shares: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     num_of_lots: int64;
     exec_type: uint8 &convert=ExecType($$);
     trade_flags: bitfield(8) {
@@ -962,8 +962,8 @@ type ExecutionReportTradeMessage = unit {
     secondary_exec_id: int64;
     link_exec_id: int64;
     last_par_px: int64;
-    delivery_start_date: uint64;
-    delivery_end_date: uint64;
+    delivery_start_date: uint64 &convert=time_ns($$);
+    delivery_end_date: uint64 &convert=time_ns($$);
     cross_i_d_optional: int64;
     cross_type_optional: uint8 &convert=CrossTypeOptional($$);
     waiver_indicator: uint8 &convert=WaiverIndicator($$);
@@ -976,7 +976,7 @@ type QuoteReportMessage = unit {
     symbol: int32;
     rfq_req_id: int64;
     rfq_system_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     order_qty_optional: int64;
     quote_ack_status: uint16 &convert=QuoteAckStatus($$);
     quote_reject_reason: uint8 &convert=QuoteRejectReason($$);
@@ -986,7 +986,7 @@ type NewOrderCrossReportMessage = unit {
     originator_user_id: bytes &size=20;
     symbol: int32;
     cross_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     rfc_status: uint8 &convert=RfcStatus($$);
     exchange_code: int32;
     text: bytes &size=100;
@@ -996,7 +996,7 @@ type OrderMassCancelReportMessage = unit {
     originator_user_id: bytes &size=20;
     symbol_optional: int32;
     cl_ord_id: int64;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     market_type_i_d_optional: int32;
     mass_cancel_request_type: uint8 &convert=MassCancelRequestType($$);
     mass_cancel_response: uint8 &convert=MassCancelResponse($$);
@@ -1011,8 +1011,8 @@ type MassQuoteReportMessage = unit {
     risk_protection_reset: uint8 &convert=RiskProtectionReset($$);
     quote_ack_status: uint16 &convert=QuoteAckStatus($$);
     quote_reject_reason: uint8 &convert=QuoteRejectReason($$);
-    transact_time_optional: uint64;
-    me_acceptance_time_optional: uint64;
+    transact_time_optional: uint64 &convert=time_ns($$);
+    me_acceptance_time_optional: uint64 &convert=time_ns($$);
     exchange_code: int32;
     text: bytes &size=100;
     mass_quote_report_message_no_quote_sets_groups: MassQuoteReportMessageNoQuoteSetsGroups;

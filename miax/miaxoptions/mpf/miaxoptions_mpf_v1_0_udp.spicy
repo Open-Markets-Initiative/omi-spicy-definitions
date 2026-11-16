@@ -1,0 +1,55 @@
+# License: MIT No Attribution
+
+module MiaxMiaxoptionsMpfMachV10Udp;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type MiaxoptionsMpfV10 = unit {
+    mach_message: MachMessage[] &eod;
+};
+
+type MachMessage = unit {
+    mach_packet_header: MachPacketHeader;
+    payload: ApplicationMessage;
+};
+
+type MachPacketHeader = unit {
+    sequence_number: uint64;
+    packet_length: uint16;
+    packet_type: uint8 &convert=PacketType($$);
+    session_number: uint8;
+};
+
+type ApplicationMessage = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::SystemTimeMessage -> system_time_message: SystemTimeMessage;
+        MessageType::IndexValueMessage -> index_value_message: IndexValueMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SystemTimeMessage = unit {
+    seconds: uint32 &convert=time($$);
+};
+
+type IndexValueMessage = unit {
+    nanoseconds: uint32 &convert=interval_ns($$);
+    symbol: bytes &size=5;
+    value: uint32;
+};
+
+type PacketType = enum {
+    Heartbeat = 0,
+    StartOfSession = 1,
+    EndOfSession = 2,
+    ApplicationMessage = 3,
+};
+
+type MessageType = enum {
+    SystemTimeMessage = 0x31,
+    IndexValueMessage = 0x49,
+};
+

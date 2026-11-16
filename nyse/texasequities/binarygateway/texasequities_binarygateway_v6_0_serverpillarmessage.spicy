@@ -7,7 +7,9 @@ import spicy;
 %byte-order = spicy::ByteOrder::Little;
 
 public type TexasequitiesBinarygatewayV60 = unit {
-    switch ( self.server_message.login_response.msg_header.msg_type ) {
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_msg_type: uint16 &parse-at=(self.input() + self.offset()) &convert=MsgType($$);
+    switch ( self.next_msg_type ) {
         MsgType::LoginResponse -> login_response: LoginResponse;
         MsgType::StreamAvail -> stream_avail: StreamAvail;
         MsgType::Heartbeat -> heartbeat: Heartbeat;

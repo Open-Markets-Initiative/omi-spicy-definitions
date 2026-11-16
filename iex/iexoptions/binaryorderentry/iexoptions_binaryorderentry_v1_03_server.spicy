@@ -113,7 +113,7 @@ type ServerBusinessMessage = unit(template_id: TemplateId) {
 
 type OrderAckMessage = unit {
     account_account_optional: bytes &size=16;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -136,7 +136,7 @@ type OrderAckMessage = unit {
     aiq: bytes &size=3;
     side: int8 &convert=Side($$);
     price_price_8_optional: int64;
-    order_qty_quantity_non_zero: uint32;
+    order_qty: uint32;
     leaves_qty: uint32;
     effective_limit_price: int64;
     display_price: int64;
@@ -146,13 +146,13 @@ type OrderAckMessage = unit {
 };
 
 type UnsolicitedModifyAckMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     market_participant_id: bytes &size=4;
     orig_cl_ord_id: uint64;
     order_id: uint64;
     price_price_8: int64;
-    order_qty_quantity_non_zero: uint32;
+    order_qty: uint32;
     leaves_qty: uint32;
     effective_limit_price: int64;
     display_price: int64;
@@ -162,7 +162,7 @@ type UnsolicitedModifyAckMessage = unit {
 };
 
 type OrderCancelAckMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id_optional: uint64;
@@ -176,7 +176,7 @@ type OrderCancelAckMessage = unit {
 };
 
 type MassCancelAckMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -189,7 +189,7 @@ type MassCancelAckMessage = unit {
 };
 
 type BulkQuoteAckMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     market_participant_id: bytes &size=4;
     custom_group_id_optional: uint16;
     cl_ord_id: uint64;
@@ -215,12 +215,12 @@ type BulkQuoteAckMessageQuoteAcksGroup = unit {
     order_id_optional: uint64;
     ack_type: int8 &convert=AckType($$);
     price_price_4_optional: int32;
-    order_qty_quantity_zero_optional: uint32;
+    order_qty_optional: uint32;
     reason_code_optional: uint8 &convert=ReasonCodeOptional($$);
 };
 
 type NewIocQuoteAckMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
@@ -230,13 +230,13 @@ type NewIocQuoteAckMessage = unit {
     order_id: uint64;
     ack_type: int8 &convert=AckType($$);
     price_price_4_optional: int32;
-    order_qty_quantity_non_zero: uint32;
+    order_qty: uint32;
     reason_code_optional: uint8 &convert=ReasonCodeOptional($$);
     throttle_indicator: int8 &convert=ThrottleIndicator($$);
 };
 
 type QuoteRestatedMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -245,11 +245,11 @@ type QuoteRestatedMessage = unit {
     price_price_4: int32;
     reason_code_optional: uint8 &convert=ReasonCodeOptional($$);
     ack_type: int8 &convert=AckType($$);
-    delta: bytes &size=4;
+    delta: real &type=spicy::RealType::IEEE754_Single;
 };
 
 type QuoteCanceledMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -257,11 +257,11 @@ type QuoteCanceledMessage = unit {
     side: int8 &convert=Side($$);
     reason_code: uint8 &convert=ReasonCode($$);
     ack_type: int8 &convert=AckType($$);
-    delta: bytes &size=4;
+    delta: real &type=spicy::RealType::IEEE754_Single;
 };
 
 type PurgeAckMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -288,7 +288,7 @@ type PurgeAckMessageCustomGroupIdsGroup = unit {
 
 type ExecutionReportMessage = unit {
     account_account_optional: bytes &size=16;
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -322,7 +322,7 @@ type ExecutionReportMessage = unit {
 };
 
 type TradeBustCorrectMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -338,7 +338,7 @@ type TradeBustCorrectMessage = unit {
 };
 
 type ApplicationLayerRejectMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     underlying_id_optional: uint32;
     instrument_id_instrument_id_optional: uint32;
     market_participant_id: bytes &size=4;
@@ -350,7 +350,7 @@ type ApplicationLayerRejectMessage = unit {
 };
 
 type UnderlyingRefDataMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     underlying_id: uint32;
     underlying_symbol: bytes &size=8;
     mic: bytes &size=4;
@@ -358,7 +358,7 @@ type UnderlyingRefDataMessage = unit {
 };
 
 type InstrumentRefDataMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     instrument_id: uint32;
     underlying_id: uint32;
     osi_symbol: bytes &size=21;
@@ -372,7 +372,7 @@ type InstrumentRefDataMessage = unit {
 };
 
 type MpidConfigurationAcknowledgementMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     market_participant_id: bytes &size=4;
     mpid_status: int8 &convert=MpidStatus($$);
     member: bytes &size=8;
@@ -388,7 +388,7 @@ type MpidConfigurationAcknowledgementMessage = unit {
 };
 
 type MarketMakerSymbolAppointmentMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     underlying_id: uint32;
     market_participant_id: bytes &size=4;
     appointment_type: int8 &convert=AppointmentType($$);
@@ -398,7 +398,7 @@ type MarketMakerSymbolAppointmentMessage = unit {
 };
 
 type SessionConfigurationAcknowledgementMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     user_session_type: int8 &convert=UserSessionType($$);
     user_session_status: int8 &convert=UserSessionStatus($$);
     member: bytes &size=8;
@@ -414,7 +414,7 @@ type SessionConfigurationAcknowledgementMessage = unit {
 };
 
 type RiskControlAcknowledgmentMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
@@ -433,7 +433,7 @@ type RiskControlAcknowledgmentMessage = unit {
 };
 
 type RiskControlAlertMessage = unit {
-    transact_time: uint64;
+    transact_time: uint64 &convert=time_ns($$);
     underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     risk_control: int8 &convert=RiskControl($$);

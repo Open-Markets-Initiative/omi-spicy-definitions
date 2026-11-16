@@ -69,7 +69,7 @@ type OrderEntryRequestTrimmedMessage = unit {
     suspended: bytes &size=1;
     settlor: bytes &size=12;
     pro_client: int16;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     transaction_id: int32;
     pan: bytes &size=10;
     algo_id: int32;
@@ -84,7 +84,7 @@ type SecInfo = unit {
 
 type OrderModifyCancelRequestTrimmedMessage = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     user_id: int32;
     error_code: int16;
     time_stamp_1_long_long_8: int64;
@@ -92,7 +92,7 @@ type OrderModifyCancelRequestTrimmedMessage = unit {
     modified_cancelled_by: bytes &size=1;
     reason_code: int16;
     sec_info: SecInfo;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type: int16;
     buy_sell: int16;
@@ -102,8 +102,8 @@ type OrderModifyCancelRequestTrimmedMessage = unit {
     volume: int32;
     volume_filled_today: int32;
     price: int32;
-    entry_date_time: int32;
-    last_modified: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    last_modified: int32 &convert=time($$ + 315532800);
     st_order_flags: bitfield(16) {
         reserved_1: 0;
         stpc: 1;
@@ -129,7 +129,7 @@ type OrderModifyCancelRequestTrimmedMessage = unit {
     settlor: bytes &size=12;
     pro_client: int16;
     settlement_type: int16;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     transaction_id: int32;
     pan: bytes &size=10;
     algo_id: int32;
@@ -140,7 +140,7 @@ type OrderModifyCancelRequestTrimmedMessage = unit {
 
 type OrderModifyCancelResponseTrimmedMessage = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     user_id: int32;
     error_code: int16;
     time_stamp_1_long_long_8: int64;
@@ -148,7 +148,7 @@ type OrderModifyCancelResponseTrimmedMessage = unit {
     modified_cancelled_by: bytes &size=1;
     reason_code: int16;
     sec_info: SecInfo;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type: int16;
     buy_sell: int16;
@@ -158,8 +158,8 @@ type OrderModifyCancelResponseTrimmedMessage = unit {
     volume: int32;
     volume_filled_today: int32;
     price: int32;
-    entry_date_time: int32;
-    last_modified: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    last_modified: int32 &convert=time($$ + 315532800);
     st_order_flags: bitfield(16) {
         reserved_1: 0;
         stpc: 1;
@@ -185,9 +185,9 @@ type OrderModifyCancelResponseTrimmedMessage = unit {
     settlor: bytes &size=12;
     pro_client: int16;
     settlement_type: int16;
-    nnf_field: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
     transaction_id: int32;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
     pan: bytes &size=10;
     algo_id: int32;
     : skip bytes &size=2;   # padding
@@ -197,11 +197,11 @@ type OrderModifyCancelResponseTrimmedMessage = unit {
 
 type TradeConfirmationTrimmedMessage = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     user_id: int32;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
     time_stamp_1_char_8: bytes &size=8;
-    response_order_number: bytes &size=8;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
     time_stamp_2: bytes &size=1;
     broker_id: bytes &size=5;
     trader_num: int32;
@@ -235,7 +235,7 @@ type TradeConfirmationTrimmedMessage = unit {
     fill_price: int32;
     vol_filled_today: int32;
     activity_type: bytes &size=2;
-    activity_time: int32;
+    activity_time: int32 &convert=time($$ + 315532800);
     sec_info: SecInfo;
     book_type: int16;
     pro_client: int16;
@@ -249,7 +249,7 @@ type TradeConfirmationTrimmedMessage = unit {
 type QuickAcknowledgementMessage = unit {
     transaction_code: int16 &convert=TransactionCode($$);
     trader_id: int32;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
     reference: int32;
     error_code: int16;
     message_length: int16;

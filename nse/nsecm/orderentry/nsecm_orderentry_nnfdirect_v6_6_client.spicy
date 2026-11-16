@@ -47,7 +47,7 @@ type PacketHeader = unit {
 
 type MessageHeader = unit {
     transaction_code: int16 &convert=TransactionCode($$);
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     alpha_char: bytes &size=2;
     trader_id: int32;
     error_code: int16;
@@ -65,9 +65,9 @@ type BranchOrderValueLimitUpdateInMessage = unit {
 };
 
 type BranchLimit = unit {
-    branch_buy_value_limit: bytes &size=8;
+    branch_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=8;   # padding
-    branch_sell_value_limit: bytes &size=8;
+    branch_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=8;   # padding
 };
 
@@ -78,7 +78,7 @@ type CancelOnLogoutStatusRequestMessage = unit {
 };
 
 type MessageDownloadRequestMessage = unit {
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type AuctionInquiryRequestMessage = unit {
@@ -123,7 +123,7 @@ type OrderEntryInMessage = unit {
     auction_number: int16;
     op_broker_id: bytes &size=5;
     suspended: bytes &size=1;
-    order_number: bytes &size=8;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
     account_number: bytes &size=10;
     book_type: int16 &convert=BookType($$);
     buy_sell: int16;
@@ -135,9 +135,9 @@ type OrderEntryInMessage = unit {
     price: int32;
     trigger_price: int32;
     good_till_date: int32;
-    entry_date_time: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
     min_fill_aon: int32;
-    last_modified: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
     st_order_flags: bitfield(16) {
         order_flags_reserved_one: 0;
         stpc: 1;
@@ -163,8 +163,8 @@ type OrderEntryInMessage = unit {
     settlor: bytes &size=12;
     pro_client: int16;
     settlement_type: int16;
-    nnf_field: bytes &size=8;
-    exec_time_stamp: bytes &size=8;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=4;   # padding
     pan: bytes &size=10;
     algo_id: int32;
@@ -177,8 +177,8 @@ type OrderLimitUpdateInMessage = unit {
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     user_id: int32;
-    order_qty_limit: bytes &size=8;
-    order_val_limit: bytes &size=8;
+    order_qty_limit: real &type=spicy::RealType::IEEE754_Double;
+    order_val_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=2;   # padding
 };
 
@@ -194,14 +194,14 @@ type SignOnRequestInMessage = unit {
     : skip bytes &size=8;   # padding
     new_password: bytes &size=8;
     trader_name: bytes &size=26;
-    last_password_change_date_time: int32;
+    last_password_change_date_time: int32 &convert=time($$ + 315532800);
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
     branch_id: int16;
     version_number: int32;
     : skip bytes &size=56;   # padding
     user_type: int16;
-    sequence_number: bytes &size=8;
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
     workstation_number: bytes &size=14;
     broker_status: bytes &size=1;
     show_index: bytes &size=1;
@@ -242,8 +242,8 @@ type TradeInquiryInMessage = unit {
 };
 
 type UpdateLocalDatabaseRequestMessage = unit {
-    last_update_security_time: int32;
-    last_update_participant_time: int32;
+    last_update_security_time: int32 &convert=time($$ + 315532800);
+    last_update_participant_time: int32 &convert=time($$ + 315532800);
     request_for_open_orders: bytes &size=1;
     : skip bytes &size=1;   # padding
     normal_market_status: int16;
@@ -276,9 +276,9 @@ type UserOrderValueLimitUpdateInMessage = unit {
 
 type UserLimits = unit {
     : skip bytes &size=16;   # padding
-    user_order_buy_value_limit: bytes &size=8;
+    user_order_buy_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=24;   # padding
-    user_order_sell_value_limit: bytes &size=8;
+    user_order_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=8;   # padding
 };
 

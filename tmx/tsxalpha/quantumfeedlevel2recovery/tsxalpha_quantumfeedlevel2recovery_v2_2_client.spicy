@@ -12,7 +12,9 @@ public type TsxalphaQuantumfeedlevel2recoveryV22 = unit {
 
 type ClientFrame = unit {
     frame_header: FrameHeader;
-    switch ( self.client_body.heartbeat_body.body_header.msg_type ) {
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_msg_type: uint8 &parse-at=(self.input() + self.offset() + 2) &convert=MsgType($$);
+    switch ( self.next_msg_type ) {
         MsgType::Heartbeat -> heartbeat_body: HeartbeatBody(self.frame_header.num_body);
         MsgType::LoginRequest -> login_request: LoginRequest;
         MsgType::Logout -> logout: Logout;

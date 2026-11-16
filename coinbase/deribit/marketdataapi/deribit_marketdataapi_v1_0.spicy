@@ -29,6 +29,7 @@ type MdMessage = unit {
     switch ( self.md_message_header.template_id ) {
         TemplateId::InstrumentDefinitionMessage -> instrument_definition_message: InstrumentDefinitionMessage;
         TemplateId::IndexDefinitionMessage -> index_definition_message: IndexDefinitionMessage;
+        TemplateId::IndexInfoMessage -> index_info_message: IndexInfoMessage;
         TemplateId::InstrumentInfoMessage -> instrument_info_message: InstrumentInfoMessage;
         TemplateId::InstrumentRefMessage -> instrument_ref_message: InstrumentRefMessage;
         TemplateId::InstrumentStatusUpdateMessage -> instrument_status_update_message: InstrumentStatusUpdateMessage;
@@ -70,7 +71,7 @@ type InstrumentDefinitionMessage = unit {
     underlying: bytes &size=64;
     quantity_asset: bytes &size=8;
     price_asset: bytes &size=8;
-    expiry_time: int64;
+    expiry_time: int64 &convert=time_ns($$);
     strike_price: int64;
     min_order_quantity: int64;
     tick_size: int64;
@@ -117,21 +118,26 @@ type IndexDefinitionMessage = unit {
     name: bytes &size=128;
 };
 
+type IndexInfoMessage = unit {
+    index_id: int64;
+    index_price: int64;
+};
+
 type InstrumentInfoMessage = unit {
     instrument_id: int64;
     min_sell_price: int64;
     max_buy_price: int64;
-    index_price: int64;
     mark_price: int64;
 };
 
 type InstrumentRefMessage = unit {
     instrument_id: int64;
-    current_funding: bytes &size=8;
-    funding_8h: bytes &size=8;
+    current_funding: real &type=spicy::RealType::IEEE754_Double;
+    funding_8h: real &type=spicy::RealType::IEEE754_Double;
     estimated_delivery_price: int64;
     delivery_price: int64;
     settlement_price: int64;
+    open_interest: real &type=spicy::RealType::IEEE754_Double;
 };
 
 type InstrumentStatusUpdateMessage = unit {
@@ -188,7 +194,8 @@ type TradeSummaryMessage = unit {
     taker_flags: bitfield(32) {
         is_sell: 0;
         is_liquidation: 1;
-        reserved_30: 2..31;
+        was_delayed: 2;
+        reserved_29: 3..31;
     } &byte-order=spicy::ByteOrder::Little;
 };
 
@@ -201,7 +208,8 @@ type TradeMessage = unit {
     maker_flags: bitfield(32) {
         is_sell: 0;
         is_liquidation: 1;
-        reserved_30: 2..31;
+        was_delayed: 2;
+        reserved_29: 3..31;
     } &byte-order=spicy::ByteOrder::Little;
 };
 
@@ -214,24 +222,27 @@ type BlockTradeMessage = unit {
     fill_price: int64;
     mark_price: int64;
     index_price: int64;
-    implied_volatility: bytes &size=8;
+    implied_volatility: real &type=spicy::RealType::IEEE754_Double;
     taker_flags: bitfield(32) {
         is_sell: 0;
         is_liquidation: 1;
-        reserved_30: 2..31;
+        was_delayed: 2;
+        reserved_29: 3..31;
     } &byte-order=spicy::ByteOrder::Little;
     number_of_legs: uint16;
+    : skip bytes &size=2;   # padding
+    execution_timestamp: int64 &convert=time_ns($$);
 };
 
 type SnapshotHeaderMessage = unit {
     instrument_id: int64;
-    incremental_timestamp: int64;
+    incremental_timestamp: int64 &convert=time_ns($$);
     incremental_seq_num: int64;
 };
 
 type SnapshotTrailerMessage = unit {
     instrument_id: int64;
-    timestamp: int64;
+    timestamp: int64 &convert=time_ns($$);
     increment_seq_num: int64;
 };
 
@@ -253,6 +264,7 @@ type RetransmitRejectMessage = unit {
 type TemplateId = enum {
     InstrumentDefinitionMessage = 10,
     IndexDefinitionMessage = 11,
+    IndexInfoMessage = 12,
     InstrumentInfoMessage = 14,
     InstrumentRefMessage = 15,
     InstrumentStatusUpdateMessage = 16,

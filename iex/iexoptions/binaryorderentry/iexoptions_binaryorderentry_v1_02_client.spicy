@@ -94,7 +94,7 @@ type NewOrderSingleMessage = unit {
     aiq: bytes &size=3;
     side: int8 &convert=Side($$);
     price_price_8: int64;
-    order_qty_quantity_non_zero: uint32;
+    order_qty: uint32;
 };
 
 type OrderCancelReplaceRequestMessage = unit {
@@ -120,7 +120,7 @@ type OrderCancelReplaceRequestMessage = unit {
     aiq: bytes &size=3;
     side: int8 &convert=Side($$);
     price_price_8: int64;
-    order_qty_quantity_non_zero: uint32;
+    order_qty: uint32;
 };
 
 type OrderCancelRequestMessage = unit {
@@ -136,7 +136,7 @@ type NewBulkQuoteMessage = unit {
     cl_ord_id: uint64;
     clearing_account: bytes &size=4;
     cancel_instead_of_slide_optional: int8 &convert=CancelInsteadOfSlideOptional($$);
-    send_time: uint64;
+    send_time: uint64 &convert=time_ns($$);
     aiq: bytes &size=3;
     time_in_force: int8 &convert=TimeInForce($$);
     new_bulk_quote_message_quote_updates_groups: NewBulkQuoteMessageQuoteUpdatesGroups;
@@ -156,7 +156,7 @@ type NewBulkQuoteMessageQuoteUpdatesGroup = unit {
     instrument_id: uint32;
     side: int8 &convert=Side($$);
     price_price_4_optional: int32;
-    order_qty_quantity_zero_optional: uint32;
+    order_qty_optional: uint32;
     quote_type: int8 &convert=QuoteType($$);
     reserved: int8;
 };
@@ -165,7 +165,7 @@ type MassCancelRequestMessage = unit {
     underlying_id_optional: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
-    send_time: uint64;
+    send_time: uint64 &convert=time_ns($$);
     ack_style_mass_cancel_ack_style: uint8 &convert=AckStyleMassCancelAckStyle($$);
     mpid_filter: uint8 &convert=MpidFilter($$);
     bulk_action: uint8 &convert=BulkAction($$);
@@ -175,7 +175,7 @@ type PurgeRequestMessage = unit {
     underlying_id: uint32;
     market_participant_id: bytes &size=4;
     cl_ord_id: uint64;
-    send_time: uint64;
+    send_time: uint64 &convert=time_ns($$);
     ack_style_purge_request_ack_style: uint8 &convert=AckStylePurgeRequestAckStyle($$);
     bulk_action: uint8 &convert=BulkAction($$);
     purge_request_message_custom_group_ids_groups: PurgeRequestMessageCustomGroupIdsGroups;

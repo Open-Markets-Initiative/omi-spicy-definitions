@@ -13,14 +13,14 @@ public type CoinbasederivativesSessionV12 = unit {
 type SbeMessage = unit {
     message_header: MessageHeader;
     switch ( self.message_header.template_id ) {
-        TemplateId::LogonMessage -> logon_message: LogonMessage;
-        TemplateId::LogonConfMessage -> logon_conf_message: LogonConfMessage;
-        TemplateId::LogoutMessage -> logout_message: LogoutMessage;
-        TemplateId::LoggedOutMessage -> logged_out_message: LoggedOutMessage;
-        TemplateId::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
-        TemplateId::TestRequestMessage -> test_request_message: TestRequestMessage;
-        TemplateId::ResendRequestMessage -> resend_request_message: ResendRequestMessage;
-        TemplateId::GapFillMessage -> gap_fill_message: GapFillMessage;
+        TemplateId::SessionLogonMessage -> logon_message: LogonMessage;
+        TemplateId::SessionLogonConfMessage -> logon_conf_message: LogonConfMessage;
+        TemplateId::SessionLogoutMessage -> logout_message: LogoutMessage;
+        TemplateId::SessionLoggedOutMessage -> logged_out_message: LoggedOutMessage;
+        TemplateId::SessionHeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        TemplateId::SessionTestRequestMessage -> test_request_message: TestRequestMessage;
+        TemplateId::SessionResendRequestMessage -> resend_request_message: ResendRequestMessage;
+        TemplateId::SessionGapFillMessage -> gap_fill_message: GapFillMessage;
         TemplateId::RejectMessage -> reject_message: RejectMessage;
         * -> unknown: bytes &eod;
     };
@@ -29,7 +29,7 @@ type SbeMessage = unit {
 
 type MessageHeader = unit {
     protocol_id: uint8;
-    flags: bitfield(8) {
+    session_flags: bitfield(8) {
         is_resend: 0;
         reserved_bits: 1..7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -82,19 +82,19 @@ type GapFillMessage = unit {
 
 type RejectMessage = unit {
     ref_sequence_number: uint32;
-    reason_reject_reason: int32 &convert=ReasonRejectReason($$);
+    reject_reason: int32 &convert=RejectReason($$);
     details: bytes &size=64;
 };
 
 type TemplateId = enum {
-    LogonMessage = 100,
-    LogonConfMessage = 200,
-    LogoutMessage = 101,
-    LoggedOutMessage = 201,
-    HeartbeatMessage = 10,
-    TestRequestMessage = 11,
-    ResendRequestMessage = 102,
-    GapFillMessage = 202,
+    SessionLogonMessage = 100,
+    SessionLogonConfMessage = 200,
+    SessionLogoutMessage = 101,
+    SessionLoggedOutMessage = 201,
+    SessionHeartbeatMessage = 10,
+    SessionTestRequestMessage = 11,
+    SessionResendRequestMessage = 102,
+    SessionGapFillMessage = 202,
     RejectMessage = 210,
 };
 
@@ -103,7 +103,7 @@ type ResetSeqNum = enum {
     True_1 = 1,
 };
 
-type ReasonRejectReason = enum {
+type RejectReason = enum {
     InvalidSchemaId = 1,
     InvalidTemplateId = 2,
     InvalidBlockLength = 3,

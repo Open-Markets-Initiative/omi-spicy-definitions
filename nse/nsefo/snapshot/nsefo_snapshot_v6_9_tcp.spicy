@@ -8,7 +8,7 @@ import spicy;
 
 public type NsefoSnapshotV69 = unit {
     snapshot_header: SnapshotHeader;
-    message: Message[self.snapshot_header.number_of_records];
+    message: Message[cast<uint64>(self.snapshot_header.number_of_records)];
 };
 
 type SnapshotHeader = unit {
@@ -29,8 +29,8 @@ type Message = unit {
 };
 
 type NewOrderMessage = unit {
-    timestamp: int64;
-    order_id: bytes &size=8;
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
     token: int32;
     order_type: uint8 &convert=OrderType($$);
     price: int32;
@@ -38,8 +38,8 @@ type NewOrderMessage = unit {
 };
 
 type NewSpreadOrderMessage = unit {
-    timestamp: int64;
-    order_id: bytes &size=8;
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
     token: int32;
     order_type: uint8 &convert=OrderType($$);
     price: int32;

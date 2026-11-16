@@ -87,7 +87,7 @@ type OutrightInstrumentDefinitionMessage = unit {
 
 type InstrHeader = unit {
     instrument_flags: uint8;
-    instrument_side: int8;
+    instrument_side: int8 &convert=InstrumentSide($$);
     instrument_id: int32;
     instr_seq_num: uint32;
     trading_session_date: uint16;
@@ -152,7 +152,7 @@ type ImpliedOrderUpdateMessage = unit {
 type TradeSummaryMessage = unit {
     instr_header: InstrHeader;
     aggressor_order_id: int64;
-    aggressor_receive_time: int64;
+    aggressor_receive_time: int64 &convert=time_ns($$);
     vwap_price: int64;
     deepest_price: int64;
     quantity: int32;
@@ -325,6 +325,11 @@ type TemplateId = enum {
     EndOfSnapshotMessage = 122,
     RetransmitRequestMessage = 200,
     RetransmitRejectMessage = 202,
+};
+
+type InstrumentSide = enum {
+    Buy = 1,
+    OpeningFill = 0,
 };
 
 type ProductGroup = enum {
