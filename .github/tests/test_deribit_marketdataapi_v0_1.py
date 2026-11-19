@@ -62,9 +62,27 @@ class DeribitMarketdataapiV01Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_snapshotheadermessage(self):
+        module = "coinbase/deribit/marketdataapi/deribit_marketdataapi_v0_1.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/Deribit.MarketDataApi.Sbe.v0.1/SnapshotHeaderMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_snapshottrailermessage(self):
         module = "coinbase/deribit/marketdataapi/deribit_marketdataapi_v0_1.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/Deribit.MarketDataApi.Sbe.v0.1/SnapshotTrailerMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_trademessage(self):
+        module = "coinbase/deribit/marketdataapi/deribit_marketdataapi_v0_1.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/Deribit.MarketDataApi.Sbe.v0.1/TradeMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_tradesummarymessage(self):
+        module = "coinbase/deribit/marketdataapi/deribit_marketdataapi_v0_1.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/Deribit.MarketDataApi.Sbe.v0.1/TradeSummaryMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 

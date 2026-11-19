@@ -48,12 +48,7 @@ type SimpleBinaryHeader = unit {
 type MdIncrementalRefreshSpectrum = unit {
     transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
-        unused_event_indicator_0: 0;
-        unused_event_indicator_1: 1;
-        unused_event_indicator_2: 2;
-        unused_event_indicator_3: 3;
-        unused_event_indicator_4: 4;
-        unused_event_indicator_5: 5;
+        unused_bits_0_to_5: 0..5;
         recovery_message: 6;
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -71,7 +66,7 @@ type GroupSize = unit {
 };
 
 type IncrementalRefreshSpectrumGroup = unit {
-    md_entry_type_spectrum_entry_type: uint8 &convert=MdEntryTypeSpectrumEntryType($$);
+    spectrum_md_entry_type: uint8 &convert=SpectrumMdEntryType($$);
     financial_instrument_full_name: bytes &size=35;
     symbol: bytes &size=20;
     instrument_guid: uint64;
@@ -84,12 +79,7 @@ type IncrementalRefreshSpectrumGroup = unit {
 type MdIncrementalRefreshTicker = unit {
     transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
-        unused_event_indicator_0: 0;
-        unused_event_indicator_1: 1;
-        unused_event_indicator_2: 2;
-        unused_event_indicator_3: 3;
-        unused_event_indicator_4: 4;
-        unused_event_indicator_5: 5;
+        unused_bits_0_to_5: 0..5;
         recovery_message: 6;
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -102,7 +92,7 @@ type IncrementalRefreshTickerGroups = unit {
 };
 
 type IncrementalRefreshTickerGroup = unit {
-    md_entry_type_ticker_entry_type: uint8 &convert=MdEntryTypeTickerEntryType($$);
+    ticker_md_entry_type: uint8 &convert=TickerMdEntryType($$);
     security_id: int32;
     symbol: bytes &size=20;
     instrument_guid: uint64;
@@ -118,12 +108,7 @@ type IncrementalRefreshTickerGroup = unit {
 type MdSnapshotRefreshSpectrum = unit {
     transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
-        unused_event_indicator_0: 0;
-        unused_event_indicator_1: 1;
-        unused_event_indicator_2: 2;
-        unused_event_indicator_3: 3;
-        unused_event_indicator_4: 4;
-        unused_event_indicator_5: 5;
+        unused_bits_0_to_5: 0..5;
         recovery_message: 6;
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -140,7 +125,7 @@ type SnapshotRefreshSpectrumGroups = unit {
 };
 
 type SnapshotRefreshSpectrumGroup = unit {
-    md_entry_type_spectrum_entry_type: uint8 &convert=MdEntryTypeSpectrumEntryType($$);
+    spectrum_md_entry_type: uint8 &convert=SpectrumMdEntryType($$);
     md_entry_px: int64;
     md_entry_size: uint64;
     md_entry_time: uint64 &convert=time_ns($$);
@@ -149,12 +134,7 @@ type SnapshotRefreshSpectrumGroup = unit {
 type MdSnapshotRefreshTicker = unit {
     transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
-        unused_event_indicator_0: 0;
-        unused_event_indicator_1: 1;
-        unused_event_indicator_2: 2;
-        unused_event_indicator_3: 3;
-        unused_event_indicator_4: 4;
-        unused_event_indicator_5: 5;
+        unused_bits_0_to_5: 0..5;
         recovery_message: 6;
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
@@ -171,7 +151,7 @@ type SnapshotRefreshTickerGroups = unit {
 };
 
 type SnapshotRefreshTickerGroup = unit {
-    md_entry_type_ticker_entry_type: uint8 &convert=MdEntryTypeTickerEntryType($$);
+    ticker_md_entry_type: uint8 &convert=TickerMdEntryType($$);
     md_entry_px: int64;
     md_entry_size: uint64;
     md_entry_time: uint64 &convert=time_ns($$);
@@ -194,12 +174,12 @@ type TemplateId = enum {
     GlobalDayRoll = 307,
 };
 
-type MdEntryTypeSpectrumEntryType = enum {
+type SpectrumMdEntryType = enum {
     Vwap = 0x39,
     Twap = 0x74,
 };
 
-type MdEntryTypeTickerEntryType = enum {
+type TickerMdEntryType = enum {
     TouchHigh = 0x6b,
     TouchLow = 0x6c,
     OpenBestBid = 0x6d,

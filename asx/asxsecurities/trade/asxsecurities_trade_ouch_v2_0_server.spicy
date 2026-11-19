@@ -128,7 +128,7 @@ type OrderExecutedMessage = unit {
     traded_quantity: uint64;
     trade_price: int32;
     match_id: bytes &size=12;
-    deal_source: uint16;
+    deal_source: uint16 &convert=DealSource($$);
     match_attributes: bitfield(8) {
         passive_aggressive_indicator: 0;
         crossing_dealing_capacity: 1..2;
@@ -190,8 +190,8 @@ type DirectedWholesale = enum {
 
 type OuchOrderType = enum {
     LimitOrder = 0x59,
-    CentrePointOrder = 0x4e,
-    CentrePointOrder_x44 = 0x44,
+    CentrePointOrderMidPointOnly = 0x4e,
+    CentrePointOrderDarkLimitOrder = 0x44,
     SweepOrder = 0x53,
     DualPostedSweepOrder = 0x50,
     CentrePointBlockOrderWithSingleFillMaq = 0x42,
@@ -209,5 +209,21 @@ type Reason = enum {
     DeletedBySystemDueToInstrumentSessionChange = 20,
     InactivatedBySystemDueToInstrumentSessionChange = 21,
     InactivatedDayOrder = 24,
+};
+
+type DealSource = enum {
+    ContinuousAutoMatch = 1,
+    AuctionAutoMatch = 20,
+    TailorMadeCombinationMatch = 36,
+    CombinationOrderMatchedAgainstOutrightLegs = 43,
+    BookedUcpTransaction = 44,
+    BookedUcpAuctionTransaction = 45,
+    CentrePointPreferenceMatchedTrade = 46,
+    CentrePointTrade = 47,
+    CentrePointBookedUcp = 48,
+    Reserved49 = 49,
+    BlockTrade = 50,
+    PreferenceBlockTrade = 51,
+    Reserved52 = 52,
 };
 

@@ -69,7 +69,7 @@ type BroadcastData = unit {
 type BcastHeader = unit {
     : skip bytes &size=2;   # padding
     : skip bytes &size=2;   # padding
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     alpha_char: bytes &size=2;
     transaction_code: int16 &convert=TransactionCode($$);
     error_code: int16;
@@ -84,7 +84,7 @@ type BcastHeader = unit {
 type BroadcastJournalVctMessage = unit {
     branch_number: int16;
     broker_number: bytes &size=5;
-    action_code_char_3: bytes &size=3;
+    action_code: bytes &size=3;
     : skip bytes &size=4;   # padding
     broadcast_destination: bitfield(16) {
         reserved_115: 0..14;
@@ -95,7 +95,7 @@ type BroadcastJournalVctMessage = unit {
 };
 
 type SecurityMasterChangeMessage = unit {
-    token_long_4: int32;
+    token: int32;
     sec_info: SecInfo;
     instrument_type: int16 &convert=InstrumentType($$);
     permitted_to_trade: int16 &convert=PermittedToTrade($$);
@@ -176,7 +176,7 @@ type SecurityStatusChangeMessage = unit {
 };
 
 type TokenAndEligibility = unit {
-    token_long_4: int32;
+    token: int32;
     security_status_per_market: SecurityStatusPerMarket[6];
 };
 
@@ -216,9 +216,9 @@ type AuctionInquiryMessage = unit {
 };
 
 type StAuctionInqInfo = unit {
-    token_long_4: int32;
+    token: int32;
     auction_number: int16;
-    auction_status_short_2: int16;
+    auction_status: int16;
     initiator_type: int16;
     total_buy_qty: int32;
     best_buy_price: int32;
@@ -232,8 +232,8 @@ type StAuctionInqInfo = unit {
 type AuctionStatusChangeMessage = unit {
     sec_info: SecInfo;
     auction_number: int16;
-    auction_status_char_1: bytes &size=1;
-    action_code_char_3: bytes &size=3;
+    auction_status_char: bytes &size=1;
+    action_code: bytes &size=3;
     broadcast_destination: bitfield(16) {
         reserved_115: 0..14;
         trader_ws: 15;
@@ -378,7 +378,7 @@ type SymbolStatusChangeActionMessage = unit {
     sec_info: SecInfo;
     market_type: int16 &convert=MarketType($$);
     : skip bytes &size=2;   # padding
-    action_code_short_2: int16 &convert=ActionCodeShort2($$);
+    action_code_short: int16 &convert=ActionCodeShort($$);
 };
 
 type TickerAndMarketIndexMessage = unit {
@@ -387,7 +387,7 @@ type TickerAndMarketIndexMessage = unit {
 };
 
 type TickerIndexInformation = unit {
-    token_long_4: int32;
+    token: int32;
     market_type: int16 &convert=MarketType($$);
     fill_price: int32;
     fill_volume: int32;
@@ -416,19 +416,19 @@ type MarketByOrderAndMarketByPriceMessage = unit {
 };
 
 type InteractiveMboData = unit {
-    token_long_4: int32;
+    token: int32;
     book_type: int16;
     trading_status: int16 &convert=TradingStatus($$);
     volume_traded_today: int64;
     last_traded_price: int32;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
-    filler_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     net_price_change_from_closing_price: int32;
     last_trade_quantity: int32;
     last_trade_time: int32 &convert=time($$ + 315532800);
     average_trade_price: int32;
     auction_number: int16;
-    auction_status_short_2: int16;
+    auction_status: int16;
     initiator_type: int16;
     initiator_price: int32;
     initiator_quantity: int32;
@@ -462,13 +462,13 @@ type OnlyMarketByPriceMessage = unit {
 };
 
 type InteractiveOnlyMbpData = unit {
-    token_long_4: int32;
+    token: int32;
     book_type: int16;
     trading_status: int16 &convert=TradingStatus($$);
     volume_traded_today: int64;
     last_traded_price: int32;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
-    filler_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     net_price_change_from_closing_price: int32;
     last_trade_quantity: int32;
     last_trade_time: int32 &convert=time($$ + 315532800);
@@ -500,7 +500,7 @@ type MarketWatchRoundRobinMessage = unit {
 };
 
 type Marketwatchbroadcast = unit {
-    token_long_4: int32;
+    token: int32;
     market_wise_information: MarketWiseInformation[3];
 };
 
@@ -526,14 +526,14 @@ type CallAuctionMarketByPriceMessage = unit {
 };
 
 type InteractiveCallAuctionMbpData = unit {
-    token_long_4: int32;
+    token: int32;
     book_type: int16;
     trading_status: int16 &convert=TradingStatus($$);
     volume_traded_today: int64;
     indicative_traded_qty: int64;
     last_traded_price: int32;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
-    filler_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     net_price_change_from_closing_price: int32;
     last_trade_quantity: int32;
     last_trade_time: int32 &convert=time($$ + 315532800);
@@ -563,7 +563,7 @@ type CallAuctionMarketWatchMessage = unit {
 };
 
 type CaMarketwatchbroadcast = unit {
-    token_long_4: int32;
+    token: int32;
     mkt_type: int16 &convert=MktType($$);
     mbo_mbp_indicator: bitfield(16) {
         reserved_112: 0..11;
@@ -582,7 +582,7 @@ type CaMarketwatchbroadcast = unit {
 
 type SecurityOpenPriceMessage = unit {
     sec_info: SecInfo;
-    token_short_2: int16;
+    token_short: int16;
     opening_price: int32;
 };
 
@@ -605,7 +605,7 @@ type Indices = unit {
     no_of_downmoves: int32;
     market_capitalisation: real &type=spicy::RealType::IEEE754_Double;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
-    filler_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type IndicativeIndicesMessage = unit {
@@ -627,7 +627,7 @@ type IndicativeIndices = unit {
     : skip bytes &size=4;   # padding
     market_capitalization: real &type=spicy::RealType::IEEE754_Double;
     net_change_indicator: uint8 &convert=NetChangeIndicator($$);
-    filler_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type IndicesVixMessage = unit {
@@ -651,7 +651,7 @@ type BuyBackMessage = unit {
 };
 
 type Buybackdata = unit {
-    token_long_4: int32;
+    token: int32;
     symbol: bytes &size=10;
     series: bytes &size=2;
     pday_cum_vol: real &type=spicy::RealType::IEEE754_Double;
@@ -672,8 +672,8 @@ type CallAuctionOrderCancelUpdateMessage = unit {
 };
 
 type InteractiveOrdCxlDetails = unit {
-    token_long_4: int32;
-    filler_4: bytes &size=4;
+    token: int32;
+    : skip bytes &size=4;   # padding
     buy_ord_cxl_count: int64;
     buy_ord_cxl_vol: int64;
     sell_ord_cxl_count: int64;
@@ -688,7 +688,7 @@ type CasReferencePriceMessage = unit {
 
 type TokenAndRefprice = unit {
     sec_info: SecInfo;
-    token_long_4: int32;
+    token: int32;
     reference_price: int32;
 };
 
@@ -778,7 +778,7 @@ type MarketType = enum {
     CallAuctionTwo = 6,
 };
 
-type ActionCodeShort2 = enum {
+type ActionCodeShort = enum {
     SecurityPreopened = 6531,
     SecurityPreopenPeriodEnded = 6571,
     SecurityOpened = 6511,

@@ -60,14 +60,14 @@ type Login = unit {
 };
 
 type LoginResponse = unit {
-    result_login_result: uint8 &convert=ResultLoginResult($$);
+    login_result: uint8 &convert=LoginResult($$);
     next_expected_seq_num: uint32;
     last_replay_seq_num: uint32;
     session_id: uint16;
 };
 
 type ConnectionClose = unit {
-    reason_connection_close_reason: uint8 &convert=ReasonConnectionCloseReason($$);
+    connection_close_reason: uint8 &convert=ConnectionCloseReason($$);
 };
 
 type Reject = unit {
@@ -154,8 +154,8 @@ type OrderAddResponse = unit {
     public_order_id: uint64;
     display_qty: uint64;
     filled: uint64;
-    status_order_status: uint8 &convert=StatusOrderStatus($$);
-    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+    order_status: uint8 &convert=OrderStatus($$);
+    order_rejection_reason: uint16 &convert=OrderRejectionReason($$);
     exec_type_reason: uint8 &convert=ExecTypeReason($$);
     client_order_id: bytes &size=20;
 };
@@ -178,8 +178,8 @@ type OrderCancelResponse = unit {
         session_id_order_id: 36..49;
         connection_id_order_id: 50..63;
     } &byte-order=spicy::ByteOrder::Little;
-    status_order_status: uint8 &convert=StatusOrderStatus($$);
-    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+    order_status: uint8 &convert=OrderStatus($$);
+    order_rejection_reason: uint16 &convert=OrderRejectionReason($$);
     exec_type_reason: uint8 &convert=ExecTypeReason($$);
     client_order_id: bytes &size=20;
 };
@@ -208,9 +208,9 @@ type OrderModifyResponse = unit {
         connection_id_order_id: 50..63;
     } &byte-order=spicy::ByteOrder::Little;
     filled: uint64;
-    status_order_status: uint8 &convert=StatusOrderStatus($$);
+    order_status: uint8 &convert=OrderStatus($$);
     priority_flag: uint8 &convert=PriorityFlag($$);
-    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+    order_rejection_reason: uint16 &convert=OrderRejectionReason($$);
     client_order_id: bytes &size=20;
 };
 
@@ -236,7 +236,7 @@ type OrderMassCancelResponse = unit {
     target_party_role: uint8 &convert=TargetPartyRole($$);
     target_party_id: uint32;
     market_segment_id: uint32;
-    reason_mass_cancel_rejection_reason: uint16 &convert=ReasonMassCancelRejectionReason($$);
+    mass_cancel_rejection_reason: uint16 &convert=MassCancelRejectionReason($$);
     client_order_id: bytes &size=20;
 };
 
@@ -312,8 +312,8 @@ type MassQuoteResponse = unit {
         connection_id_order_id: 50..63;
     } &byte-order=spicy::ByteOrder::Little;
     responses: Responses;
-    status_mass_quote_status: uint8 &convert=StatusMassQuoteStatus($$);
-    reason_mass_quote_rejection_reason: uint16 &convert=ReasonMassQuoteRejectionReason($$);
+    mass_quote_status: uint8 &convert=MassQuoteStatus($$);
+    mass_quote_rejection_reason: uint16 &convert=MassQuoteRejectionReason($$);
     fee_structure_id: uint8;
 };
 
@@ -340,8 +340,8 @@ type QuoteOrderResponse = unit {
         session_id_order_id: 36..49;
         connection_id_order_id: 50..63;
     } &byte-order=spicy::ByteOrder::Little;
-    status_order_status: uint8 &convert=StatusOrderStatus($$);
-    reason_order_rejection_reason: uint16 &convert=ReasonOrderRejectionReason($$);
+    order_status: uint8 &convert=OrderStatus($$);
+    order_rejection_reason: uint16 &convert=OrderRejectionReason($$);
 };
 
 type MarketMakerCommand = unit {
@@ -351,13 +351,13 @@ type MarketMakerCommand = unit {
 
 type MarketMakerCommandResponse = unit {
     ref_id: uint32;
-    result_command_result: uint8 &convert=ResultCommandResult($$);
+    command_result: uint8 &convert=CommandResult($$);
     rejection_code: uint16 &convert=RejectionCode($$);
 };
 
 type RequestForExecution = unit {
     instrument_id: uint32;
-    reason_request_for_execution_reason: uint8 &convert=ReasonRequestForExecutionReason($$);
+    request_for_execution_reason: uint8 &convert=RequestForExecutionReason($$);
 };
 
 type BidOfferUpdate = unit {
@@ -480,8 +480,8 @@ type TradeCaptureReportResponse = unit {
         session_id_order_id: 36..49;
         connection_id_order_id: 50..63;
     } &byte-order=spicy::ByteOrder::Little;
-    status_tcr_status: uint8 &convert=StatusTcrStatus($$);
-    reason_tcr_rejection_reason: uint16 &convert=ReasonTcrRejectionReason($$);
+    tcr_status: uint8 &convert=TcrStatus($$);
+    tcr_rejection_reason: uint16 &convert=TcrRejectionReason($$);
 };
 
 type TradeBust = unit {
@@ -521,7 +521,7 @@ type MessageType = enum {
     TradeBust = 23,
 };
 
-type ResultLoginResult = enum {
+type LoginResult = enum {
     Ok = 1,
     NotFound = 2,
     InvalidToken = 3,
@@ -533,7 +533,7 @@ type ResultLoginResult = enum {
     Other = 9,
 };
 
-type ReasonConnectionCloseReason = enum {
+type ConnectionCloseReason = enum {
     ProtocolError = 1,
     InvalidSeqNum = 2,
     EndOfDay = 3,
@@ -622,7 +622,7 @@ type ClearingMemberClearingIdentifier = enum {
     Custom = 68,
 };
 
-type StatusOrderStatus = enum {
+type OrderStatus = enum {
     New = 1,
     Cancelled = 2,
     Rejected = 3,
@@ -631,7 +631,7 @@ type StatusOrderStatus = enum {
     Expired = 6,
 };
 
-type ReasonOrderRejectionReason = enum {
+type OrderRejectionReason = enum {
     Na = 0,
     UnknownOrder = 1,
     ExchangeClosed = 2,
@@ -783,7 +783,7 @@ type TargetPartyRole = enum {
     InvestmentDecisionMaker = 122,
 };
 
-type ReasonMassCancelRejectionReason = enum {
+type MassCancelRejectionReason = enum {
     Other = 99,
     Na = 101,
     UnknownInstrument = 1001,
@@ -986,12 +986,12 @@ type Currency = enum {
     Xxx = 999,
 };
 
-type StatusMassQuoteStatus = enum {
+type MassQuoteStatus = enum {
     Accepted = 1,
     Rejected = 2,
 };
 
-type ReasonMassQuoteRejectionReason = enum {
+type MassQuoteRejectionReason = enum {
     Na = 1,
     ExchangeClosed = 2,
     Other = 99,
@@ -1025,7 +1025,7 @@ type Action = enum {
     RevokeKnockOut = 3,
 };
 
-type ResultCommandResult = enum {
+type CommandResult = enum {
     Success = 1,
     Failure = 2,
 };
@@ -1048,7 +1048,7 @@ type RejectionCode = enum {
     CommandNotAllowedInCurrentState = 3020,
 };
 
-type ReasonRequestForExecutionReason = enum {
+type RequestForExecutionReason = enum {
     PassiveQuote = 1,
     AggressiveQuote = 2,
 };
@@ -1099,14 +1099,14 @@ type OrderCapacity = enum {
     RisklessPrincipal = 3,
 };
 
-type StatusTcrStatus = enum {
+type TcrStatus = enum {
     New = 1,
     Accepted = 2,
     Rejected = 3,
     Cancelled = 4,
 };
 
-type ReasonTcrRejectionReason = enum {
+type TcrRejectionReason = enum {
     Na = 1,
     ExchangeClosed = 2,
     InvalidPriceIncrement = 18,

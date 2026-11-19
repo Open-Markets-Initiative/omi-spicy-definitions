@@ -56,7 +56,7 @@ type BroadcastData = unit {
 type BcastHeader = unit {
     : skip bytes &size=2;   # padding
     : skip bytes &size=2;   # padding
-    log_time: int32;
+    log_time: int32 &convert=time($$ + 315532800);
     alpha_char: bytes &size=2;
     transaction_code: int16 &convert=TransactionCode($$);
     error_code: int16;
@@ -172,7 +172,7 @@ type StSecEligibilityPerMkt = unit {
         reserved_17: 0..6;
         eligibility: 7;
     } &byte-order=spicy::ByteOrder::Little;
-    filler: bytes &size=1;
+    : skip bytes &size=1;   # padding
     status: int16 &convert=Status($$);
 };
 
@@ -608,7 +608,7 @@ type TurnoverLimitExceededBody = unit {
     trade_price: int32;
     trade_volume: int32;
     final: bytes &size=1;
-    filler: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type TurnoverVctMessagesBody = unit {

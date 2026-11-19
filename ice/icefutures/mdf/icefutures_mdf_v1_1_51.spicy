@@ -265,13 +265,13 @@ type StripInfoMessage = unit {
 
 type IntervalPriceLimitNotificationMessage = unit {
     market_id: int32;
-    ipl_tpl_hold_type: bytes &size=1;
+    ipl_tpl_hold_type: uint8 &convert=IplTplHoldType($$);
     notification_date_time: int64 &convert=time($$ / 1000.0);
     is_up: uint8 &convert=IsUp($$);
     ipl_tpl_hold_duration: int32;
     ipl_tpl_up: int64;
     ipl_tpl_down: int64;
-    ipl_tpl_type: bytes &size=1;
+    ipl_tpl_type: uint8 &convert=IplTplType($$);
 };
 
 type NewFuturesStrategyDefinitionMessage = unit {
@@ -784,13 +784,23 @@ type EndexStatus = enum {
 
 type EventType = enum {
     ImplicationDisabledForTheMarket = 0x41,
+    TrfMarketUpdate = 0x42,
+    TplHoldExit = 0x43,
+};
+
+type IplTplHoldType = enum {
+    IplTplHoldStart = 0x53,
+    IplTplHoldEnd = 0x45,
 };
 
 type IsUp = enum {
-    IplUpperBoundViolation = 0x59,
-    IplLowerBoundViolation = 0x4e,
-    Final = 0x46,
-    NonEndexSpotMarket = 0x20,
+    IplTplUpperBoundViolation = 0x59,
+    IplTplLowerBoundViolation = 0x4e,
+};
+
+type IplTplType = enum {
+    Ipl = 0x49,
+    Tpl = 0x54,
 };
 
 type LegSide = enum {

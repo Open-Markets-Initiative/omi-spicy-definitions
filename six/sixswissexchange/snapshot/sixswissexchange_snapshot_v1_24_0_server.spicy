@@ -1,0 +1,217 @@
+# License: MIT No Attribution
+
+module SixSixswissexchangeSnapshotGlimpseV1240Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type SixswissexchangeSnapshotV1240 = unit {
+    server_soup_bin_tcp_packet: ServerSoupBinTcpPacket[] &eod;
+};
+
+type ServerSoupBinTcpPacket = unit {
+    server_packet_header: ServerPacketHeader;
+    switch ( self.server_packet_header.server_packet_type ) {
+        ServerPacketType::DebugPacket -> debug_packet: DebugPacket(self.server_packet_header.packet_length);
+        ServerPacketType::LoginAcceptedPacket -> login_accepted_packet: LoginAcceptedPacket;
+        ServerPacketType::LoginRejectedPacket -> login_rejected_packet: LoginRejectedPacket;
+        ServerPacketType::SequencedDataPacket -> sequenced_data_packet: SequencedDataPacket;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ServerPacketHeader = unit {
+    packet_length: uint16;
+    server_packet_type: uint8 &convert=ServerPacketType($$);
+};
+
+type DebugPacket = unit(packet_length: uint16) {
+    debug_text: bytes &size=packet_length - 1;
+};
+
+type LoginAcceptedPacket = unit {
+    accepted_session: bytes &size=10;
+    accepted_sequence_number: bytes &size=20;
+};
+
+type LoginRejectedPacket = unit {
+    reject_reason_code: uint8 &convert=RejectReasonCode($$);
+};
+
+type SequencedDataPacket = unit {
+    sequenced_message_type: uint8 &convert=SequencedMessageType($$);
+    switch ( self.sequenced_message_type ) {
+        SequencedMessageType::TimeStampSecondsMessage -> time_stamp_seconds_message: TimeStampSecondsMessage;
+        SequencedMessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        SequencedMessageType::QuantityTickSizeMessage -> quantity_tick_size_message: QuantityTickSizeMessage;
+        SequencedMessageType::PriceTickSizeMessage -> price_tick_size_message: PriceTickSizeMessage;
+        SequencedMessageType::OrderbookDirectoryMessage -> orderbook_directory_message: OrderbookDirectoryMessage;
+        SequencedMessageType::OrderbookTradingActionMessage -> orderbook_trading_action_message: OrderbookTradingActionMessage;
+        SequencedMessageType::AddOrderMessage -> add_order_message: AddOrderMessage;
+        SequencedMessageType::IndicativePriceQuantityMessage -> indicative_price_quantity_message: IndicativePriceQuantityMessage;
+        SequencedMessageType::GlimpseSnapshotMessage -> glimpse_snapshot_message: GlimpseSnapshotMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TimeStampSecondsMessage = unit {
+    second: uint32 &convert=interval($$);
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    group: bytes &size=8;
+    event_code: uint8 &convert=EventCode($$);
+    orderbook: uint32;
+};
+
+type QuantityTickSizeMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    quantity_tick_table_id: uint32;
+    quantity_tick_size: uint32;
+    quantity_start: uint32;
+};
+
+type PriceTickSizeMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    price_tick_table_id: uint32;
+    price_tick_size: uint32;
+    price_start: uint32;
+};
+
+type OrderbookDirectoryMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    orderbook: uint32;
+    price_type: uint8 &convert=PriceType($$);
+    isin: bytes &size=12;
+    currency: bytes &size=3;
+    group: bytes &size=8;
+    minimum_quantity: uint32;
+    quantity_tick_table_id: uint32;
+    price_tick_table_id: uint32;
+    price_decimals: uint32;
+    delisting_date: uint32;
+    delisting_time: uint32;
+    qod_price_decimals: uint32;
+    security_exchange: bytes &size=4;
+    reference_exchange: bytes &size=4;
+};
+
+type OrderbookTradingActionMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    orderbook: uint32;
+    trading_state: uint8 &convert=TradingState($$);
+    book_condition: uint8 &convert=BookCondition($$);
+};
+
+type AddOrderMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    order_number: uint64;
+    order_verb: uint8 &convert=OrderVerb($$);
+    order_quantity: uint32;
+    orderbook: uint32;
+    order_price: uint32;
+};
+
+type IndicativePriceQuantityMessage = unit {
+    timestamp: uint32 &convert=interval_ns($$);
+    theoretical_opening_quantity: uint64;
+    orderbook: uint32;
+    best_bid: uint32;
+    best_offer: uint32;
+    theoretical_opening_price: uint32;
+    cross_type: uint8 &convert=CrossType($$);
+};
+
+type GlimpseSnapshotMessage = unit {
+    sequence_number: uint64;
+};
+
+type ServerPacketType = enum {
+    DebugPacket = 0x2b,
+    LoginAcceptedPacket = 0x41,
+    LoginRejectedPacket = 0x4a,
+    SequencedDataPacket = 0x53,
+    ServerHeartbeatPacket = 0x48,
+    EndOfSessionPacket = 0x5a,
+};
+
+type RejectReasonCode = enum {
+    NotAuthorized = 0x41,
+    SessionNotAvailable = 0x53,
+};
+
+type SequencedMessageType = enum {
+    TimeStampSecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    QuantityTickSizeMessage = 0x4d,
+    PriceTickSizeMessage = 0x4c,
+    OrderbookDirectoryMessage = 0x52,
+    OrderbookTradingActionMessage = 0x48,
+    AddOrderMessage = 0x41,
+    IndicativePriceQuantityMessage = 0x49,
+    GlimpseSnapshotMessage = 0x47,
+};
+
+type EventCode = enum {
+    Break = 0x41,
+    ResumptionAfterBreak = 0x42,
+    EndOfMessages = 0x43,
+    EndOfSystemHours = 0x45,
+    StartOfAccepting = 0x49,
+    EndOfMarketHours = 0x4d,
+    StartOfMessages = 0x4f,
+    StartOfMarketHours = 0x51,
+    StartOfSystemHours = 0x53,
+    AuctionCloses = 0x55,
+    AuctionStarts = 0x56,
+    StartOfTradingAtLast = 0x54,
+    EndOfTradingAtLast = 0x4c,
+    SynchronizedWithGroup = 0x20,
+};
+
+type PriceType = enum {
+    PerUnit = 0x55,
+    Percentage = 0x50,
+};
+
+type TradingState = enum {
+    Trading = 0x54,
+    Suspended = 0x56,
+    SwissAtMidOrderBookSuspended = 0x4d,
+    SwissEbboOrderBookSuspended = 0x45,
+    SwissEbboAndSwissAtMidOrderBooksSuspended = 0x4f,
+    UnderlyingCondition = 0x55,
+    QuoteOnDemandOrderBookSuspended = 0x51,
+    ClobSuspendedAndQodOrderBookInTrading = 0x43,
+    LpBidOnlyActive = 0x4c,
+    LpBidOnlyActiveAndQodOrderBookSuspended = 0x50,
+};
+
+type BookCondition = enum {
+    DelayAuction = 0x44,
+    StopTrading = 0x48,
+    StopTradingWithNonOpening = 0x4a,
+    DelayAuctionWithNonOpening = 0x4c,
+    NormalTrading = 0x4e,
+    NonOpening = 0x50,
+    LpBidOnlyReasonUsWithholdingTax = 0x31,
+    LpBidOnlyReasonIssuerSoldOut = 0x32,
+    LpBidOnlyReasonIssuerBusinessPolicy = 0x33,
+    LpBidOnlyReasonSuccessorProduct = 0x34,
+    LpBidOnlyReasonProductWorthless = 0x35,
+};
+
+type OrderVerb = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+    ReferencePriceUpdate = 0x20,
+};
+
+type CrossType = enum {
+    ClosingAuction = 0x43,
+    IntradayAuction = 0x49,
+    PreOpeningAuction = 0x4f,
+};
+

@@ -74,7 +74,7 @@ type WeightedAveragePriceSettlementPricesMessage = unit {
 type CapitalTradesMessage = unit {
     instrument_number: int32;
     trade_time: int64 &convert=time($$ / 1000.0);
-    volume_int_324: int32;
+    volume: int32;
     price: int64;
     concertation_type: uint8 &convert=ConcertationType($$);
     trade_number: int32;
@@ -90,7 +90,7 @@ type CapitalTradesMessage = unit {
 type ProbableAllocationPriceMessage = unit {
     instrument_number: int32;
     probable_allocation_price: int64;
-    volume_int_324: int32;
+    volume: int32;
 };
 
 type ContinuousAuctionsBeginningMessage = unit {
@@ -118,7 +118,7 @@ type MutualFundTradesMessage = unit {
 type TradabilityMessage = unit {
     instrument_number: int32;
     number_of_operations: int32;
-    volume_int_648: int64;
+    volume_long: int64;
     amount: int64;
     opening_price: int64;
     maximum: int64;
@@ -132,7 +132,7 @@ type VirtualTradesMessage = unit {
     virtual_trades_status: uint8 &convert=VirtualTradesStatus($$);
     operation_type: uint8 &convert=OperationType($$);
     number: int32;
-    volume_int_324: int32;
+    volume: int32;
     concertation: uint8 &convert=Concertation($$);
     buy: bytes &size=5;
     sell: bytes &size=5;
@@ -143,7 +143,7 @@ type OrderAdditionMessage = unit {
     date_and_time: int64 &convert=time($$ / 1000.0);
     number: int32;
     direction: uint8 &convert=Direction($$);
-    volume_int_324: int32;
+    volume: int32;
     price: int64;
     participant: bytes &size=5;
 };
@@ -152,7 +152,7 @@ type ExecutionOfOrdersMessage = unit {
     instrument_number: int32;
     date: int64 &convert=time($$ / 1000.0);
     number: int32;
-    volume_int_324: int32;
+    volume: int32;
     trade_number: int32;
     execution_price: int64;
 };
@@ -170,7 +170,7 @@ type OrderChangeMessage = unit {
     new_date: int64 &convert=time($$ / 1000.0);
     new_number: int32;
     direction: uint8 &convert=Direction($$);
-    volume_int_324: int32;
+    volume: int32;
     price: int64;
 };
 
@@ -193,7 +193,7 @@ type MarketDataGroup = enum {
     TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
     BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
     TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
-    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    TenPriceLevelsOfDerivativeFuturesAndDerivativeOptions = 19,
     BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
     AddedValueWithBenchmark = 21,
     AddedValueWithCapitalizationRules = 22,
@@ -205,8 +205,11 @@ type MarketDataGroup = enum {
     ClosingPriceOrigin = 28,
     AnalyticsPriceAndMarketDepth = 29,
     AnalyticsMarketQuality = 32,
-    AnalyticsSpeadPerformance = 33,
+    AnalyticsSpreadPerformance = 33,
     AnalyticsNegotiation = 34,
+    IndicesComponentsStrategy = 35,
+    IndicesComponentsEsg = 36,
+    MocLocalAndGlobalMarket = 37,
     ChannelZeroCatalogs = 40,
 };
 
@@ -313,7 +316,7 @@ type ConcertationType = enum {
     SellLegAutoEntryOfForeignCurrencyStrategy = 0x4b,
     BuyLegAutoEntryOfForeignCurrencyStrategy = 0x4c,
     LegOfForeignCurrencyStrategy = 0x4e,
-    LegOfForeignCurrencyStrategy_x51 = 0x51,
+    LegOfRoundOfForeignCurrencyStrategy = 0x51,
     LegOfCrossingOfChainOfForwards = 0x52,
     SellLegAutoEntryOfChainOfForwards = 0x53,
     BuyLegAutoEntryOfChainOfForwards = 0x54,
@@ -325,7 +328,7 @@ type ConcertationType = enum {
     BuyLegAutoEntryOfRollover = 0x61,
     LegOfRoundOfRollover = 0x62,
     DepthOfRoundOfChainOfForwards = 0x63,
-    TradingOfChainOfForwards = 0x64,
+    AuctionOfChainOfForwards = 0x64,
     DepthOfRound = 0x65,
     RoundOfChainOfForwards = 0x66,
     RolloverSentra = 0x67,
@@ -410,7 +413,7 @@ type Concertation = enum {
     SellLegAutoEntryOfForeignCurrencyStrategy = 0x4b,
     BuyLegAutoEntryOfForeignCurrencyStrategy = 0x4c,
     LegOfForeignCurrencyStrategy = 0x4e,
-    LegOfForeignCurrencyStrategy_x51 = 0x51,
+    LegOfRoundOfForeignCurrencyStrategy = 0x51,
     LegOfCrossingOfChainOfForwards = 0x52,
     SellLegAutoEntryOfChainOfForwards = 0x53,
     BuyLegAutoEntryOfChainOfForwards = 0x54,
@@ -422,7 +425,7 @@ type Concertation = enum {
     BuyLegAutoEntryOfRollover = 0x61,
     LegOfRoundOfRollover = 0x62,
     DepthOfRoundOfChainOfForwards = 0x63,
-    TradingOfChainOfForwards = 0x64,
+    AuctionOfChainOfForwards = 0x64,
     DepthOfRound = 0x65,
     RoundOfChainOfForwards = 0x66,
     RolloverSentra = 0x67,

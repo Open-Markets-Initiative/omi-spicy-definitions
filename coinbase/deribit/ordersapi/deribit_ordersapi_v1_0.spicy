@@ -107,7 +107,7 @@ type GapFillMessage = unit {
 
 type RejectMessage = unit {
     ref_sequence_number: int64;
-    reason_reject_reason: int8 &convert=ReasonRejectReason($$);
+    reject_reason: int8 &convert=RejectReason($$);
     details: Details;
 };
 
@@ -127,7 +127,7 @@ type NewOrderRequestMessage = unit {
     side: int8 &convert=Side($$);
     time_in_force: int8;
     flags_order_flags: bitfield(16) {
-        unused_order_flags_0: 0;
+        unused_bit_0: 0;
         post_only: 1;
         post_only_reject: 2;
         market_limit: 3;
@@ -156,7 +156,7 @@ type AmendOrderRequestMessage = unit {
     quantity: Quantity;
     show_qty: ShowQty;
     flags_replace_order_flags: bitfield(16) {
-        unused_replace_order_flags_0: 0;
+        unused_bit_0: 0;
         post_only: 1;
         post_only_reject: 2;
         reserved_13: 3..15;
@@ -198,7 +198,7 @@ type MassQuoteRequestMessageQuotesGroup = unit {
     bid_qty: BidQty;
     ask_qty: AskQty;
     bid_flags: bitfield(16) {
-        unused_order_flags_0: 0;
+        unused_bit_0: 0;
         post_only: 1;
         post_only_reject: 2;
         market_limit: 3;
@@ -207,7 +207,7 @@ type MassQuoteRequestMessageQuotesGroup = unit {
         reserved_10: 6..15;
     } &byte-order=spicy::ByteOrder::Little;
     ask_flags: bitfield(16) {
-        unused_order_flags_0: 0;
+        unused_bit_0: 0;
         post_only: 1;
         post_only_reject: 2;
         market_limit: 3;
@@ -306,7 +306,7 @@ type NewOrderRejectMessage = unit {
     correlation_id: int64;
     order_id: int64;
     instrument_id: int64;
-    reason_order_reject_reason: int8 &convert=ReasonOrderRejectReason($$);
+    order_reject_reason: int8 &convert=OrderRejectReason($$);
     details: Details;
 };
 
@@ -359,7 +359,7 @@ type AmendOrderRejectMessage = unit {
     correlation_id: int64;
     order_id: int64;
     instrument_id: int64;
-    reason_order_reject_reason: int8 &convert=ReasonOrderRejectReason($$);
+    order_reject_reason: int8 &convert=OrderRejectReason($$);
     details: Details;
 };
 
@@ -380,7 +380,7 @@ type CancelOrderRejectMessage = unit {
     correlation_id: int64;
     order_id_optional: int64;
     instrument_id: int64;
-    reason_cancel_order_reject_reason: int8 &convert=ReasonCancelOrderRejectReason($$);
+    cancel_order_reject_reason: int8 &convert=CancelOrderRejectReason($$);
     details: Details;
 };
 
@@ -471,7 +471,7 @@ type MassQuoteRejectMessage = unit {
     quote_id: int64;
     correlation_id: int64;
     mmp_group_id: int64;
-    reason_mass_quote_reject_reason: int8 &convert=ReasonMassQuoteRejectReason($$);
+    mass_quote_reject_reason: int8 &convert=MassQuoteRejectReason($$);
     details: Details;
 };
 
@@ -487,7 +487,7 @@ type MassCancelRejectMessage = unit {
     timestamp: int64 &convert=time_ns($$);
     exec_id: int64;
     correlation_id: int64;
-    reason_mass_cancel_reject_reason: int8 &convert=ReasonMassCancelRejectReason($$);
+    mass_cancel_reject_reason: int8 &convert=MassCancelRejectReason($$);
     details: Details;
 };
 
@@ -633,7 +633,7 @@ type MassQuoteOrdersPlacedMessageFillsGroups = unit {
 
 type MassQuoteOrdersPlacedMessageFillsGroup = unit {
     match_id: int64;
-    order_id_fill_id: int64;
+    order_id: int64;
     fill_price: int64;
     fill_qty: FillQty;
 };
@@ -728,7 +728,7 @@ type ResetSeqNum = enum {
     True_1 = 1,
 };
 
-type ReasonRejectReason = enum {
+type RejectReason = enum {
     InvalidSchemaId = 1,
     InvalidTemplateId = 2,
     InvalidBlockLength = 3,
@@ -786,7 +786,7 @@ type LegSide = enum {
     Both = 0,
 };
 
-type ReasonOrderRejectReason = enum {
+type OrderRejectReason = enum {
     SystemError = 0,
     InvalidInstrument = 1,
     InvalidField = 2,
@@ -818,7 +818,7 @@ type ReasonOrderRejectReason = enum {
     OrderSizeLimitExceeded = 28,
 };
 
-type ReasonCancelOrderRejectReason = enum {
+type CancelOrderRejectReason = enum {
     Error = 0,
     UnknownOrder = 1,
     ClientPermissionError = 2,
@@ -914,7 +914,7 @@ type AskRejectReason = enum {
     OrderSizeLimitExceeded = 28,
 };
 
-type ReasonMassQuoteRejectReason = enum {
+type MassQuoteRejectReason = enum {
     SystemError = 0,
     InvalidMmpGroup = 1,
     MmpGroupDisabled = 2,
@@ -925,7 +925,7 @@ type ReasonMassQuoteRejectReason = enum {
     PortfolioLocked = 7,
 };
 
-type ReasonMassCancelRejectReason = enum {
+type MassCancelRejectReason = enum {
     Error = 0,
     InvalidMmpGroup = 1,
     ClientPermissionError = 2,

@@ -8,12 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [ 0, 1, 2, 3, 4, 5 ]
 
     steps:
       - uses: actions/checkout@v5
 
       - name: Compile Definitions
-        run: docker run --rm -v "$PWD":/work -w /work zeek/zeek:latest bash -c 'set -e; echo "Compiling definitions"; find . -name "*.spicy" | while read module; do echo "  $module"; spicyc -c "$module" -o /tmp/module.cc; done'
+        run: docker run --rm -v "$PWD":/work -w /work zeek/zeek:latest bash -c 'find . -name "*.spicy" | sort | awk "NR % 6 == ${{ matrix.shard }}" | xargs -P "$(nproc)" -n 1 sh -c "spicyc -c \"\$0\" -o /tmp/\$\$.cc && rm /tmp/\$\$.cc && echo \"  \$0\""'
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
 
       - name: Clone Omi Data
         run: git clone --depth=1 https://github.com/Open-Markets-Initiative/omi-data-packets.git

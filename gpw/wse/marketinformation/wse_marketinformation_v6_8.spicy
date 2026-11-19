@@ -69,7 +69,7 @@ type MailMessage = unit {
     source_time_micro_secs: uint16;
     scope: bytes &size=1;
     title: bytes &size=80;
-    text_ascii_str_1000: bytes &size=1000;
+    mail_text: bytes &size=1000;
     : skip bytes &size=3;   # padding
 };
 
@@ -123,7 +123,7 @@ type ReferentialMessage = unit {
     : skip bytes &size=4;   # padding
     source_time_micro_secs: uint16;
     stock_exchange_code: uint16 &convert=StockExchangeCode($$);
-    type_of_instrument_binary_int_2: uint16;
+    type_of_instrument: uint16 &convert=TypeOfInstrument($$);
     event_date: bytes &size=8;
     instrument_name: bytes &size=18;
     period_indicator: bytes &size=1;
@@ -214,7 +214,7 @@ type SessionSummaryMessage = unit {
     symbol_index: uint32;
     source_time: uint32 &convert=interval($$ / 1000.0);
     source_seq_num: uint32;
-    date_binary_int_4: uint32;
+    date: uint32;
     multiplier: uint32;
     accumulated_interest: uint32;
     opening_price: uint32;
@@ -356,7 +356,7 @@ type ShortSaleChangeMessage = unit {
     source_time: uint32 &convert=interval($$ / 1000.0);
     system_id: uint32 &convert=SystemId($$);
     source_time_micro_secs: uint16;
-    text_ascii_ch_100: bytes &size=100;
+    text: bytes &size=100;
     authority: uint8 &convert=Authority($$);
     ss_market_maker: uint8 &convert=SsMarketMaker($$);
     ss_non_market_maker: uint8 &convert=SsNonMarketMaker($$);
@@ -390,7 +390,7 @@ type TreasuryBondFuturesData = unit {
     isin_code: bytes &size=12;
     date_of_first_quotation: bytes &size=8;
     short_name: bytes &size=16;
-    date_ascii_str_8: bytes &size=8;
+    start_date: bytes &size=8;
     underlying_isin_code: bytes &size=12;
     treasury_bond_1_isin_code: bytes &size=12;
     conversion_coefficient_factor_1: bytes &size=9;
@@ -407,7 +407,7 @@ type TreasuryBondFuturesData = unit {
 
 type Kid = unit {
     isin_code: bytes &size=12;
-    type_of_instrument_ascii_str_4: bytes &size=4;
+    kid_type_of_instrument: bytes &size=4;
     kid_version: bytes &size=10;
     kid_issue_date: bytes &size=8;
     value_at_risk: bytes &size=1;
@@ -489,6 +489,48 @@ type StockExchangeCode = enum {
     BondSpotNonExchangeRegulatedMarket = 986,
     TreasuryBondSpotPoland = 988,
     BondSpotAts = 989,
+};
+
+type TypeOfInstrument = enum {
+    Index = 0,
+    EquityOrdinaryShares = 100,
+    EquityPreferredShares = 101,
+    EquityPreferenceShares = 102,
+    EquityConvertibleShares = 103,
+    EquityDepositaryReceipts = 104,
+    EquityUnitTrustUnits = 105,
+    EquityInvestmentTrustShares = 106,
+    EquityNationalFundCertificates = 107,
+    EquityLinkedAllotmentRights = 108,
+    EquityLinkedSubscriptionRights = 109,
+    EquityLinkedIssueRights = 110,
+    StructuredProductCashCertificates = 111,
+    EquityLinkedSubscriptionWarrants = 112,
+    BondBonds = 200,
+    BondTreasuryBonds = 201,
+    BondTreasuryNotes = 202,
+    BondTreasuryBills = 203,
+    BondMunicipalBond = 204,
+    BondCorporateBonds = 205,
+    BondCommercialPapers = 206,
+    BondConvertibleBonds = 207,
+    BondMortgageBackedBonds = 208,
+    BondPublicMortgageBonds = 209,
+    StructuredProductCashStructuredBonds = 210,
+    TrackerEtf = 300,
+    TrackerEtn = 301,
+    TrackerEtc = 302,
+    TrackerEtv = 303,
+    StructuredProductWarrants = 400,
+    StructuredProductWarrantsWithKnockOut = 401,
+    StructuredProductCertificatesWithKnockOut = 402,
+    StructuredProductLeveragedStructuredCertificates = 403,
+    StructuredProductCertificates = 404,
+    StructuredProductStructuredBonds = 410,
+    FuturesFutures = 500,
+    OptionsVanillaOptions = 600,
+    OptionsBinaryOptions = 601,
+    ParticipationUnitIndexParticipationUnits = 700,
 };
 
 type InstrumentCategory = enum {

@@ -14,6 +14,12 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class CoinbasederivativesMarketdataapiV12Tests(unittest.TestCase):
 
+    def test_endofsnapshotmessage(self):
+        module = "coinbase/coinbasederivatives/marketdataapi/coinbasederivatives_marketdataapi_v1_2.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.MarketDataApi.Sbe.v1.2/EndOfSnapshotMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_orderdeletemessage(self):
         module = "coinbase/coinbasederivatives/marketdataapi/coinbasederivatives_marketdataapi_v1_2.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.MarketDataApi.Sbe.v1.2/OrderDeleteMessage.pcap"):

@@ -93,7 +93,7 @@ type TradingActionMessage = unit {
 type OptionOpenMessage = unit {
     nanoseconds: uint32 &convert=interval_ns($$);
     option_id: uint32;
-    open_state: bytes &size=1;
+    open_state: uint8 &convert=OpenState($$);
 };
 
 type AddOrderMessageShortForm = unit {
@@ -295,10 +295,11 @@ type MessageType = enum {
 type EventCode = enum {
     StartOfMessages = 0x4f,
     StartOfSystemHours = 0x53,
-    StartOfMarketHours = 0x51,
-    EndOfMarketHours = 0x4d,
+    StartOfOpeningProcess = 0x51,
     EndOfSystemHours = 0x45,
     EndOfMessages = 0x43,
+    EndOfNormalHoursProcessing = 0x4e,
+    EndOfLateHoursProcessing = 0x4c,
 };
 
 type OptionType = enum {
@@ -327,6 +328,9 @@ type CurrentTradingState = enum {
     Trading = 0x54,
     BuySideTradingSuspended = 0x42,
     SellSideTradingSuspended = 0x53,
+};
+
+type OpenState = enum {
     Open = 0x59,
     Closed = 0x4e,
 };
@@ -354,7 +358,7 @@ type BuySellIndicator = enum {
 
 type CrossType = enum {
     BxOpeningReopening = 0x4f,
-    BxOpeningReopening_x50 = 0x50,
+    PriceImprovementPrismAuction = 0x50,
 };
 
 type AuctionType = enum {

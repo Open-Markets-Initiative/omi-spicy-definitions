@@ -1,0 +1,1612 @@
+# License: MIT No Attribution
+
+module NseNseslbmOrderentryNnfdirectV27Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NseslbmOrderentryV27 = unit {
+    server_direct_packet: ServerDirectPacket[] &eod;
+};
+
+type ServerDirectPacket = unit {
+    packet_header: PacketHeader;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::LogonResponseMessage -> logon_response_message: LogonResponseMessage(self.message_header.message_length);
+        TransactionCode::SystemInformationResponseMessage -> system_information_response_message: SystemInformationResponseMessage;
+        TransactionCode::PartialSystemInformationResponseMessage -> partial_system_information_response_message: PartialSystemInformationResponseMessage;
+        TransactionCode::UpdateLocalDatabaseHeaderMessage -> update_local_database_header_message: UpdateLocalDatabaseHeaderMessage;
+        TransactionCode::UpdateLocalDatabaseDataMessage -> update_local_database_data_message: UpdateLocalDatabaseDataMessage;
+        TransactionCode::UpdateLocalDatabaseTrailerMessage -> update_local_database_trailer_message: UpdateLocalDatabaseTrailerMessage;
+        TransactionCode::MessageDownloadDataMessage -> message_download_data_message: MessageDownloadDataMessage;
+        TransactionCode::BoardLotOutMessage -> board_lot_out_message: BoardLotOutMessage;
+        TransactionCode::OrderConfirmationResponseMessage -> order_confirmation_response_message: OrderConfirmationResponseMessage;
+        TransactionCode::MarketPriceConfirmationResponseMessage -> market_price_confirmation_response_message: MarketPriceConfirmationResponseMessage;
+        TransactionCode::OrderFreezeResponseMessage -> order_freeze_response_message: OrderFreezeResponseMessage;
+        TransactionCode::OrderErrorResponseMessage -> order_error_response_message: OrderErrorResponseMessage;
+        TransactionCode::OrderModificationResponseMessage -> order_modification_response_message: OrderModificationResponseMessage;
+        TransactionCode::OrderModificationConfirmationResponseMessage -> order_modification_confirmation_response_message: OrderModificationConfirmationResponseMessage;
+        TransactionCode::OrderModificationErrorResponseMessage -> order_modification_error_response_message: OrderModificationErrorResponseMessage;
+        TransactionCode::OrderCancellationResponseMessage -> order_cancellation_response_message: OrderCancellationResponseMessage;
+        TransactionCode::OrderCancellationConfirmationResponseMessage -> order_cancellation_confirmation_response_message: OrderCancellationConfirmationResponseMessage;
+        TransactionCode::OrderCancellationErrorResponseMessage -> order_cancellation_error_response_message: OrderCancellationErrorResponseMessage;
+        TransactionCode::CancellationOfOrdersInBatchMessage -> cancellation_of_orders_in_batch_message: CancellationOfOrdersInBatchMessage;
+        TransactionCode::NegotiatedOrderEnteredByCounterPartyMessage -> negotiated_order_entered_by_counter_party_message: NegotiatedOrderEnteredByCounterPartyMessage;
+        TransactionCode::NegotiatedOrderToRegularLotMessage -> negotiated_order_to_regular_lot_message: NegotiatedOrderToRegularLotMessage;
+        TransactionCode::CancelNegotiatedOrderMessage -> cancel_negotiated_order_message: CancelNegotiatedOrderMessage;
+        TransactionCode::TradeCancellationRequestedResponseMessage -> trade_cancellation_requested_response_message: TradeCancellationRequestedResponseMessage;
+        TransactionCode::TradeCancellationErrorMessage -> trade_cancellation_error_message: TradeCancellationErrorMessage;
+        TransactionCode::TradeModificationRequestedResponseMessage -> trade_modification_requested_response_message: TradeModificationRequestedResponseMessage;
+        TransactionCode::TradeConfirmationMessage -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::StopLossOrderTriggeringMessage -> stop_loss_order_triggering_message: StopLossOrderTriggeringMessage;
+        TransactionCode::TradeCancellationConfirmationResponseMessage -> trade_cancellation_confirmation_response_message: TradeCancellationConfirmationResponseMessage;
+        TransactionCode::TradeCancellationRejectionMessage -> trade_cancellation_rejection_message: TradeCancellationRejectionMessage;
+        TransactionCode::TradeModificationConfirmationMessage -> trade_modification_confirmation_message: TradeModificationConfirmationMessage;
+        TransactionCode::TradeModificationRejectionMessage -> trade_modification_rejection_message: TradeModificationRejectionMessage;
+        TransactionCode::ControlMessageToTraderMessage -> control_message_to_trader_message: ControlMessageToTraderMessage;
+        TransactionCode::ErrorResponseMessage -> error_response_message: ErrorResponseMessage;
+        TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage;
+        TransactionCode::BoxSignOnResponseMessage -> box_sign_on_response_message: BoxSignOnResponseMessage;
+        TransactionCode::BoxSignOffMessage -> box_sign_off_message: BoxSignOffMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+    checksum: bytes &size=16;
+};
+
+type MessageHeader = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32 &convert=time($$ + 315532800);
+    alpha_char: bytes &size=2;
+    trader_id: int32;
+    error_code: int16;
+    header_timestamp: int64;
+    time_stamp_1: bytes &size=8;
+    time_stamp_2: bytes &size=8;
+    message_length: int16;
+};
+
+type LogonResponseMessage = unit(message_length: int16) {
+    switch ( message_length ) {
+        212 -> logon_confirmation_body: LogonConfirmationBody;
+        180 -> logon_error_body: LogonErrorBody;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type LogonConfirmationBody = unit {
+    user_id: int32;
+    password: bytes &size=8;
+    new_password: bytes &size=8;
+    trader_name: bytes &size=26;
+    last_password_change_date: int32 &convert=time($$ + 315532800);
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    branch_id: int16;
+    version_number: int32;
+    end_time: int32 &convert=time($$ + 315532800);
+    : skip bytes &size=52;   # padding
+    user_type: int16 &convert=UserType($$);
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=14;   # padding
+    broker_status: uint8 &convert=BrokerStatus($$);
+    : skip bytes &size=1;   # padding
+    broker_eligibility_per_market: bitfield(16) {
+        reserved_112: 0..11;
+        auction_market: 12;
+        spot_market: 13;
+        oddlot_market: 14;
+        normal_market: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    broker_name: bytes &size=25;
+    char_filler_3: bytes &size=1;
+};
+
+type LogonErrorBody = unit {
+    sec_info: SecInfo;
+    error_message: bytes &size=128;
+};
+
+type SecInfo = unit {
+    symbol: bytes &size=10;
+    series: bytes &size=2;
+};
+
+type SystemInformationResponseMessage = unit {
+    normal: int16 &convert=Normal($$);
+    oddlot: int16 &convert=Oddlot($$);
+    spot: int16 &convert=Spot($$);
+    auction: int16 &convert=Auction($$);
+    market_index: int32;
+    default_settlement_period_normal: int16;
+    default_settlement_period_spot: int16;
+    default_settlement_period_auction: int16;
+    competitor_period: int16;
+    solicitor_period: int16;
+    warning_percent: int16;
+    volume_freeze_percent: int16;
+    : skip bytes &size=2;   # padding
+    terminal_idle_time: int16;
+    board_lot_quantity: int32;
+    tick_size: int32;
+    maximum_gtc_days: int16;
+    security_eligible_indicators: bitfield(16) {
+        reserved_113: 0..12;
+        books_merged: 13;
+        minimum_fill: 14;
+        aon: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    disclosed_quantity_percent_allowed: int16;
+    : skip bytes &size=4;   # padding
+};
+
+type PartialSystemInformationResponseMessage = unit {
+    normal: int16 &convert=Normal($$);
+    oddlot: int16 &convert=Oddlot($$);
+    spot: int16 &convert=Spot($$);
+    auction: int16 &convert=Auction($$);
+    market_index: int32;
+    default_settlement_period_normal: int16;
+    default_settlement_period_spot: int16;
+    default_settlement_period_auction: int16;
+    competitor_period: int16;
+    solicitor_period: int16;
+    warning_percent: int16;
+    volume_freeze_percent: int16;
+    : skip bytes &size=2;   # padding
+    terminal_idle_time: int16;
+    board_lot_quantity: int32;
+    tick_size: int32;
+    maximum_gtc_days: int16;
+    security_eligible_indicators: bitfield(16) {
+        reserved_113: 0..12;
+        books_merged: 13;
+        minimum_fill: 14;
+        aon: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    disclosed_quantity_percent_allowed: int16;
+    : skip bytes &size=4;   # padding
+};
+
+type UpdateLocalDatabaseHeaderMessage = unit {
+    : skip bytes &size=2;   # padding
+};
+
+type UpdateLocalDatabaseDataMessage = unit {
+    data: bytes &eod;
+};
+
+type UpdateLocalDatabaseTrailerMessage = unit {
+    : skip bytes &size=2;   # padding
+};
+
+type MessageDownloadDataMessage = unit {
+    data: bytes &eod;
+};
+
+type BoardLotOutMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderConfirmationResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type MarketPriceConfirmationResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderFreezeResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderErrorResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderModificationResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderModificationConfirmationResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderModificationErrorResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderCancellationResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderCancellationConfirmationResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type OrderCancellationErrorResponseMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type CancellationOfOrdersInBatchMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type NegotiatedOrderEnteredByCounterPartyMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type NegotiatedOrderToRegularLotMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type CancelNegotiatedOrderMessage = unit {
+    participant_type: uint8 &convert=ParticipantType($$);
+    : skip bytes &size=1;   # padding
+    competitor_period: int16;
+    solicitor_period: int16;
+    mod_cxl_by: uint8 &convert=ModCxlBy($$);
+    : skip bytes &size=1;   # padding
+    reason_code: int16 &convert=ReasonCode($$);
+    : skip bytes &size=4;   # padding
+    sec_info: SecInfo;
+    auction_number: int16;
+    op_broker_id: bytes &size=5;
+    suspended: bytes &size=1;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell: int16 &convert=BuySell($$);
+    disclosed_vol: int32;
+    disclosed_vol_remaining: int32;
+    total_vol_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    trigger_price: int32;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    min_fill_aon: int32;
+    last_modified: int32 &convert=time($$ + 315532800);
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    oe_remarks: bytes &size=21;
+    transaction_id: int32;
+    settlor: bytes &size=12;
+    pro_client: int16 &convert=ProClient($$);
+    settlement_period: int16;
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    exec_time_stamp: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=2;   # padding
+    order_type: bytes &size=2;
+};
+
+type TradeCancellationRequestedResponseMessage = unit {
+    sec_info: SecInfo;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    l_fill_number: int32;
+    l_fill_qty: int32;
+    l_fill_price: int32;
+    i_mkt_type: int16;
+    l_new_volume: int32;
+    buy_participant_id: bytes &size=12;
+    sell_participant_id: bytes &size=12;
+    buy_broker_id: bytes &size=5;
+    sell_broker_id: bytes &size=5;
+    trader_id: int32;
+    requested_by: int16;
+};
+
+type TradeCancellationErrorMessage = unit {
+    sec_info: SecInfo;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    l_fill_number: int32;
+    l_fill_qty: int32;
+    l_fill_price: int32;
+    i_mkt_type: int16;
+    l_new_volume: int32;
+    buy_participant_id: bytes &size=12;
+    sell_participant_id: bytes &size=12;
+    buy_broker_id: bytes &size=5;
+    sell_broker_id: bytes &size=5;
+    trader_id: int32;
+    requested_by: int16;
+};
+
+type TradeModificationRequestedResponseMessage = unit {
+    sec_info: SecInfo;
+    reverse_leg_settl_date: int32 &convert=time($$ + 315532800);
+    l_fill_number: int32;
+    l_fill_qty: int32;
+    l_fill_price: int32;
+    i_mkt_type: int16;
+    l_new_volume: int32;
+    buy_participant_id: bytes &size=12;
+    sell_participant_id: bytes &size=12;
+    buy_broker_id: bytes &size=5;
+    sell_broker_id: bytes &size=5;
+    trader_id: int32;
+    requested_by: int16;
+};
+
+type TradeConfirmationMessage = unit {
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
+    order_type: bytes &size=2;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    trader_num: int32;
+    account_num: bytes &size=10;
+    buy_sell: int16 &convert=BuySell($$);
+    original_vol: int32;
+    disclosed_vol: int32;
+    remaining_vol: int32;
+    disclosed_vol_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    gtd: int32 &convert=time($$ + 315532800);
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    vol_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32 &convert=time($$ + 315532800);
+    op_order_number: real &type=spicy::RealType::IEEE754_Double;
+    op_broker_id: bytes &size=5;
+    sec_info: SecInfo;
+    : skip bytes &size=1;   # padding
+    book_type: int16 &convert=BookType($$);
+    new_volume: int32;
+    pro_client: int16 &convert=ProClient($$);
+};
+
+type StopLossOrderTriggeringMessage = unit {
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
+    order_type: bytes &size=2;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    trader_num: int32;
+    account_num: bytes &size=10;
+    buy_sell: int16 &convert=BuySell($$);
+    original_vol: int32;
+    disclosed_vol: int32;
+    remaining_vol: int32;
+    disclosed_vol_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    gtd: int32 &convert=time($$ + 315532800);
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    vol_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32 &convert=time($$ + 315532800);
+    op_order_number: real &type=spicy::RealType::IEEE754_Double;
+    op_broker_id: bytes &size=5;
+    sec_info: SecInfo;
+    : skip bytes &size=1;   # padding
+    book_type: int16 &convert=BookType($$);
+    new_volume: int32;
+    pro_client: int16 &convert=ProClient($$);
+};
+
+type TradeCancellationConfirmationResponseMessage = unit {
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
+    order_type: bytes &size=2;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    trader_num: int32;
+    account_num: bytes &size=10;
+    buy_sell: int16 &convert=BuySell($$);
+    original_vol: int32;
+    disclosed_vol: int32;
+    remaining_vol: int32;
+    disclosed_vol_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    gtd: int32 &convert=time($$ + 315532800);
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    vol_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32 &convert=time($$ + 315532800);
+    op_order_number: real &type=spicy::RealType::IEEE754_Double;
+    op_broker_id: bytes &size=5;
+    sec_info: SecInfo;
+    : skip bytes &size=1;   # padding
+    book_type: int16 &convert=BookType($$);
+    new_volume: int32;
+    pro_client: int16 &convert=ProClient($$);
+};
+
+type TradeCancellationRejectionMessage = unit {
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
+    order_type: bytes &size=2;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    trader_num: int32;
+    account_num: bytes &size=10;
+    buy_sell: int16 &convert=BuySell($$);
+    original_vol: int32;
+    disclosed_vol: int32;
+    remaining_vol: int32;
+    disclosed_vol_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    gtd: int32 &convert=time($$ + 315532800);
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    vol_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32 &convert=time($$ + 315532800);
+    op_order_number: real &type=spicy::RealType::IEEE754_Double;
+    op_broker_id: bytes &size=5;
+    sec_info: SecInfo;
+    : skip bytes &size=1;   # padding
+    book_type: int16 &convert=BookType($$);
+    new_volume: int32;
+    pro_client: int16 &convert=ProClient($$);
+};
+
+type TradeModificationConfirmationMessage = unit {
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
+    order_type: bytes &size=2;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    trader_num: int32;
+    account_num: bytes &size=10;
+    buy_sell: int16 &convert=BuySell($$);
+    original_vol: int32;
+    disclosed_vol: int32;
+    remaining_vol: int32;
+    disclosed_vol_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    gtd: int32 &convert=time($$ + 315532800);
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    vol_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32 &convert=time($$ + 315532800);
+    op_order_number: real &type=spicy::RealType::IEEE754_Double;
+    op_broker_id: bytes &size=5;
+    sec_info: SecInfo;
+    : skip bytes &size=1;   # padding
+    book_type: int16 &convert=BookType($$);
+    new_volume: int32;
+    pro_client: int16 &convert=ProClient($$);
+};
+
+type TradeModificationRejectionMessage = unit {
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
+    order_type: bytes &size=2;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    trader_num: int32;
+    account_num: bytes &size=10;
+    buy_sell: int16 &convert=BuySell($$);
+    original_vol: int32;
+    disclosed_vol: int32;
+    remaining_vol: int32;
+    disclosed_vol_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        order_flags_reserved_one: 0;
+        stpc: 1;
+        order_flags_reserved_three: 2;
+        filler_1: 3;
+        frozen: 4;
+        modified: 5;
+        traded: 6;
+        matched_ind: 7;
+        mf: 8;
+        aon: 9;
+        fok: 10;
+        gtc: 11;
+        day: 12;
+        on_stop: 13;
+        mkt: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    gtd: int32 &convert=time($$ + 315532800);
+    fill_number: int32;
+    fill_qty: int32;
+    fill_price: int32;
+    vol_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32 &convert=time($$ + 315532800);
+    op_order_number: real &type=spicy::RealType::IEEE754_Double;
+    op_broker_id: bytes &size=5;
+    sec_info: SecInfo;
+    : skip bytes &size=1;   # padding
+    book_type: int16 &convert=BookType($$);
+    new_volume: int32;
+    pro_client: int16 &convert=ProClient($$);
+};
+
+type ControlMessageToTraderMessage = unit {
+    trader_id: int32;
+    action_code: bytes &size=3;
+    : skip bytes &size=1;   # padding
+    msg_length: int16;
+    msg: bytes &size=239;
+};
+
+type ErrorResponseMessage = unit {
+    sec_info: SecInfo;
+    error_message: bytes &size=128;
+};
+
+type GatewayRouterResponseMessage = unit {
+    box_id: int16;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    ip_address: bytes &size=16;
+    port_field: int32;
+    session_key: bytes &size=8;
+    cryptographic_key: bytes &size=32;
+    cryptographic_iv_initialization_vector: bytes &size=16;
+};
+
+type BoxSignOnResponseMessage = unit {
+    box_id: int16;
+    : skip bytes &size=10;   # padding
+};
+
+type BoxSignOffMessage = unit {
+    box_id: int16;
+};
+
+type TransactionCode = enum {
+    LogonRequestMessage = 2300,
+    LogonResponseMessage = 2301,
+    SystemInformationRequestMessage = 1600,
+    SystemInformationResponseMessage = 1601,
+    PartialSystemInformationResponseMessage = 7321,
+    UpdateLocalDatabaseRequestMessage = 7300,
+    UpdateLocalDatabaseHeaderMessage = 7307,
+    UpdateLocalDatabaseDataMessage = 7304,
+    UpdateLocalDatabaseTrailerMessage = 7308,
+    MessageDownloadRequestMessage = 7000,
+    MessageDownloadHeaderMessage = 7011,
+    MessageDownloadDataMessage = 7021,
+    MessageDownloadTrailerMessage = 7031,
+    LogoffRequestMessage = 2320,
+    LogoffConfirmationResponseMessage = 2321,
+    OrderEntryRequestMessage = 2000,
+    BoardLotOutMessage = 2001,
+    OrderConfirmationResponseMessage = 2073,
+    MarketPriceConfirmationResponseMessage = 2012,
+    OrderFreezeResponseMessage = 2170,
+    OrderErrorResponseMessage = 2231,
+    OrderModificationRequestMessage = 2040,
+    OrderModificationResponseMessage = 2041,
+    OrderModificationConfirmationResponseMessage = 2074,
+    OrderModificationErrorResponseMessage = 2042,
+    OrderCancellationRequestMessage = 2070,
+    OrderCancellationResponseMessage = 2071,
+    OrderCancellationConfirmationResponseMessage = 2075,
+    OrderCancellationErrorResponseMessage = 2072,
+    CancellationOfOrdersInBatchMessage = 9002,
+    NegotiatedOrderEnteredByCounterPartyMessage = 2009,
+    NegotiatedOrderToRegularLotMessage = 2008,
+    CancelNegotiatedOrderMessage = 2076,
+    TradeCancellationRequestMessage = 5440,
+    TradeCancellationRequestedResponseMessage = 5441,
+    TradeCancellationErrorMessage = 2223,
+    TradeModificationRequestMessage = 5445,
+    TradeModificationRequestedResponseMessage = 5446,
+    TradeConfirmationMessage = 2222,
+    StopLossOrderTriggeringMessage = 2212,
+    TradeCancellationConfirmationResponseMessage = 2282,
+    TradeCancellationRejectionMessage = 2286,
+    TradeModificationConfirmationMessage = 2287,
+    TradeModificationRejectionMessage = 2288,
+    ControlMessageToTraderMessage = 5295,
+    ErrorResponseMessage = 2302,
+    GatewayRouterRequestMessage = 2400,
+    GatewayRouterResponseMessage = 2401,
+    SecureBoxRegistrationRequestMessage = 23008,
+    SecureBoxRegistrationResponseMessage = 23009,
+    BoxSignOnRequestMessage = 23000,
+    BoxSignOnResponseMessage = 23001,
+    HeartbeatMessage = 23506,
+    BoxSignOffMessage = 20322,
+};
+
+type UserType = enum {
+    Dealer = 0,
+    CorporateManager = 4,
+    BranchManager = 5,
+};
+
+type BrokerStatus = enum {
+    Blank = 0x20,
+    Suspended = 0x53,
+    Active = 0x41,
+    Deactivated = 0x44,
+    Closeout = 0x43,
+};
+
+type Normal = enum {
+    Preopen = 0,
+    Open = 1,
+    Closed = 2,
+    PreopenEnded = 3,
+};
+
+type Oddlot = enum {
+    Preopen = 0,
+    Open = 1,
+    Closed = 2,
+    PreopenEnded = 3,
+};
+
+type Spot = enum {
+    Preopen = 0,
+    Open = 1,
+    Closed = 2,
+    PreopenEnded = 3,
+};
+
+type Auction = enum {
+    Preopen = 0,
+    Open = 1,
+    Closed = 2,
+    PreopenEnded = 3,
+};
+
+type ParticipantType = enum {
+    Competitor = 0x43,
+    Solicitor = 0x53,
+    Initiator = 0x49,
+};
+
+type ModCxlBy = enum {
+    Trader = 0x54,
+    BranchManager = 0x42,
+    CorporateManager = 0x4d,
+    Control = 0x43,
+};
+
+type ReasonCode = enum {
+    NotSet = 0,
+    Security = 5,
+    Broker = 6,
+    Branch = 7,
+    User = 8,
+    Participant = 9,
+    CounterParty = 10,
+    OrderNumber = 11,
+    AuctionNumber = 15,
+    PriceFreeze = 17,
+    QuantityFreeze = 18,
+};
+
+type BookType = enum {
+    RegularLotOrder = 1,
+    SpecialTermsOrder = 2,
+    StopLossOrder = 3,
+    NegotiatedOrder = 4,
+    OddLotOrder = 5,
+    SpotOrder = 6,
+    AuctionOrder = 7,
+};
+
+type BuySell = enum {
+    Buy = 1,
+    Sell = 2,
+};
+
+type Stpc = enum {
+    ExchangeDefaultAction = 0,
+    CancelActiveOrder = 1,
+};
+
+type ProClient = enum {
+    Client = 1,
+    Broker = 2,
+    Warehousing = 4,
+};
+
+type ActivityType = enum {
+    Buy = 0x42,
+    Sell = 0x53,
+};
+

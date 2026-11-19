@@ -143,15 +143,15 @@ type WeightedAveragePriceSettlementPricesMessage = unit {
 type CapitalTradesMessage = unit {
     instrument_number: int32;
     trade_time: int64 &convert=time($$ / 1000.0);
-    volume_int_324: int32;
+    volume: int32;
     price: int64;
     concertation_type: uint8 &convert=ConcertationType($$);
     trade_number: int32;
     price_setter: bytes &size=1;
     operation_type: uint8 &convert=OperationType($$);
     amount: int64;
-    buy_alpha_5: bytes &size=5;
-    sell_alpha_5: bytes &size=5;
+    buy_broker: bytes &size=5;
+    sell_broker: bytes &size=5;
     settlement: uint8 &convert=Settlement($$);
     auction_indicator: uint8 &convert=AuctionIndicator($$);
 };
@@ -159,7 +159,7 @@ type CapitalTradesMessage = unit {
 type ProbableAllocationPriceMessage = unit {
     instrument_number: int32;
     probable_allocation_price: int64;
-    volume_int_324: int32;
+    volume: int32;
 };
 
 type ContinuousAuctionsBeginningMessage = unit {
@@ -202,7 +202,7 @@ type MutualFundTradesMessage = unit {
 type TradabilityMessage = unit {
     instrument_number: int32;
     number_of_operations: int32;
-    volume_int_648: int64;
+    volume_long: int64;
     amount: int64;
     opening_price: int64;
     maximum: int64;
@@ -216,10 +216,10 @@ type VirtualTradesMessage = unit {
     virtual_trades_status: uint8 &convert=VirtualTradesStatus($$);
     operation_type: uint8 &convert=OperationType($$);
     number: int32;
-    volume_int_324: int32;
+    volume: int32;
     concertation: uint8 &convert=Concertation($$);
-    buy_alpha_5: bytes &size=5;
-    sell_alpha_5: bytes &size=5;
+    buy_broker: bytes &size=5;
+    sell_broker: bytes &size=5;
 };
 
 type OrderAdditionMessage = unit {
@@ -227,7 +227,7 @@ type OrderAdditionMessage = unit {
     date_and_time: int64 &convert=time($$ / 1000.0);
     number: int32;
     direction: uint8 &convert=Direction($$);
-    volume_int_324: int32;
+    volume: int32;
     price: int64;
     participant: bytes &size=5;
 };
@@ -236,7 +236,7 @@ type ExecutionOfOrdersMessage = unit {
     instrument_number: int32;
     date: int64 &convert=time($$ / 1000.0);
     number: int32;
-    volume_int_324: int32;
+    volume: int32;
     trade_number: int32;
     execution_price: int64;
 };
@@ -254,7 +254,7 @@ type OrderChangeMessage = unit {
     new_date: int64 &convert=time($$ / 1000.0);
     new_number: int32;
     direction: uint8 &convert=Direction($$);
-    volume_int_324: int32;
+    volume: int32;
     price: int64;
 };
 
@@ -268,12 +268,12 @@ type DepthMessage = unit {
 type PriceLevel = unit {
     price: int64;
     number_of_orders: int16;
-    volume_int_324: int32;
+    volume: int32;
 };
 
 type BestOfferMessage = unit {
     instrument_number: int32;
-    volume_int_324: int32;
+    volume: int32;
     price_rate: int64;
     offer_direction: uint8 &convert=OfferDirection($$);
     operation_type: uint8 &convert=OperationType($$);
@@ -282,14 +282,14 @@ type BestOfferMessage = unit {
 type PublicOfferingsMessage = unit {
     instrument_number: int32;
     number: int32;
-    volume_int_648: int64;
+    volume_long: int64;
     discount_rate_or_price: int64;
     rate_of_return: int32;
     term_days: int16;
     currency_type: uint8 &convert=CurrencyType($$);
     settlement: uint8 &convert=Settlement($$);
-    buy_alpha_5: bytes &size=5;
-    sell_alpha_5: bytes &size=5;
+    buy_broker: bytes &size=5;
+    sell_broker: bytes &size=5;
     placement_date: int64 &convert=time($$ / 1000.0);
     issue_date: int64 &convert=time($$ / 1000.0);
     maturity_date: int64 &convert=time($$ / 1000.0);
@@ -303,7 +303,7 @@ type OpenInterestMessage = unit {
 type DerivativesMarketTradesMessage = unit {
     instrument_number: int32;
     trade_time: int64 &convert=time($$ / 1000.0);
-    volume_int_324: int32;
+    volume: int32;
     price_rate: int64;
     concertation_type: uint8 &convert=ConcertationType($$);
     trade_number: int32;
@@ -326,8 +326,8 @@ type GeneralIndicesMessage = unit {
     component: bytes &size=2;
     sector: int8;
     indices_hour: int64 &convert=time($$ / 1000.0);
-    volume_int_648: int64;
-    indices_price_44: int32;
+    volume_long: int64;
+    indices_value: int32;
     variation: int32;
     percentage: int32;
     trend: uint8 &convert=Trend($$);
@@ -356,8 +356,8 @@ type DollarBuySellMessage = unit {
     posture_date: int64 &convert=time($$ / 1000.0);
     currency: bytes &size=5;
     dollar_side: bytes &size=1;
-    buy_precio_88: int64;
-    sell_precio_88: int64;
+    dollar_buy: int64;
+    dollar_sell: int64;
     last_deal: int64;
 };
 
@@ -401,7 +401,7 @@ type BenchmarkMessage = unit {
     outstanding: int64;
     integer_amount: int64;
     decimal_amount: int32;
-    indices_precio_88: int64;
+    benchmark_value: int64;
     indices_24: int64;
     rebalance: uint8 &convert=Rebalance($$);
     daily_performance: int64;
@@ -586,7 +586,7 @@ type ProbablePriceOfAllocationMessage = unit {
     instrument_number: int32;
     origin: uint8 &convert=Origin($$);
     probable_price_of_allocation: int64;
-    volume_int_648: int64;
+    volume_long: int64;
 };
 
 type RelationBetweenBmvbivaInstrumentsMessage = unit {
@@ -599,7 +599,7 @@ type EquitiesMarketTradesMessage = unit {
     instrument_number: int32;
     origin: uint8 &convert=Origin($$);
     time_of_the_trade: int64 &convert=time($$ / 1000.0);
-    volume_int_648: int64;
+    volume_long: int64;
     price: int64;
     type_of_agreement: uint8 &convert=TypeOfAgreement($$);
     consecutive_number_of_the_trade: int64;
@@ -623,7 +623,7 @@ type PricevolumeIndicatorMessage = unit {
     instrument_number: int32;
     origin: uint8 &convert=Origin($$);
     probable_price_of_allotment: int64;
-    volume_int_648: int64;
+    volume_long: int64;
     best_selling_price: int64;
     best_purchasing_price: int64;
     type_of_cross_trading: uint8 &convert=TypeOfCrossTrading($$);
@@ -634,7 +634,7 @@ type ConsolidatedExecutionOfOrdersMessage = unit {
     origin: uint8 &convert=Origin($$);
     date: int64 &convert=time($$ / 1000.0);
     consecutive_number: int64;
-    volume_int_648: int64;
+    volume_long: int64;
     consecutive_number_of_the_trade: int64;
     execution_price: int64;
     indicator: uint8 &convert=Indicator($$);
@@ -648,7 +648,7 @@ type RegistrationOfOrderMessage = unit {
     date_and_time: int64 &convert=time($$ / 1000.0);
     consecutive_number: int64;
     direction: uint8 &convert=Direction($$);
-    volume_int_648: int64;
+    volume_long: int64;
     price: int64;
     participant: bytes &size=5;
 };
@@ -663,7 +663,7 @@ type CancellationsOfOrdersMessage = unit {
 type LastQuoteMessage = unit {
     instrument_number: int32;
     origin: uint8 &convert=Origin($$);
-    volume_int_648: int64;
+    volume_long: int64;
     price_rate: int64;
     direction_of_the_bid: uint8 &convert=DirectionOfTheBid($$);
     type_of_trading: uint8 &convert=TypeOfTrading($$);
@@ -688,7 +688,7 @@ type MarketDataGroup = enum {
     TwentyPriceLevelsOfLocalAndGlobalMarket = 16,
     BestOffersOfLocalAndGlobalMarketWithMoneyMarket = 17,
     TwentyPriceLevelsOfLocalAndGlobalMarketIndicesComponentsLevelOfIndicesAndLevelsOfInavs = 18,
-    TenPriceLevelsOfDerivateFuturesAndDerivativeOptions = 19,
+    TenPriceLevelsOfDerivativeFuturesAndDerivativeOptions = 19,
     BestOffersForDerivativeFuturesAndDerivativeOptions = 20,
     AddedValueWithBenchmark = 21,
     AddedValueWithCapitalizationRules = 22,
@@ -700,8 +700,11 @@ type MarketDataGroup = enum {
     ClosingPriceOrigin = 28,
     AnalyticsPriceAndMarketDepth = 29,
     AnalyticsMarketQuality = 32,
-    AnalyticsSpeadPerformance = 33,
+    AnalyticsSpreadPerformance = 33,
     AnalyticsNegotiation = 34,
+    IndicesComponentsStrategy = 35,
+    IndicesComponentsEsg = 36,
+    MocLocalAndGlobalMarket = 37,
     ChannelZeroCatalogs = 40,
 };
 
@@ -904,7 +907,7 @@ type ConcertationType = enum {
     SellLegAutoEntryOfForeignCurrencyStrategy = 0x4b,
     BuyLegAutoEntryOfForeignCurrencyStrategy = 0x4c,
     LegOfForeignCurrencyStrategy = 0x4e,
-    LegOfForeignCurrencyStrategy_x51 = 0x51,
+    LegOfRoundOfForeignCurrencyStrategy = 0x51,
     LegOfCrossingOfChainOfForwards = 0x52,
     SellLegAutoEntryOfChainOfForwards = 0x53,
     BuyLegAutoEntryOfChainOfForwards = 0x54,
@@ -916,7 +919,7 @@ type ConcertationType = enum {
     BuyLegAutoEntryOfRollover = 0x61,
     LegOfRoundOfRollover = 0x62,
     DepthOfRoundOfChainOfForwards = 0x63,
-    TradingOfChainOfForwards = 0x64,
+    AuctionOfChainOfForwards = 0x64,
     DepthOfRound = 0x65,
     RoundOfChainOfForwards = 0x66,
     RolloverSentra = 0x67,
@@ -1022,7 +1025,7 @@ type Concertation = enum {
     SellLegAutoEntryOfForeignCurrencyStrategy = 0x4b,
     BuyLegAutoEntryOfForeignCurrencyStrategy = 0x4c,
     LegOfForeignCurrencyStrategy = 0x4e,
-    LegOfForeignCurrencyStrategy_x51 = 0x51,
+    LegOfRoundOfForeignCurrencyStrategy = 0x51,
     LegOfCrossingOfChainOfForwards = 0x52,
     SellLegAutoEntryOfChainOfForwards = 0x53,
     BuyLegAutoEntryOfChainOfForwards = 0x54,
@@ -1034,7 +1037,7 @@ type Concertation = enum {
     BuyLegAutoEntryOfRollover = 0x61,
     LegOfRoundOfRollover = 0x62,
     DepthOfRoundOfChainOfForwards = 0x63,
-    TradingOfChainOfForwards = 0x64,
+    AuctionOfChainOfForwards = 0x64,
     DepthOfRound = 0x65,
     RoundOfChainOfForwards = 0x66,
     RolloverSentra = 0x67,
@@ -1273,7 +1276,7 @@ type TypeOfAgreement = enum {
     SellLegAutoEntryOfForeignCurrencyStrategy = 0x4b,
     BuyLegAutoEntryOfForeignCurrencyStrategy = 0x4c,
     LegOfForeignCurrencyStrategy = 0x4e,
-    LegOfForeignCurrencyStrategy_x51 = 0x51,
+    LegOfRoundOfForeignCurrencyStrategy = 0x51,
     LegOfCrossingOfChainOfForwards = 0x52,
     SellLegAutoEntryOfChainOfForwards = 0x53,
     BuyLegAutoEntryOfChainOfForwards = 0x54,
@@ -1285,7 +1288,7 @@ type TypeOfAgreement = enum {
     BuyLegAutoEntryOfRollover = 0x61,
     LegOfRoundOfRollover = 0x62,
     DepthOfRoundOfChainOfForwards = 0x63,
-    TradingOfChainOfForwards = 0x64,
+    AuctionOfChainOfForwards = 0x64,
     DepthOfRound = 0x65,
     RoundOfChainOfForwards = 0x66,
     RolloverSentra = 0x67,

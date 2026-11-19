@@ -99,7 +99,7 @@ type TradeConfirmationMessage = unit {
     contract_desc: ContractDesc;
     open_close: uint8 &convert=OpenClose($$);
     old_open_close: bytes &size=1;
-    book_type_char_1: bytes &size=1;
+    trade_book_type: bytes &size=1;
     : skip bytes &size=1;   # padding
     new_volume: int32;
     old_account_number: bytes &size=10;
@@ -173,7 +173,7 @@ type TradeCancelConfirmMessage = unit {
     contract_desc: ContractDesc;
     open_close: uint8 &convert=OpenClose($$);
     old_open_close: bytes &size=1;
-    book_type_char_1: bytes &size=1;
+    trade_book_type: bytes &size=1;
     : skip bytes &size=1;   # padding
     new_volume: int32;
     old_account_number: bytes &size=10;
@@ -238,7 +238,7 @@ type TradeCancelRejectMessage = unit {
     contract_desc: ContractDesc;
     open_close: uint8 &convert=OpenClose($$);
     old_open_close: bytes &size=1;
-    book_type_char_1: bytes &size=1;
+    trade_book_type: bytes &size=1;
     : skip bytes &size=1;   # padding
     new_volume: int32;
     old_account_number: bytes &size=10;
@@ -303,7 +303,7 @@ type TradeModifyConfirmMessage = unit {
     contract_desc: ContractDesc;
     open_close: uint8 &convert=OpenClose($$);
     old_open_close: bytes &size=1;
-    book_type_char_1: bytes &size=1;
+    trade_book_type: bytes &size=1;
     : skip bytes &size=1;   # padding
     new_volume: int32;
     old_account_number: bytes &size=10;
@@ -368,7 +368,7 @@ type TradeModifyRejectMessage = unit {
     contract_desc: ContractDesc;
     open_close: uint8 &convert=OpenClose($$);
     old_open_close: bytes &size=1;
-    book_type_char_1: bytes &size=1;
+    trade_book_type: bytes &size=1;
     : skip bytes &size=1;   # padding
     new_volume: int32;
     old_account_number: bytes &size=10;
@@ -404,9 +404,9 @@ type GiveupAppConfirmTmMessage = unit {
     fill_volume: int32;
     fill_price: int32;
     broker_id: bytes &size=5;
-    filler: bytes &size=1;
+    : skip bytes &size=1;   # padding
     buy_sell: int16 &convert=BuySell($$);
-    book_type_short_2: int16 &convert=BookTypeShort2($$);
+    book_type: int16 &convert=BookType($$);
     last_modified_date_time: int32 &convert=time($$ + 315532800);
     initiated_by_control: bytes &size=1;
     open_close: uint8 &convert=OpenClose($$);
@@ -430,9 +430,9 @@ type GiveupRejConfirmTmMessage = unit {
     fill_volume: int32;
     fill_price: int32;
     broker_id: bytes &size=5;
-    filler: bytes &size=1;
+    : skip bytes &size=1;   # padding
     buy_sell: int16 &convert=BuySell($$);
-    book_type_short_2: int16 &convert=BookTypeShort2($$);
+    book_type: int16 &convert=BookType($$);
     last_modified_date_time: int32 &convert=time($$ + 315532800);
     initiated_by_control: bytes &size=1;
     open_close: uint8 &convert=OpenClose($$);
@@ -472,7 +472,7 @@ type OpenClose = enum {
     Close = 0x43,
 };
 
-type BookTypeShort2 = enum {
+type BookType = enum {
     RegularLotOrder = 1,
     SpecialTermsOrder = 2,
     StopLossMitOrder = 3,

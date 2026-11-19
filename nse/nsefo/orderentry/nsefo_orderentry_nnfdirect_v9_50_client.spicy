@@ -22,15 +22,7 @@ type ClientDirectPacket = unit {
         TransactionCode::OrderEntryRequestMessage -> order_entry_request_message: OrderEntryRequestMessage;
         TransactionCode::OrderModificationRequestMessage -> order_modification_request_message: OrderModificationRequestMessage;
         TransactionCode::OrderCancellationRequestMessage -> order_cancellation_request_message: OrderCancellationRequestMessage;
-        TransactionCode::OrderConfirmationMessage -> order_confirmation_message: OrderConfirmationMessage;
-        TransactionCode::OrderModificationConfirmationMessage -> order_modification_confirmation_message: OrderModificationConfirmationMessage;
-        TransactionCode::OrderEntryMessage -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2042 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2062 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2072 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2170 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_2231 -> order_entry_message: OrderEntryMessage;
-        TransactionCode::OrderEntryMessage_9002 -> order_entry_message: OrderEntryMessage;
+        TransactionCode::KillSwitchRequestMessage -> kill_switch_request_message: KillSwitchRequestMessage;
         TransactionCode::PriceModificationMessage -> price_modification_message: PriceModificationMessage;
         TransactionCode::PriceModificationMessage_20406 -> price_modification_message: PriceModificationMessage;
         TransactionCode::TradeInquiryMessage -> trade_inquiry_message: TradeInquiryMessage;
@@ -136,7 +128,7 @@ type SystemInformationInMessage = unit {
 type GatewayRouterRequestMessage = unit {
     box_id: int16;
     broker_id: bytes &size=5;
-    filler: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type UpdateLocalDatabaseInMessage = unit {
@@ -245,9 +237,9 @@ type OrderEntryBody = unit {
         reserved_68: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
-    filler_116: bytes &size=2;
-    filler_17: bytes &size=1;
-    filler_18: bytes &size=1;
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
     nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
@@ -274,15 +266,7 @@ type OrderCancellationRequestMessage = unit {
     order_entry_body: OrderEntryBody;
 };
 
-type OrderConfirmationMessage = unit {
-    order_entry_body: OrderEntryBody;
-};
-
-type OrderModificationConfirmationMessage = unit {
-    order_entry_body: OrderEntryBody;
-};
-
-type OrderEntryMessage = unit {
+type KillSwitchRequestMessage = unit {
     order_entry_body: OrderEntryBody;
 };
 
@@ -329,20 +313,20 @@ type SpreadOrderEntryMessage = unit {
 
 type SpreadOrderBody = unit {
     participant_type_1: bytes &size=1;
-    filler_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
     competitor_period_1: int16;
     solicitor_period_1: int16;
     mod_cxl_by_1: bytes &size=1;
-    filler_9: bytes &size=1;
+    : skip bytes &size=1;   # padding
     reason_code_1: int16;
     start_alpha_1: bytes &size=2;
     end_alpha_1: bytes &size=2;
     token_1: int32;
     contract_desc: ContractDesc;
     op_broker_id_1: bytes &size=5;
-    fillerx_1: bytes &size=1;
-    filler_options_1: bytes &size=3;
-    fillery_1: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=3;   # padding
+    : skip bytes &size=1;   # padding
     order_type_1: int16;
     order_number_1: real &type=spicy::RealType::IEEE754_Double;
     account_number_1: bytes &size=10;
@@ -392,9 +376,9 @@ type SpreadOrderBody = unit {
         reserved_68: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
-    filler_116: bytes &size=2;
-    filler_17: bytes &size=1;
-    filler_18: bytes &size=1;
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=1;   # padding
     nnf_field: real &type=spicy::RealType::IEEE754_Double;
     mkt_replay: int64;
     pan: bytes &size=10;
@@ -410,7 +394,7 @@ type MsSpdLegInfo = unit {
     token_2: int32;
     contract_desc: ContractDesc;
     op_broker_id_2: bytes &size=5;
-    fillerx_2: bytes &size=1;
+    : skip bytes &size=1;   # padding
     order_type_2: int16;
     buy_sell_2: int16;
     disclosed_vol_2: int32;
@@ -447,7 +431,7 @@ type MsSpdLegInfo = unit {
         reserved_68: 5..7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
-    filler_y: bytes &size=1;
+    : skip bytes &size=1;   # padding
 };
 
 type SecureBoxRegistrationRequestInMessage = unit {
@@ -547,13 +531,13 @@ type TransactionCode = enum {
     OrderCancellationRequestMessage = 2070,
     OrderConfirmationMessage = 2073,
     OrderModificationConfirmationMessage = 2074,
-    OrderEntryMessage = 2012,
-    OrderEntryMessage_2042 = 2042,
-    OrderEntryMessage_2062 = 2062,
-    OrderEntryMessage_2072 = 2072,
-    OrderEntryMessage_2170 = 2170,
-    OrderEntryMessage_2231 = 2231,
-    OrderEntryMessage_9002 = 9002,
+    OrderResponseMessage = 2012,
+    OrderResponseMessage_2042 = 2042,
+    OrderResponseMessage_2072 = 2072,
+    OrderResponseMessage_2170 = 2170,
+    OrderResponseMessage_2231 = 2231,
+    OrderResponseMessage_9002 = 9002,
+    KillSwitchRequestMessage = 2062,
     PriceModificationMessage = 2013,
     PriceModificationMessage_20406 = 20406,
     TradeInquiryMessage = 5445,

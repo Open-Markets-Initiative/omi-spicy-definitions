@@ -1,0 +1,1243 @@
+# License: MIT No Attribution
+
+module NairobiNairobiderivativesMarketdataMitsV214Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NairobiderivativesMarketdataV214 = unit {
+    server_message: ServerMessage[] &eod;
+};
+
+type ServerMessage = unit {
+    transport_header: TransportHeader;
+    server_message_header: ServerMessageHeader;
+    switch ( self.server_message_header.server_message_type ) {
+        ServerMessageType::SuccessfulLogInResponseMessage -> successful_log_in_response_message: SuccessfulLogInResponseMessage;
+        ServerMessageType::SessionKeyChallengeMessage -> session_key_challenge_message: SessionKeyChallengeMessage;
+        ServerMessageType::DownloadDataResponseMessage -> download_data_response_message: DownloadDataResponseMessage;
+        ServerMessageType::DownloadDataResponseMessage_37 -> download_data_response_message: DownloadDataResponseMessage;
+        ServerMessageType::CompletedTradeMessage -> completed_trade_message: CompletedTradeMessage;
+        ServerMessageType::DisplayUpdateMessage -> display_update_message: DisplayUpdateMessage;
+        ServerMessageType::IndicesMessage -> indices_message: IndicesMessage;
+        ServerMessageType::DailyTrendReplyMessage -> daily_trend_reply_message: DailyTrendReplyMessage;
+        ServerMessageType::PriceUpdateMessage -> price_update_message: PriceUpdateMessage;
+        ServerMessageType::DataUpdateMessage -> data_update_message: DataUpdateMessage;
+        ServerMessageType::ExchangeAnnouncementsMessage -> exchange_announcements_message: ExchangeAnnouncementsMessage;
+        ServerMessageType::NotificationOfFailureMessage -> notification_of_failure_message: NotificationOfFailureMessage;
+        ServerMessageType::BusinessMessageRejectMessage -> business_message_reject_message: BusinessMessageRejectMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TransportHeader = unit {
+    start_byte: uint8;
+    message_length: uint16;
+    length_check: uint8;
+};
+
+type ServerMessageHeader = unit {
+    sequence_number: int32;
+    user_name: UserName;
+    user_number: int32;
+    time_field: Time;
+    server_message_type: uint8 &convert=ServerMessageType($$);
+};
+
+type UserName = unit {
+    user_name_length_byte: uint8;
+    user_name_characters: bytes &size=15;
+};
+
+type Time = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type SuccessfulLogInResponseMessage = unit {
+    : skip bytes &size=12;   # padding
+    today_date: TodayDate;
+    country_code: CountryCode;
+    previous_business_day: PreviousBusinessDay;
+    : skip bytes &size=1;   # padding
+    number_of_unique_members: int32;
+    is_successful: uint8;
+    text_p_50: TextP50;
+    pair_member_codes_with_unique_number: PairMemberCodesWithUniqueNumber[cast<uint64>(self.number_of_unique_members)];
+};
+
+type TodayDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type CountryCode = unit {
+    country_code_length_byte: uint8;
+    country_code_characters: bytes &size=3;
+};
+
+type PreviousBusinessDay = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type TextP50 = unit {
+    text_p_50_length_byte: uint8;
+    text_p_50_characters: bytes &size=49;
+};
+
+type PairMemberCodesWithUniqueNumber = unit {
+    member_code_p_6: MemberCodeP6;
+    unique_member_number: int32;
+};
+
+type MemberCodeP6 = unit {
+    member_code_p_6_length_byte: uint8;
+    member_code_p_6_characters: bytes &size=5;
+};
+
+type SessionKeyChallengeMessage = unit {
+    challenge: bytes &size=243;
+};
+
+type DownloadDataResponseMessage = unit {
+    data_type: uint8 &convert=DataType($$);
+    : skip bytes &size=1;   # padding
+    last_piece_of_chunk: uint8;
+    another_set_to_come: uint8;
+    action: int32 &convert=Action($$);
+    specific_record: int32;
+    download_date: DownloadDate;
+    download_data: DownloadData(self.data_type);
+};
+
+type DownloadDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type DownloadData = unit(data_type: DataType) {
+    uncompressed_length: int32;
+    records: Records(data_type);
+};
+
+type Records = unit(data_type: DataType) {
+    # repeats  times
+    switch ( data_type ) {
+        DataType::MarketDisplayData -> market_display_data: MarketDisplayData;
+        DataType::InstrumentsData -> instruments_data: InstrumentsData;
+        DataType::ContractDates -> contract_dates: ContractDates;
+        DataType::StrikeData -> strike_data: StrikeData;
+        DataType::MemberData -> member_data: MemberData;
+        DataType::MtmData -> mtm_data: MtmData;
+        DataType::Holiday -> holiday_data: HolidayData;
+        DataType::InstrumentTypes -> instrument_types: InstrumentTypes;
+        DataType::ClearingMemberData -> clearing_member_data: ClearingMemberData;
+        DataType::ExchangeAnnouncements -> exchange_announcements: ExchangeAnnouncements;
+        DataType::News -> news_service: NewsService;
+        DataType::CouponInformation -> coupon_information: CouponInformation;
+        DataType::TradingSessions -> trading_sessions: TradingSessions;
+        DataType::IndicesPriceData -> indices_price_data: IndicesPriceData;
+        DataType::Indices -> indices_data: IndicesData;
+        DataType::SharesInIssueData -> shares_in_issue_data: SharesInIssueData;
+        DataType::IndexData -> index_data: IndexData;
+        DataType::IndexConstituentsData -> index_constituents_data: IndexConstituentsData;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MarketDisplayData = unit {
+    display_sequence: int32;
+    contract: Contract;
+    open_price: real &type=spicy::RealType::IEEE754_Double;
+    instrument_sequence: int32;
+    date_sequence: int32;
+    strike_sequence: int32;
+    second_instrument_sequence: int32;
+    second_date_sequence: int32;
+};
+
+type Contract = unit {
+    identifier_prefix_i_4: int32;
+    date: Date;
+    instrument_name_p_5: InstrumentNameP5;
+    strike: real &type=spicy::RealType::IEEE754_Double;
+    call_put_c_1: bytes &size=1;
+    secondary_date: SecondaryDate;
+    secondary_instrument_name_p_5: SecondaryInstrumentNameP5;
+    is_delta_option: uint8;
+};
+
+type Date = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type InstrumentNameP5 = unit {
+    instrument_name_p_5_length_byte: uint8;
+    instrument_name_p_5_characters: bytes &size=4;
+};
+
+type SecondaryDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type SecondaryInstrumentNameP5 = unit {
+    secondary_instrument_name_p_5_length_byte: uint8;
+    secondary_instrument_name_p_5_characters: bytes &size=4;
+};
+
+type InstrumentsData = unit {
+    instrument_sequence: int32;
+    trading_session_sequence: int32;
+    : skip bytes &size=4;   # padding
+    instrument_group_sequence: int32;
+    future_fee_sequence: int32;
+    option_fee_sequence: int32;
+    delivery_fee_sequence: int32;
+    market_number_c_1: bytes &size=1;
+    market_shard_number_c_1: bytes &size=1;
+    instrument_name_p_5: InstrumentNameP5;
+    instrument_type_number_c_1: bytes &size=1;
+    isin_code: IsinCode;
+    description_p_62: DescriptionP62;
+    on_screen: uint8;
+    maturity_date: MaturityDate;
+    : skip bytes &size=4;   # padding
+    nominal_divisor: int32;
+    issue_date: IssueDate;
+    linked_to_floating_rate: uint8 &convert=LinkedToFloatingRate($$);
+    : skip bytes &size=1;   # padding
+    underlying: int32;
+    options_exercise_is_percentage: uint8;
+    options_exercise_cost: real &type=spicy::RealType::IEEE754_Double;
+    group_margin: real &type=spicy::RealType::IEEE754_Double;
+    vat: uint8;
+    settlement_margin: real &type=spicy::RealType::IEEE754_Double;
+    physical_settlement: uint8;
+    group_description: GroupDescription;
+    : skip bytes &size=4;   # padding
+    reference_inflation_rate: real &type=spicy::RealType::IEEE754_Double;
+    minimum_initiation_fee: real &type=spicy::RealType::IEEE754_Double;
+    first_trade_reference: FirstTradeReference;
+    : skip bytes &size=5;   # padding
+    country_code: CountryCode;
+    display_name: DisplayName;
+    number_of_days_in_a_year: int32;
+    bond_formula_decimal_places: int32;
+    coupon_rate: real &type=spicy::RealType::IEEE754_Double;
+    classification: Classification;
+    settlement_days: int32;
+    validated_at_csd: uint8;
+    proprietary_trading_allowed: uint8;
+    vetting_agent_name: VettingAgentName;
+    vetting_agent_contact: VettingAgentContact;
+    share_holding_percentage_limit: real &type=spicy::RealType::IEEE754_Double;
+    sector: Sector;
+    security_type: SecurityType;
+};
+
+type IsinCode = unit {
+    isin_code_length_byte: uint8;
+    isin_code_characters: bytes &size=12;
+};
+
+type DescriptionP62 = unit {
+    description_p_62_length_byte: uint8;
+    description_p_62_characters: bytes &size=61;
+};
+
+type MaturityDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type IssueDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type GroupDescription = unit {
+    group_description_length_byte: uint8;
+    group_description_characters: bytes &size=59;
+};
+
+type FirstTradeReference = unit {
+    first_trade_reference_length_byte: uint8;
+    first_trade_reference_characters: bytes &size=9;
+};
+
+type DisplayName = unit {
+    display_name_length_byte: uint8;
+    display_name_characters: bytes &size=29;
+};
+
+type Classification = unit {
+    classification_length_byte: uint8;
+    classification_characters: bytes &size=29;
+};
+
+type VettingAgentName = unit {
+    vetting_agent_name_length_byte: uint8;
+    vetting_agent_name_characters: bytes &size=29;
+};
+
+type VettingAgentContact = unit {
+    vetting_agent_contact_length_byte: uint8;
+    vetting_agent_contact_characters: bytes &size=29;
+};
+
+type Sector = unit {
+    sector_length_byte: uint8;
+    sector_characters: bytes &size=29;
+};
+
+type SecurityType = unit {
+    security_type_length_byte: uint8;
+    security_type_characters: bytes &size=29;
+};
+
+type ContractDates = unit {
+    instrument_sequence: int32;
+    contract_date_sequence: int32;
+    trading_session_sequence: int32;
+    expiry_date: ExpiryDate;
+    valuation_date: ValuationDate;
+    nominal: real &type=spicy::RealType::IEEE754_Double;
+    strike_interval: real &type=spicy::RealType::IEEE754_Double;
+    strike_interval_off_screen: real &type=spicy::RealType::IEEE754_Double;
+    spread_margin: real &type=spicy::RealType::IEEE754_Double;
+    lot_size: int32;
+    option_lot_size: int32;
+    big_depth: uint8;
+    price_rate: uint8 &convert=PriceRate($$);
+    max_change: real &type=spicy::RealType::IEEE754_Double;
+    max_days_move: real &type=spicy::RealType::IEEE754_Double;
+    max_gap: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=1;   # padding
+    options_allowed: uint8;
+    deltas_allowed: uint8;
+    spreads_allowed: uint8;
+    initial_margin: real &type=spicy::RealType::IEEE754_Double;
+    quote_format_decimal_places: int32;
+    price_format_decimal_places: int32;
+    option_premium_format_decimal_places: int32;
+    price_multiplier: int16;
+    clearance_date: ClearanceDate;
+    vsr: real &type=spicy::RealType::IEEE754_Double;
+    rpve: real &type=spicy::RealType::IEEE754_Double;
+    volatility_rounding_places: int32;
+    can_trade_options_onscreen: uint8;
+    can_trade_options_report_only: uint8;
+    can_trade_onscreen: uint8;
+    can_trade_report_only: uint8;
+    price_interval: real &type=spicy::RealType::IEEE754_Double;
+    minimum_valid_bid_volume_on_screen: int32;
+    minimum_valid_bid_volume_off_screen: int32;
+    minimum_valid_bid_volume_on_screen_options: int32;
+    minimum_valid_bid_volume_off_screen_options: int32;
+    all_or_nothing_allowed: uint8;
+    at_best_orders_allowed: uint8;
+    stop_orders_allowed: uint8;
+    ice_berg_orders_allowed: uint8;
+    hold_over_orders_allowed: uint8;
+    at_close_orders_allowed: uint8;
+    future_anonymous: uint8;
+    option_anonymous: uint8;
+    : skip bytes &size=17;   # padding
+    rfq_allowed: uint8;
+    quantity_tick_size: int32;
+    : skip bytes &size=8;   # padding
+    minimum_all_or_nothing_quantity: int64;
+    minimum_iceberg_quantity: int64;
+    good_till_cancelled_allowed: uint8;
+};
+
+type ExpiryDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type ValuationDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type ClearanceDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type StrikeData = unit {
+    strike_sequence_number: int32;
+    contract_date_sequence: int32;
+    strike: real &type=spicy::RealType::IEEE754_Double;
+    strike_expiry_date: StrikeExpiryDate;
+    deltas: uint8;
+    call_or_put: uint8 &convert=CallOrPut($$);
+};
+
+type StrikeExpiryDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type MemberData = unit {
+    member_sequence: int32;
+    master_member_sequence: int32;
+    clearing_member_sequence: int32;
+    member_code_p_5: MemberCodeP5;
+    description_p_50: DescriptionP50;
+    : skip bytes &size=4;   # padding
+    sor_account: SorAccount;
+    : skip bytes &size=8;   # padding
+};
+
+type MemberCodeP5 = unit {
+    member_code_p_5_length_byte: uint8;
+    member_code_p_5_characters: bytes &size=4;
+};
+
+type DescriptionP50 = unit {
+    description_p_50_length_byte: uint8;
+    description_p_50_characters: bytes &size=49;
+};
+
+type SorAccount = unit {
+    sor_account_length_byte: uint8;
+    sor_account_characters: bytes &size=16;
+};
+
+type MtmData = unit {
+    instrument_sequence: int32;
+    date_sequence: int32;
+    strike_sequence: int32;
+    contract: Contract;
+    days_closing_price: real &type=spicy::RealType::IEEE754_Double;
+    days_closing_rate: real &type=spicy::RealType::IEEE754_Double;
+    open_interest: real &type=spicy::RealType::IEEE754_Double;
+    date: Date;
+    spot_price: real &type=spicy::RealType::IEEE754_Double;
+    volatility: real &type=spicy::RealType::IEEE754_Double;
+    high_price: real &type=spicy::RealType::IEEE754_Double;
+    low_price: real &type=spicy::RealType::IEEE754_Double;
+    days_volume_d_8: real &type=spicy::RealType::IEEE754_Double;
+    shares_in_issue: real &type=spicy::RealType::IEEE754_Double;
+    open_price: real &type=spicy::RealType::IEEE754_Double;
+    previous_close_price: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type HolidayData = unit {
+    holiday_sequence: int32;
+    country_code: CountryCode;
+    holiday_date: HolidayDate;
+    reminder_only: uint8;
+    is_early_close: uint8;
+    is_futures_close_out: uint8;
+};
+
+type HolidayDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type InstrumentTypes = unit {
+    instrument_type_sequence: int32;
+    : skip bytes &size=4;   # padding
+    instrument_type_number_i_4: int32;
+    identifier_prefix_c_1: bytes &size=1;
+    instrument_type_code: InstrumentTypeCode;
+    instrument_type_name: InstrumentTypeName;
+};
+
+type InstrumentTypeCode = unit {
+    instrument_type_code_length_byte: uint8;
+    instrument_type_code_characters: bytes &size=9;
+};
+
+type InstrumentTypeName = unit {
+    instrument_type_name_length_byte: uint8;
+    instrument_type_name_characters: bytes &size=24;
+};
+
+type ClearingMemberData = unit {
+    clearing_member_sequence: int32;
+    clearing_member_code: ClearingMemberCode;
+    clearing_member_description: ClearingMemberDescription;
+};
+
+type ClearingMemberCode = unit {
+    clearing_member_code_length_byte: uint8;
+    clearing_member_code_characters: bytes &size=5;
+};
+
+type ClearingMemberDescription = unit {
+    clearing_member_description_length_byte: uint8;
+    clearing_member_description_characters: bytes &size=49;
+};
+
+type ExchangeAnnouncements = unit {
+    id_market: int32;
+    announcement_sequence: int32;
+    announcement_date: AnnouncementDate;
+    announcement_time: AnnouncementTime;
+    announcement: Announcement;
+};
+
+type AnnouncementDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type AnnouncementTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type Announcement = unit {
+    announcement_length_byte: uint8;
+    announcement_characters: bytes &size=254;
+};
+
+type NewsService = unit {
+    date: Date;
+    time_field: Time;
+    message_category_type: int16 &convert=MessageCategoryType($$);
+    message_category_value: MessageCategoryValue;
+    news_number: int16;
+    total_number_of_segments: int16;
+    segment_number: int16;
+    message_p_255: MessageP255;
+};
+
+type MessageCategoryValue = unit {
+    message_category_value_length_byte: uint8;
+    message_category_value_characters: bytes &size=49;
+};
+
+type MessageP255 = unit {
+    message_p_255_length_byte: uint8;
+    message_p_255_characters: bytes &size=254;
+};
+
+type CouponInformation = unit {
+    coupon_sequence: int32;
+    instrument_sequence: int32;
+    coupon_date: CouponDate;
+    books_close_date: BooksCloseDate;
+    coupon_rate: real &type=spicy::RealType::IEEE754_Double;
+    redemption_value: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type CouponDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type BooksCloseDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type TradingSessions = unit {
+    trading_session_sequence: int32;
+    trading_session_name: TradingSessionName;
+    opening_auction_start_time: OpeningAuctionStartTime;
+    opening_auction_close_time: OpeningAuctionCloseTime;
+    closing_auction_start_time: ClosingAuctionStartTime;
+    closing_auction_close_time: ClosingAuctionCloseTime;
+    contract_open_time: ContractOpenTime;
+    contract_close_time: ContractCloseTime;
+    intraday_auction_one_start_time: IntradayAuctionOneStartTime;
+    intraday_auction_one_auction_close_time: IntradayAuctionOneAuctionCloseTime;
+    intraday_auction_two_start_time: IntradayAuctionTwoStartTime;
+    intraday_auction_two_auction_close_time: IntradayAuctionTwoAuctionCloseTime;
+    intraday_auction_three_start_time: IntradayAuctionThreeStartTime;
+    intraday_auction_three_auction_close_time: IntradayAuctionThreeAuctionCloseTime;
+    overnight_admin_open_time: OvernightAdminOpenTime;
+    overnight_admin_close_time: OvernightAdminCloseTime;
+    admin_period_close_time: AdminPeriodCloseTime;
+    : skip bytes &size=8;   # padding
+    pre_open_order_entry_open_time: PreOpenOrderEntryOpenTime;
+    pre_open_order_entry_close_time: PreOpenOrderEntryCloseTime;
+    : skip bytes &size=8;   # padding
+};
+
+type TradingSessionName = unit {
+    trading_session_name_length_byte: uint8;
+    trading_session_name_characters: bytes &size=55;
+};
+
+type OpeningAuctionStartTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type OpeningAuctionCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type ClosingAuctionStartTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type ClosingAuctionCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type ContractOpenTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type ContractCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IntradayAuctionOneStartTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IntradayAuctionOneAuctionCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IntradayAuctionTwoStartTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IntradayAuctionTwoAuctionCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IntradayAuctionThreeStartTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IntradayAuctionThreeAuctionCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type OvernightAdminOpenTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type OvernightAdminCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type AdminPeriodCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type PreOpenOrderEntryOpenTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type PreOpenOrderEntryCloseTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type IndicesPriceData = unit {
+    indices_sequence: int32;
+    opening_price: real &type=spicy::RealType::IEEE754_Double;
+    index_price: real &type=spicy::RealType::IEEE754_Double;
+    update_time: UpdateTime;
+    update_date: UpdateDate;
+    market_capitalisation: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type UpdateTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type UpdateDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type IndicesData = unit {
+    indices_sequence: int32;
+    indices_code: IndicesCode;
+    indices_description: IndicesDescription;
+    classification: Classification;
+};
+
+type IndicesCode = unit {
+    indices_code_length_byte: uint8;
+    indices_code_characters: bytes &size=19;
+};
+
+type IndicesDescription = unit {
+    indices_description_length_byte: uint8;
+    indices_description_characters: bytes &size=49;
+};
+
+type SharesInIssueData = unit {
+    shares_in_issue_sequence: int32;
+    instrument_sequence: int32;
+    balance: real &type=spicy::RealType::IEEE754_Double;
+    current_value: real &type=spicy::RealType::IEEE754_Double;
+    previous_balance: real &type=spicy::RealType::IEEE754_Double;
+    previous_value: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type IndexData = unit {
+    index_data_sequence: int32;
+    indices_sequence: int32;
+    trade_date: TradeDate;
+    index_value: real &type=spicy::RealType::IEEE754_Double;
+    market_capitalization: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type TradeDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type IndexConstituentsData = unit {
+    index_instrument_sequence: int32;
+    indices_sequence: int32;
+    instrument_sequence: int32;
+};
+
+type CompletedTradeMessage = unit {
+    order_contract: OrderContract;
+    sequence_number: int32;
+    price: real &type=spicy::RealType::IEEE754_Double;
+    quantity_d_8: real &type=spicy::RealType::IEEE754_Double;
+    open_price: real &type=spicy::RealType::IEEE754_Double;
+    previous_closing_price: real &type=spicy::RealType::IEEE754_Double;
+    closing_price: real &type=spicy::RealType::IEEE754_Double;
+    change: real &type=spicy::RealType::IEEE754_Double;
+    open_interest: real &type=spicy::RealType::IEEE754_Double;
+    low: real &type=spicy::RealType::IEEE754_Double;
+    high: real &type=spicy::RealType::IEEE754_Double;
+    day_volume: real &type=spicy::RealType::IEEE754_Double;
+    vwap: real &type=spicy::RealType::IEEE754_Double;
+    trade_type: int32 &convert=TradeType($$);
+    trade_date: TradeDate;
+};
+
+type OrderContract = unit {
+    identifier_prefix_b_4: bytes &size=4;
+    expiry_date: ExpiryDate;
+    instrument_name_b_5: bytes &size=5;
+    strike: real &type=spicy::RealType::IEEE754_Double;
+    call_put_b_1: uint8;
+    secondary_expiry_date: SecondaryExpiryDate;
+    secondary_instrument_name_b_5: bytes &size=5;
+    is_delta_option: uint8;
+};
+
+type SecondaryExpiryDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type DisplayUpdateMessage = unit {
+    last_chunk: uint8;
+    display: Display;
+    depth_data: DepthData[self.display.number_of_depth];
+};
+
+type Display = unit {
+    trading_anonymous: uint8;
+    contract: Contract;
+    mid_price: real &type=spicy::RealType::IEEE754_Double;
+    last_dealt_price: real &type=spicy::RealType::IEEE754_Double;
+    last_dealt_time: LastDealtTime;
+    deal_volume: int64;
+    high_price: real &type=spicy::RealType::IEEE754_Double;
+    low_price: real &type=spicy::RealType::IEEE754_Double;
+    days_volume_i_8: int64;
+    last_order_qty: int32;
+    last_order_buy_sell: bytes &size=1;
+    last_order_price: real &type=spicy::RealType::IEEE754_Double;
+    number_of_depth: uint8;
+    open_interest: real &type=spicy::RealType::IEEE754_Double;
+    change: real &type=spicy::RealType::IEEE754_Double;
+    auction: uint8 &convert=Auction($$);
+    contract_status: uint8 &convert=ContractStatus($$);
+    odd_lot: uint8;
+    last_traded_quantity: int64;
+    date_sequence: int32;
+    secondary_contract_date_sequence: int32;
+    strike_sequence: int32;
+    market_shard_global_sequence_number: int32;
+    stack_sequence_number: int32;
+    : skip bytes &size=21;   # padding
+    update_time: UpdateTime;
+    vwap: real &type=spicy::RealType::IEEE754_Double;
+    closing_price: real &type=spicy::RealType::IEEE754_Double;
+    : skip bytes &size=1;   # padding
+};
+
+type LastDealtTime = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type DepthData = unit {
+    buy_side_phantom: uint8;
+    buy_who: BuyWhoMember;
+    buy_price: real &type=spicy::RealType::IEEE754_Double;
+    buy_quantity: int32;
+    sell_quantity: int32;
+    sell_price: real &type=spicy::RealType::IEEE754_Double;
+    sell_who: SellWhoMember;
+    sell_side_phantom: uint8;
+    buy_order_id: int32;
+    buy_order_type: int32 &convert=BuyOrderType($$);
+    sell_order_id: int32;
+    sell_order_type: int32 &convert=SellOrderType($$);
+};
+
+type BuyWhoMember = unit {
+    buy_who_length_byte: uint8;
+    buy_who_characters: bytes &size=5;
+};
+
+type BuyWhoUniqueMember = unit {
+    buy_who_length_byte: uint8;
+    unique_member_number: int32;
+    : skip bytes &size=1;   # padding
+};
+
+type SellWhoMember = unit {
+    sell_who_length_byte: uint8;
+    sell_who_characters: bytes &size=5;
+};
+
+type SellWhoUniqueMember = unit {
+    sell_who_length_byte: uint8;
+    unique_member_number: int32;
+    : skip bytes &size=1;   # padding
+};
+
+type IndicesMessage = unit {
+    index_sequence_number: IndexSequenceNumber;
+    opening_price: real &type=spicy::RealType::IEEE754_Double;
+    index_price: real &type=spicy::RealType::IEEE754_Double;
+    update_time: UpdateTime;
+    update_date: UpdateDate;
+    market_capitalisation: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type IndexSequenceNumber = unit {
+    index_sequence_number_length_byte: uint8;
+    index_sequence_number_characters: bytes &size=3;
+};
+
+type DailyTrendReplyMessage = unit {
+    uncompressed_length: int32;
+    daily_trend_data: DailyTrendData;
+};
+
+type DailyTrendData = unit {
+    contract: Contract;
+    history_suffix: HistorySuffix[] &eod;
+};
+
+type HistorySuffix = unit {
+    price: real &type=spicy::RealType::IEEE754_Double;
+    quantity_i_8: int64;
+    time_field: Time;
+};
+
+type PriceUpdateMessage = unit {
+    last_chunk: uint8;
+    display_data: DisplayData;
+};
+
+type DisplayData = unit {
+    uncompressed_length: int32;
+    display_records: DisplayRecords;
+};
+
+type DisplayRecords = unit {
+    display_record: DisplayRecord[] &eod;
+};
+
+type DisplayRecord = unit {
+    display: Display;
+    depth_data: DepthData[self.display.number_of_depth];
+};
+
+type DataUpdateMessage = unit {
+    data_type: uint8 &convert=DataType($$);
+    : skip bytes &size=1;   # padding
+    last_piece_of_chunk: uint8;
+    another_set_to_come: uint8;
+    action: int32 &convert=Action($$);
+    specific_record: int32;
+    download_date: DownloadDate;
+    # repeats  times
+    switch ( self.data_type ) {
+        DataType::MarketDisplayData -> market_display_data: MarketDisplayData;
+        DataType::InstrumentsData -> instruments_data: InstrumentsData;
+        DataType::ContractDates -> contract_dates: ContractDates;
+        DataType::StrikeData -> strike_data: StrikeData;
+        DataType::MemberData -> member_data: MemberData;
+        DataType::MtmData -> mtm_data: MtmData;
+        DataType::Holiday -> holiday_data: HolidayData;
+        DataType::InstrumentTypes -> instrument_types: InstrumentTypes;
+        DataType::ClearingMemberData -> clearing_member_data: ClearingMemberData;
+        DataType::ExchangeAnnouncements -> exchange_announcements: ExchangeAnnouncements;
+        DataType::News -> news_service: NewsService;
+        DataType::CouponInformation -> coupon_information: CouponInformation;
+        DataType::TradingSessions -> trading_sessions: TradingSessions;
+        DataType::IndicesPriceData -> indices_price_data: IndicesPriceData;
+        DataType::Indices -> indices_data: IndicesData;
+        DataType::SharesInIssueData -> shares_in_issue_data: SharesInIssueData;
+        DataType::IndexData -> index_data: IndexData;
+        DataType::IndexConstituentsData -> index_constituents_data: IndexConstituentsData;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ExchangeAnnouncementsMessage = unit {
+    market_number_i_4: int32;
+    market_shard_number_i_4: int32;
+    error_number: int32 &convert=ErrorNumber($$);
+    information_or_error_indicator: uint8 &convert=InformationOrErrorIndicator($$);
+    message_p_250: MessageP250;
+};
+
+type MessageP250 = unit {
+    message_p_250_length_byte: uint8;
+    message_p_250_characters: bytes &size=249;
+};
+
+type NotificationOfFailureMessage = unit {
+    failure_notice_identifier: int32 &convert=FailureNoticeIdentifier($$);
+    market_number_i_4: int32;
+    market_shard_number_i_4: int32;
+};
+
+type BusinessMessageRejectMessage = unit {
+    reference_sequence_number: int32;
+    reference_message_type: ReferenceMessageType;
+    text_p_250: TextP250;
+};
+
+type ReferenceMessageType = unit {
+    reference_message_type_length_byte: uint8;
+    reference_message_type_characters: bytes &size=2;
+};
+
+type TextP250 = unit {
+    text_p_250_length_byte: uint8;
+    text_p_250_characters: bytes &size=249;
+};
+
+type ServerMessageType = enum {
+    SuccessfulLogInResponseMessage = 1,
+    HeartBeatMessage = 10,
+    SessionKeyChallengeMessage = 16,
+    DownloadDataResponseMessage = 36,
+    DownloadDataResponseMessage_37 = 37,
+    CompletedTradeMessage = 58,
+    DisplayUpdateMessage = 59,
+    IndicesMessage = 60,
+    DailyTrendReplyMessage = 61,
+    PriceUpdateMessage = 99,
+    DataUpdateMessage = 123,
+    ExchangeAnnouncementsMessage = 125,
+    NotificationOfFailureMessage = 127,
+    BusinessMessageRejectMessage = 132,
+};
+
+type DataType = enum {
+    MarketDisplayData = 1,
+    InstrumentsData = 2,
+    ContractDates = 3,
+    StrikeData = 4,
+    MemberData = 15,
+    MtmData = 16,
+    Holiday = 18,
+    ClearingMemberData = 65,
+    ExchangeAnnouncements = 89,
+    News = 129,
+    CouponInformation = 131,
+    TradingSessions = 136,
+    Indices = 138,
+    IndicesData = 139,
+    InstrumentTypes = 39,
+    IndicesPriceData = 137,
+    SharesInIssueData = 141,
+    IndexData = 146,
+    IndexConstituentsData = 147,
+};
+
+type Action = enum {
+    FileDownload = 0,
+    Delete = 1,
+    Insert = 2,
+    Update = 3,
+};
+
+type LinkedToFloatingRate = enum {
+    None_x4e = 0x4e,
+    CpiIndex = 0x43,
+};
+
+type PriceRate = enum {
+    Price = 0x50,
+    Rate = 0x52,
+};
+
+type CallOrPut = enum {
+    Call = 0x43,
+    Put = 0x50,
+};
+
+type MessageCategoryType = enum {
+    General = 1,
+    Instrument = 2,
+    Sector = 3,
+};
+
+type TradeType = enum {
+    Normal = 0,
+    Odd = 1,
+};
+
+type Auction = enum {
+    ContractIsOpen = 0,
+    ContractIsInAuction = 1,
+    ContractIsClosed = 2,
+    ContractIsSuspended = 3,
+    ContractInOpenOrderPeriod = 4,
+    ContractIsAfterOpenPeriod = 5,
+    ContractInstrumentHasBeenHalted = 6,
+};
+
+type ContractStatus = enum {
+    BidOrOfferActivityWithNoChangeToBestBidOrOffer = 0,
+    BidActivityWhichHasChangedTheBestBidOnThisContract = 1,
+    OfferActivityWhichHasChangedTheBestOfferOnThisContract = 2,
+    BidOrOfferActivityWhichHasChangedBothTheBestBidAndOfferOnThisContract = 3,
+    TradeActivityHasBeenRecordedOnThisContractWithNoChangeToTheBestBidOrOfferIndicatesThatTheClosePriceHasUpdated = 4,
+    TradeActivityWhichHasChangedTheBestBidOnThisContract = 5,
+    TradeActivityWhichHasChangedTheBestOfferOnThisContract = 6,
+    TradeActivityWhichHasChangedTheBestBidAndOfferOnThisContract = 7,
+};
+
+type BuyOrderType = enum {
+    Normal = 0,
+    TakeOrKill = 1,
+    FillOrKill = 2,
+    Iceberg = 4,
+    StopOrder = 8,
+    AtBest = 16,
+    AllOrNothing = 32,
+    Rebid = 64,
+    CloseOrder = 128,
+    ReverseTakeOrKill = 256,
+    MarketOrderFillOrKill = 512,
+    RunOrder = 1024,
+    CoverOrder = 2048,
+    MarketOrderTakeOrKill = 4096,
+    SuspendOrder = 16384,
+    GoodTillCancelledOrder = 32768,
+};
+
+type SellOrderType = enum {
+    Normal = 0,
+    TakeOrKill = 1,
+    FillOrKill = 2,
+    Iceberg = 4,
+    StopOrder = 8,
+    AtBest = 16,
+    AllOrNothing = 32,
+    Rebid = 64,
+    CloseOrder = 128,
+    ReverseTakeOrKill = 256,
+    MarketOrderFillOrKill = 512,
+    RunOrder = 1024,
+    CoverOrder = 2048,
+    MarketOrderTakeOrKill = 4096,
+    SuspendOrder = 16384,
+    GoodTillCancelledOrder = 32768,
+};
+
+type ErrorNumber = enum {
+    PasswordChangedSuccessfully = 100,
+    MarketAnnouncement = 102,
+    GenericMarketInteractionMessage = 108,
+    SuccessfulClientLoaded = 116,
+    YourPasswordExpiresInXDays = 120,
+    MarkToMarketRatesIsReadyForDownload = 123,
+    DailyRatesIsReadyForDownload = 124,
+    TheReRequestServiceIsCurrentlyUnAvailablePleaseTryAgainLater = 126,
+    EarlyValuationsAreReadyForDownload = 127,
+    OrderQuantityBelowMinimum2 = 2,
+    BidOnContractWasNotAMultipleOfTheLotsize3 = 3,
+    TradingOnThisContractIsOnlyAllowedBetweenXAndX = 7,
+    YourBidInitialMarginExceedsYourLimit = 8,
+    InvalidDataInBidMessageNumberOfOrdersExceedsLimit = 12,
+    InvalidDataInBidMessageIncorrectContractNameOrContractDoesntExist = 13,
+    CouldNotFindIndexForContractX = 18,
+    CouldNotCreateStrike = 19,
+    NotABuySellOrder = 20,
+    InvalidOrderType = 21,
+    BidOutsideMarketLimits = 22,
+    MemberDoesNotExist = 24,
+    OrderTypeNotAllowed = 25,
+    InvalidClientCode = 26,
+    NotAValidMemberCode = 27,
+    NotAValidClearingMemberCode = 28,
+    InvalidFrontEndVersion29 = 29,
+    InvalidFrontEndVersion30 = 30,
+    DealerDoesNotBelongToMember = 31,
+    CannotBookDealsForOtherMembers = 32,
+    InvalidPrincipal = 33,
+    MemberDoesNotBelongToClearingMember = 34,
+    CannotBookDealsForOtherClearingMembers = 35,
+    XIsNotAClientOfMember = 36,
+    InvalidCounterparty = 37,
+    DealerNotFound = 39,
+    InvalidCancelFlag = 40,
+    InvalidReferenceNumber = 41,
+    InstrumentNotFound = 42,
+    ContractDateNotFound = 43,
+    StrikeNotFound = 44,
+    DealerNotAMasterDealer = 46,
+    FoktokOrderCannotBeSatisfied = 47,
+    AllOrNothingNotAllowed = 48,
+    TradingOnThisContractIsClosed = 49,
+    OrderQuantityBelowMinimum50 = 50,
+    BidOnContractWasNotAMultipleOfTheLotsize51 = 51,
+    InvalidSpread = 52,
+    OddLotsNotAllowedWhenUnderlyingInAuction = 53,
+    NotAllowedToChangeSubscription = 54,
+    LimitsSpecifiedMustBePositive = 60,
+    PrincipalAgencyIndicatorIsInvalid = 62,
+    CannotSuspendAnOrder1MinuteBeforeTheEndOfOpenOrderPeriod = 63,
+    SpreadsNotAllowedWithUnderlyingInAuction = 64,
+    ContractIsSuspended = 66,
+    DealerCodeIsEmpty = 67,
+    IncorrectPriceFormat = 68,
+    StrikeCannotBeLoaded = 69,
+    PriceCannotBeLessThanZero = 70,
+    QuantityCannotBeLessOrEqualToZero = 71,
+    MustBeAMasterDealerToPerformThisAction = 72,
+    ContractNotAValidContract = 73,
+    TheActiveOrderSelectedCannotBeFound = 74,
+    CannotReduceAnOrder1MinuteBeforeEndOfOpenOrderPeriod = 76,
+    CannotResubmitAnOrder1MinuteBeforeEndOfOpenOrderPeriod = 77,
+    CannotSuspendThisOrderUntilMarketOpens = 78,
+    ThisOrderTypeHasNotBeenEnabledOnThisContract = 80,
+    OrderQuantityXIsLessThan1OnContractX = 81,
+    PriceCannotBeLessThanOrEqualTo0 = 82,
+    ThisOrderCannotBeDeletedAsItIsCurrentlyActivePleaseUseMessage8 = 83,
+    TheFromSequenceCannotBeLargerThanTheToSequence = 84,
+    OrderSequenceXCannotBeFound = 87,
+    InvalidPasswordOrIncorrectDate = 101,
+    InvalidOldPassword = 103,
+    SubmittedOnScreenLimitInvalid = 104,
+    SubmittedOptionLimitInvalid = 105,
+    SubmittedReportOnlyLimitInvalid = 106,
+    MemberDoesNotHavePositionOnThisContract = 109,
+    CanOnlyGiveNoticeForDeliveryOnAShortPosition = 110,
+    CannotGiveNoticeOnCertificateBecauseTheCertificateIsNotTheSameInstrumentAsTheDeliveryNotice = 111,
+    NumberOfContractsInNoticeExceedsTotalPosition = 112,
+    SiloCertificateNumberIsNotWithinTheValidRangeForThisSilo = 113,
+    InvalidMultiplicationFactor = 114,
+    ContactDetailsError = 115,
+    MarketPeriodRuleError = 117,
+    YouHaveNoRightsToPerformThisOperation = 118,
+    AuctionNotifications = 119,
+    CannotDeleteACertificateWhichIsReadyForDeliveryOrDelivered = 121,
+    GenericException = 1000,
+};
+
+type InformationOrErrorIndicator = enum {
+    InformationMessage = 0,
+    ErrorMessage = 1,
+};
+
+type FailureNoticeIdentifier = enum {
+    MarketShardHasFailed = 1,
+    MarketShardHasRecovered = 2,
+};
+

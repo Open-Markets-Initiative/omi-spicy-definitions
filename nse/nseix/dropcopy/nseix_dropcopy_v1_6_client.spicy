@@ -1,0 +1,263 @@
+# License: MIT No Attribution
+
+module NseNseixDropcopyNnfdirectV16Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NseixDropcopyV16 = unit {
+    client_direct_packet: ClientDirectPacket[] &eod;
+};
+
+type ClientDirectPacket = unit {
+    packet_header: PacketHeader;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignonInMessage -> signon_in_message: SignonInMessage;
+        TransactionCode::DcDownloadRequestMessage -> dc_download_request_message: DcDownloadRequestMessage;
+        TransactionCode::DcOrderRequestMessage -> dc_order_request_message: DcOrderRequestMessage;
+        TransactionCode::DcOrdTrdRequestMessage -> dc_ord_trd_request_message: DcOrdTrdRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+    checksum: bytes &size=16;
+};
+
+type MessageHeader = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    log_time: int32 &convert=time($$ + 315532800);
+    alpha_char: bytes &size=2;
+    trader_id: int32;
+    error_code: int16 &convert=ErrorCode($$);
+    header_timestamp: int64;
+    time_stamp_1: bytes &size=8;
+    time_stamp_2: bytes &size=8;
+    message_length: int16;
+};
+
+type SignonInMessage = unit {
+    user_id: int32;
+    password: bytes &size=8;
+    : skip bytes &size=8;   # padding
+    : skip bytes &size=30;   # padding
+    broker_id: bytes &size=5;
+    : skip bytes &size=119;   # padding
+};
+
+type DcDownloadRequestMessage = unit {
+    sequence_number: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type DcOrderRequestMessage = unit {
+    order_sequence_number: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type DcOrdTrdRequestMessage = unit {
+    order_trade_sequence_number: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type TransactionCode = enum {
+    SignonInMessage = 2300,
+    SignOnOutMessage = 2301,
+    HeartbeatMessage = 23506,
+    DcDownloadRequestMessage = 8000,
+    DcOrderRequestMessage = 8400,
+    DcOrdTrdRequestMessage = 8500,
+    TradeConfirmationMessage = 2222,
+    TradeModifyConfirmMessage = 2287,
+    TradeModifyRejectMessage = 2288,
+    TradeCancelConfirmMessage = 2282,
+    TradeCancelRejectMessage = 2286,
+    NltTradeConfirmationMessage = 2090,
+    NltTrdModConfirmationMessage = 5449,
+    NltTrdModRejectMessage = 5450,
+    NltTrdCxlConfirmationMessage = 5452,
+    NltTrdCxlRejectMessage = 5453,
+    GiveupAppConfirmTmMessage = 4506,
+    GiveupRejConfirmTmMessage = 4507,
+    BoardLotOutMessage = 2001,
+    OrderModOutMessage = 2041,
+    OrderModRejectMessage = 2042,
+    OrderCancelOutMessage = 2071,
+    OrderCancelRejectMessage = 2072,
+    OrderConfirmationMessage = 2073,
+    OrderModConfirmationMessage = 2074,
+    OrderCancelConfirmationMessage = 2075,
+    FreezeToControlMessage = 2170,
+    OrderErrorMessage = 2231,
+    BatchOrderCancelMessage = 9002,
+    NetOrderErrorMessage = 27100,
+    NltConfirmationMessage = 2083,
+    NltModConfirmationMessage = 2085,
+    NltCxlConfirmationMessage = 2087,
+    NltModRejectMessage = 2088,
+    NltCxlRejectMessage = 2089,
+    SpreadOrderConfirmationMessage = 2124,
+    SpOrderErrorMessage = 2154,
+    SpNetOrderErrorMessage = 27102,
+    SpreadCxlConfirmationMessage = 2130,
+    SpreadModConfirmationMessage = 2136,
+    SpreadModRejectMessage = 2133,
+    SpreadCxlRejectMessage = 2127,
+    BatchSpreadOrderCancelMessage = 9004,
+    TwolOrderConfirmationMessage = 2125,
+    ThrlOrderConfirmationMessage = 2126,
+    TwolOrderErrorMessage = 2155,
+    ThrlOrderErrorMessage = 2156,
+    TwolNetOrderErrorMessage = 27103,
+    ThrlNetOrderErrorMessage = 27104,
+    TwolOrderCxlConfirmationMessage = 2131,
+    ThrlOrderCxlConfirmationMessage = 2132,
+};
+
+type ErrorCode = enum {
+    ErrInvalidUserType = 16001,
+    ErrUserAlreadySignedOn = 16004,
+    ErrInvalidSignon = 16006,
+    ErrSignonNotPossible = 16007,
+    ErrInvalidBrokerOrBranch = 16041,
+    ErrUserNotFound = 16042,
+    ErrProgramError = 16056,
+    ErrSystemError = 16104,
+    ErrCantCompleteYourRequest = 16123,
+    ErrUserIsDisabled = 16134,
+    ErrInvalidUserId = 16148,
+    ErrInvalidTraderId = 16154,
+    ErrBrokerNotActive = 16285,
+    ENotYourOrder = 16014,
+    ENotYourFill = 16015,
+    EInvalidFillNumber = 16016,
+    EStockNotFound = 16019,
+    SecurityNotAvailable = 16035,
+    DuplicateRecord = 16043,
+    EOrderModified = 16044,
+    StockSuspended = 16049,
+    ErrFunctionNotAvailable = 16052,
+    EChangePassword = 16053,
+    ErrInvalidBranch = 16054,
+    ErrInvalidStatus = 16063,
+    ErrDataNotChanged = 16070,
+    EDupTrdCxlRequest = 16086,
+    ErrInvalidBuyerUserId = 16098,
+    ErrInvalidSellerUserId = 16099,
+    EInvalidVersion = 16100,
+    OeAtoInOpen = 16169,
+    OrdNotAllowedInPreopen = 16196,
+    OrdNotAllowedInPreclose = 16197,
+    EDupRequest = 16198,
+    EOnlyCpAllowed = 16227,
+    ESlMitNtNotAllowedPclose = 16228,
+    EGtcGtdOrdNotAllowedPclose = 16229,
+    OeContModNotAllowed = 16230,
+    TrdContModNotAllowed = 16231,
+    StrProPartivipantInvalid = 16233,
+    OeDiffTrdModVol = 16251,
+    ErrorUserNotExistsInSystem = 16260,
+    ErrAlreadyDeleted = 16264,
+    RecordNotFound = 16273,
+    OeMarketsClosed = 16278,
+    OeSecurityNotAdmitted = 16279,
+    OeSecurityMatured = 16280,
+    OeSecurityExpelled = 16281,
+    OeIssuedCapExceeds = 16282,
+    OePriceNotMult = 16283,
+    OePriceExceedsDayMinMax = 16284,
+    ESystemWrongState = 16300,
+    OeAuctionPending = 16303,
+    OeQtyFreezeCan = 16307,
+    OePriceFreezeCan = 16308,
+    OeSolPeriodOver = 16311,
+    OeCompPeriodOver = 16312,
+    OeAucPeriodGreater = 16313,
+    OeLimitTrigger = 16315,
+    OeTriggerPriceNotMult = 16316,
+    OeNoAonAttrib = 16317,
+    OeNoMfAttrib = 16318,
+    OeNoAonInAttrib1 = 16319,
+    OeNoMfAttrib1 = 16320,
+    OeMfGreaterDisc = 16321,
+    OeMfNotMult = 16322,
+    OeMfGreaterOriginal = 16323,
+    OeDiscGreaterOriginal = 16324,
+    OeDiscNotMult = 16325,
+    OeGtdGreater = 16326,
+    OeQuantityGeraterRl = 16327,
+    OeQuantityNotMultRl = 16328,
+    OeBrokerNotPermitted = 16329,
+    OeIsSuspended = 16330,
+    OeBranchLimitExceeded = 16333,
+    OeOrdCanChanged = 16343,
+    OeOrdCannotCancel = 16344,
+    OeInitOrdCancel = 16345,
+    OeOrdCannotModify = 16346,
+    ErrTradingNotAllowed = 16348,
+    OeNtRejected = 16357,
+    ChgStExists = 16363,
+    OeSecurityInPreopen = 16369,
+    OeInqNotAllowed = 16372,
+    OeSecurityIneligible = 16387,
+    ErrFokOrderCancelled = 16388,
+    TurnoverLimitNotProvided = 16392,
+    OeMaxDqAllowed = 16400,
+    OeAdminSuspCan = 16404,
+    EInvalidBuySellType = 16405,
+    EInvalidProClient = 16414,
+    EInvalidInstructions = 16415,
+    EInvalidOrderParameters = 16416,
+    ENnfReqExceeded = 16418,
+    InvalidOrder = 16419,
+    OrdAttributeNotAllowedInPreopenPreclose = 16438,
+    EGtdGtMaturity = 16440,
+    EDqOrdNotAllowedPopen = 16441,
+    EStOrdNotAllowedPopen = 16442,
+    EOrdLimExceedsOrdValLim = 16443,
+    ErrUsrOrdValueLimitExceeded = 16444,
+    SlNotAllowed = 16445,
+    MitNotAllowed = 16446,
+    EOrdNotAllowedInPreopen = 16447,
+    ErrorSlLmtRsnbltyCheck = 16448,
+    ENotAllowed = 16500,
+    EInvalidExPlChar = 16501,
+    ERejectionNotAllowed = 16513,
+    ENotModifiable = 16514,
+    ETmCmDoesNotExist = 16518,
+    ENotClgMem = 16521,
+    EUserNotCorpMgr = 16523,
+    ENotValidFoSecurity = 16529,
+    EPmCmInvalid = 16532,
+    ECorpMgrVuMod = 16533,
+    EInvalidParticipant = 16541,
+    ETradeApprovedByCm = 16550,
+    ECmStockSuspended = 16552,
+    EBrokerNotPermittedInFut = 16554,
+    EBrokerNotPermittedInOpt = 16555,
+    EQtyLessThanMinLot = 16556,
+    EDiscQtyLessThanMinLot = 16557,
+    EMfQtyLessThanMinLot = 16558,
+    EAlreadyRejected = 16560,
+    EInvalidCliAc = 16632,
+    EBrOrdLimitFutBuyExceeded = 16636,
+    EBrOrdLimitFutSellExceeded = 16637,
+    EBrOrdLimitOptBuyExceeded = 16638,
+    EBrOrdLimitOptSellExceeded = 16639,
+    EUrOrdLimitFutBuyExceeded = 16640,
+    EUrOrdLimitFutSellExceeded = 16641,
+    EUrOrdLimitOptBuyExceeded = 16642,
+    EUrOrdLimitOptSellExceeded = 16643,
+    ErrorAlgoMktNotAllowed = 16732,
+    ErrorInvalidNnfidRejection = 16733,
+    EVcOrderRejected = 16793,
+    ESsdOrderRejected = 16794,
+    EOrderCancelledForVc = 16795,
+    EOrderCancelledForSsd = 16796,
+    MsgCodeVoluntaryCloseOutStatus = 16797,
+    MsgCodeSuspendedStatus = 16798,
+    EAccountDebarred = 16807,
+    ErrUserHavingNullRights = 17184,
+};
+

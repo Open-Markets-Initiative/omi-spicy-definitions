@@ -46,7 +46,7 @@ type Message = unit {
 };
 
 type EquityAndIndexLastSaleCategory = unit {
-    equity_and_index_last_sale_message_type: uint8 &convert=EquityAndIndexLastSaleMessageType($$);
+    equity_and_index_last_sale_message_type: uint8;
     equity_and_index_last_sale_message_payload: EquityAndIndexLastSaleMessage;
 };
 
@@ -200,7 +200,7 @@ type AdministrativeMessage = unit {
 };
 
 type ControlCategory = unit {
-    control_message_type: uint8 &convert=ControlMessageType($$);
+    control_message_type: uint8;
     control_message_payload: ControlMessage;
 };
 
@@ -254,7 +254,12 @@ type RetransmissionIndicator = enum {
 
 type SessionIndicator = enum {
     Regular = 0,
-    PreMarket = 0x58,
+    GthOpraGenerated = 0x58,
+    GthMonday = 1,
+    GthTuesday = 2,
+    GthWednesday = 3,
+    GthThursday = 4,
+    GthFriday = 5,
 };
 
 type ParticipantId = enum {
@@ -262,7 +267,7 @@ type ParticipantId = enum {
     BostonOptionsExchange = 0x42,
     CboeOptionsExchange = 0x43,
     MiaxEmerald = 0x44,
-    CboeEdgxOptions = 0x45,
+    CboeEdgxOptionsExchange = 0x45,
     NasdaqGemx = 0x48,
     NasdaqIse = 0x49,
     NasdaqMrx = 0x4a,
@@ -272,7 +277,7 @@ type ParticipantId = enum {
     MiaxPearl = 0x50,
     NasdaqOptionsMarket = 0x51,
     NasdaqBxOptions = 0x54,
-    CboeC2Options = 0x57,
+    CboeC2OptionsExchange = 0x57,
     NasdaqPhlx = 0x58,
     CboeBzxOptionsExchange = 0x5a,
 };
@@ -289,7 +294,6 @@ type MessageCategory = enum {
 };
 
 type EquityAndIndexLastSaleMessageType = enum {
-    Regular = 0x20,
     Canc = 0x41,
     Oseq = 0x42,
     Cncl = 0x43,
@@ -300,44 +304,56 @@ type EquityAndIndexLastSaleMessageType = enum {
     Opnl = 0x48,
     Auto = 0x49,
     Reop = 0x4a,
-    Ajst = 0x4b,
-    Sprd = 0x4c,
-    Stdl = 0x4d,
-    Stpd = 0x4e,
-    Cstp = 0x4f,
-    Bwrt = 0x50,
-    Cmbo = 0x51,
-    Spim = 0x52,
     Isoi = 0x53,
-    Bnmt = 0x54,
-    Xmpt = 0x58,
+    Slan = 0x61,
+    Slai = 0x62,
+    Slcn = 0x63,
+    Scli = 0x64,
+    Slft = 0x65,
+    Mlet = 0x66,
+    Mlat = 0x67,
+    Mlct = 0x68,
+    Mlft = 0x69,
+    Mesl = 0x6a,
+    Tlat = 0x6b,
+    Masl = 0x6c,
+    Mfsl = 0x6d,
+    Tlet = 0x6e,
+    Tlct = 0x6f,
+    Tlft = 0x70,
+    Tesl = 0x71,
+    Tasl = 0x72,
+    Tfsl = 0x73,
+    Cbmo = 0x74,
+    Mctp = 0x75,
+    Exht = 0x76,
 };
 
 type ExpirationMonth = enum {
-    January = 0x41,
-    January_x4d = 0x4d,
-    February = 0x42,
-    February_x4e = 0x4e,
-    March = 0x43,
-    March_x4f = 0x4f,
-    April = 0x44,
-    April_x50 = 0x50,
-    May = 0x45,
-    May_x51 = 0x51,
-    June = 0x46,
-    June_x52 = 0x52,
-    July = 0x47,
-    July_x53 = 0x53,
-    August = 0x48,
-    August_x54 = 0x54,
-    September = 0x49,
-    September_x55 = 0x55,
-    October = 0x4a,
-    October_x56 = 0x56,
-    November = 0x4b,
-    November_x57 = 0x57,
-    December = 0x4c,
-    December_x58 = 0x58,
+    JanuaryCall = 0x41,
+    JanuaryPut = 0x4d,
+    FebruaryCall = 0x42,
+    FebruaryPut = 0x4e,
+    MarchCall = 0x43,
+    MarchPut = 0x4f,
+    AprilCall = 0x44,
+    AprilPut = 0x50,
+    MayCall = 0x45,
+    MayPut = 0x51,
+    JuneCall = 0x46,
+    JunePut = 0x52,
+    JulyCall = 0x47,
+    JulyPut = 0x53,
+    AugustCall = 0x48,
+    AugustPut = 0x54,
+    SeptemberCall = 0x49,
+    SeptemberPut = 0x55,
+    OctoberCall = 0x4a,
+    OctoberPut = 0x56,
+    NovemberCall = 0x4b,
+    NovemberPut = 0x57,
+    DecemberCall = 0x4c,
+    DecemberPut = 0x58,
 };
 
 type StrikePriceDenominatorCode = enum {
@@ -395,7 +411,7 @@ type LongEquityAndIndexQuoteMessageType = enum {
 };
 
 type BboIndicator = enum {
-    NoBestBidChangeOrBestOfferChange = 0x41,
+    NoBestBidChangeNoBestOfferChange = 0x41,
     NoBestBidChangeQuoteContainsBestOffer = 0x42,
     NoBestBidChangeBestOfferAppendage = 0x43,
     NoBestBidChangeNoBestOffer = 0x44,
@@ -419,7 +435,7 @@ type BestBidParticipantId = enum {
     BostonOptionsExchange = 0x42,
     CboeOptionsExchange = 0x43,
     MiaxEmerald = 0x44,
-    CboeEdgxOptions = 0x45,
+    CboeEdgxOptionsExchange = 0x45,
     NasdaqGemx = 0x48,
     NasdaqIse = 0x49,
     NasdaqMrx = 0x4a,
@@ -429,7 +445,7 @@ type BestBidParticipantId = enum {
     MiaxPearl = 0x50,
     NasdaqOptionsMarket = 0x51,
     NasdaqBxOptions = 0x54,
-    CboeC2Options = 0x57,
+    CboeC2OptionsExchange = 0x57,
     NasdaqPhlx = 0x58,
     CboeBzxOptionsExchange = 0x5a,
 };
@@ -451,7 +467,7 @@ type BestOfferParticipantId = enum {
     BostonOptionsExchange = 0x42,
     CboeOptionsExchange = 0x43,
     MiaxEmerald = 0x44,
-    CboeEdgxOptions = 0x45,
+    CboeEdgxOptionsExchange = 0x45,
     NasdaqGemx = 0x48,
     NasdaqIse = 0x49,
     NasdaqMrx = 0x4a,
@@ -461,7 +477,7 @@ type BestOfferParticipantId = enum {
     MiaxPearl = 0x50,
     NasdaqOptionsMarket = 0x51,
     NasdaqBxOptions = 0x54,
-    CboeC2Options = 0x57,
+    CboeC2OptionsExchange = 0x57,
     NasdaqPhlx = 0x58,
     CboeBzxOptionsExchange = 0x5a,
 };
@@ -506,12 +522,6 @@ type ControlMessageType = enum {
     EndOfOpenInterest = 0x4d,
     LineIntegrity = 0x4e,
     DisasterRecoveryDataCenterActivation = 0x50,
-    StartOfTestCycle = 0x41,
-    EndOfTestCycle = 0x42,
-    GoodMorning = 0x44,
-    EarlyMarketClose = 0x47,
-    EndOfTransactionReporting = 0x48,
-    GoodNight = 0x49,
 };
 
 type UnderlyingValueMessageType = enum {

@@ -307,7 +307,7 @@ type OptionsNonDisplayedTradeMessage = unit {
     price: int32;
     volume: uint32;
     printable_flag: uint8 &convert=PrintableFlag($$);
-    trade_cond_1: bytes &size=1;
+    trade_cond_1: uint8 &convert=TradeCond1($$);
     : skip bytes &size=3;   # padding
     price_type: uint8 &convert=PriceType($$);
 };
@@ -441,8 +441,7 @@ type RoundLot = enum {
 
 type Status = enum {
     Accepted = 0x30,
-    Rejected = 0x31,
-    InvalidSequenceRange = 0x32,
+    InvalidSourceId = 0x31,
     MaximumSequenceRange = 0x33,
     MaximumRequestInADay = 0x34,
     MaximumRefreshRequestsInADay = 0x35,
@@ -539,7 +538,7 @@ type PutOrCall = enum {
 
 type ClosingOnlyIndicator = enum {
     StandardSeries = 0x30,
-    Call = 0x31,
+    ClosingOnlySeries = 0x31,
 };
 
 type SeriesStatus = enum {
@@ -564,8 +563,8 @@ type CustIndicator = enum {
 };
 
 type AuctionType = enum {
-    CoreOpeningAuction = 0x6d,
-    ReopeningAuction = 0x68,
+    CoreOpeningAuction = 0x4d,
+    ReopeningAuctionHaltResume = 0x48,
 };
 
 type ImbalanceSide = enum {
@@ -607,13 +606,30 @@ type PrintableFlag = enum {
     TradeIncludedInTotalVolume = 1,
 };
 
+type TradeCond1 = enum {
+    OutrightSeriesOrderquoteTradingElectronicallyWithAOutrightSeriesCubeExposedOrderOrOutrightSeriesCubeExposedOrderTradingElectronicallyWithOutrightSeries = 0x61,
+    TradingOfAOutrightSeriesQccOrder = 0x63,
+    OutrightSeriesFloorTrade = 0x65,
+    AllOutrightSeriesElectronicTradesExcludingAwayMarketExecutionsThatWereNotPartOfCertainTransactions = 0x49,
+    AllOutrightSeriesTradesGeneratedAsPartOfAnIntermarketSweepOrder = 0x53,
+    AnyOfTheAbovePublishedAfter90SecondsOfOccurring = 0x44,
+    ComplexOrderTradesThatWereNotPartOfCertainTransactions = 0x66,
+    ComplexOrderTradingElectronicallyWithAComplexCubeExposedOrderOrComplexCubeExposedOrderTradingElectronicallyWithComplexCubeCoveredOrder = 0x67,
+    TradingOfAComplexQccOrder = 0x68,
+    ComplexOrderToComplexOrderFloorTrade = 0x69,
+    ComplexOrderTradingElectronicallyWithTheOutrightSeriesOrdersquotes = 0x6a,
+    ComplexOrderToOutrightSeriesOrderFloorTrade = 0x6d,
+    ComplexOrderWithStockToComplexOrderWithStockFloorTrade = 0x70,
+    ComplexOrderWithStockToOutrightSeriesOrderFloorTrade = 0x73,
+};
+
 type PriceType = enum {
-    StrikePriceIsAmount = 0,
-    StrikePriceIsAmount_1 = 1,
+    StrikePriceIsDollarAmount = 0,
+    StrikePriceIsPercentAmount = 1,
 };
 
 type CrossType = enum {
-    MarketCenterOpeningAuction = 0x30,
     MarketCenterReopeningAuction = 0x35,
+    MarketCenterOpeningAuction = 0x4f,
 };
 

@@ -26,6 +26,18 @@ class CoinbasederivativesOrdersapiV13Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_instrumentinfomessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.3/InstrumentInfoMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_instrumentinforequestmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_3.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.3/InstrumentInfoRequestMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_lastexecidmessage(self):
         module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_3.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.3/LastExecIdMessage.pcap"):

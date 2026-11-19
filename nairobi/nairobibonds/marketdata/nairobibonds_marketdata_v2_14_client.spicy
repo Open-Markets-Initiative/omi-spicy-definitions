@@ -1,0 +1,205 @@
+# License: MIT No Attribution
+
+module NairobiNairobibondsMarketdataMitsV214Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NairobibondsMarketdataV214 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    transport_header: TransportHeader;
+    client_message_header: ClientMessageHeader;
+    switch ( self.client_message_header.client_message_type ) {
+        ClientMessageType::LogInMessage -> log_in_message: LogInMessage;
+        ClientMessageType::ReRequestMessage -> re_request_message: ReRequestMessage;
+        ClientMessageType::RequestDataRetrievalMessage -> request_data_retrieval_message: RequestDataRetrievalMessage;
+        ClientMessageType::RequestDataRetrievalMessage_37 -> request_data_retrieval_message: RequestDataRetrievalMessage;
+        ClientMessageType::UnsubscribeContractMessage -> unsubscribe_contract_message: UnsubscribeContractMessage;
+        ClientMessageType::RequestDailyTrendMessage -> request_daily_trend_message: RequestDailyTrendMessage;
+        ClientMessageType::OptionContractSubscriptionMessage -> option_contract_subscription_message: OptionContractSubscriptionMessage;
+        ClientMessageType::SubscribingToIndicesServiceMessage -> subscribing_to_indices_service_message: SubscribingToIndicesServiceMessage;
+        ClientMessageType::FutureContractSubscriptionMessage -> future_contract_subscription_message: FutureContractSubscriptionMessage;
+        ClientMessageType::OptionStatisticsRequestMessage -> option_statistics_request_message: OptionStatisticsRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type TransportHeader = unit {
+    start_byte: uint8;
+    message_length: uint16;
+    length_check: uint8;
+};
+
+type ClientMessageHeader = unit {
+    sequence_number: int32;
+    user_name: UserName;
+    user_number: int32;
+    time_field: Time;
+    client_message_type: uint8 &convert=ClientMessageType($$);
+};
+
+type UserName = unit {
+    user_name_length_byte: uint8;
+    user_name_characters: bytes &size=15;
+};
+
+type Time = unit {
+    hours: uint8;
+    minutes: uint8;
+    seconds: uint8;
+    : skip bytes &size=1;   # padding
+};
+
+type LogInMessage = unit {
+    encrypted_password: bytes &size=312;
+    new_password: bytes &size=312;
+};
+
+type ReRequestMessage = unit {
+    from_sequence: int32;
+    to_sequence: int32;
+    market_shard_number_i_4: int32;
+};
+
+type RequestDataRetrievalMessage = unit {
+    data_type: uint8 &convert=DataType($$);
+    : skip bytes &size=1;   # padding
+    last_piece_of_chunk: uint8;
+    re_request: uint8;
+    action: int32 &convert=Action($$);
+    specific_record: int32;
+    download_date: DownloadDate;
+};
+
+type DownloadDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type UnsubscribeContractMessage = unit {
+    quantity_i_2: int16;
+    contracts_to_unsubscribe: ContractsToUnsubscribe[40];
+};
+
+type ContractsToUnsubscribe = unit {
+    contract: Contract;
+};
+
+type Contract = unit {
+    identifier_prefix_i_4: int32;
+    date: Date;
+    instrument_name_p_5: InstrumentNameP5;
+    strike: real &type=spicy::RealType::IEEE754_Double;
+    call_put_c_1: bytes &size=1;
+    secondary_date: SecondaryDate;
+    secondary_instrument_name_p_5: SecondaryInstrumentNameP5;
+    is_delta_option: uint8;
+};
+
+type Date = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type InstrumentNameP5 = unit {
+    instrument_name_p_5_length_byte: uint8;
+    instrument_name_p_5_characters: bytes &size=4;
+};
+
+type SecondaryDate = unit {
+    year: int32;
+    month: int32;
+    day: int32;
+};
+
+type SecondaryInstrumentNameP5 = unit {
+    secondary_instrument_name_p_5_length_byte: uint8;
+    secondary_instrument_name_p_5_characters: bytes &size=4;
+};
+
+type RequestDailyTrendMessage = unit {
+    contract_name: ContractName;
+};
+
+type ContractName = unit {
+    identifier_prefix_i_4: int32;
+    date: Date;
+    instrument_name_p_5: InstrumentNameP5;
+    strike: real &type=spicy::RealType::IEEE754_Double;
+    call_put_c_1: bytes &size=1;
+    secondary_date: SecondaryDate;
+    secondary_instrument_name_p_5: SecondaryInstrumentNameP5;
+    is_delta_option: uint8;
+};
+
+type OptionContractSubscriptionMessage = unit {
+    contract_name: ContractName;
+};
+
+type SubscribingToIndicesServiceMessage = unit {
+    subscribe: uint8;
+};
+
+type FutureContractSubscriptionMessage = unit {
+    quantity_i_2: int16;
+    contracts_requested_for_display: ContractsRequestedForDisplay[40];
+};
+
+type ContractsRequestedForDisplay = unit {
+    contract: Contract;
+};
+
+type OptionStatisticsRequestMessage = unit {
+    contract_name: ContractName;
+};
+
+type ClientMessageType = enum {
+    LogInMessage = 0,
+    ReRequestMessage = 3,
+    LogOutMessage = 4,
+    RequestDataRetrievalMessage = 36,
+    RequestDataRetrievalMessage_37 = 37,
+    UnsubscribeContractMessage = 42,
+    RequestDailyTrendMessage = 61,
+    OptionContractSubscriptionMessage = 67,
+    HeartBeatsMessage = 84,
+    SubscribingToIndicesServiceMessage = 98,
+    FutureContractSubscriptionMessage = 99,
+    OptionStatisticsRequestMessage = 135,
+};
+
+type DataType = enum {
+    MarketDisplayData = 1,
+    InstrumentsData = 2,
+    ContractDates = 3,
+    StrikeData = 4,
+    MemberData = 15,
+    MtmData = 16,
+    Holiday = 18,
+    ClearingMemberData = 65,
+    ExchangeAnnouncements = 89,
+    News = 129,
+    CouponInformation = 131,
+    TradingSessions = 136,
+    Indices = 138,
+    IndicesData = 139,
+    InstrumentTypes = 39,
+    IndicesPriceData = 137,
+    SharesInIssueData = 141,
+    IndexData = 146,
+    IndexConstituentsData = 147,
+};
+
+type Action = enum {
+    FileDownload = 0,
+    Delete = 1,
+    Insert = 2,
+    Update = 3,
+};
+

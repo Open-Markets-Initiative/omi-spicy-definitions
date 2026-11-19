@@ -1,0 +1,227 @@
+# License: MIT No Attribution
+
+module NseNseixMtbtndalTbtV15;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type NseixMtbtndalV15 = unit {
+    stream_header: StreamHeader;
+    message: Message;
+};
+
+type StreamHeader = unit {
+    message_length: int16;
+    stream_id: int16;
+    sequence_number: uint32;
+};
+
+type Message = unit {
+    message_type: uint8 &convert=MessageType($$);
+    switch ( self.message_type ) {
+        MessageType::ContractInformationMessage -> contract_information_message: ContractInformationMessage;
+        MessageType::SpreadContractInformationMessage -> spread_contract_information_message: SpreadContractInformationMessage;
+        MessageType::NewOrderMessage -> new_order_message: NewOrderMessage;
+        MessageType::OrderModificationMessage -> order_modification_message: OrderModificationMessage;
+        MessageType::OrderCancellationMessage -> order_cancellation_message: OrderCancellationMessage;
+        MessageType::TradeMessage -> trade_message: TradeMessage;
+        MessageType::NewSpreadOrderMessage -> new_spread_order_message: NewSpreadOrderMessage;
+        MessageType::SpreadOrderModificationMessage -> spread_order_modification_message: SpreadOrderModificationMessage;
+        MessageType::SpreadOrderCancellationMessage -> spread_order_cancellation_message: SpreadOrderCancellationMessage;
+        MessageType::SpreadTradeMessage -> spread_trade_message: SpreadTradeMessage;
+        MessageType::MarketStatusMessage -> market_status_message: MarketStatusMessage;
+        MessageType::IndicativePriceAndQuantityMessage -> indicative_price_and_quantity_message: IndicativePriceAndQuantityMessage;
+        MessageType::MarketStatisticsInformationMessage -> market_statistics_information_message: MarketStatisticsInformationMessage;
+        MessageType::OpenInterestMessage -> open_interest_message: OpenInterestMessage;
+        MessageType::HeartbeatMessage -> heartbeat_message: HeartbeatMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type ContractInformationMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    contract_stream_id: int16;
+    token_number: int32;
+    instrument: bytes &size=6;
+    symbol: bytes &size=10;
+    expiry_date: int32 &convert=time($$ + 315532800);
+    strike_price: int32;
+    option_type: bytes &size=2;
+    low_price_range: int32;
+    high_price_range: int32;
+    daily_contract_indicator: uint8 &convert=DailyContractIndicator($$);
+};
+
+type SpreadContractInformationMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    contract_stream_id: int16;
+    token_1: int32;
+    token_2: int32;
+    day_low_price_diff_range: int32;
+    day_high_price_diff_range: int32;
+    operating_range_low_price_diff_range: int32;
+    operating_range_high_price_diff_range: int32;
+};
+
+type NewOrderMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type OrderModificationMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type OrderCancellationMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type TradeMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    buy_order_id: real &type=spicy::RealType::IEEE754_Double;
+    sell_order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    trade_price: int32;
+    trade_quantity: int32;
+};
+
+type NewSpreadOrderMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadOrderModificationMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadOrderCancellationMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    order_type: uint8 &convert=OrderType($$);
+    price: int32;
+    quantity: int32;
+};
+
+type SpreadTradeMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    buy_order_id: real &type=spicy::RealType::IEEE754_Double;
+    sell_order_id: real &type=spicy::RealType::IEEE754_Double;
+    token: int32;
+    trade_price: int32;
+    quantity: int32;
+};
+
+type MarketStatusMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    instrument: bytes &size=6;
+    status: int16 &convert=Status($$);
+    session_indicator: int16 &convert=SessionIndicator($$);
+};
+
+type IndicativePriceAndQuantityMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    token: int32;
+    identifier: uint8 &convert=Identifier($$);
+    indicative_price: int32;
+    indicative_quantity: int32;
+};
+
+type MarketStatisticsInformationMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    token: int32;
+    opening_price: real &type=spicy::RealType::IEEE754_Double;
+    trade_high_price: real &type=spicy::RealType::IEEE754_Double;
+    trade_low_price: real &type=spicy::RealType::IEEE754_Double;
+    closing_price: real &type=spicy::RealType::IEEE754_Double;
+    last_traded_price: real &type=spicy::RealType::IEEE754_Double;
+    previous_close_price: real &type=spicy::RealType::IEEE754_Double;
+    settlement_price: real &type=spicy::RealType::IEEE754_Double;
+    total_traded_quantity: int32;
+    total_traded_value: real &type=spicy::RealType::IEEE754_Double;
+    statistics_open_interest: int32;
+    change_in_open_interest: int32;
+    session_indicator: int16 &convert=SessionIndicator($$);
+};
+
+type OpenInterestMessage = unit {
+    timestamp: int64 &convert=time_ns($$ + 315532800000000000);
+    token: int32;
+    open_interest: int32;
+};
+
+type HeartbeatMessage = unit {
+    last_sequence_no: int32;
+};
+
+type MessageType = enum {
+    ContractInformationMessage = 0x63,
+    SpreadContractInformationMessage = 0x64,
+    NewOrderMessage = 0x4e,
+    OrderModificationMessage = 0x4d,
+    OrderCancellationMessage = 0x58,
+    TradeMessage = 0x54,
+    NewSpreadOrderMessage = 0x47,
+    SpreadOrderModificationMessage = 0x48,
+    SpreadOrderCancellationMessage = 0x4a,
+    SpreadTradeMessage = 0x4b,
+    MarketStatusMessage = 0x53,
+    IndicativePriceAndQuantityMessage = 0x50,
+    MarketStatisticsInformationMessage = 0x66,
+    OpenInterestMessage = 0x6f,
+    HeartbeatMessage = 0x5a,
+};
+
+type DailyContractIndicator = enum {
+    DailyContract = 0x44,
+    NotApplicable = 0x4e,
+};
+
+type OrderType = enum {
+    BuyOrder = 0x42,
+    SellOrder = 0x53,
+};
+
+type Status = enum {
+    PreOpen = 0,
+    Open = 1,
+    Closed = 2,
+    PreOpenEnd = 3,
+    PreClose = 4,
+    PreCloseEnd = 5,
+};
+
+type SessionIndicator = enum {
+    TSession = 1,
+    T1Session = 2,
+};
+
+type Identifier = enum {
+    IndicativeOpenPrice = 0x4f,
+    IndicativeClosePrice = 0x43,
+};
+

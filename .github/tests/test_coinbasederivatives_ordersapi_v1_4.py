@@ -14,6 +14,18 @@ SPICY_DRIVER = os.environ.get("SPICY_DRIVER", "spicy-driver")
 
 class CoinbasederivativesOrdersapiV14Tests(unittest.TestCase):
 
+    def test_cancelordermessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/CancelOrderMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_cancelorderrejectmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/CancelOrderRejectMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_instrumentinfomessage(self):
         module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/InstrumentInfoMessage.pcap"):
@@ -23,6 +35,18 @@ class CoinbasederivativesOrdersapiV14Tests(unittest.TestCase):
     def test_instrumentinforequestmessage(self):
         module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/InstrumentInfoRequestMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_lastexecidmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/LastExecIdMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_lastexecidrequestmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/LastExecIdRequestMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -44,6 +68,12 @@ class CoinbasederivativesOrdersapiV14Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_logoutmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/LogoutMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_masscancelorderackmessage(self):
         module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/MassCancelOrderAckMessage.pcap"):
@@ -56,9 +86,27 @@ class CoinbasederivativesOrdersapiV14Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_masscancelorderrejectmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/MassCancelOrderRejectMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_newordermessage(self):
         module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/NewOrderMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_ordercanceledmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/OrderCanceledMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_orderenteredmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/OrderEnteredMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -68,9 +116,27 @@ class CoinbasederivativesOrdersapiV14Tests(unittest.TestCase):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
+    def test_orderrejectmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/OrderRejectMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def test_orderreplacedmessage(self):
         module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/OrderReplacedMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_pingmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/PingMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_pongmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/PongMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
@@ -95,6 +161,24 @@ class CoinbasederivativesOrdersapiV14Tests(unittest.TestCase):
     def test_settradermessage(self):
         module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
         for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/SetTraderMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_streamordermessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/StreamOrderMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_unlocktradingackmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/UnlockTradingAckMessage.pcap"):
+            result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+
+    def test_unlocktradingmessage(self):
+        module = "coinbase/coinbasederivatives/ordersapi/coinbasederivatives_ordersapi_v1_4.spicy"
+        for payload in payloads.of("omi-data-packets/Coinbase/CoinbaseDerivatives.OrdersApi.Sbe.v1.4/UnlockTradingMessage.pcap"):
             result = subprocess.run([SPICY_DRIVER, module], input=payload, capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
 
