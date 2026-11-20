@@ -94,7 +94,7 @@ type ErisReferenceDataGroup = unit {
     md_entry_type: bytes &size=1;
     rpt_seq: uint32;
     md_entry_px_decimal_optional: MdEntryPxDecimalOptional;
-    open_close_settl_flag: int8;
+    open_close_settl_flag: uint8;
     settl_price_type: bitfield(8) {
         final_daily: 0;
         actual: 1;
@@ -142,7 +142,7 @@ type ErisReferenceDataGroup = unit {
     settlement_npv: SettlementNpv;
     final_settlement_futures_price: FinalSettlementFuturesPrice;
     security_description: bytes &size=30;
-    eris_security_alt_id_groups: ErisSecurityAltIdGroups;
+    eris_reference_data_security_alt_id_groups: ErisReferenceDataSecurityAltIdGroups;
     incremental_refresh_eris_related_instruments_groups: IncrementalRefreshErisRelatedInstrumentsGroups;
     events_groups: EventsGroups;
 };
@@ -262,12 +262,12 @@ type FinalSettlementFuturesPrice = unit {
     exponent_optional: int8;
 };
 
-type ErisSecurityAltIdGroups = unit {
+type ErisReferenceDataSecurityAltIdGroups = unit {
     group_size: GroupSize;
-    eris_security_alt_id_group: ErisSecurityAltIdGroup[self.group_size.num_in_group_8];
+    eris_reference_data_security_alt_id_group: ErisReferenceDataSecurityAltIdGroup[self.group_size.num_in_group_8];
 };
 
-type ErisSecurityAltIdGroup = unit {
+type ErisReferenceDataSecurityAltIdGroup = unit {
     security_alt_id: bytes &size=26;
     security_alt_id_source_optional: bytes &size=1;
 };
@@ -484,7 +484,7 @@ type MdInstrumentDefinitionIndices = unit {
     md_feed_type: bytes &size=2;
     appl_id: uint16;
     inst_attrib_groups: InstAttribGroups;
-    events_groups: EventsGroups;
+    indices_events_groups: IndicesEventsGroups;
 };
 
 type InstAttribGroups = unit {
@@ -500,6 +500,16 @@ type GroupSizeEncoding = unit {
 type InstAttribGroup = unit {
     inst_attrib_type: uint8;
     inst_attrib_value: bytes &size=100;
+};
+
+type IndicesEventsGroups = unit {
+    group_size_encoding: GroupSizeEncoding;
+    indices_events_group: IndicesEventsGroup[self.group_size_encoding.num_in_group];
+};
+
+type IndicesEventsGroup = unit {
+    event_type_indices: uint8 &convert=EventTypeIndices($$);
+    event_time: uint64;
 };
 
 type MdIncrementalRefreshIndices = unit {
@@ -530,7 +540,7 @@ type IncrementalRefreshIndicesGroup = unit {
     md_entry_px_decimal: MdEntryPxDecimal;
     md_entry_size_optional: uint64;
     symbol: bytes &size=50;
-    open_close_settl_flag: int8;
+    indices_open_close_settl_flag: int8;
     yield_type: bytes &size=8;
     yield: Yield;
     net_chg_prev_day: NetChgPrevDay;
@@ -669,12 +679,32 @@ type ErisOriginalGroup = unit {
     maturity_date: uint16;
     reference_id_50: bytes &size=50;
     eris_security_alt_id_groups: ErisSecurityAltIdGroups;
-    events_groups: EventsGroups;
+    incremental_refresh_eris_events_groups: IncrementalRefreshErisEventsGroups;
 };
 
 type CalFutPx = unit {
     mantissa: int64;
     exponent: int8;
+};
+
+type ErisSecurityAltIdGroups = unit {
+    group_size: GroupSize;
+    eris_security_alt_id_group: ErisSecurityAltIdGroup[self.group_size.num_in_group_8];
+};
+
+type ErisSecurityAltIdGroup = unit {
+    security_alt_id: bytes &size=26;
+    security_alt_id_source: bytes &size=1;
+};
+
+type IncrementalRefreshErisEventsGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_eris_events_group: IncrementalRefreshErisEventsGroup[self.group_size.num_in_group_8];
+};
+
+type IncrementalRefreshErisEventsGroup = unit {
+    event_type: uint8;
+    event_time_optional: uint64;
 };
 
 type MdIncrementalRefreshEris353 = unit {
@@ -718,7 +748,7 @@ type ErisGroup = unit {
     reference_id_50: bytes &size=50;
     md_quote_type: uint8;
     eris_security_alt_id_groups: ErisSecurityAltIdGroups;
-    events_groups: EventsGroups;
+    incremental_refresh_eris_events_groups: IncrementalRefreshErisEventsGroups;
 };
 
 type MdIncrementalRefreshOtC356 = unit {
@@ -765,7 +795,7 @@ type OtcOriginalGroup = unit {
     unit_of_measure_currency: bytes &size=3;
     unit_of_measure_qty_decimal: UnitOfMeasureQtyDecimal;
     md_entry_date: int32;
-    open_close_settl_flag: int8;
+    open_close_settl_flag: uint8;
     price_type: uint16;
     settl_date: uint16;
     quote_condition: bytes &size=1;
@@ -866,7 +896,7 @@ type ErisLegsGroup = unit {
     leg_security_group: bytes &size=12;
     leg_date_offset: int8;
     interpolation_factor: InterpolationFactor;
-    eris_security_alt_id_groups: ErisSecurityAltIdGroups;
+    eris_leg_security_alt_id_groups: ErisLegSecurityAltIdGroups;
 };
 
 type PreviousFixingRate = unit {
@@ -877,6 +907,16 @@ type PreviousFixingRate = unit {
 type InterpolationFactor = unit {
     mantissa: int64;
     exponent: int8;
+};
+
+type ErisLegSecurityAltIdGroups = unit {
+    group_size: GroupSize;
+    eris_leg_security_alt_id_group: ErisLegSecurityAltIdGroup[self.group_size.num_in_group_8];
+};
+
+type ErisLegSecurityAltIdGroup = unit {
+    leg_security_alt_id: bytes &size=26;
+    leg_security_alt_id_source: uint8;
 };
 
 type MdIncrementalRefreshTradeBlocks365 = unit {
@@ -1023,7 +1063,7 @@ type OtcGroup = unit {
     unit_of_measure_currency: bytes &size=3;
     unit_of_measure_qty_decimal_optional: UnitOfMeasureQtyDecimalOptional;
     md_entry_date: int32;
-    open_close_settl_flag: int8;
+    open_close_settl_flag: uint8;
     price_type: uint16;
     settl_date: uint16;
     quote_condition: bytes &size=1;
@@ -1076,6 +1116,12 @@ type SecurityUpdateAction = enum {
     Add = 0x41,
     Delete = 0x44,
     Modify = 0x4d,
+};
+
+type EventTypeIndices = enum {
+    Activation = 5,
+    Deletion = 6,
+    Modification = 120,
 };
 
 type MdEntryTypeIndices = enum {

@@ -35,7 +35,7 @@ type ItchFrame = unit {
 
 type MessageHeader = unit {
     sequence_number: uint32;
-    timestamp: uint32;
+    timestamp: int32 &convert=interval($$ / 1000.0);
     message_type: uint8 &convert=MessageType($$);
 };
 
@@ -60,7 +60,7 @@ type InstrumentInfo = unit {
     instrument_index: int16;
     instrument_type: uint8 &convert=InstrumentType($$);
     instrument_id: bytes &size=20;
-    settlement_date: int64;
+    settlement_date: int64 &convert=time($$ / 1000.0);
 };
 
 type InstrumentInfoAckMessage = unit {
@@ -125,7 +125,7 @@ type PaidGivenMessage = unit {
     rate: int32;
     size_indicator: bytes &size=1;
     paid_given_indicator: bytes &size=1;
-    transact_time: int64;
+    transact_time: int64 &convert=time($$ / 1000.0);
 };
 
 type WamrWithConfidenceFactorMessage = unit {
@@ -134,7 +134,7 @@ type WamrWithConfidenceFactorMessage = unit {
     conf_factor_75: ConfFactor75;
     conf_factor_50: ConfFactor50;
     conf_factor_25: ConfFactor25;
-    calculation_timestamp: int64;
+    calculation_timestamp: int64 &convert=time($$ / 1000000.0);
 };
 
 type ConfFactor75 = unit {

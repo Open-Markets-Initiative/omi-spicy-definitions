@@ -8,7 +8,7 @@ import spicy;
 
 public type CmeGlobexMdp3V19 = unit {
     binary_packet_header: BinaryPacketHeader;
-    message: Message[] &eod;
+    mdp3_message: Mdp3Message[] &eod;
 };
 
 type BinaryPacketHeader = unit {
@@ -16,7 +16,7 @@ type BinaryPacketHeader = unit {
     sending_time: uint64 &convert=time_ns($$);
 };
 
-type Message = unit {
+type Mdp3Message = unit {
     message_header: MessageHeader;
     switch ( self.message_header.simple_binary_header.schema_id ) {
         SchemaId::Mktdata -> mktdata_message: MktdataMessage(self.message_header.simple_binary_header.template_id);
@@ -356,17 +356,17 @@ type MdIncrementalRefreshBookLegacy = unit {
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
-    incremental_refresh_book_groups: IncrementalRefreshBookGroups;
+    incremental_refresh_book_legacy_groups: IncrementalRefreshBookLegacyGroups;
     incremental_refresh_book_order_id_groups: IncrementalRefreshBookOrderIdGroups;
 };
 
-type IncrementalRefreshBookGroups = unit {
+type IncrementalRefreshBookLegacyGroups = unit {
     group_size: GroupSize;
-    incremental_refresh_book_group: IncrementalRefreshBookGroup[self.group_size.num_in_group];
+    incremental_refresh_book_legacy_group: IncrementalRefreshBookLegacyGroup[self.group_size.num_in_group];
 };
 
-type IncrementalRefreshBookGroup = unit {
-    md_entry_px_optional_ex: int64;
+type IncrementalRefreshBookLegacyGroup = unit {
+    md_entry_px_optional: int64;
     md_entry_size_short_optional: int32;
     security_id: int32;
     rpt_seq: uint32;
@@ -410,16 +410,16 @@ type MdIncrementalRefreshDailyStatisticsLegacy = unit {
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
-    incremental_refresh_daily_statistics_groups: IncrementalRefreshDailyStatisticsGroups;
+    incremental_refresh_daily_statistics_legacy_groups: IncrementalRefreshDailyStatisticsLegacyGroups;
 };
 
-type IncrementalRefreshDailyStatisticsGroups = unit {
+type IncrementalRefreshDailyStatisticsLegacyGroups = unit {
     group_size: GroupSize;
-    incremental_refresh_daily_statistics_group: IncrementalRefreshDailyStatisticsGroup[self.group_size.num_in_group];
+    incremental_refresh_daily_statistics_legacy_group: IncrementalRefreshDailyStatisticsLegacyGroup[self.group_size.num_in_group];
 };
 
-type IncrementalRefreshDailyStatisticsGroup = unit {
-    md_entry_px_optional_ex: int64;
+type IncrementalRefreshDailyStatisticsLegacyGroup = unit {
+    md_entry_px_optional: int64;
     md_entry_size_short_optional: int32;
     security_id: int32;
     rpt_seq: uint32;
@@ -451,18 +451,18 @@ type MdIncrementalRefreshLimitsBandingLegacy = unit {
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
-    incremental_refresh_limits_banding_groups: IncrementalRefreshLimitsBandingGroups;
+    incremental_refresh_limits_banding_legacy_groups: IncrementalRefreshLimitsBandingLegacyGroups;
 };
 
-type IncrementalRefreshLimitsBandingGroups = unit {
+type IncrementalRefreshLimitsBandingLegacyGroups = unit {
     group_size: GroupSize;
-    incremental_refresh_limits_banding_group: IncrementalRefreshLimitsBandingGroup[self.group_size.num_in_group];
+    incremental_refresh_limits_banding_legacy_group: IncrementalRefreshLimitsBandingLegacyGroup[self.group_size.num_in_group];
 };
 
-type IncrementalRefreshLimitsBandingGroup = unit {
-    high_limit_price_ex: int64;
-    low_limit_price_ex: int64;
-    max_price_variation_ex: int64;
+type IncrementalRefreshLimitsBandingLegacyGroup = unit {
+    high_limit_price: int64;
+    low_limit_price: int64;
+    max_price_variation: int64;
     security_id: int32;
     rpt_seq: uint32;
 };
@@ -480,16 +480,16 @@ type MdIncrementalRefreshSessionStatisticsLegacy = unit {
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
-    incremental_refresh_session_statistics_groups: IncrementalRefreshSessionStatisticsGroups;
+    incremental_refresh_session_statistics_legacy_groups: IncrementalRefreshSessionStatisticsLegacyGroups;
 };
 
-type IncrementalRefreshSessionStatisticsGroups = unit {
+type IncrementalRefreshSessionStatisticsLegacyGroups = unit {
     group_size: GroupSize;
-    incremental_refresh_session_statistics_group: IncrementalRefreshSessionStatisticsGroup[self.group_size.num_in_group];
+    incremental_refresh_session_statistics_legacy_group: IncrementalRefreshSessionStatisticsLegacyGroup[self.group_size.num_in_group];
 };
 
-type IncrementalRefreshSessionStatisticsGroup = unit {
-    md_entry_px_ex: int64;
+type IncrementalRefreshSessionStatisticsLegacyGroup = unit {
+    md_entry_px: int64;
     security_id: int32;
     rpt_seq: uint32;
     open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
@@ -540,16 +540,16 @@ type SnapshotFullRefreshLegacy = unit {
     high_limit_price: int64;
     low_limit_price: int64;
     max_price_variation: int64;
-    snapshot_full_refresh_groups: SnapshotFullRefreshGroups;
+    snapshot_full_refresh_legacy_groups: SnapshotFullRefreshLegacyGroups;
 };
 
-type SnapshotFullRefreshGroups = unit {
+type SnapshotFullRefreshLegacyGroups = unit {
     group_size: GroupSize;
-    snapshot_full_refresh_group: SnapshotFullRefreshGroup[self.group_size.num_in_group];
+    snapshot_full_refresh_legacy_group: SnapshotFullRefreshLegacyGroup[self.group_size.num_in_group];
 };
 
-type SnapshotFullRefreshGroup = unit {
-    md_entry_px_optional_ex: int64;
+type SnapshotFullRefreshLegacyGroup = unit {
+    md_entry_px_optional: int64;
     md_entry_size_short_optional: int32;
     number_of_orders_optional: int32;
     md_price_level_optional: int8;
@@ -699,21 +699,21 @@ type MdIncrementalRefreshTradeSummaryLegacy = unit {
         end_of_event: 7;
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=2;   # padding
-    incremental_refresh_trade_summary_groups: IncrementalRefreshTradeSummaryGroups;
+    incremental_refresh_trade_summary_legacy_groups: IncrementalRefreshTradeSummaryLegacyGroups;
     incremental_refresh_trade_summary_order_id_groups: IncrementalRefreshTradeSummaryOrderIdGroups;
 };
 
-type IncrementalRefreshTradeSummaryGroups = unit {
+type IncrementalRefreshTradeSummaryLegacyGroups = unit {
     group_size: GroupSize;
-    incremental_refresh_trade_summary_group: IncrementalRefreshTradeSummaryGroup[self.group_size.num_in_group];
+    incremental_refresh_trade_summary_legacy_group: IncrementalRefreshTradeSummaryLegacyGroup[self.group_size.num_in_group];
 };
 
-type IncrementalRefreshTradeSummaryGroup = unit {
-    md_entry_px_ex: int64;
+type IncrementalRefreshTradeSummaryLegacyGroup = unit {
+    md_entry_px: int64;
     md_entry_size_short: int32;
     security_id: int32;
     rpt_seq: uint32;
-    number_of_orders: int32;
+    number_of_orders_optional: int32;
     aggressor_side: uint8 &convert=AggressorSide($$);
     md_update_action: uint8 &convert=MdUpdateAction($$);
     md_trade_entry_id: uint32;
@@ -732,6 +732,95 @@ type IncrementalRefreshTradeSummaryOrderIdGroup = unit {
 };
 
 type MdIncrementalRefreshOrderBookLegacy = unit {
+    transact_time: uint64 &convert=time_ns($$);
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_order_book_legacy_groups: IncrementalRefreshOrderBookLegacyGroups;
+};
+
+type IncrementalRefreshOrderBookLegacyGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_order_book_legacy_group: IncrementalRefreshOrderBookLegacyGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshOrderBookLegacyGroup = unit {
+    order_id_optional: uint64;
+    md_order_priority: uint64;
+    md_entry_px_optional: int64;
+    md_display_qty_optional: int32;
+    security_id: int32;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
+    : skip bytes &size=6;   # padding
+};
+
+type SnapshotFullRefreshOrderBookLegacy = unit {
+    last_msg_seq_num_processed: uint32;
+    tot_num_reports: uint32;
+    security_id: int32;
+    no_chunks: uint32;
+    current_chunk: uint32;
+    transact_time: uint64 &convert=time_ns($$);
+    snapshot_full_refresh_order_book_legacy_groups: SnapshotFullRefreshOrderBookLegacyGroups;
+};
+
+type SnapshotFullRefreshOrderBookLegacyGroups = unit {
+    group_size: GroupSize;
+    snapshot_full_refresh_order_book_legacy_group: SnapshotFullRefreshOrderBookLegacyGroup[self.group_size.num_in_group];
+};
+
+type SnapshotFullRefreshOrderBookLegacyGroup = unit {
+    order_id: uint64;
+    md_order_priority: uint64;
+    md_entry_px: int64;
+    md_display_qty: int32;
+    md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
+};
+
+type MdIncrementalRefreshBook = unit {
+    transact_time: uint64 &convert=time_ns($$);
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_book_groups: IncrementalRefreshBookGroups;
+    incremental_refresh_book_order_id_groups: IncrementalRefreshBookOrderIdGroups;
+};
+
+type IncrementalRefreshBookGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_book_group: IncrementalRefreshBookGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshBookGroup = unit {
+    md_entry_px_optional_ex: int64;
+    md_entry_size_short_optional: int32;
+    security_id: int32;
+    rpt_seq: uint32;
+    number_of_orders_optional: int32;
+    md_price_level: uint8;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
+    : skip bytes &size=5;   # padding
+};
+
+type MdIncrementalRefreshOrderBook = unit {
     transact_time: uint64 &convert=time_ns($$);
     match_event_indicator: bitfield(8) {
         last_trade_msg: 0;
@@ -763,7 +852,182 @@ type IncrementalRefreshOrderBookGroup = unit {
     : skip bytes &size=6;   # padding
 };
 
-type SnapshotFullRefreshOrderBookLegacy = unit {
+type MdIncrementalRefreshTradeSummary = unit {
+    transact_time: uint64 &convert=time_ns($$);
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_trade_summary_groups: IncrementalRefreshTradeSummaryGroups;
+    incremental_refresh_trade_summary_order_id_groups: IncrementalRefreshTradeSummaryOrderIdGroups;
+};
+
+type IncrementalRefreshTradeSummaryGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_trade_summary_group: IncrementalRefreshTradeSummaryGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshTradeSummaryGroup = unit {
+    md_entry_px_ex: int64;
+    md_entry_size_short: int32;
+    security_id: int32;
+    rpt_seq: uint32;
+    number_of_orders: int32;
+    aggressor_side: uint8 &convert=AggressorSide($$);
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_trade_entry_id: uint32;
+    : skip bytes &size=2;   # padding
+};
+
+type MdIncrementalRefreshDailyStatistics = unit {
+    transact_time: uint64 &convert=time_ns($$);
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_daily_statistics_groups: IncrementalRefreshDailyStatisticsGroups;
+};
+
+type IncrementalRefreshDailyStatisticsGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_daily_statistics_group: IncrementalRefreshDailyStatisticsGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshDailyStatisticsGroup = unit {
+    md_entry_px_optional_ex: int64;
+    md_entry_size_short_optional: int32;
+    security_id: int32;
+    rpt_seq: uint32;
+    trading_reference_date: uint16;
+    settl_price_type: bitfield(8) {
+        final_daily: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        reserved_bits: 4;
+        unused_bits_5_to_6: 5..6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_daily_statistics: uint8 &convert=MdEntryTypeDailyStatistics($$);
+    : skip bytes &size=7;   # padding
+};
+
+type MdIncrementalRefreshLimitsBanding = unit {
+    transact_time: uint64 &convert=time_ns($$);
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_limits_banding_groups: IncrementalRefreshLimitsBandingGroups;
+};
+
+type IncrementalRefreshLimitsBandingGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_limits_banding_group: IncrementalRefreshLimitsBandingGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshLimitsBandingGroup = unit {
+    high_limit_price_ex: int64;
+    low_limit_price_ex: int64;
+    max_price_variation_ex: int64;
+    security_id: int32;
+    rpt_seq: uint32;
+};
+
+type MdIncrementalRefreshSessionStatistics = unit {
+    transact_time: uint64 &convert=time_ns($$);
+    match_event_indicator: bitfield(8) {
+        last_trade_msg: 0;
+        last_volume_msg: 1;
+        last_quote_msg: 2;
+        last_stats_msg: 3;
+        last_implied_msg: 4;
+        recovery_msg: 5;
+        reserved: 6;
+        end_of_event: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=2;   # padding
+    incremental_refresh_session_statistics_groups: IncrementalRefreshSessionStatisticsGroups;
+};
+
+type IncrementalRefreshSessionStatisticsGroups = unit {
+    group_size: GroupSize;
+    incremental_refresh_session_statistics_group: IncrementalRefreshSessionStatisticsGroup[self.group_size.num_in_group];
+};
+
+type IncrementalRefreshSessionStatisticsGroup = unit {
+    md_entry_px_ex: int64;
+    security_id: int32;
+    rpt_seq: uint32;
+    open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
+    md_update_action: uint8 &convert=MdUpdateAction($$);
+    md_entry_type_statistics: uint8 &convert=MdEntryTypeStatistics($$);
+    md_entry_size_short_optional: int32;
+    : skip bytes &size=1;   # padding
+};
+
+type SnapshotFullRefresh = unit {
+    last_msg_seq_num_processed: uint32;
+    tot_num_reports: uint32;
+    security_id: int32;
+    rpt_seq: uint32;
+    transact_time: uint64 &convert=time_ns($$);
+    last_update_time: uint64 &convert=time_ns($$);
+    trade_date: uint16;
+    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
+    high_limit_price_ex: int64;
+    low_limit_price_ex: int64;
+    max_price_variation_ex: int64;
+    snapshot_full_refresh_groups: SnapshotFullRefreshGroups;
+};
+
+type SnapshotFullRefreshGroups = unit {
+    group_size: GroupSize;
+    snapshot_full_refresh_group: SnapshotFullRefreshGroup[self.group_size.num_in_group];
+};
+
+type SnapshotFullRefreshGroup = unit {
+    md_entry_px_optional_ex: int64;
+    md_entry_size_short_optional: int32;
+    number_of_orders_optional: int32;
+    md_price_level_optional: int8;
+    trading_reference_date: uint16;
+    open_close_settl_flag: uint8 &convert=OpenCloseSettlFlag($$);
+    settl_price_type: bitfield(8) {
+        final_daily: 0;
+        actual: 1;
+        rounded: 2;
+        intraday: 3;
+        reserved_bits: 4;
+        unused_bits_5_to_6: 5..6;
+        null_value: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    md_entry_type: uint8 &convert=MdEntryType($$);
+};
+
+type SnapshotFullRefreshOrderBook = unit {
     last_msg_seq_num_processed: uint32;
     tot_num_reports: uint32;
     security_id: int32;
@@ -784,129 +1048,6 @@ type SnapshotFullRefreshOrderBookGroup = unit {
     md_entry_px_ex: int64;
     md_display_qty: int32;
     md_entry_type_book: uint8 &convert=MdEntryTypeBook($$);
-};
-
-type MdIncrementalRefreshBook = unit {
-    transact_time: uint64 &convert=time_ns($$);
-    match_event_indicator: bitfield(8) {
-        last_trade_msg: 0;
-        last_volume_msg: 1;
-        last_quote_msg: 2;
-        last_stats_msg: 3;
-        last_implied_msg: 4;
-        recovery_msg: 5;
-        reserved: 6;
-        end_of_event: 7;
-    } &byte-order=spicy::ByteOrder::Little;
-    : skip bytes &size=2;   # padding
-    incremental_refresh_book_groups: IncrementalRefreshBookGroups;
-    incremental_refresh_book_order_id_groups: IncrementalRefreshBookOrderIdGroups;
-};
-
-type MdIncrementalRefreshOrderBook = unit {
-    transact_time: uint64 &convert=time_ns($$);
-    match_event_indicator: bitfield(8) {
-        last_trade_msg: 0;
-        last_volume_msg: 1;
-        last_quote_msg: 2;
-        last_stats_msg: 3;
-        last_implied_msg: 4;
-        recovery_msg: 5;
-        reserved: 6;
-        end_of_event: 7;
-    } &byte-order=spicy::ByteOrder::Little;
-    : skip bytes &size=2;   # padding
-    incremental_refresh_order_book_groups: IncrementalRefreshOrderBookGroups;
-};
-
-type MdIncrementalRefreshTradeSummary = unit {
-    transact_time: uint64 &convert=time_ns($$);
-    match_event_indicator: bitfield(8) {
-        last_trade_msg: 0;
-        last_volume_msg: 1;
-        last_quote_msg: 2;
-        last_stats_msg: 3;
-        last_implied_msg: 4;
-        recovery_msg: 5;
-        reserved: 6;
-        end_of_event: 7;
-    } &byte-order=spicy::ByteOrder::Little;
-    : skip bytes &size=2;   # padding
-    incremental_refresh_trade_summary_groups: IncrementalRefreshTradeSummaryGroups;
-    incremental_refresh_trade_summary_order_id_groups: IncrementalRefreshTradeSummaryOrderIdGroups;
-};
-
-type MdIncrementalRefreshDailyStatistics = unit {
-    transact_time: uint64 &convert=time_ns($$);
-    match_event_indicator: bitfield(8) {
-        last_trade_msg: 0;
-        last_volume_msg: 1;
-        last_quote_msg: 2;
-        last_stats_msg: 3;
-        last_implied_msg: 4;
-        recovery_msg: 5;
-        reserved: 6;
-        end_of_event: 7;
-    } &byte-order=spicy::ByteOrder::Little;
-    : skip bytes &size=2;   # padding
-    incremental_refresh_daily_statistics_groups: IncrementalRefreshDailyStatisticsGroups;
-};
-
-type MdIncrementalRefreshLimitsBanding = unit {
-    transact_time: uint64 &convert=time_ns($$);
-    match_event_indicator: bitfield(8) {
-        last_trade_msg: 0;
-        last_volume_msg: 1;
-        last_quote_msg: 2;
-        last_stats_msg: 3;
-        last_implied_msg: 4;
-        recovery_msg: 5;
-        reserved: 6;
-        end_of_event: 7;
-    } &byte-order=spicy::ByteOrder::Little;
-    : skip bytes &size=2;   # padding
-    incremental_refresh_limits_banding_groups: IncrementalRefreshLimitsBandingGroups;
-};
-
-type MdIncrementalRefreshSessionStatistics = unit {
-    transact_time: uint64 &convert=time_ns($$);
-    match_event_indicator: bitfield(8) {
-        last_trade_msg: 0;
-        last_volume_msg: 1;
-        last_quote_msg: 2;
-        last_stats_msg: 3;
-        last_implied_msg: 4;
-        recovery_msg: 5;
-        reserved: 6;
-        end_of_event: 7;
-    } &byte-order=spicy::ByteOrder::Little;
-    : skip bytes &size=2;   # padding
-    incremental_refresh_session_statistics_groups: IncrementalRefreshSessionStatisticsGroups;
-};
-
-type SnapshotFullRefresh = unit {
-    last_msg_seq_num_processed: uint32;
-    tot_num_reports: uint32;
-    security_id: int32;
-    rpt_seq: uint32;
-    transact_time: uint64 &convert=time_ns($$);
-    last_update_time: uint64 &convert=time_ns($$);
-    trade_date: uint16;
-    md_security_trading_status: uint8 &convert=MdSecurityTradingStatus($$);
-    high_limit_price_ex: int64;
-    low_limit_price_ex: int64;
-    max_price_variation_ex: int64;
-    snapshot_full_refresh_groups: SnapshotFullRefreshGroups;
-};
-
-type SnapshotFullRefreshOrderBook = unit {
-    last_msg_seq_num_processed: uint32;
-    tot_num_reports: uint32;
-    security_id: int32;
-    no_chunks: uint32;
-    current_chunk: uint32;
-    transact_time: uint64 &convert=time_ns($$);
-    snapshot_full_refresh_order_book_groups: SnapshotFullRefreshOrderBookGroups;
 };
 
 type MdInstrumentDefinitionFuture = unit {

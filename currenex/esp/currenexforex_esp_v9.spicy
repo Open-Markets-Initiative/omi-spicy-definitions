@@ -32,7 +32,7 @@ type ItchFrame = unit {
 
 type MessageHeader = unit {
     sequence_number: uint32;
-    timestamp: uint32;
+    timestamp: int32 &convert=interval($$ / 1000.0);
     message_type: uint8 &convert=MessageType($$);
 };
 
@@ -57,7 +57,7 @@ type InstrumentInfo = unit {
     instrument_index: int16;
     instrument_type: uint8 &convert=InstrumentType($$);
     instrument_id: bytes &size=20;
-    settlement_date: int64;
+    settlement_date: int64 &convert=time($$ / 1000.0);
 };
 
 type InstrumentInfoAck = unit {
@@ -81,7 +81,7 @@ type SubscriptionReply = unit {
 
 type PriceMessage = unit {
     instrument_index: int16;
-    price_id: int8;
+    price_id: int32;
     side: uint8 &convert=Side($$);
     max_amount: int64;
     min_amount: int64;
@@ -92,14 +92,14 @@ type PriceMessage = unit {
 
 type PriceCancelMessage = unit {
     instrument_index: int16;
-    price_id: int8;
+    price_id: int32;
 };
 
 type TradeTickerMessage = unit {
     instrument_index: int16;
     rate: int32;
     ticker_type: uint8 &convert=TickerType($$);
-    transact_time: int64;
+    transact_time: int64 &convert=time($$ / 1000.0);
 };
 
 type RejectMessage = unit {

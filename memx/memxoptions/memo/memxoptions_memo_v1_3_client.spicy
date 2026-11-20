@@ -163,7 +163,21 @@ type LongTwoSidedBulkQuoteMessage = unit {
     cancel_group_id: uint16;
     risk_group_id: uint16;
     parties_groups: PartiesGroups;
-    two_sided_quotes_groups: TwoSidedQuotesGroups;
+    long_two_sided_quotes_groups: LongTwoSidedQuotesGroups;
+};
+
+type LongTwoSidedQuotesGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    long_two_sided_quotes_group: LongTwoSidedQuotesGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type LongTwoSidedQuotesGroup = unit {
+    list_seq_no: uint8;
+    options_security_id_long_two_sided_bulk_quote_options_security_id: bytes &size=8;
+    bid_size_uint_32: uint32;
+    bid_px_price_type: uint64;
+    offer_size_uint_32: uint32;
+    offer_px_price_type: uint64;
 };
 
 type ShortOneSidedBulkQuoteMessage = unit {
@@ -214,7 +228,20 @@ type LongOneSidedBulkQuoteMessage = unit {
     cancel_group_id: uint16;
     risk_group_id: uint16;
     parties_groups: PartiesGroups;
-    one_sided_quotes_groups: OneSidedQuotesGroups;
+    long_one_sided_quotes_groups: LongOneSidedQuotesGroups;
+};
+
+type LongOneSidedQuotesGroups = unit {
+    repeating_group_dimensions: RepeatingGroupDimensions;
+    long_one_sided_quotes_group: LongOneSidedQuotesGroup[self.repeating_group_dimensions.num_in_group];
+};
+
+type LongOneSidedQuotesGroup = unit {
+    list_seq_no: uint8;
+    options_security_id_long_one_sided_bulk_quote_options_security_id: bytes &size=8;
+    side: uint8 &convert=Side($$);
+    quantity_long: uint32;
+    price: uint64;
 };
 
 type OrderCancelReplaceRequestMessage = unit {
