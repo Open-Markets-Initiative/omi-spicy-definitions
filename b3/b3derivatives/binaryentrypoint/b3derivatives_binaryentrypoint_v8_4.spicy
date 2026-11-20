@@ -424,7 +424,11 @@ type OutboundBusinessHeader = unit {
     session_id: uint32;
     msg_seq_num: uint32;
     sending_time: uint64 &convert=time_ns($$);
-    event_indicator: uint8;
+    event_indicator: bitfield(8) {
+        poss_resend: 0;
+        low_priority: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
     market_segment_id_optional: uint8;
 };
 
@@ -694,7 +698,11 @@ type BidirectionalBusinessHeader = unit {
     session_id: uint32;
     msg_seq_num: uint32;
     sending_time: uint64 &convert=time_ns($$);
-    event_indicator: uint8;
+    event_indicator: bitfield(8) {
+        poss_resend: 0;
+        low_priority: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
     market_segment_id_optional: uint8;
     padding_char_2: bytes &size=2;
 };
