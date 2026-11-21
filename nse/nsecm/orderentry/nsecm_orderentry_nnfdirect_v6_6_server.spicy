@@ -12,6 +12,21 @@ public type NsecmOrderentryV66 = unit {
 
 type ServerDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16) &convert=TransactionCode($$);
+    switch ( self.next_transaction_code ) {
+        TransactionCode::SecureBoxRegistrationResponseMessage -> server_registration_packet: ServerRegistrationPacket;
+        * -> server_session_packet: ServerSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ServerRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::AuctionInquiryResponseMessage -> auction_inquiry_response_message: AuctionInquiryResponseMessage;
@@ -60,12 +75,6 @@ type ServerDirectPacket = unit {
         TransactionCode::UpdateLocalDatabaseDataMessage -> update_local_database_data_message: UpdateLocalDatabaseDataMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -630,6 +639,58 @@ type InnerHeader = unit {
 
 type LocalDatabaseData = unit {
     data_payload: bytes &eod;
+};
+
+type ServerSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::AuctionInquiryResponseMessage -> auction_inquiry_response_message: AuctionInquiryResponseMessage;
+        TransactionCode::BranchOrderValueLimitUpdateOutMessage -> branch_order_value_limit_update_out_message: BranchOrderValueLimitUpdateOutMessage;
+        TransactionCode::CancelOnLogoutStatusResponseMessage -> cancel_on_logout_status_response_message: CancelOnLogoutStatusResponseMessage;
+        TransactionCode::ErrorResponseMessage -> error_response_message: ErrorResponseMessage;
+        TransactionCode::SecureBoxRegistrationRequestMessage -> secure_box_registration_request_message: SecureBoxRegistrationRequestMessage;
+        TransactionCode::BoxSignOnResponseMessage -> box_sign_on_response_message: BoxSignOnResponseMessage;
+        TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage(self.message_header.message_length);
+        TransactionCode::ControlMessageToTraderMessage -> control_message_to_trader_message: ControlMessageToTraderMessage;
+        TransactionCode::TradeConfirmationMessage -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2222 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2282 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2286 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2287 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::OrderEntryOutMessage -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2042 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2061 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2072 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2073 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2074 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2075 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2170 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_2231 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryOutMessage_9002 -> order_entry_out_message: OrderEntryOutMessage;
+        TransactionCode::OrderEntryShortMessage -> order_entry_short_message: OrderEntryShortMessage;
+        TransactionCode::OrderEntryShortMessage_2071 -> order_entry_short_message: OrderEntryShortMessage;
+        TransactionCode::OrderLimitUpdateOutMessage -> order_limit_update_out_message: OrderLimitUpdateOutMessage;
+        TransactionCode::PasswordResetOutMessage -> password_reset_out_message: PasswordResetOutMessage;
+        TransactionCode::SecurityStatusChangeMessage -> security_status_change_message: SecurityStatusChangeMessage;
+        TransactionCode::SecurityStatusChangeMessage_18707 -> security_status_change_message: SecurityStatusChangeMessage;
+        TransactionCode::SecurityMasterChangeMessage -> security_master_change_message: SecurityMasterChangeMessage;
+        TransactionCode::SignOnRequestOutMessage -> sign_on_request_out_message: SignOnRequestOutMessage;
+        TransactionCode::SignOnResponseMessage -> sign_on_response_message: SignOnResponseMessage;
+        TransactionCode::SystemInformationMessage -> system_information_message: SystemInformationMessage;
+        TransactionCode::SystemInformationMessage_7321 -> system_information_message: SystemInformationMessage;
+        TransactionCode::TradeInquiryOutMessage -> trade_inquiry_out_message: TradeInquiryOutMessage;
+        TransactionCode::TradeInquiryOutMessage_5441 -> trade_inquiry_out_message: TradeInquiryOutMessage;
+        TransactionCode::UpdateLocalDatabaseHeaderMessage -> update_local_database_header_message: UpdateLocalDatabaseHeaderMessage;
+        TransactionCode::UpdateLocalDatabaseTrailerMessage -> update_local_database_trailer_message: UpdateLocalDatabaseTrailerMessage;
+        TransactionCode::UserUnlockApprovalRejectionMessage -> user_unlock_approval_rejection_message: UserUnlockApprovalRejectionMessage;
+        TransactionCode::UserUnlockApprovalRejectionMessage_5579 -> user_unlock_approval_rejection_message: UserUnlockApprovalRejectionMessage;
+        TransactionCode::UserUnlockRequestedResponseMessage -> user_unlock_requested_response_message: UserUnlockRequestedResponseMessage;
+        TransactionCode::UserOrderValueLimitUpdateOutMessage -> user_order_value_limit_update_out_message: UserOrderValueLimitUpdateOutMessage;
+        TransactionCode::TradeModificationCancellationStatusResponseMessage -> trade_modification_cancellation_status_response_message: TradeModificationCancellationStatusResponseMessage;
+        TransactionCode::UpdateLocalDatabaseDataMessage -> update_local_database_data_message: UpdateLocalDatabaseDataMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

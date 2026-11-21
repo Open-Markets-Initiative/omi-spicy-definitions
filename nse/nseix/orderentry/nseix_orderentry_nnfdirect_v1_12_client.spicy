@@ -12,6 +12,21 @@ public type NseixOrderentryV112 = unit {
 
 type ClientDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16) &convert=TransactionCode($$);
+    switch ( self.next_transaction_code ) {
+        TransactionCode::SecureBoxRegistrationRequestInMessage -> client_registration_packet: ClientRegistrationPacket;
+        * -> client_session_packet: ClientSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ClientRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::SignOnRequestInMessage -> sign_on_request_in_message: SignOnRequestInMessage;
@@ -53,12 +68,6 @@ type ClientDirectPacket = unit {
         TransactionCode::NltOrderInquiryRequestMessage -> nlt_order_inquiry_request_message: NltOrderInquiryRequestMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -519,6 +528,51 @@ type UserAddressUnlockRequestMessage = unit {
 type NltOrderInquiryRequestMessage = unit {
     broker_id: bytes &size=5;
     : skip bytes &size=1;   # padding
+};
+
+type ClientSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignOnRequestInMessage -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::SignOnRequestInMessage_5584 -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::SystemInformationInMessage -> system_information_in_message: SystemInformationInMessage;
+        TransactionCode::UpdateLocalDatabaseInMessage -> update_local_database_in_message: UpdateLocalDatabaseInMessage;
+        TransactionCode::DownloadRequestMessage -> download_request_message: DownloadRequestMessage;
+        TransactionCode::OrderEntryRequestMessage -> order_entry_request_message: OrderEntryRequestMessage;
+        TransactionCode::OrderEntryRequestMessage_2082 -> order_entry_request_message: OrderEntryRequestMessage;
+        TransactionCode::OrderModificationRequestMessage -> order_modification_request_message: OrderModificationRequestMessage;
+        TransactionCode::OrderModificationRequestMessage_2084 -> order_modification_request_message: OrderModificationRequestMessage;
+        TransactionCode::OrderCancellationRequestMessage -> order_cancellation_request_message: OrderCancellationRequestMessage;
+        TransactionCode::OrderCancellationRequestMessage_2086 -> order_cancellation_request_message: OrderCancellationRequestMessage;
+        TransactionCode::KillSwitchRequestMessage -> kill_switch_request_message: KillSwitchRequestMessage;
+        TransactionCode::PriceModificationMessage -> price_modification_message: PriceModificationMessage;
+        TransactionCode::TradeInquiryMessage -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::TradeInquiryMessage_5445 -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::TradeInquiryMessage_5448 -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::TradeInquiryMessage_5451 -> trade_inquiry_message: TradeInquiryMessage;
+        TransactionCode::SpreadOrderEntryRequestMessage -> spread_order_entry_request_message: SpreadOrderEntryRequestMessage;
+        TransactionCode::SpreadOrderEntryRequestMessage_2102 -> spread_order_entry_request_message: SpreadOrderEntryRequestMessage;
+        TransactionCode::SpreadOrderEntryRequestMessage_2104 -> spread_order_entry_request_message: SpreadOrderEntryRequestMessage;
+        TransactionCode::SpreadOrderEntryRequestMessage_2106 -> spread_order_entry_request_message: SpreadOrderEntryRequestMessage;
+        TransactionCode::SpreadOrderEntryRequestMessage_2118 -> spread_order_entry_request_message: SpreadOrderEntryRequestMessage;
+        TransactionCode::MbaInquiryRequestMessage -> mba_inquiry_request_message: MbaInquiryRequestMessage;
+        TransactionCode::MbaInquiryRequestMessage_1686 -> mba_inquiry_request_message: MbaInquiryRequestMessage;
+        TransactionCode::MbaInquiryRequestMessage_1688 -> mba_inquiry_request_message: MbaInquiryRequestMessage;
+        TransactionCode::GatewayRouterRequestMessage -> gateway_router_request_message: GatewayRouterRequestMessage;
+        TransactionCode::SecureBoxRegistrationRequestInMessage -> secure_box_registration_request_in_message: SecureBoxRegistrationRequestInMessage;
+        TransactionCode::BoxSignOnRequestInMessage -> box_sign_on_request_in_message: BoxSignOnRequestInMessage;
+        TransactionCode::BranchOrderValueLimitUpdateRequestMessage -> branch_order_value_limit_update_request_message: BranchOrderValueLimitUpdateRequestMessage;
+        TransactionCode::UserOrderValueLimitUpdateMessage -> user_order_value_limit_update_message: UserOrderValueLimitUpdateMessage;
+        TransactionCode::NormalOrderLimitUpdateMessage -> normal_order_limit_update_message: NormalOrderLimitUpdateMessage;
+        TransactionCode::NormalOrderLimitUpdateMessage_5771 -> normal_order_limit_update_message: NormalOrderLimitUpdateMessage;
+        TransactionCode::ResetUserPasswordMessage -> reset_user_password_message: ResetUserPasswordMessage;
+        TransactionCode::CollateralUserStatusChangeRequestMessage -> collateral_user_status_change_request_message: CollateralUserStatusChangeRequestMessage;
+        TransactionCode::UserTradeModifyCancelStatusChangeRequestMessage -> user_trade_modify_cancel_status_change_request_message: UserTradeModifyCancelStatusChangeRequestMessage;
+        TransactionCode::UserAddressUnlockRequestMessage -> user_address_unlock_request_message: UserAddressUnlockRequestMessage;
+        TransactionCode::NltOrderInquiryRequestMessage -> nlt_order_inquiry_request_message: NltOrderInquiryRequestMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

@@ -12,6 +12,21 @@ public type NsecmOrderentryV66 = unit {
 
 type ClientDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16) &convert=TransactionCode($$);
+    switch ( self.next_transaction_code ) {
+        TransactionCode::SecureBoxRegistrationRequestMessage -> client_registration_packet: ClientRegistrationPacket;
+        * -> client_session_packet: ClientSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ClientRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::BranchOrderValueLimitUpdateInMessage -> branch_order_value_limit_update_in_message: BranchOrderValueLimitUpdateInMessage;
@@ -37,12 +52,6 @@ type ClientDirectPacket = unit {
         TransactionCode::UserOrderValueLimitUpdateInMessage -> user_order_value_limit_update_in_message: UserOrderValueLimitUpdateInMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -280,6 +289,35 @@ type UserLimits = unit {
     : skip bytes &size=24;   # padding
     user_order_sell_value_limit: real &type=spicy::RealType::IEEE754_Double;
     : skip bytes &size=8;   # padding
+};
+
+type ClientSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::BranchOrderValueLimitUpdateInMessage -> branch_order_value_limit_update_in_message: BranchOrderValueLimitUpdateInMessage;
+        TransactionCode::CancelOnLogoutStatusRequestMessage -> cancel_on_logout_status_request_message: CancelOnLogoutStatusRequestMessage;
+        TransactionCode::MessageDownloadRequestMessage -> message_download_request_message: MessageDownloadRequestMessage;
+        TransactionCode::AuctionInquiryRequestMessage -> auction_inquiry_request_message: AuctionInquiryRequestMessage;
+        TransactionCode::BoxSignOffMessage -> box_sign_off_message: BoxSignOffMessage;
+        TransactionCode::BoxSignOnRequestMessage -> box_sign_on_request_message: BoxSignOnRequestMessage;
+        TransactionCode::GatewayRouterRequestMessage -> gateway_router_request_message: GatewayRouterRequestMessage;
+        TransactionCode::OrderEntryInMessage -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderEntryInMessage_2040 -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderEntryInMessage_2062 -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderEntryInMessage_2070 -> order_entry_in_message: OrderEntryInMessage;
+        TransactionCode::OrderLimitUpdateInMessage -> order_limit_update_in_message: OrderLimitUpdateInMessage;
+        TransactionCode::PasswordResetInMessage -> password_reset_in_message: PasswordResetInMessage;
+        TransactionCode::SignOnRequestInMessage -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::SignOnRequestInMessage_5723 -> sign_on_request_in_message: SignOnRequestInMessage;
+        TransactionCode::TradeInquiryInMessage -> trade_inquiry_in_message: TradeInquiryInMessage;
+        TransactionCode::TradeInquiryInMessage_5445 -> trade_inquiry_in_message: TradeInquiryInMessage;
+        TransactionCode::UpdateLocalDatabaseRequestMessage -> update_local_database_request_message: UpdateLocalDatabaseRequestMessage;
+        TransactionCode::TradeModificationCancellationStatusRequestMessage -> trade_modification_cancellation_status_request_message: TradeModificationCancellationStatusRequestMessage;
+        TransactionCode::UserUnlockRequestMessage -> user_unlock_request_message: UserUnlockRequestMessage;
+        TransactionCode::UserOrderValueLimitUpdateInMessage -> user_order_value_limit_update_in_message: UserOrderValueLimitUpdateInMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

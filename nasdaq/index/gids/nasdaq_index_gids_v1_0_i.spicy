@@ -1,0 +1,311 @@
+# License: MIT No Attribution
+
+module NasdaqIndexGidsItchV10I;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NasdaqIndexGidsV10I = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::TimestampSecondsMessage -> timestamp_seconds_message: TimestampSecondsMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::IndexDirectoryMessage -> index_directory_message: IndexDirectoryMessage;
+        MessageType::IssueSymbolParticipationMessage -> issue_symbol_participation_message: IssueSymbolParticipationMessage;
+        MessageType::IntradayIndexValueMessage -> intraday_index_value_message: IntradayIndexValueMessage;
+        MessageType::SettlementValueMessage -> settlement_value_message: SettlementValueMessage;
+        MessageType::EquitiesSummaryMessage -> equities_summary_message: EquitiesSummaryMessage;
+        MessageType::FixedIncomeSummaryMessage -> fixed_income_summary_message: FixedIncomeSummaryMessage;
+        MessageType::CommoditySummaryMessage -> commodity_summary_message: CommoditySummaryMessage;
+        MessageType::EtpDirectoryAndDailyValuationMessage -> etp_directory_and_daily_valuation_message: EtpDirectoryAndDailyValuationMessage;
+        MessageType::EtpIntraDayValuationMessage -> etp_intra_day_valuation_message: EtpIntraDayValuationMessage;
+        MessageType::EtpSummaryMessage -> etp_summary_message: EtpSummaryMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type TimestampSecondsMessage = unit {
+    second: int32 &convert=time($$);
+};
+
+type SystemEventMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    event_code: uint8 &convert=EventCode($$);
+    schedule: bytes &size=3;
+};
+
+type IndexDirectoryMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    instrument_id: bytes &size=18;
+    dissemination_flag: uint8 &convert=DisseminationFlag($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    brand: bytes &size=2;
+    series: bytes &size=3;
+    strategy: bytes &size=3;
+    asset_type: bytes &size=2;
+    market_cap_size: uint8 &convert=MarketCapSize($$);
+    currency: bytes &size=3;
+    geography: bytes &size=4;
+    index_settlement_type: uint8 &convert=IndexSettlementType($$);
+    index_calculation_method: bytes &size=3;
+    state: uint8 &convert=State($$);
+    index_usage: uint8 &convert=IndexUsage($$);
+    schedule: bytes &size=3;
+    frequency: bytes &size=4;
+    number_of_issue_participation_messages: int32;
+    base_value: int64;
+    base_date: uint32;
+    name_length: int16;
+    instrument_name: bytes &size=cast<uint64>(self.name_length);
+};
+
+type IssueSymbolParticipationMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    instrument_id: bytes &size=18;
+    issue_symbol: bytes &size=18;
+    issue_mic: bytes &size=4;
+    name_length: int16;
+    issue_name: bytes &size=cast<uint64>(self.name_length);
+};
+
+type IntradayIndexValueMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    brand: bytes &size=2;
+    series: bytes &size=3;
+    instrument_id: bytes &size=18;
+    tick_value: int64;
+    tick_direction: uint8 &convert=TickDirection($$);
+    currency: bytes &size=3;
+};
+
+type SettlementValueMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    brand: bytes &size=2;
+    series: bytes &size=3;
+    instrument_id: bytes &size=18;
+    settlement_value: int64;
+    settlement_type: uint8 &convert=SettlementType($$);
+    currency: bytes &size=3;
+};
+
+type EquitiesSummaryMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    brand: bytes &size=2;
+    series: bytes &size=3;
+    instrument_id: bytes &size=18;
+    summary_type: bytes &size=3;
+    sod_value: int64;
+    high: int64;
+    low: int64;
+    eod_value: int64;
+    net_change: int64;
+    effective_date: uint32;
+    currency: bytes &size=3;
+};
+
+type FixedIncomeSummaryMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    brand: bytes &size=2;
+    series: bytes &size=3;
+    instrument_id: bytes &size=18;
+    summary_type: bytes &size=3;
+    sod_value: int64;
+    high: int64;
+    low: int64;
+    eod_value: int64;
+    net_change: int64;
+    effective_date: uint32;
+    yield: int64;
+    duration: int64;
+    coupon: int64;
+    currency: bytes &size=3;
+};
+
+type CommoditySummaryMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    brand: bytes &size=2;
+    series: bytes &size=3;
+    instrument_id: bytes &size=18;
+    summary_type: bytes &size=3;
+    sod_value: int64;
+    high: int64;
+    low: int64;
+    eod_value: int64;
+    net_change: int64;
+    effective_date: uint32;
+    currency: bytes &size=3;
+};
+
+type EtpDirectoryAndDailyValuationMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    industry_mic: bytes &size=4;
+    etp_trading_symbol: bytes &size=18;
+    etp_ipv_symbol: bytes &size=18;
+    schedule: bytes &size=3;
+    frequency: bytes &size=4;
+    state: uint8 &convert=State($$);
+    nav_symbol: bytes &size=18;
+    nav: int64;
+    estimated_cash_per_cu_symbol: bytes &size=18;
+    ecu: int64;
+    total_cash_per_cu_symbol: bytes &size=18;
+    total_cash_per_cu: int64;
+    estimated_cash_per_share_symbol: bytes &size=18;
+    ecs: int64;
+    tso_symbol: bytes &size=18;
+    tso_outstanding: int64;
+    effective_date: uint32;
+    yield: int64;
+    coupon: int64;
+    maturity_date: uint32;
+    currency: bytes &size=3;
+    etp_name_length: int16;
+    etp_name: bytes &size=cast<uint64>(self.etp_name_length);
+};
+
+type EtpIntraDayValuationMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    ipv_symbol: bytes &size=18;
+    ipv_value: int64;
+    currency: bytes &size=3;
+};
+
+type EtpSummaryMessage = unit {
+    nanoseconds: int32 &convert=interval_ns($$);
+    financial_product_type: uint8 &convert=FinancialProductType($$);
+    summary_type: bytes &size=3;
+    ipv_or_iiv_symbol: bytes &size=18;
+    sod_value: int64;
+    high: int64;
+    low: int64;
+    eod_value: int64;
+    net_change: int64;
+    effective_date: uint32;
+    currency: bytes &size=3;
+};
+
+type MessageType = enum {
+    TimestampSecondsMessage = 0x54,
+    SystemEventMessage = 0x53,
+    IndexDirectoryMessage = 0x52,
+    IssueSymbolParticipationMessage = 0x50,
+    IntradayIndexValueMessage = 0x49,
+    SettlementValueMessage = 0x41,
+    EquitiesSummaryMessage = 0x46,
+    FixedIncomeSummaryMessage = 0x42,
+    CommoditySummaryMessage = 0x43,
+    EtpDirectoryAndDailyValuationMessage = 0x44,
+    EtpIntraDayValuationMessage = 0x45,
+    EtpSummaryMessage = 0x56,
+};
+
+type EventCode = enum {
+    StartOfMessages = 0x4f,
+    StartOfDay = 0x53,
+    EndOfDay = 0x45,
+    EndOfMessages = 0x43,
+    SessionOpen = 0x51,
+    SessionClose = 0x4d,
+};
+
+type DisseminationFlag = enum {
+    Disseminated = 0x59,
+    NotDisseminated = 0x4e,
+};
+
+type FinancialProductType = enum {
+    NotSpecified = 0x20,
+    Index = 0x49,
+    ExchangeTradedFund = 0x45,
+    ExchangeTradedNote = 0x4e,
+    ExchangeTradedManagedFund = 0x46,
+    Settlement = 0x53,
+    Spot = 0x50,
+    SubordinatedProduct = 0x4c,
+    WorldCurrency = 0x57,
+    AlphaIndex = 0x41,
+};
+
+type Brand = enum {
+    NotSpecified = 0,
+};
+
+type AssetType = enum {
+    NotSpecified = 0,
+};
+
+type MarketCapSize = enum {
+    NotSpecified = 0x20,
+    All = 0x41,
+    Large = 0x4c,
+    Mid = 0x4d,
+    Small = 0x53,
+    LargeAndMid = 0x58,
+    MidAndSmall = 0x59,
+};
+
+type Geography = enum {
+    NotSpecified = 0,
+};
+
+type IndexSettlementType = enum {
+    NotSpecified = 0x20,
+    SettlesAtTheOpen = 0x4f,
+    SettlesAtTheClose = 0x43,
+    SettlesAtMidDay = 0x4d,
+};
+
+type State = enum {
+    Active = 0x41,
+    Held = 0x48,
+    Pending = 0x50,
+    Deleted = 0x44,
+};
+
+type IndexUsage = enum {
+    Live = 0x4c,
+    Demo = 0x44,
+    Test = 0x54,
+};
+
+type Frequency = enum {
+    NotSpecified = 0,
+};
+
+type TickDirection = enum {
+    Positive = 0x2b,
+    Negative = 0x2d,
+    NoNetChangeCalculated = 0x20,
+};
+
+type SettlementType = enum {
+    NotSpecified = 0x20,
+    SettlesAtTheOpen = 0x4f,
+    SettlesAtTheClose = 0x43,
+    SettlesAtMidDay = 0x4d,
+};
+

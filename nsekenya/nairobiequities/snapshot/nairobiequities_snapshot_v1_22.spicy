@@ -1,12 +1,12 @@
 # License: MIT No Attribution
 
-module NairobiNairobiequitiesReplayMitchV122;
+module NsekenyaNairobiequitiesSnapshotMitchV122;
 
 import spicy;
 
 %byte-order = spicy::ByteOrder::Little;
 
-public type NairobiequitiesReplayV122 = unit {
+public type NairobiequitiesSnapshotV122 = unit {
     tcp_unit: TcpUnit[] &eod;
 };
 
@@ -27,8 +27,9 @@ type Message = unit {
     switch ( self.message_header.message_type ) {
         MessageType::LoginRequestMessage -> login_request_message: LoginRequestMessage;
         MessageType::LoginResponseMessage -> login_response_message: LoginResponseMessage;
-        MessageType::ReplayRequestMessage -> replay_request_message: ReplayRequestMessage;
-        MessageType::ReplayResponseMessage -> replay_response_message: ReplayResponseMessage;
+        MessageType::SnapshotRequestMessage -> snapshot_request_message: SnapshotRequestMessage;
+        MessageType::SnapshotResponseMessage -> snapshot_response_message: SnapshotResponseMessage;
+        MessageType::SnapshotCompleteMessage -> snapshot_complete_message: SnapshotCompleteMessage;
         MessageType::TimeMessage -> time_message: TimeMessage;
         MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
         MessageType::SymbolDirectoryMessage -> symbol_directory_message: SymbolDirectoryMessage;
@@ -74,17 +75,50 @@ type LoginResponseMessage = unit {
     login_status: uint8 &convert=LoginStatus($$);
 };
 
-type ReplayRequestMessage = unit {
-    market_data_group: bytes &size=1;
-    first_message: uint32;
-    count: uint16;
+type SnapshotRequestMessage = unit {
+    sequence_number: uint32;
+    segment: bytes &size=6;
+    symbol: bytes &size=12;
+    sub_book_flags: bitfield(8) {
+        regular: 0;
+        off_book: 1;
+        block_trade: 2;
+        odd_lot: 3;
+        early_settlement: 4;
+        bulletin_board: 5;
+        auction: 6;
+        all_or_none: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    snapshot_type: uint8 &convert=SnapshotType($$);
+    recover_from_time: bytes &size=8;
+    request_id: uint32;
 };
 
-type ReplayResponseMessage = unit {
-    market_data_group: bytes &size=1;
-    first_message: uint32;
-    count: uint16;
-    replay_status: uint8 &convert=ReplayStatus($$);
+type SnapshotResponseMessage = unit {
+    sequence_number: uint32;
+    order_count: uint32;
+    snapshot_status: uint8 &convert=SnapshotStatus($$);
+    snapshot_type: uint8 &convert=SnapshotType($$);
+    request_id: uint32;
+};
+
+type SnapshotCompleteMessage = unit {
+    sequence_number: uint32;
+    segment: bytes &size=6;
+    symbol: bytes &size=12;
+    sub_book_flags: bitfield(8) {
+        regular: 0;
+        off_book: 1;
+        block_trade: 2;
+        odd_lot: 3;
+        early_settlement: 4;
+        bulletin_board: 5;
+        auction: 6;
+        all_or_none: 7;
+    } &byte-order=spicy::ByteOrder::Little;
+    trading_status: uint8 &convert=TradingStatus($$);
+    snapshot_type: uint8 &convert=SnapshotType($$);
+    request_id: uint32;
 };
 
 type TimeMessage = unit {
@@ -451,8 +485,9 @@ type TopOfBookMessage = unit {
 type MessageType = enum {
     LoginRequestMessage = 0x01,
     LoginResponseMessage = 0x02,
-    ReplayRequestMessage = 0x03,
-    ReplayResponseMessage = 0x04,
+    SnapshotRequestMessage = 0x81,
+    SnapshotResponseMessage = 0x82,
+    SnapshotCompleteMessage = 0x83,
     LogoutRequestMessage = 0x05,
     TimeMessage = 0x54,
     SystemEventMessage = 0x53,
@@ -492,33 +527,25 @@ type LoginStatus = enum {
     FailedOther = 0x65,
 };
 
-type ReplayStatus = enum {
+type SnapshotType = enum {
+    OrderBook = 0,
+    SymbolStatus = 1,
+    Instrument = 2,
+    Trades = 3,
+    BookLevelStatistics = 4,
+    News = 5,
+    TopOfBook = 8,
+};
+
+type SnapshotStatus = enum {
     RequestAccepted = 0x41,
-    RequestLimitReached = 0x44,
-    InvalidMarketDataGroup = 0x49,
     OutOfRange = 0x4f,
-    ReplayUnavailable = 0x55,
+    SnapshotUnavailable = 0x55,
+    SegmentSymbolOrSubBookInvalidOrNotSpecified = 0x61,
+    RequestLimitReached = 0x62,
     ConcurrentLimitReached = 0x63,
     UnsupportedMessageType = 0x64,
     FailedOther = 0x65,
-};
-
-type EventCode = enum {
-    EndOfDay = 0x43,
-    StartOfDay = 0x4f,
-};
-
-type SymbolStatus = enum {
-    Halted = 0x48,
-    Suspended = 0x53,
-    Inactive = 0x61,
-    Active = 0x20,
-};
-
-type OptionType = enum {
-    CallOption = 0x43,
-    PutOption = 0x50,
-    NotAnOption = 0x20,
 };
 
 type TradingStatus = enum {
@@ -544,6 +571,24 @@ type TradingStatus = enum {
     ClosingPricePublication = 0x7a,
     IntradayAuctionCall = 0x6f,
     AuctionExecution = 0x30,
+};
+
+type EventCode = enum {
+    EndOfDay = 0x43,
+    StartOfDay = 0x4f,
+};
+
+type SymbolStatus = enum {
+    Halted = 0x48,
+    Suspended = 0x53,
+    Inactive = 0x61,
+    Active = 0x20,
+};
+
+type OptionType = enum {
+    CallOption = 0x43,
+    PutOption = 0x50,
+    NotAnOption = 0x20,
 };
 
 type HaltReason = enum {

@@ -12,6 +12,21 @@ public type NsecdDropcopyV17 = unit {
 
 type ServerDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16);
+    switch ( self.next_transaction_code ) {
+        23009 -> server_registration_packet: ServerRegistrationPacket;
+        * -> server_session_packet: ServerSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ServerRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::SignOnOutMessage -> sign_on_out_message: SignOnOutMessage;
@@ -24,12 +39,6 @@ type ServerDirectPacket = unit {
         TransactionCode::GiveupRejConfirmTmMessage -> giveup_rej_confirm_tm_message: GiveupRejConfirmTmMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -441,6 +450,22 @@ type GiveupRejConfirmTmMessage = unit {
     giveup_flag: bytes &size=1;
     deleted: bytes &size=1;
     : skip bytes &size=1;   # padding
+};
+
+type ServerSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignOnOutMessage -> sign_on_out_message: SignOnOutMessage;
+        TransactionCode::TradeConfirmationMessage -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeCancelConfirmMessage -> trade_cancel_confirm_message: TradeCancelConfirmMessage;
+        TransactionCode::TradeCancelRejectMessage -> trade_cancel_reject_message: TradeCancelRejectMessage;
+        TransactionCode::TradeModifyConfirmMessage -> trade_modify_confirm_message: TradeModifyConfirmMessage;
+        TransactionCode::TradeModifyRejectMessage -> trade_modify_reject_message: TradeModifyRejectMessage;
+        TransactionCode::GiveupAppConfirmTmMessage -> giveup_app_confirm_tm_message: GiveupAppConfirmTmMessage;
+        TransactionCode::GiveupRejConfirmTmMessage -> giveup_rej_confirm_tm_message: GiveupRejConfirmTmMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

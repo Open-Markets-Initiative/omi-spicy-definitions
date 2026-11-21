@@ -12,6 +12,21 @@ public type NseslbmOrderentryV27 = unit {
 
 type ServerDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16) &convert=TransactionCode($$);
+    switch ( self.next_transaction_code ) {
+        TransactionCode::SecureBoxRegistrationResponseMessage -> server_registration_packet: ServerRegistrationPacket;
+        * -> server_session_packet: ServerSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ServerRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::LogonResponseMessage -> logon_response_message: LogonResponseMessage(self.message_header.message_length);
@@ -52,12 +67,6 @@ type ServerDirectPacket = unit {
         TransactionCode::BoxSignOffMessage -> box_sign_off_message: BoxSignOffMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -1451,6 +1460,50 @@ type BoxSignOnResponseMessage = unit {
 
 type BoxSignOffMessage = unit {
     box_id: int16;
+};
+
+type ServerSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::LogonResponseMessage -> logon_response_message: LogonResponseMessage(self.message_header.message_length);
+        TransactionCode::SystemInformationResponseMessage -> system_information_response_message: SystemInformationResponseMessage;
+        TransactionCode::PartialSystemInformationResponseMessage -> partial_system_information_response_message: PartialSystemInformationResponseMessage;
+        TransactionCode::UpdateLocalDatabaseHeaderMessage -> update_local_database_header_message: UpdateLocalDatabaseHeaderMessage;
+        TransactionCode::UpdateLocalDatabaseDataMessage -> update_local_database_data_message: UpdateLocalDatabaseDataMessage;
+        TransactionCode::UpdateLocalDatabaseTrailerMessage -> update_local_database_trailer_message: UpdateLocalDatabaseTrailerMessage;
+        TransactionCode::MessageDownloadDataMessage -> message_download_data_message: MessageDownloadDataMessage;
+        TransactionCode::BoardLotOutMessage -> board_lot_out_message: BoardLotOutMessage;
+        TransactionCode::OrderConfirmationResponseMessage -> order_confirmation_response_message: OrderConfirmationResponseMessage;
+        TransactionCode::MarketPriceConfirmationResponseMessage -> market_price_confirmation_response_message: MarketPriceConfirmationResponseMessage;
+        TransactionCode::OrderFreezeResponseMessage -> order_freeze_response_message: OrderFreezeResponseMessage;
+        TransactionCode::OrderErrorResponseMessage -> order_error_response_message: OrderErrorResponseMessage;
+        TransactionCode::OrderModificationResponseMessage -> order_modification_response_message: OrderModificationResponseMessage;
+        TransactionCode::OrderModificationConfirmationResponseMessage -> order_modification_confirmation_response_message: OrderModificationConfirmationResponseMessage;
+        TransactionCode::OrderModificationErrorResponseMessage -> order_modification_error_response_message: OrderModificationErrorResponseMessage;
+        TransactionCode::OrderCancellationResponseMessage -> order_cancellation_response_message: OrderCancellationResponseMessage;
+        TransactionCode::OrderCancellationConfirmationResponseMessage -> order_cancellation_confirmation_response_message: OrderCancellationConfirmationResponseMessage;
+        TransactionCode::OrderCancellationErrorResponseMessage -> order_cancellation_error_response_message: OrderCancellationErrorResponseMessage;
+        TransactionCode::CancellationOfOrdersInBatchMessage -> cancellation_of_orders_in_batch_message: CancellationOfOrdersInBatchMessage;
+        TransactionCode::NegotiatedOrderEnteredByCounterPartyMessage -> negotiated_order_entered_by_counter_party_message: NegotiatedOrderEnteredByCounterPartyMessage;
+        TransactionCode::NegotiatedOrderToRegularLotMessage -> negotiated_order_to_regular_lot_message: NegotiatedOrderToRegularLotMessage;
+        TransactionCode::CancelNegotiatedOrderMessage -> cancel_negotiated_order_message: CancelNegotiatedOrderMessage;
+        TransactionCode::TradeCancellationRequestedResponseMessage -> trade_cancellation_requested_response_message: TradeCancellationRequestedResponseMessage;
+        TransactionCode::TradeCancellationErrorMessage -> trade_cancellation_error_message: TradeCancellationErrorMessage;
+        TransactionCode::TradeModificationRequestedResponseMessage -> trade_modification_requested_response_message: TradeModificationRequestedResponseMessage;
+        TransactionCode::TradeConfirmationMessage -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::StopLossOrderTriggeringMessage -> stop_loss_order_triggering_message: StopLossOrderTriggeringMessage;
+        TransactionCode::TradeCancellationConfirmationResponseMessage -> trade_cancellation_confirmation_response_message: TradeCancellationConfirmationResponseMessage;
+        TransactionCode::TradeCancellationRejectionMessage -> trade_cancellation_rejection_message: TradeCancellationRejectionMessage;
+        TransactionCode::TradeModificationConfirmationMessage -> trade_modification_confirmation_message: TradeModificationConfirmationMessage;
+        TransactionCode::TradeModificationRejectionMessage -> trade_modification_rejection_message: TradeModificationRejectionMessage;
+        TransactionCode::ControlMessageToTraderMessage -> control_message_to_trader_message: ControlMessageToTraderMessage;
+        TransactionCode::ErrorResponseMessage -> error_response_message: ErrorResponseMessage;
+        TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage;
+        TransactionCode::BoxSignOnResponseMessage -> box_sign_on_response_message: BoxSignOnResponseMessage;
+        TransactionCode::BoxSignOffMessage -> box_sign_off_message: BoxSignOffMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

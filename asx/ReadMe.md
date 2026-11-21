@@ -7,6 +7,7 @@
 | --- | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
 | [AsxDerivatives][AsxDerivatives.Exchange] | [Ntp][Asx.AsxDerivatives.Ntp] | [Itch][Omi.Encoding.Itch] | [1.05][Asx.AsxDerivatives.Ntp.Itch.v1.05.Definition] |  | 12/1/2017 | 509 | [Active][Omi.Glossary.Deployment.Active] | [Verified][Omi.Glossary.Testing.Verified] | [url][Asx.AsxDerivatives.Ntp.Itch.v1.05.Url] |
 | [AsxDerivatives][AsxDerivatives.Exchange] | [T24][Asx.AsxDerivatives.T24] | [Itch][Omi.Encoding.Itch] | [1.13][Asx.AsxDerivatives.T24.Itch.v1.13.Definition] |  | 7/15/2014 | 544 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] |  |
+| [AsxSecurities][AsxSecurities.Exchange] | [Mdf][Asx.AsxSecurities.Mdf] | [Itch][Omi.Encoding.Itch] | [1.0][Asx.AsxSecurities.Mdf.Itch.v1.0.Definition] |  | 3/1/2026 | 660 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Asx.AsxSecurities.Mdf.Itch.v1.0.Url] - [pdf][Asx.AsxSecurities.Mdf.Itch.v1.0.Pdf] |
 | [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Itch][Omi.Encoding.Itch] | [2.0][Asx.AsxSecurities.Trade.Itch.v2.0.Definition] |  | 4/1/2015 | 300 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] |  |
 | [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Itch][Omi.Encoding.Itch] | [3.1][Asx.AsxSecurities.Trade.Itch.v3.1.Definition] |  | 3/1/2023 | 305 | [Active][Omi.Glossary.Deployment.Active] | [Untested][Omi.Glossary.Testing.Untested] | [url][Asx.AsxSecurities.Trade.Itch.v3.1.Url] |
 | [AsxSecurities][AsxSecurities.Exchange] | [Trade][Asx.AsxSecurities.Trade] | [Ouch][Omi.Encoding.Ouch] | 2.0 | [Client][Asx.AsxSecurities.Trade.Ouch.v2.0.Client.Definition] [Server][Asx.AsxSecurities.Trade.Ouch.v2.0.Server.Definition] | 4/1/2015 | 383 | [Deprecated][Omi.Glossary.Deployment.Deprecated] | [Untested][Omi.Glossary.Testing.Untested] |  |
@@ -38,11 +39,15 @@
 [AsxSecurities.Exchange]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/tree/main/Organizations/Asx/Protocols/AsxSecurities "Asx AsxSecurities"
 [Asx.AsxDerivatives.Ntp]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxDerivatives/Ntp.md "New Trading Platform"
 [Asx.AsxDerivatives.T24]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxDerivatives/T24.md "24 Itch"
+[Asx.AsxSecurities.Mdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxSecurities/Mdf.md "Trade Market Data Feed"
 [Asx.AsxSecurities.Trade]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Protocols/AsxSecurities/Trade.md "Asx Trade"
 
 [Asx.AsxDerivatives.Ntp.Itch.v1.05.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxderivatives/ntp/asxderivatives_ntp_v1_05.spicy "Asx AsxDerivatives Ntp Itch v1.05 Spicy Definition"
 [Asx.AsxDerivatives.Ntp.Itch.v1.05.Url]: https://asxonline.com/public/landing-pages/ntp-document-library.html "Australian Securities Exchange 1.05 Url"
 [Asx.AsxDerivatives.T24.Itch.v1.13.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxderivatives/t24/asxderivatives_t24_v1_13.spicy "Asx AsxDerivatives T24 Itch v1.13 Spicy Definition"
+[Asx.AsxSecurities.Mdf.Itch.v1.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/mdf/asxsecurities_mdf_v1_0.spicy "Asx AsxSecurities Mdf Itch v1.0 Spicy Definition"
+[Asx.AsxSecurities.Mdf.Itch.v1.0.Url]: https://www.asxonline.com/public/documents/asx-trade-technical-library.html "Australian Securities Exchange 1.0 Url"
+[Asx.AsxSecurities.Mdf.Itch.v1.0.Pdf]: https://github.com/Open-Markets-Initiative/Open-Markets-Initiative/blob/main/Organizations/Asx/Specifications/Mdf/Asx.AsxSecurities.Mdf.Itch.v1.0.pdf "Australian Securities Exchange 1.0 Pdf"
 [Asx.AsxSecurities.Trade.Itch.v2.0.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_itch_v2_0.spicy "Asx AsxSecurities Trade Itch v2.0 Spicy Definition"
 [Asx.AsxSecurities.Trade.Itch.v3.1.Definition]: https://github.com/Open-Markets-Initiative/omi-spicy-definitions/blob/main/asx/asxsecurities/trade/asxsecurities_trade_v3_1.spicy "Asx AsxSecurities Trade Itch v3.1 Spicy Definition"
 [Asx.AsxSecurities.Trade.Itch.v3.1.Url]: https://asxonline.com/public/documents/asx-trade-technical-library.html "Australian Securities Exchange 3.1 Url"

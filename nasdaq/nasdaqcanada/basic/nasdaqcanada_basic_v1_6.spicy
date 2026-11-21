@@ -1,0 +1,219 @@
+# License: MIT No Attribution
+
+module NasdaqNasdaqcanadaBasicItchV16;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Big;
+
+public type NasdaqcanadaBasicV16 = unit {
+    packet_header: PacketHeader;
+    messages: Message[self.packet_header.message_count];
+};
+
+type PacketHeader = unit {
+    session: bytes &size=10;
+    sequence_number: uint64;
+    message_count: uint16;
+};
+
+type Message = unit {
+    message_header: MessageHeader;
+    switch ( self.message_header.message_type ) {
+        MessageType::QuotationMessage -> quotation_message: QuotationMessage;
+        MessageType::TradeReportMessage -> trade_report_message: TradeReportMessage;
+        MessageType::TradeBreakMessage -> trade_break_message: TradeBreakMessage;
+        MessageType::TradeCorrectionMessage -> trade_correction_message: TradeCorrectionMessage;
+        MessageType::SystemEventMessage -> system_event_message: SystemEventMessage;
+        MessageType::StockDirectoryMessage -> stock_directory_message: StockDirectoryMessage;
+        MessageType::StockStatusMessage -> stock_status_message: StockStatusMessage;
+        MessageType::EndOfDayTradeSummaryMessage -> end_of_day_trade_summary_message: EndOfDayTradeSummaryMessage;
+        MessageType::AdjustedClosingPriceMessage -> adjusted_closing_price_message: AdjustedClosingPriceMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type MessageHeader = unit {
+    message_length: uint16;
+    message_type: uint8 &convert=MessageType($$);
+};
+
+type QuotationMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    stock_symbol: bytes &size=10;
+    nasdaq_canada_best_bid_price: uint64;
+    nasdaq_canada_best_bid_size: uint32;
+    nasdaq_cxc_best_bid_size: uint32;
+    nasdaq_cx_2_best_bid_size: uint32;
+    nasdaq_canada_best_ask_price: uint64;
+    nasdaq_canada_best_ask_size: uint32;
+    nasdaq_cxc_best_ask_size: uint32;
+    nasdaq_cx_2_best_ask_size: uint32;
+};
+
+type TradeReportMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    originating_market_center_identifier: uint8 &convert=OriginatingMarketCenterIdentifier($$);
+    stock_symbol: bytes &size=10;
+    trade_number: uint32;
+    trade_price: uint64;
+    trade_size: uint32;
+    broker: bytes &size=3;
+    contra_broker: bytes &size=3;
+    sale_condition_modifier: SaleConditionModifier;
+    consolidated_trade_volume: uint64;
+};
+
+type SaleConditionModifier = unit {
+    sale_condition_modifier_level_1: uint8 &convert=SaleConditionModifierLevel1($$);
+    sales_condition_modifier_level_2: uint8 &convert=SalesConditionModifierLevel2($$);
+    sales_condition_modifier_level_3: uint8 &convert=SalesConditionModifierLevel3($$);
+    sales_condition_modifier_level_4: uint8 &convert=SalesConditionModifierLevel4($$);
+};
+
+type TradeBreakMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    trade_control_number: uint32;
+    originating_market_center_identifier: uint8 &convert=OriginatingMarketCenterIdentifier($$);
+};
+
+type TradeCorrectionMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    originating_market_center_identifier: uint8 &convert=OriginatingMarketCenterIdentifier($$);
+    stock_symbol: bytes &size=10;
+    original_trade_number: uint32;
+    original_trade_price: uint64;
+    original_trade_size: uint32;
+    corrected_trade_price: uint64;
+    corrected_trade_size: uint32;
+};
+
+type SystemEventMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    originating_market_center_identifier: uint8 &convert=OriginatingMarketCenterIdentifier($$);
+    event_code: uint8 &convert=EventCode($$);
+};
+
+type StockDirectoryMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    stock_symbol: bytes &size=10;
+    stock_display_name: bytes &size=40;
+    listing_market: uint8 &convert=ListingMarket($$);
+    board_lot_size: bytes &size=4;
+    currency: uint8 &convert=Currency($$);
+};
+
+type StockStatusMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    stock_symbol: bytes &size=10;
+    market: uint8 &convert=Market($$);
+    system_status: uint8 &convert=SystemStatus($$);
+};
+
+type EndOfDayTradeSummaryMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    stock_symbol: bytes &size=10;
+    consolidated_high_price: uint64;
+    consolidated_low_price: uint64;
+    consolidated_open_price: uint64;
+    listing_center_open_price: uint64;
+    consolidated_close_price: uint64;
+    listing_center_close_price: uint64;
+    consolidated_volume: uint64;
+};
+
+type AdjustedClosingPriceMessage = unit {
+    time_stamp: uint64 &convert=interval_ns($$);
+    issue_symbol: bytes &size=10;
+    security_class: uint8 &convert=SecurityClass($$);
+    adjusted_closing_price: uint64;
+};
+
+type MessageType = enum {
+    QuotationMessage = 0x43,
+    TradeReportMessage = 0x54,
+    TradeBreakMessage = 0x58,
+    TradeCorrectionMessage = 0x5a,
+    SystemEventMessage = 0x53,
+    StockDirectoryMessage = 0x52,
+    StockStatusMessage = 0x48,
+    EndOfDayTradeSummaryMessage = 0x44,
+    AdjustedClosingPriceMessage = 0x47,
+};
+
+type OriginatingMarketCenterIdentifier = enum {
+    TheNasdaqCxcTradingBook = 0x43,
+    TheNasdaqCx2TradingBook = 0x58,
+    TheNasdaqCxdTradingBook = 0x44,
+    AllMarkets = 0x41,
+};
+
+type SaleConditionModifierLevel1 = enum {
+    RegularTrade = 0x20,
+    Bypass = 0x42,
+    MElo = 0x4c,
+    CxdPureStream = 0x50,
+};
+
+type SalesConditionModifierLevel2 = enum {
+    Regular = 0x20,
+    Internal = 0x49,
+    Basis = 0x42,
+    Contingent = 0x43,
+    Vwap = 0x56,
+    Intentional = 0x58,
+    DerivativeRelated = 0x44,
+};
+
+type SalesConditionModifierLevel3 = enum {
+    Regular = 0x20,
+    CashToday = 0x54,
+    CashTomorrow = 0x43,
+    DelayedDelivery = 0x44,
+};
+
+type SalesConditionModifierLevel4 = enum {
+    OddLot = 0x41,
+    BoardLotOrLarger = 0x42,
+};
+
+type EventCode = enum {
+    FirstMessageOfTheDay = 0x4f,
+    StartOfNasdaqCanadaTradingSession = 0x53,
+    StartOfPrimaryMarketTradingActivitySession = 0x51,
+    EndOfPrimaryMarketTradingSession = 0x4d,
+    EndOfNasdaqCanadaTradingSession = 0x45,
+    EndOfMessages = 0x43,
+};
+
+type ListingMarket = enum {
+    TheTmxSeniorMarket = 0x54,
+    TheCanadianSecuritiesExchange = 0x43,
+    TheTmxVentureMarket = 0x56,
+    TheNeoExchange = 0x4e,
+};
+
+type Currency = enum {
+    Usd = 0x55,
+    Cad = 0x43,
+};
+
+type Market = enum {
+    TheNasdaqCxcTradingBook = 0x43,
+    TheNasdaqCx2TradingBook = 0x58,
+    TheNasdaqCxdTradingBook = 0x44,
+    AllMarkets = 0x41,
+};
+
+type SystemStatus = enum {
+    Halted = 0x48,
+    Trading = 0x54,
+};
+
+type SecurityClass = enum {
+    TheTmxSeniorMarket = 0x54,
+    TheCanadianSecuritiesExchange = 0x43,
+    TheTmxVentureMarket = 0x56,
+    TheNeoExchange = 0x4e,
+};
+

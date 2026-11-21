@@ -12,6 +12,21 @@ public type NseixDropcopyV16 = unit {
 
 type ServerDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16);
+    switch ( self.next_transaction_code ) {
+        23009 -> server_registration_packet: ServerRegistrationPacket;
+        * -> server_session_packet: ServerSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ServerRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::SignOnOutMessage -> sign_on_out_message: SignOnOutMessage;
@@ -62,12 +77,6 @@ type ServerDirectPacket = unit {
         TransactionCode::ThrlOrderCxlConfirmationMessage -> thrl_order_cxl_confirmation_message: ThrlOrderCxlConfirmationMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -3502,6 +3511,60 @@ type ThrlOrderCxlConfirmationMessage = unit {
     price_diff: int32;
     ms_spd_leg_info_leg_2: MsSpdLegInfoLeg2;
     ms_spd_leg_info_leg_3: MsSpdLegInfoLeg3;
+};
+
+type ServerSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignOnOutMessage -> sign_on_out_message: SignOnOutMessage;
+        TransactionCode::TradeConfirmationMessage -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeModifyConfirmMessage -> trade_modify_confirm_message: TradeModifyConfirmMessage;
+        TransactionCode::TradeModifyRejectMessage -> trade_modify_reject_message: TradeModifyRejectMessage;
+        TransactionCode::TradeCancelConfirmMessage -> trade_cancel_confirm_message: TradeCancelConfirmMessage;
+        TransactionCode::TradeCancelRejectMessage -> trade_cancel_reject_message: TradeCancelRejectMessage;
+        TransactionCode::NltTradeConfirmationMessage -> nlt_trade_confirmation_message: NltTradeConfirmationMessage;
+        TransactionCode::NltTrdModConfirmationMessage -> nlt_trd_mod_confirmation_message: NltTrdModConfirmationMessage;
+        TransactionCode::NltTrdModRejectMessage -> nlt_trd_mod_reject_message: NltTrdModRejectMessage;
+        TransactionCode::NltTrdCxlConfirmationMessage -> nlt_trd_cxl_confirmation_message: NltTrdCxlConfirmationMessage;
+        TransactionCode::NltTrdCxlRejectMessage -> nlt_trd_cxl_reject_message: NltTrdCxlRejectMessage;
+        TransactionCode::GiveupAppConfirmTmMessage -> giveup_app_confirm_tm_message: GiveupAppConfirmTmMessage;
+        TransactionCode::GiveupRejConfirmTmMessage -> giveup_rej_confirm_tm_message: GiveupRejConfirmTmMessage;
+        TransactionCode::BoardLotOutMessage -> board_lot_out_message: BoardLotOutMessage;
+        TransactionCode::OrderModOutMessage -> order_mod_out_message: OrderModOutMessage;
+        TransactionCode::OrderModRejectMessage -> order_mod_reject_message: OrderModRejectMessage;
+        TransactionCode::OrderCancelOutMessage -> order_cancel_out_message: OrderCancelOutMessage;
+        TransactionCode::OrderCancelRejectMessage -> order_cancel_reject_message: OrderCancelRejectMessage;
+        TransactionCode::OrderConfirmationMessage -> order_confirmation_message: OrderConfirmationMessage;
+        TransactionCode::OrderModConfirmationMessage -> order_mod_confirmation_message: OrderModConfirmationMessage;
+        TransactionCode::OrderCancelConfirmationMessage -> order_cancel_confirmation_message: OrderCancelConfirmationMessage;
+        TransactionCode::FreezeToControlMessage -> freeze_to_control_message: FreezeToControlMessage;
+        TransactionCode::OrderErrorMessage -> order_error_message: OrderErrorMessage;
+        TransactionCode::BatchOrderCancelMessage -> batch_order_cancel_message: BatchOrderCancelMessage;
+        TransactionCode::NetOrderErrorMessage -> net_order_error_message: NetOrderErrorMessage;
+        TransactionCode::NltConfirmationMessage -> nlt_confirmation_message: NltConfirmationMessage;
+        TransactionCode::NltModConfirmationMessage -> nlt_mod_confirmation_message: NltModConfirmationMessage;
+        TransactionCode::NltCxlConfirmationMessage -> nlt_cxl_confirmation_message: NltCxlConfirmationMessage;
+        TransactionCode::NltModRejectMessage -> nlt_mod_reject_message: NltModRejectMessage;
+        TransactionCode::NltCxlRejectMessage -> nlt_cxl_reject_message: NltCxlRejectMessage;
+        TransactionCode::SpreadOrderConfirmationMessage -> spread_order_confirmation_message: SpreadOrderConfirmationMessage;
+        TransactionCode::SpOrderErrorMessage -> sp_order_error_message: SpOrderErrorMessage;
+        TransactionCode::SpNetOrderErrorMessage -> sp_net_order_error_message: SpNetOrderErrorMessage;
+        TransactionCode::SpreadCxlConfirmationMessage -> spread_cxl_confirmation_message: SpreadCxlConfirmationMessage;
+        TransactionCode::SpreadModConfirmationMessage -> spread_mod_confirmation_message: SpreadModConfirmationMessage;
+        TransactionCode::SpreadModRejectMessage -> spread_mod_reject_message: SpreadModRejectMessage;
+        TransactionCode::SpreadCxlRejectMessage -> spread_cxl_reject_message: SpreadCxlRejectMessage;
+        TransactionCode::BatchSpreadOrderCancelMessage -> batch_spread_order_cancel_message: BatchSpreadOrderCancelMessage;
+        TransactionCode::TwolOrderConfirmationMessage -> twol_order_confirmation_message: TwolOrderConfirmationMessage;
+        TransactionCode::ThrlOrderConfirmationMessage -> thrl_order_confirmation_message: ThrlOrderConfirmationMessage;
+        TransactionCode::TwolOrderErrorMessage -> twol_order_error_message: TwolOrderErrorMessage;
+        TransactionCode::ThrlOrderErrorMessage -> thrl_order_error_message: ThrlOrderErrorMessage;
+        TransactionCode::TwolNetOrderErrorMessage -> twol_net_order_error_message: TwolNetOrderErrorMessage;
+        TransactionCode::ThrlNetOrderErrorMessage -> thrl_net_order_error_message: ThrlNetOrderErrorMessage;
+        TransactionCode::TwolOrderCxlConfirmationMessage -> twol_order_cxl_confirmation_message: TwolOrderCxlConfirmationMessage;
+        TransactionCode::ThrlOrderCxlConfirmationMessage -> thrl_order_cxl_confirmation_message: ThrlOrderCxlConfirmationMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

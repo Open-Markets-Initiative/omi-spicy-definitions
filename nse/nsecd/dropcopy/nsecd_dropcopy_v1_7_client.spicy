@@ -12,18 +12,27 @@ public type NsecdDropcopyV17 = unit {
 
 type ClientDirectPacket = unit {
     packet_header: PacketHeader;
-    message_header: MessageHeader;
-    switch ( self.message_header.transaction_code ) {
-        TransactionCode::SignonInMessage -> signon_in_message: SignonInMessage;
-        TransactionCode::DcDownloadRequestMessage -> dc_download_request_message: DcDownloadRequestMessage;
-        * -> unknown: bytes &eod;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16);
+    switch ( self.next_transaction_code ) {
+        23008 -> client_registration_packet: ClientRegistrationPacket;
+        * -> client_session_packet: ClientSessionPacket;
     };
 };
 
 type PacketHeader = unit {
     packet_length: uint16;
     packet_sequence_number: uint32;
-    checksum: bytes &size=16;
+};
+
+type ClientRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignonInMessage -> signon_in_message: SignonInMessage;
+        TransactionCode::DcDownloadRequestMessage -> dc_download_request_message: DcDownloadRequestMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type MessageHeader = unit {
@@ -53,6 +62,16 @@ type SignonInMessage = unit {
 
 type DcDownloadRequestMessage = unit {
     sequence_number: real &type=spicy::RealType::IEEE754_Double;
+};
+
+type ClientSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignonInMessage -> signon_in_message: SignonInMessage;
+        TransactionCode::DcDownloadRequestMessage -> dc_download_request_message: DcDownloadRequestMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

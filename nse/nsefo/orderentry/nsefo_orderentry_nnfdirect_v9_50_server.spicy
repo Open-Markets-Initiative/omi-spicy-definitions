@@ -12,6 +12,21 @@ public type NsefoOrderentryV950 = unit {
 
 type ServerDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16) &convert=TransactionCode($$);
+    switch ( self.next_transaction_code ) {
+        TransactionCode::SecureBoxRegistrationResponseOutMessage -> server_registration_packet: ServerRegistrationPacket;
+        * -> server_session_packet: ServerSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ServerRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::SignOnRequestOutMessage -> sign_on_request_out_message: SignOnRequestOutMessage;
@@ -59,12 +74,6 @@ type ServerDirectPacket = unit {
         TransactionCode::OrderCancellationConfirmationMessage -> order_cancellation_confirmation_message: OrderCancellationConfirmationMessage(self.message_header.message_length);
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -869,6 +878,57 @@ type MsSpdLegInfo = unit {
     } &byte-order=spicy::ByteOrder::Little;
     : skip bytes &size=1;   # padding
     : skip bytes &size=1;   # padding
+};
+
+type ServerSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::SignOnRequestOutMessage -> sign_on_request_out_message: SignOnRequestOutMessage;
+        TransactionCode::SignOffRequestOutMessage -> sign_off_request_out_message: SignOffRequestOutMessage;
+        TransactionCode::SystemInformationOutMessage -> system_information_out_message: SystemInformationOutMessage;
+        TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage(self.message_header.message_length);
+        TransactionCode::UpdateLocalDatabaseHeaderMessage -> update_local_database_header_message: UpdateLocalDatabaseHeaderMessage;
+        TransactionCode::UpdateLocalDatabaseTrailerMessage -> update_local_database_trailer_message: UpdateLocalDatabaseTrailerMessage;
+        TransactionCode::UpdateLocalDatabaseDataMessage -> update_local_database_data_message: UpdateLocalDatabaseDataMessage;
+        TransactionCode::MessageRecordMessage -> message_record_message: MessageRecordMessage;
+        TransactionCode::OrderConfirmationMessage -> order_confirmation_message: OrderConfirmationMessage;
+        TransactionCode::OrderModificationConfirmationMessage -> order_modification_confirmation_message: OrderModificationConfirmationMessage;
+        TransactionCode::OrderResponseMessage -> order_response_message: OrderResponseMessage;
+        TransactionCode::OrderResponseMessage_2042 -> order_response_message: OrderResponseMessage;
+        TransactionCode::OrderResponseMessage_2072 -> order_response_message: OrderResponseMessage;
+        TransactionCode::OrderResponseMessage_2170 -> order_response_message: OrderResponseMessage;
+        TransactionCode::OrderResponseMessage_2231 -> order_response_message: OrderResponseMessage;
+        TransactionCode::OrderResponseMessage_9002 -> order_response_message: OrderResponseMessage;
+        TransactionCode::TradeConfirmationMessage -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2212 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2282 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2286 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2287 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::TradeConfirmationMessage_2288 -> trade_confirmation_message: TradeConfirmationMessage;
+        TransactionCode::UserOrderLimitUpdateMessage -> user_order_limit_update_message: UserOrderLimitUpdateMessage;
+        TransactionCode::DealerLimitUpdateMessage -> dealer_limit_update_message: DealerLimitUpdateMessage;
+        TransactionCode::SpreadOrderLimitUpdateMessage -> spread_order_limit_update_message: SpreadOrderLimitUpdateMessage;
+        TransactionCode::ControlMessageToTraderMessage -> control_message_to_trader_message: ControlMessageToTraderMessage;
+        TransactionCode::MarketStatisticsReportMessage -> market_statistics_report_message: MarketStatisticsReportMessage;
+        TransactionCode::EnhancedMarketStatisticsReportMessage -> enhanced_market_statistics_report_message: EnhancedMarketStatisticsReportMessage;
+        TransactionCode::MarketIndexReportMessage -> market_index_report_message: MarketIndexReportMessage;
+        TransactionCode::IndustryIndexReportMessage -> industry_index_report_message: IndustryIndexReportMessage;
+        TransactionCode::SectorIndexReportMessage -> sector_index_report_message: SectorIndexReportMessage;
+        TransactionCode::SpreadBhavcopyMessage -> spread_bhavcopy_message: SpreadBhavcopyMessage;
+        TransactionCode::GlobalIndicesMessage -> global_indices_message: GlobalIndicesMessage;
+        TransactionCode::GlobalContractsMessage -> global_contracts_message: GlobalContractsMessage;
+        TransactionCode::BoxSignOnRequestOutMessage -> box_sign_on_request_out_message: BoxSignOnRequestOutMessage;
+        TransactionCode::ContingencyBroadcastMessage -> contingency_broadcast_message: ContingencyBroadcastMessage;
+        TransactionCode::CollateralUserStatusChangeResponseMessage -> collateral_user_status_change_response_message: CollateralUserStatusChangeResponseMessage;
+        TransactionCode::UserTradeModifyCancelStatusChangeResponseMessage -> user_trade_modify_cancel_status_change_response_message: UserTradeModifyCancelStatusChangeResponseMessage;
+        TransactionCode::UserAddressUnlockConfirmMessage -> user_address_unlock_confirm_message: UserAddressUnlockConfirmMessage;
+        TransactionCode::UserAddressUnlockApproveMessage -> user_address_unlock_approve_message: UserAddressUnlockApproveMessage;
+        TransactionCode::GiveupConfirmationMessage -> giveup_confirmation_message: GiveupConfirmationMessage;
+        TransactionCode::GiveupConfirmationMessage_4507 -> giveup_confirmation_message: GiveupConfirmationMessage;
+        TransactionCode::OrderCancellationConfirmationMessage -> order_cancellation_confirmation_message: OrderCancellationConfirmationMessage(self.message_header.message_length);
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {

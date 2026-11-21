@@ -12,6 +12,21 @@ public type NseslbmOrderentryV27 = unit {
 
 type ClientDirectPacket = unit {
     packet_header: PacketHeader;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset() + 16) &convert=TransactionCode($$);
+    switch ( self.next_transaction_code ) {
+        TransactionCode::SecureBoxRegistrationRequestMessage -> client_registration_packet: ClientRegistrationPacket;
+        * -> client_session_packet: ClientSessionPacket;
+    };
+};
+
+type PacketHeader = unit {
+    packet_length: uint16;
+    packet_sequence_number: uint32;
+};
+
+type ClientRegistrationPacket = unit {
+    registration_checksum: bytes &size=16;
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::LogonRequestMessage -> logon_request_message: LogonRequestMessage;
@@ -27,12 +42,6 @@ type ClientDirectPacket = unit {
         TransactionCode::BoxSignOnRequestMessage -> box_sign_on_request_message: BoxSignOnRequestMessage;
         * -> unknown: bytes &eod;
     };
-};
-
-type PacketHeader = unit {
-    packet_length: uint16;
-    packet_sequence_number: uint32;
-    checksum: bytes &size=16;
 };
 
 type MessageHeader = unit {
@@ -320,6 +329,25 @@ type BoxSignOnRequestMessage = unit {
     broker_id: bytes &size=5;
     : skip bytes &size=5;   # padding
     session_key: bytes &size=8;
+};
+
+type ClientSessionPacket = unit {
+    checksum: bytes &size=16;
+    message_header: MessageHeader;
+    switch ( self.message_header.transaction_code ) {
+        TransactionCode::LogonRequestMessage -> logon_request_message: LogonRequestMessage;
+        TransactionCode::UpdateLocalDatabaseRequestMessage -> update_local_database_request_message: UpdateLocalDatabaseRequestMessage;
+        TransactionCode::MessageDownloadRequestMessage -> message_download_request_message: MessageDownloadRequestMessage;
+        TransactionCode::OrderEntryRequestMessage -> order_entry_request_message: OrderEntryRequestMessage;
+        TransactionCode::OrderModificationRequestMessage -> order_modification_request_message: OrderModificationRequestMessage;
+        TransactionCode::OrderCancellationRequestMessage -> order_cancellation_request_message: OrderCancellationRequestMessage;
+        TransactionCode::TradeCancellationRequestMessage -> trade_cancellation_request_message: TradeCancellationRequestMessage;
+        TransactionCode::TradeModificationRequestMessage -> trade_modification_request_message: TradeModificationRequestMessage;
+        TransactionCode::GatewayRouterRequestMessage -> gateway_router_request_message: GatewayRouterRequestMessage;
+        TransactionCode::SecureBoxRegistrationRequestMessage -> secure_box_registration_request_message: SecureBoxRegistrationRequestMessage;
+        TransactionCode::BoxSignOnRequestMessage -> box_sign_on_request_message: BoxSignOnRequestMessage;
+        * -> unknown: bytes &eod;
+    };
 };
 
 type TransactionCode = enum {
