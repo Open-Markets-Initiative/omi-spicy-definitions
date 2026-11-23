@@ -1,0 +1,268 @@
+# License: MIT No Attribution
+
+module MoexSpectraOrderentryTwimeV9120Client;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SpectraOrderentryV9120 = unit {
+    client_message: ClientMessage[] &eod;
+};
+
+type ClientMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::EstablishMessage -> establish_message: EstablishMessage;
+        TemplateId::TerminateMessage -> terminate_message: TerminateMessage;
+        TemplateId::RetransmitRequestMessage -> retransmit_request_message: RetransmitRequestMessage;
+        TemplateId::SequenceMessage -> sequence_message: SequenceMessage;
+        TemplateId::NewOrderSingleMessage -> new_order_single_message: NewOrderSingleMessage;
+        TemplateId::NewOrderIcebergMessage -> new_order_iceberg_message: NewOrderIcebergMessage;
+        TemplateId::NewOrderIcebergXMessage -> new_order_iceberg_x_message: NewOrderIcebergXMessage;
+        TemplateId::OrderCancelRequestMessage -> order_cancel_request_message: OrderCancelRequestMessage;
+        TemplateId::OrderIcebergCancelRequestMessage -> order_iceberg_cancel_request_message: OrderIcebergCancelRequestMessage;
+        TemplateId::OrderReplaceRequestMessage -> order_replace_request_message: OrderReplaceRequestMessage;
+        TemplateId::OrderIcebergReplaceRequestMessage -> order_iceberg_replace_request_message: OrderIcebergReplaceRequestMessage;
+        TemplateId::OrderMassCancelRequestMessage -> order_mass_cancel_request_message: OrderMassCancelRequestMessage;
+        TemplateId::OrderMassCancelByBfLimitRequestMessage -> order_mass_cancel_by_bf_limit_request_message: OrderMassCancelByBfLimitRequestMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type EstablishMessage = unit {
+    timestamp: uint64 &convert=time_ns($$);
+    keepalive_interval: uint32;
+    credentials: bytes &size=20;
+};
+
+type TerminateMessage = unit {
+    termination_code: uint8 &convert=TerminationCode($$);
+};
+
+type RetransmitRequestMessage = unit {
+    timestamp: uint64 &convert=time_ns($$);
+    from_seq_no: uint64;
+    count: uint32;
+};
+
+type SequenceMessage = unit {
+    next_seq_no: uint64;
+};
+
+type NewOrderSingleMessage = unit {
+    cl_ord_id: uint64;
+    expire_date: uint64 &convert=time_ns($$);
+    price: int64;
+    security_id: int32;
+    cl_ord_link_id: int32;
+    order_qty: uint32;
+    compliance_id: uint8 &convert=ComplianceId($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8 &convert=Side($$);
+    client_flags: bitfield(8) {
+        dont_check_limits_client_flags: 0;
+        ncc_request_client_flags: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: bytes &size=7;
+};
+
+type NewOrderIcebergMessage = unit {
+    cl_ord_id: uint64;
+    expire_date: uint64 &convert=time_ns($$);
+    price: int64;
+    security_id: int32;
+    cl_ord_link_id: int32;
+    display_qty: uint32;
+    display_variance_qty: uint32;
+    order_qty: uint32;
+    compliance_id: uint8 &convert=ComplianceId($$);
+    side: uint8 &convert=Side($$);
+    client_flags: bitfield(8) {
+        dont_check_limits_client_flags: 0;
+        ncc_request_client_flags: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: bytes &size=7;
+};
+
+type NewOrderIcebergXMessage = unit {
+    cl_ord_id: uint64;
+    expire_date: uint64 &convert=time_ns($$);
+    price: int64;
+    security_id: int32;
+    cl_ord_link_id: int32;
+    display_qty: uint32;
+    display_variance_qty: uint32;
+    order_qty: uint32;
+    compliance_id: uint8 &convert=ComplianceId($$);
+    time_in_force: uint8 &convert=TimeInForce($$);
+    side: uint8 &convert=Side($$);
+    client_flags: bitfield(8) {
+        dont_check_limits_client_flags: 0;
+        ncc_request_client_flags: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: bytes &size=7;
+};
+
+type OrderCancelRequestMessage = unit {
+    cl_ord_id: uint64;
+    order_id: int64;
+    security_id: int32;
+    client_flags: bitfield(8) {
+        dont_check_limits_client_flags: 0;
+        ncc_request_client_flags: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: bytes &size=7;
+};
+
+type OrderIcebergCancelRequestMessage = unit {
+    cl_ord_id: uint64;
+    order_id: int64;
+    security_id: int32;
+    client_flags: bitfield(8) {
+        dont_check_limits_client_flags: 0;
+        ncc_request_client_flags: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: bytes &size=7;
+};
+
+type OrderReplaceRequestMessage = unit {
+    cl_ord_id: uint64;
+    order_id: int64;
+    price: int64;
+    order_qty: uint32;
+    cl_ord_link_id: int32;
+    security_id: int32;
+    compliance_id: uint8 &convert=ComplianceId($$);
+    mode: uint8 &convert=Mode($$);
+    client_flags: bitfield(8) {
+        dont_check_limits_client_flags: 0;
+        ncc_request_client_flags: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: bytes &size=7;
+};
+
+type OrderIcebergReplaceRequestMessage = unit {
+    cl_ord_id: uint64;
+    order_id: int64;
+    price: int64;
+    cl_ord_link_id: int32;
+    security_id: int32;
+    compliance_id: uint8 &convert=ComplianceId($$);
+    client_flags: bitfield(8) {
+        dont_check_limits_client_flags: 0;
+        ncc_request_client_flags: 1;
+        reserved_3_to_8: 2..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    account: bytes &size=7;
+};
+
+type OrderMassCancelRequestMessage = unit {
+    cl_ord_id: uint64;
+    cl_ord_link_id: int32;
+    security_id: int32;
+    security_type: bitfield(8) {
+        future: 0;
+        option: 1;
+        multileg_security_type: 2;
+        reserved_4_to_8: 3..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    side: uint8 &convert=Side($$);
+    account: bytes &size=7;
+    security_group: bytes &size=25;
+};
+
+type OrderMassCancelByBfLimitRequestMessage = unit {
+    cl_ord_id: uint64;
+    account: bytes &size=7;
+};
+
+type TemplateId = enum {
+    EstablishMessage = 5000,
+    EstablishmentAckMessage = 5001,
+    EstablishmentRejectMessage = 5002,
+    TerminateMessage = 5003,
+    RetransmitRequestMessage = 5004,
+    RetransmissionMessage = 5005,
+    SequenceMessage = 5006,
+    FloodRejectMessage = 5007,
+    SessionRejectMessage = 5008,
+    BusinessMessageRejectMessage = 5009,
+    NewOrderSingleMessage = 6000,
+    NewOrderIcebergMessage = 6008,
+    NewOrderIcebergXMessage = 6011,
+    OrderCancelRequestMessage = 6006,
+    OrderIcebergCancelRequestMessage = 6009,
+    OrderReplaceRequestMessage = 6007,
+    OrderIcebergReplaceRequestMessage = 6010,
+    OrderMassCancelRequestMessage = 6004,
+    OrderMassCancelByBfLimitRequestMessage = 6005,
+    NewOrderSingleResponseMessage = 7015,
+    NewOrderIcebergResponseMessage = 7016,
+    OrderCancelResponseMessage = 7017,
+    OrderReplaceResponseMessage = 7018,
+    OrderMassCancelResponseMessage = 7007,
+    ExecutionSingleReportMessage = 7019,
+    ExecutionMultilegReportMessage = 7020,
+    EmptyBookMessage = 7010,
+    SystemEventMessage = 7014,
+};
+
+type TerminationCode = enum {
+    Finished = 0,
+    UnspecifiedError = 1,
+    ReRequestOutOfBounds = 2,
+    ReRequestInProgress = 3,
+    TooFastClient = 4,
+    TooSlowClient = 5,
+    MissedHeartbeat = 6,
+    InvalidMessage = 7,
+    TcpFailure = 8,
+    InvalidSequenceNumber = 9,
+    ServerShutdown = 10,
+    SequenceReset = 11,
+};
+
+type ComplianceId = enum {
+    NotAvailable = 0x20,
+    Manual = 0x4d,
+    StopLoss = 0x53,
+    Algorithm = 0x52,
+    Autofollow = 0x41,
+    MarginCall = 0x44,
+};
+
+type TimeInForce = enum {
+    Day = 0,
+    Ioc = 3,
+    Fok = 4,
+    Gtd = 6,
+    Boc = 122,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+    AllOrders = 89,
+};
+
+type Mode = enum {
+    DontChangeOrderQty = 0,
+    ChangeOrderQty = 1,
+    CheckOrderQtyAndCancelOrder = 2,
+    FixStyleReplace = 3,
+};
+

@@ -33,7 +33,6 @@ type ServerRegistrationPacket = unit {
         TransactionCode::BranchOrderValueLimitUpdateOutMessage -> branch_order_value_limit_update_out_message: BranchOrderValueLimitUpdateOutMessage;
         TransactionCode::CancelOnLogoutStatusResponseMessage -> cancel_on_logout_status_response_message: CancelOnLogoutStatusResponseMessage;
         TransactionCode::ErrorResponseMessage -> error_response_message: ErrorResponseMessage;
-        TransactionCode::SecureBoxRegistrationRequestMessage -> secure_box_registration_request_message: SecureBoxRegistrationRequestMessage;
         TransactionCode::BoxSignOnResponseMessage -> box_sign_on_response_message: BoxSignOnResponseMessage;
         TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage(self.message_header.message_length);
         TransactionCode::ControlMessageToTraderMessage -> control_message_to_trader_message: ControlMessageToTraderMessage;
@@ -136,10 +135,6 @@ type ErrorResponseMessage = unit {
 type SecInfo = unit {
     symbol: bytes &size=10;
     series: bytes &size=2;
-};
-
-type SecureBoxRegistrationRequestMessage = unit {
-    box_id: int16;
 };
 
 type BoxSignOnResponseMessage = unit {
@@ -643,13 +638,16 @@ type LocalDatabaseData = unit {
 
 type ServerSessionPacket = unit {
     checksum: bytes &size=16;
+    server_message_data: ServerMessageData;
+};
+
+type ServerMessageData = unit {
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::AuctionInquiryResponseMessage -> auction_inquiry_response_message: AuctionInquiryResponseMessage;
         TransactionCode::BranchOrderValueLimitUpdateOutMessage -> branch_order_value_limit_update_out_message: BranchOrderValueLimitUpdateOutMessage;
         TransactionCode::CancelOnLogoutStatusResponseMessage -> cancel_on_logout_status_response_message: CancelOnLogoutStatusResponseMessage;
         TransactionCode::ErrorResponseMessage -> error_response_message: ErrorResponseMessage;
-        TransactionCode::SecureBoxRegistrationRequestMessage -> secure_box_registration_request_message: SecureBoxRegistrationRequestMessage;
         TransactionCode::BoxSignOnResponseMessage -> box_sign_on_response_message: BoxSignOnResponseMessage;
         TransactionCode::GatewayRouterResponseMessage -> gateway_router_response_message: GatewayRouterResponseMessage(self.message_header.message_length);
         TransactionCode::ControlMessageToTraderMessage -> control_message_to_trader_message: ControlMessageToTraderMessage;

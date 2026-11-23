@@ -520,6 +520,21 @@ type UserAddressUnlockRequestMessage = unit {
 
 type ClientSessionPacket = unit {
     checksum: bytes &size=16;
+    # read ahead from inside the arm that follows; it consumes nothing
+    next_transaction_code: int16 &parse-at=(self.input() + self.offset()) &convert=TransactionCode($$);
+    switch ( self.next_transaction_code ) {
+        TransactionCode::BoardLotInTrimmedMessage -> trimmed_message: TrimmedMessage;
+        TransactionCode::BoardLotInTrimmedMessage_20400 -> trimmed_message: TrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage -> trimmed_message: TrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20060 -> trimmed_message: TrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20070 -> trimmed_message: TrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20402 -> trimmed_message: TrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20404 -> trimmed_message: TrimmedMessage;
+        * -> client_full_message: ClientFullMessage;
+    };
+};
+
+type ClientFullMessage = unit {
     message_header: MessageHeader;
     switch ( self.message_header.transaction_code ) {
         TransactionCode::SignOnRequestInMessage -> sign_on_request_in_message: SignOnRequestInMessage;
@@ -574,12 +589,312 @@ type ClientSessionPacket = unit {
     };
 };
 
+type TrimmedMessage = unit {
+    transaction_code: int16 &convert=TransactionCode($$);
+    switch ( self.transaction_code ) {
+        TransactionCode::BoardLotInTrimmedMessage -> board_lot_in_trimmed_message: BoardLotInTrimmedMessage;
+        TransactionCode::BoardLotInTrimmedMessage_20400 -> board_lot_in_trimmed_message: BoardLotInTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20060 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20070 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20402 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderModifyCancelTrimmedMessage_20404 -> order_modify_cancel_trimmed_message: OrderModifyCancelTrimmedMessage;
+        TransactionCode::OrderConfirmationTrimmedMessage -> order_confirmation_trimmed_message: OrderConfirmationTrimmedMessage;
+        TransactionCode::OrderConfirmationTrimmedMessage_20074 -> order_confirmation_trimmed_message: OrderConfirmationTrimmedMessage;
+        TransactionCode::OrderConfirmationTrimmedMessage_20075 -> order_confirmation_trimmed_message: OrderConfirmationTrimmedMessage;
+        TransactionCode::TradeConfirmationTrimmedMessage -> trade_confirmation_trimmed_message: TradeConfirmationTrimmedMessage;
+        TransactionCode::QuickAcknowledgementMessage -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20403 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20405 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20407 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20409 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20411 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20413 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20415 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        TransactionCode::QuickAcknowledgementMessage_20417 -> quick_acknowledgement_message: QuickAcknowledgementMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type BoardLotInTrimmedMessage = unit {
+    user_id: int32;
+    reason_code: int16 &convert=ReasonCode($$);
+    token_no: int32;
+    contract_desc_tr: ContractDescTr;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell_indicator: int16 &convert=BuySellIndicator($$);
+    disclosed_volume: int32;
+    volume: int32;
+    price: int32;
+    good_till_date: int32;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    : skip bytes &size=32;   # padding
+};
+
+type ContractDescTr = unit {
+    instrument_name: bytes &size=6;
+    symbol: bytes &size=10;
+    expiry_date: int32 &convert=time($$ + 315532800);
+    strike_price: int32;
+    option_type: bytes &size=2;
+};
+
+type OrderModifyCancelTrimmedMessage = unit {
+    user_id: int32;
+    modified_cancelled_by: uint8 &convert=ModifiedCancelledBy($$);
+    : skip bytes &size=1;   # padding
+    token_no: int32;
+    contract_desc_tr: ContractDescTr;
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell_indicator: int16 &convert=BuySellIndicator($$);
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    good_till_date: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=24;   # padding
+};
+
+type OrderConfirmationTrimmedMessage = unit {
+    log_time: int32 &convert=time($$ + 315532800);
+    user_id: int32;
+    error_code: int16 &convert=ErrorCode($$);
+    timestamp_1_long_long: int64;
+    timestamp_2_char: bytes &size=1;
+    modified_cancelled_by: uint8 &convert=ModifiedCancelledBy($$);
+    reason_code: int16 &convert=ReasonCode($$);
+    token_no: int32;
+    contract_desc_tr: ContractDescTr;
+    closeout_flag: bytes &size=1;
+    : skip bytes &size=1;   # padding
+    order_number: real &type=spicy::RealType::IEEE754_Double;
+    account_number: bytes &size=10;
+    book_type: int16 &convert=BookType($$);
+    buy_sell_indicator: int16 &convert=BuySellIndicator($$);
+    disclosed_volume: int32;
+    disclosed_volume_remaining: int32;
+    total_volume_remaining: int32;
+    volume: int32;
+    volume_filled_today: int32;
+    price: int32;
+    good_till_date: int32;
+    entry_date_time: int32 &convert=time($$ + 315532800);
+    last_modified: int32;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    branch_id: int16;
+    trader_id: int32;
+    broker_id: bytes &size=5;
+    open_close: bytes &size=1;
+    settlor: bytes &size=12;
+    pro_client_indicator: int16;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    : skip bytes &size=1;   # padding
+    : skip bytes &size=4;   # padding
+    nnf_field: real &type=spicy::RealType::IEEE754_Double;
+    timestamp: int64;
+    pan: bytes &size=10;
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type TradeConfirmationTrimmedMessage = unit {
+    log_time: int32 &convert=time($$ + 315532800);
+    trader_id: int32;
+    timestamp: int64;
+    timestamp_1_double: real &type=spicy::RealType::IEEE754_Double;
+    timestamp_2_double: real &type=spicy::RealType::IEEE754_Double;
+    response_order_number: real &type=spicy::RealType::IEEE754_Double;
+    broker_id: bytes &size=5;
+    : skip bytes &size=1;   # padding
+    account_number: bytes &size=10;
+    buy_sell_indicator: int16 &convert=BuySellIndicator($$);
+    original_volume: int32;
+    disclosed_volume: int32;
+    remaining_volume: int32;
+    disclosed_volume_remaining: int32;
+    price: int32;
+    st_order_flags: bitfield(16) {
+        reserved_12: 0..1;
+        order_pre_open: 2;
+        frozen: 3;
+        modified: 4;
+        traded: 5;
+        matched_ind: 6;
+        mf: 7;
+        aon: 8;
+        ioc: 9;
+        gtc: 10;
+        day: 11;
+        mit: 12;
+        sl: 13;
+        market: 14;
+        ato: 15;
+    } &byte-order=spicy::ByteOrder::Big;
+    good_till_date: int32;
+    fill_number: int32;
+    fill_quantity: int32;
+    fill_price: int32;
+    volume_filled_today: int32;
+    activity_type: bytes &size=2;
+    activity_time: int32 &convert=time($$ + 315532800);
+    token: int32;
+    contract_desc_tr: ContractDescTr;
+    open_close: bytes &size=1;
+    trade_book_type: bytes &size=1;
+    participant: bytes &size=12;
+    additional_order_flags: bitfield(8) {
+        boc: 0;
+        col: 1;
+        reserved_34: 2..3;
+        stpc: 4;
+        reserved_68: 5..7;
+    } &byte-order=spicy::ByteOrder::Little;
+    pan: bytes &size=10;
+    : skip bytes &size=1;   # padding
+    algo_id: int32;
+    : skip bytes &size=2;   # padding
+    last_activity_reference: int64;
+    : skip bytes &size=52;   # padding
+};
+
+type QuickAcknowledgementMessage = unit {
+    trader_id: int32;
+    timestamp: int64;
+    reference_long: int32;
+    error_code: int16 &convert=ErrorCode($$);
+    message_length: int16;
+};
+
 type TransactionCode = enum {
+    BoardLotInTrimmedMessage = 20000,
+    BoardLotInTrimmedMessage_20400 = 20400,
+    OrderModifyCancelTrimmedMessage = 20040,
+    OrderModifyCancelTrimmedMessage_20060 = 20060,
+    OrderModifyCancelTrimmedMessage_20070 = 20070,
+    OrderModifyCancelTrimmedMessage_20402 = 20402,
+    OrderModifyCancelTrimmedMessage_20404 = 20404,
+    OrderConfirmationTrimmedMessage = 20073,
+    OrderConfirmationTrimmedMessage_20074 = 20074,
+    OrderConfirmationTrimmedMessage_20075 = 20075,
+    TradeConfirmationTrimmedMessage = 20222,
+    QuickAcknowledgementMessage = 20401,
+    QuickAcknowledgementMessage_20403 = 20403,
+    QuickAcknowledgementMessage_20405 = 20405,
+    QuickAcknowledgementMessage_20407 = 20407,
+    QuickAcknowledgementMessage_20409 = 20409,
+    QuickAcknowledgementMessage_20411 = 20411,
+    QuickAcknowledgementMessage_20413 = 20413,
+    QuickAcknowledgementMessage_20415 = 20415,
+    QuickAcknowledgementMessage_20417 = 20417,
     SignOnRequestInMessage = 2300,
     SignOnRequestOutMessage = 2301,
     SignOffRequestOutMessage = 2321,
     SystemInformationInMessage = 1600,
     SystemInformationOutMessage = 1601,
+    SystemInformationOutMessage_7321 = 7321,
     GatewayRouterRequestMessage = 2400,
     GatewayRouterResponseMessage = 2401,
     SignOffRequestInMessage = 2320,

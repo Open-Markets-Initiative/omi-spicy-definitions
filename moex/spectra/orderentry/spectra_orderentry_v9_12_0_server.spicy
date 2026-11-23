@@ -1,0 +1,555 @@
+# License: MIT No Attribution
+
+module MoexSpectraOrderentryTwimeV9120Server;
+
+import spicy;
+
+%byte-order = spicy::ByteOrder::Little;
+
+public type SpectraOrderentryV9120 = unit {
+    server_message: ServerMessage[] &eod;
+};
+
+type ServerMessage = unit {
+    sbe_header: SbeHeader;
+    switch ( self.sbe_header.template_id ) {
+        TemplateId::EstablishmentAckMessage -> establishment_ack_message: EstablishmentAckMessage;
+        TemplateId::EstablishmentRejectMessage -> establishment_reject_message: EstablishmentRejectMessage;
+        TemplateId::TerminateMessage -> terminate_message: TerminateMessage;
+        TemplateId::RetransmissionMessage -> retransmission_message: RetransmissionMessage;
+        TemplateId::SequenceMessage -> sequence_message: SequenceMessage;
+        TemplateId::FloodRejectMessage -> flood_reject_message: FloodRejectMessage;
+        TemplateId::SessionRejectMessage -> session_reject_message: SessionRejectMessage;
+        TemplateId::BusinessMessageRejectMessage -> business_message_reject_message: BusinessMessageRejectMessage;
+        TemplateId::NewOrderSingleResponseMessage -> new_order_single_response_message: NewOrderSingleResponseMessage;
+        TemplateId::NewOrderIcebergResponseMessage -> new_order_iceberg_response_message: NewOrderIcebergResponseMessage;
+        TemplateId::OrderCancelResponseMessage -> order_cancel_response_message: OrderCancelResponseMessage;
+        TemplateId::OrderReplaceResponseMessage -> order_replace_response_message: OrderReplaceResponseMessage;
+        TemplateId::OrderMassCancelResponseMessage -> order_mass_cancel_response_message: OrderMassCancelResponseMessage;
+        TemplateId::ExecutionSingleReportMessage -> execution_single_report_message: ExecutionSingleReportMessage;
+        TemplateId::ExecutionMultilegReportMessage -> execution_multileg_report_message: ExecutionMultilegReportMessage;
+        TemplateId::EmptyBookMessage -> empty_book_message: EmptyBookMessage;
+        TemplateId::SystemEventMessage -> system_event_message: SystemEventMessage;
+        * -> unknown: bytes &eod;
+    };
+};
+
+type SbeHeader = unit {
+    block_length: uint16;
+    template_id: uint16 &convert=TemplateId($$);
+    schema_id: uint16;
+    version: uint16;
+};
+
+type EstablishmentAckMessage = unit {
+    request_timestamp: uint64 &convert=time_ns($$);
+    keepalive_interval: uint32;
+    next_seq_no: uint64;
+};
+
+type EstablishmentRejectMessage = unit {
+    request_timestamp: uint64 &convert=time_ns($$);
+    establishment_reject_code: uint8 &convert=EstablishmentRejectCode($$);
+};
+
+type TerminateMessage = unit {
+    termination_code: uint8 &convert=TerminationCode($$);
+};
+
+type RetransmissionMessage = unit {
+    next_seq_no: uint64;
+    request_timestamp: uint64 &convert=time_ns($$);
+    count: uint32;
+};
+
+type SequenceMessage = unit {
+    next_seq_no: uint64;
+};
+
+type FloodRejectMessage = unit {
+    cl_ord_id: uint64;
+    queue_size: uint32;
+    penalty_remain: uint32;
+};
+
+type SessionRejectMessage = unit {
+    cl_ord_id: uint64;
+    ref_tag_id: uint32;
+    session_reject_reason: uint8 &convert=SessionRejectReason($$);
+};
+
+type BusinessMessageRejectMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    ord_rej_reason: int32;
+};
+
+type NewOrderSingleResponseMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    expire_date: uint64 &convert=time_ns($$);
+    order_id: int64;
+    flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        otc: 2;
+        pos_transfer: 3;
+        collateral: 4;
+        unused_bits_6_to_9: 5..8;
+        dont_check_limits: 9;
+        unused_bits_11_to_13: 10..12;
+        due_to_cross_cancel: 13;
+        unused_bits_15_to_19: 14..18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_bits_24_to_25: 23..24;
+        clearing: 25;
+        negotiated: 26;
+        multileg: 27;
+        unused_bit_29: 28;
+        cross_trade: 29;
+        unused_bit_31: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_bits_34_to_37: 33..36;
+        uks: 37;
+        ncc_request: 38;
+        ncc: 39;
+        liq_netting_rf: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_bits_44_to_45: 43..44;
+        synthetic: 45;
+        unused_bit_47: 46;
+        iceberg: 47;
+        unused_bits_49_to_53: 48..52;
+        disclosed_iceberg: 53;
+        unused_bits_55_to_60: 54..59;
+        boc: 60;
+        unused_bit_62: 61;
+        during_discrete_auction: 62;
+        reserved_64: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    flags_2: bitfield(64) {
+        zero: 0;
+        reserved_2_to_64: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    price: int64;
+    security_id: int32;
+    order_qty: uint32;
+    trading_session_id: int32;
+    cl_ord_link_id: int32;
+    side: uint8 &convert=Side($$);
+    compliance_id: uint8 &convert=ComplianceId($$);
+};
+
+type NewOrderIcebergResponseMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    expire_date: uint64 &convert=time_ns($$);
+    order_id: int64;
+    display_order_id: int64;
+    flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        otc: 2;
+        pos_transfer: 3;
+        collateral: 4;
+        unused_bits_6_to_9: 5..8;
+        dont_check_limits: 9;
+        unused_bits_11_to_13: 10..12;
+        due_to_cross_cancel: 13;
+        unused_bits_15_to_19: 14..18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_bits_24_to_25: 23..24;
+        clearing: 25;
+        negotiated: 26;
+        multileg: 27;
+        unused_bit_29: 28;
+        cross_trade: 29;
+        unused_bit_31: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_bits_34_to_37: 33..36;
+        uks: 37;
+        ncc_request: 38;
+        ncc: 39;
+        liq_netting_rf: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_bits_44_to_45: 43..44;
+        synthetic: 45;
+        unused_bit_47: 46;
+        iceberg: 47;
+        unused_bits_49_to_53: 48..52;
+        disclosed_iceberg: 53;
+        unused_bits_55_to_60: 54..59;
+        boc: 60;
+        unused_bit_62: 61;
+        during_discrete_auction: 62;
+        reserved_64: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    flags_2: bitfield(64) {
+        zero: 0;
+        reserved_2_to_64: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    price: int64;
+    security_id: int32;
+    order_qty: uint32;
+    display_qty: uint32;
+    display_variance_qty: uint32;
+    trading_session_id: int32;
+    cl_ord_link_id: int32;
+    side: uint8 &convert=Side($$);
+    compliance_id: uint8 &convert=ComplianceId($$);
+};
+
+type OrderCancelResponseMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    order_id: int64;
+    flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        otc: 2;
+        pos_transfer: 3;
+        collateral: 4;
+        unused_bits_6_to_9: 5..8;
+        dont_check_limits: 9;
+        unused_bits_11_to_13: 10..12;
+        due_to_cross_cancel: 13;
+        unused_bits_15_to_19: 14..18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_bits_24_to_25: 23..24;
+        clearing: 25;
+        negotiated: 26;
+        multileg: 27;
+        unused_bit_29: 28;
+        cross_trade: 29;
+        unused_bit_31: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_bits_34_to_37: 33..36;
+        uks: 37;
+        ncc_request: 38;
+        ncc: 39;
+        liq_netting_rf: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_bits_44_to_45: 43..44;
+        synthetic: 45;
+        unused_bit_47: 46;
+        iceberg: 47;
+        unused_bits_49_to_53: 48..52;
+        disclosed_iceberg: 53;
+        unused_bits_55_to_60: 54..59;
+        boc: 60;
+        unused_bit_62: 61;
+        during_discrete_auction: 62;
+        reserved_64: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    flags_2: bitfield(64) {
+        zero: 0;
+        reserved_2_to_64: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    order_qty: uint32;
+    trading_session_id: int32;
+    cl_ord_link_id: int32;
+};
+
+type OrderReplaceResponseMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    order_id: int64;
+    prev_order_id: int64;
+    flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        otc: 2;
+        pos_transfer: 3;
+        collateral: 4;
+        unused_bits_6_to_9: 5..8;
+        dont_check_limits: 9;
+        unused_bits_11_to_13: 10..12;
+        due_to_cross_cancel: 13;
+        unused_bits_15_to_19: 14..18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_bits_24_to_25: 23..24;
+        clearing: 25;
+        negotiated: 26;
+        multileg: 27;
+        unused_bit_29: 28;
+        cross_trade: 29;
+        unused_bit_31: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_bits_34_to_37: 33..36;
+        uks: 37;
+        ncc_request: 38;
+        ncc: 39;
+        liq_netting_rf: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_bits_44_to_45: 43..44;
+        synthetic: 45;
+        unused_bit_47: 46;
+        iceberg: 47;
+        unused_bits_49_to_53: 48..52;
+        disclosed_iceberg: 53;
+        unused_bits_55_to_60: 54..59;
+        boc: 60;
+        unused_bit_62: 61;
+        during_discrete_auction: 62;
+        reserved_64: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    flags_2: bitfield(64) {
+        zero: 0;
+        reserved_2_to_64: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    price: int64;
+    order_qty: uint32;
+    trading_session_id: int32;
+    cl_ord_link_id: int32;
+    compliance_id: uint8 &convert=ComplianceId($$);
+};
+
+type OrderMassCancelResponseMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    total_affected_orders: int32;
+};
+
+type ExecutionSingleReportMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    order_id: int64;
+    trd_match_id: int64;
+    flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        otc: 2;
+        pos_transfer: 3;
+        collateral: 4;
+        unused_bits_6_to_9: 5..8;
+        dont_check_limits: 9;
+        unused_bits_11_to_13: 10..12;
+        due_to_cross_cancel: 13;
+        unused_bits_15_to_19: 14..18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_bits_24_to_25: 23..24;
+        clearing: 25;
+        negotiated: 26;
+        multileg: 27;
+        unused_bit_29: 28;
+        cross_trade: 29;
+        unused_bit_31: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_bits_34_to_37: 33..36;
+        uks: 37;
+        ncc_request: 38;
+        ncc: 39;
+        liq_netting_rf: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_bits_44_to_45: 43..44;
+        synthetic: 45;
+        unused_bit_47: 46;
+        iceberg: 47;
+        unused_bits_49_to_53: 48..52;
+        disclosed_iceberg: 53;
+        unused_bits_55_to_60: 54..59;
+        boc: 60;
+        unused_bit_62: 61;
+        during_discrete_auction: 62;
+        reserved_64: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    flags_2: bitfield(64) {
+        zero: 0;
+        reserved_2_to_64: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    last_px: int64;
+    last_qty: uint32;
+    order_qty: uint32;
+    trading_session_id: int32;
+    cl_ord_link_id: int32;
+    security_id: int32;
+    side: uint8 &convert=Side($$);
+};
+
+type ExecutionMultilegReportMessage = unit {
+    cl_ord_id: uint64;
+    timestamp: uint64 &convert=time_ns($$);
+    order_id: int64;
+    trd_match_id: int64;
+    flags: bitfield(64) {
+        day: 0;
+        ioc: 1;
+        otc: 2;
+        pos_transfer: 3;
+        collateral: 4;
+        unused_bits_6_to_9: 5..8;
+        dont_check_limits: 9;
+        unused_bits_11_to_13: 10..12;
+        due_to_cross_cancel: 13;
+        unused_bits_15_to_19: 14..18;
+        fok: 19;
+        replace: 20;
+        cancel: 21;
+        mass_cancel: 22;
+        unused_bits_24_to_25: 23..24;
+        clearing: 25;
+        negotiated: 26;
+        multileg: 27;
+        unused_bit_29: 28;
+        cross_trade: 29;
+        unused_bit_31: 30;
+        negotiated_match_by_ref: 31;
+        cod: 32;
+        unused_bits_34_to_37: 33..36;
+        uks: 37;
+        ncc_request: 38;
+        ncc: 39;
+        liq_netting_rf: 40;
+        active_side: 41;
+        passive_side: 42;
+        unused_bits_44_to_45: 43..44;
+        synthetic: 45;
+        unused_bit_47: 46;
+        iceberg: 47;
+        unused_bits_49_to_53: 48..52;
+        disclosed_iceberg: 53;
+        unused_bits_55_to_60: 54..59;
+        boc: 60;
+        unused_bit_62: 61;
+        during_discrete_auction: 62;
+        reserved_64: 63;
+    } &byte-order=spicy::ByteOrder::Little;
+    flags_2: bitfield(64) {
+        zero: 0;
+        reserved_2_to_64: 1..63;
+    } &byte-order=spicy::ByteOrder::Little;
+    last_px: int64;
+    leg_price: int64;
+    last_qty: uint32;
+    order_qty: uint32;
+    trading_session_id: int32;
+    cl_ord_link_id: int32;
+    security_id: int32;
+    side: uint8 &convert=Side($$);
+};
+
+type EmptyBookMessage = unit {
+    timestamp: uint64 &convert=time_ns($$);
+    trading_session_id: int32;
+};
+
+type SystemEventMessage = unit {
+    timestamp: uint64 &convert=time_ns($$);
+    event_id: int64;
+    trading_session_id: int32;
+    trad_ses_event: uint8 &convert=TradSesEvent($$);
+};
+
+type TemplateId = enum {
+    EstablishMessage = 5000,
+    EstablishmentAckMessage = 5001,
+    EstablishmentRejectMessage = 5002,
+    TerminateMessage = 5003,
+    RetransmitRequestMessage = 5004,
+    RetransmissionMessage = 5005,
+    SequenceMessage = 5006,
+    FloodRejectMessage = 5007,
+    SessionRejectMessage = 5008,
+    BusinessMessageRejectMessage = 5009,
+    NewOrderSingleMessage = 6000,
+    NewOrderIcebergMessage = 6008,
+    NewOrderIcebergXMessage = 6011,
+    OrderCancelRequestMessage = 6006,
+    OrderIcebergCancelRequestMessage = 6009,
+    OrderReplaceRequestMessage = 6007,
+    OrderIcebergReplaceRequestMessage = 6010,
+    OrderMassCancelRequestMessage = 6004,
+    OrderMassCancelByBfLimitRequestMessage = 6005,
+    NewOrderSingleResponseMessage = 7015,
+    NewOrderIcebergResponseMessage = 7016,
+    OrderCancelResponseMessage = 7017,
+    OrderReplaceResponseMessage = 7018,
+    OrderMassCancelResponseMessage = 7007,
+    ExecutionSingleReportMessage = 7019,
+    ExecutionMultilegReportMessage = 7020,
+    EmptyBookMessage = 7010,
+    SystemEventMessage = 7014,
+};
+
+type EstablishmentRejectCode = enum {
+    Unnegotiated = 0,
+    AlreadyEstablished = 1,
+    SessionBlocked = 2,
+    KeepaliveInterval = 3,
+    Credentials = 4,
+    Unspecified = 5,
+    TooFastReconnect = 6,
+};
+
+type TerminationCode = enum {
+    Finished = 0,
+    UnspecifiedError = 1,
+    ReRequestOutOfBounds = 2,
+    ReRequestInProgress = 3,
+    TooFastClient = 4,
+    TooSlowClient = 5,
+    MissedHeartbeat = 6,
+    InvalidMessage = 7,
+    TcpFailure = 8,
+    InvalidSequenceNumber = 9,
+    ServerShutdown = 10,
+    SequenceReset = 11,
+};
+
+type SessionRejectReason = enum {
+    ValueIsIncorrect = 5,
+    Other = 99,
+    SystemIsUnavailable = 100,
+    ClOrdIdIsNotUnique = 101,
+};
+
+type Side = enum {
+    Buy = 1,
+    Sell = 2,
+    AllOrders = 89,
+};
+
+type ComplianceId = enum {
+    NotAvailable = 0x20,
+    Manual = 0x4d,
+    StopLoss = 0x53,
+    Algorithm = 0x52,
+    Autofollow = 0x41,
+    MarginCall = 0x44,
+};
+
+type TradSesEvent = enum {
+    SessionDataReady = 101,
+    ClearingStarted = 105,
+    ExtensionOfLimitsFinished = 106,
+    BrokerRecalcFinished = 108,
+    AuctionFinished = 122,
+    AuctionCollectOrderStarted = 123,
+    AuctionCollectOrderFinished = 124,
+};
+
